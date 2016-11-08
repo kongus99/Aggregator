@@ -1,0 +1,56 @@
+@*
+* This template is called from the `index` template. This template
+* handles the rendering of the page header and body tags. It takes
+* two arguments, a `String` for the title of the page and an `Html`
+* object to insert into the body of the page.
+*@
+@(title: String)(content: String)
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <title>Aggregator</title>
+        <script type="text/javascript" src="@routes.Assets.versioned("javascripts/main.js")"></script>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.js"></script>
+        <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+        table .cell_True {
+            background-color: #46dd17;
+        }
+        table .cell_False {
+            background-color: #dd2435;
+        }
+        </style>
+    </head>
+
+    <body>
+        <div id="mainBody"></div>
+        <div id="content">@content</div>
+    </body>
+
+    <script type="text/javascript">
+            var mainDiv = document.getElementById('mainBody');
+            Elm.MainModule.embed(mainDiv);
+    </script>
+
+</html>

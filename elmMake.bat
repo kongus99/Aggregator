@@ -1,0 +1,1 @@
+elm make src/MainModule.elm --output public/javascripts/main.js

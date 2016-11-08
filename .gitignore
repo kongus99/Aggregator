@@ -1,0 +1,11 @@
+# elm-package generated files
+elm-stuff/
+# elm-repl generated files
+target
+/.idea
+project/project
+/.sbtserver/
+/project/.sbtserver.lock
+/project/.sbtserver
+/logs/
+/logs/application.log
