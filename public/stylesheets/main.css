@@ -1,0 +1,32 @@
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+table .cell_Gog {
+    background-color: blue;
+}
+table .cell_Both {
+    border:1px solid black;
+    background: linear-gradient(90deg,blue 50%, red 50%);
+}
+table .cell_Steam {
+    background-color: red;
+}
+td span:last-child{
+    float:right;
+}

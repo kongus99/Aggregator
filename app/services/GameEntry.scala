@@ -2,17 +2,17 @@ package services
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Writes}
-import services.EntryConvergence.EntryConvergence
+import services.GameOn.GameOn
 
 
 case class UrlAddress(url: String, cookies : Option[String])
 
-case class GameEntry(name: String, convergence : EntryConvergence)
+case class GameEntry(name: String, on : List[GameOn])
 
 
-object EntryConvergence extends Enumeration {
-  type EntryConvergence = Value
-  val Gog, Steam, Both = Value
+object GameOn extends Enumeration {
+  type GameOn = Value
+  val Gog,Steam = Value
 }
 
 object GameEntry{
@@ -23,15 +23,22 @@ object GameEntry{
 
   implicit val gameWrites: Writes[GameEntry] = (
     (JsPath \ "name").write[String] and
-      (JsPath \ "convergence").write[String]
+    (JsPath \ "on").write[List[String]]
     ) (unlift(GameEntry.unpackToJson))
 
-  def unpackToJson(x : GameEntry) : Option[(String, String)] = Some(x.name, x.convergence.toString)
+  def unpackToJson(e : GameEntry) : Option[(String, List[String])] = {
+    Some(e.name, e.on.map(x => x.toString))
+  }
 
   def generateFromNames(gogNames : List[String], steamNames : List[String]) : List[GameEntry]= {
-    val gog = gogNames.map(GameEntry(_, EntryConvergence.Gog))
-    val steam = steamNames.map(GameEntry(_, EntryConvergence.Steam))
-    gog ::: steam
+    val gog = gogNames.map(GameEntry(_, GameOn.Gog ::Nil))
+    val steam = steamNames.map(GameEntry(_, GameOn.Steam :: Nil))
+    def merge(entries : List[GameEntry]) : List[GameOn] = entries.flatMap(e => e.on)
+    (gog ::: steam).groupBy(_.name).toList.map(e => GameEntry(e._1, merge(e._2))).sortBy(_.name)
   }
 }
 
+//TODO : Different names - editing distance, manual matching, table for matches - high
+//TODO : Duplicate entries - more states during merge, table for reverse mapping in case of duplicates - High
+//TODO : DLC - eliminate entries, move to separate table? - low
+//TODO : case sensitivity - fix the entries by upper casing? - low

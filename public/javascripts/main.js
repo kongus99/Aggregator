@@ -8704,35 +8704,25 @@ var _evancz$elm_http$Http$post = F3(
 			A2(_evancz$elm_http$Http$send, _evancz$elm_http$Http$defaultSettings, request));
 	});
 
-var _elm_lang$elm_architecture_tutorial$MainModule$gameTableRow = function (e) {
-	return A2(
-		_elm_lang$html$Html$tr,
-		_elm_lang$core$Native_List.fromArray(
-			[]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				A2(
-				_elm_lang$html$Html$td,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text(e.name)
-					])),
-				A2(
-				_elm_lang$html$Html$td,
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html_Attributes$class(
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							'cell_',
-							_elm_lang$core$Basics$toString(e.convergence)))
-					]),
-				_elm_lang$core$Native_List.fromArray(
-					[]))
-			]));
-};
+var _elm_lang$elm_architecture_tutorial$MainModule$toSpan = F2(
+	function (n, styleClass) {
+		return (_elm_lang$core$Native_Utils.cmp(n, 1) > 0) ? A2(
+			_elm_lang$html$Html$span,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$class(styleClass)
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text(
+					_elm_lang$core$Basics$toString(n))
+				])) : A2(
+			_elm_lang$html$Html$span,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			_elm_lang$core$Native_List.fromArray(
+				[]));
+	});
 var _elm_lang$elm_architecture_tutorial$MainModule$gameTableTitle = A2(
 	_elm_lang$html$Html$tr,
 	_elm_lang$core$Native_List.fromArray(
@@ -8763,25 +8753,19 @@ var _elm_lang$elm_architecture_tutorial$MainModule$initialModel = {
 };
 var _elm_lang$elm_architecture_tutorial$MainModule$GameEntry = F2(
 	function (a, b) {
-		return {name: a, convergence: b};
+		return {name: a, gameOn: b};
 	});
 var _elm_lang$elm_architecture_tutorial$MainModule$Model = F2(
 	function (a, b) {
 		return {entries: a, message: b};
 	});
-var _elm_lang$elm_architecture_tutorial$MainModule$Both = {ctor: 'Both'};
 var _elm_lang$elm_architecture_tutorial$MainModule$Steam = {ctor: 'Steam'};
 var _elm_lang$elm_architecture_tutorial$MainModule$Gog = {ctor: 'Gog'};
-var _elm_lang$elm_architecture_tutorial$MainModule$convergenceFormString = function (s) {
-	var _p0 = s;
-	switch (_p0) {
-		case 'Gog':
-			return _elm_lang$elm_architecture_tutorial$MainModule$Gog;
-		case 'Steam':
-			return _elm_lang$elm_architecture_tutorial$MainModule$Steam;
-		default:
-			return _elm_lang$elm_architecture_tutorial$MainModule$Both;
-	}
+var _elm_lang$elm_architecture_tutorial$MainModule$mapSingle = function (e) {
+	return _elm_lang$core$Native_Utils.eq(e, 'Gog') ? _elm_lang$elm_architecture_tutorial$MainModule$Gog : _elm_lang$elm_architecture_tutorial$MainModule$Steam;
+};
+var _elm_lang$elm_architecture_tutorial$MainModule$gamesOn = function (list) {
+	return A2(_elm_lang$core$List$map, _elm_lang$elm_architecture_tutorial$MainModule$mapSingle, list);
 };
 var _elm_lang$elm_architecture_tutorial$MainModule$decodeResponse = _elm_lang$core$Json_Decode$list(
 	A3(
@@ -8790,8 +8774,61 @@ var _elm_lang$elm_architecture_tutorial$MainModule$decodeResponse = _elm_lang$co
 		A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
 		A2(
 			_elm_lang$core$Json_Decode$map,
-			_elm_lang$elm_architecture_tutorial$MainModule$convergenceFormString,
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'convergence', _elm_lang$core$Json_Decode$string))));
+			_elm_lang$elm_architecture_tutorial$MainModule$gamesOn,
+			A2(
+				_elm_lang$core$Json_Decode_ops[':='],
+				'on',
+				_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)))));
+var _elm_lang$elm_architecture_tutorial$MainModule$toStyle = function (gamesOn) {
+	var onSteam = A2(_elm_lang$core$List$member, _elm_lang$elm_architecture_tutorial$MainModule$Steam, gamesOn);
+	var onGog = A2(_elm_lang$core$List$member, _elm_lang$elm_architecture_tutorial$MainModule$Gog, gamesOn);
+	return (onGog && onSteam) ? 'cell_Both' : (onGog ? 'cell_Gog' : 'cell_Steam');
+};
+var _elm_lang$elm_architecture_tutorial$MainModule$toText = function (gamesOn) {
+	var onSteamNumber = _elm_lang$core$List$length(
+		A2(
+			_elm_lang$core$List$filter,
+			function (g) {
+				return _elm_lang$core$Native_Utils.eq(g, _elm_lang$elm_architecture_tutorial$MainModule$Steam);
+			},
+			gamesOn));
+	var onSteamSpan = A2(_elm_lang$elm_architecture_tutorial$MainModule$toSpan, onSteamNumber, 'steam_number');
+	var onGogNumber = _elm_lang$core$List$length(
+		A2(
+			_elm_lang$core$List$filter,
+			function (g) {
+				return _elm_lang$core$Native_Utils.eq(g, _elm_lang$elm_architecture_tutorial$MainModule$Gog);
+			},
+			gamesOn));
+	var onGogSpan = A2(_elm_lang$elm_architecture_tutorial$MainModule$toSpan, onGogNumber, 'gog_number');
+	return _elm_lang$core$Native_List.fromArray(
+		[onGogSpan, onSteamSpan]);
+};
+var _elm_lang$elm_architecture_tutorial$MainModule$gameTableRow = function (e) {
+	return A2(
+		_elm_lang$html$Html$tr,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$td,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(e.name)
+					])),
+				A2(
+				_elm_lang$html$Html$td,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class(
+						_elm_lang$elm_architecture_tutorial$MainModule$toStyle(e.gameOn))
+					]),
+				_elm_lang$elm_architecture_tutorial$MainModule$toText(e.gameOn))
+			]));
+};
 var _elm_lang$elm_architecture_tutorial$MainModule$RefreshError = function (a) {
 	return {ctor: 'RefreshError', _0: a};
 };
@@ -8808,20 +8845,20 @@ var _elm_lang$elm_architecture_tutorial$MainModule$getResponse = function (addre
 };
 var _elm_lang$elm_architecture_tutorial$MainModule$update = F2(
 	function (msg, model) {
-		var _p1 = msg;
-		switch (_p1.ctor) {
+		var _p0 = msg;
+		switch (_p0.ctor) {
 			case 'SendRefresh':
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: _elm_lang$elm_architecture_tutorial$MainModule$getResponse(_p1._0)
+					_1: _elm_lang$elm_architecture_tutorial$MainModule$getResponse(_p0._0)
 				};
 			case 'ReceiveRefresh':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{entries: _p1._0}),
+						{entries: _p0._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			default:
@@ -8832,7 +8869,7 @@ var _elm_lang$elm_architecture_tutorial$MainModule$update = F2(
 						{
 							entries: _elm_lang$core$Native_List.fromArray(
 								[]),
-							message: _elm_lang$core$Basics$toString(_p1._0)
+							message: _elm_lang$core$Basics$toString(_p0._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -8895,7 +8932,7 @@ var _elm_lang$elm_architecture_tutorial$MainModule$main = {
 			init: {ctor: '_Tuple2', _0: _elm_lang$elm_architecture_tutorial$MainModule$initialModel, _1: _elm_lang$core$Platform_Cmd$none},
 			view: _elm_lang$elm_architecture_tutorial$MainModule$view,
 			update: _elm_lang$elm_architecture_tutorial$MainModule$update,
-			subscriptions: function (_p2) {
+			subscriptions: function (_p1) {
 				return _elm_lang$core$Platform_Sub$none;
 			}
 		})

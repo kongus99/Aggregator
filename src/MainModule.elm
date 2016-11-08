@@ -12,9 +12,9 @@ main =
 
 -- MODEL
 
-type EntryConvergence = Gog | Steam | Both
+type GameOn = Gog | Steam
 
-type alias GameEntry = {name : String, convergence : EntryConvergence}
+type alias GameEntry = {name : String, gameOn : List GameOn}
 
 type alias Model = {entries : List GameEntry, message : String}
 
@@ -56,7 +56,7 @@ gameTableTitle =
 
 gameTableRow e =
     tr [] [ td[][text e.name]
-          , td[class <| "cell_" ++ toString e.convergence  ][]
+          , td[class <| toStyle e.gameOn  ](toText e.gameOn)
           ]
 
 getResponse address=
@@ -69,11 +69,26 @@ decodeResponse : Json.Decoder (List GameEntry)
 decodeResponse =
   list (object2 GameEntry
                 ("name" := string)
-                (map convergenceFormString ("convergence" := string))
+                (map gamesOn ("on" := list string))
                 )
 
-convergenceFormString s =
-    case s of
-        "Gog" -> Gog
-        "Steam" -> Steam
-        _ -> Both
+gamesOn list = List.map mapSingle list
+
+mapSingle e = if e == "Gog" then Gog else Steam
+
+toStyle gamesOn =
+    let
+        onGog = List.member Gog gamesOn
+        onSteam = List.member Steam gamesOn
+    in
+        if onGog && onSteam then "cell_Both" else if onGog then "cell_Gog" else "cell_Steam"
+toText gamesOn =
+    let
+        onGogNumber = List.filter (\g -> g == Gog) gamesOn |> List.length
+        onSteamNumber = List.filter (\g -> g == Steam) gamesOn |> List.length
+        onGogSpan = toSpan onGogNumber "gog_number"
+        onSteamSpan = toSpan onSteamNumber "steam_number"
+    in
+        [onGogSpan, onSteamSpan]
+toSpan n styleClass =
+    if n > 1 then span[class styleClass ][text <| toString n] else span[][]
