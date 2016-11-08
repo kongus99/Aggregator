@@ -8727,19 +8727,7 @@ var _elm_lang$elm_architecture_tutorial$MainModule$gameTableRow = function (e) {
 						A2(
 							_elm_lang$core$Basics_ops['++'],
 							'cell_',
-							_elm_lang$core$Basics$toString(e.onGog)))
-					]),
-				_elm_lang$core$Native_List.fromArray(
-					[])),
-				A2(
-				_elm_lang$html$Html$td,
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html_Attributes$class(
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							'cell_',
-							_elm_lang$core$Basics$toString(e.onSteam)))
+							_elm_lang$core$Basics$toString(e.convergence)))
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[]))
@@ -8765,15 +8753,7 @@ var _elm_lang$elm_architecture_tutorial$MainModule$gameTableTitle = A2(
 				[]),
 			_elm_lang$core$Native_List.fromArray(
 				[
-					_elm_lang$html$Html$text('Gog')
-				])),
-			A2(
-			_elm_lang$html$Html$th,
-			_elm_lang$core$Native_List.fromArray(
-				[]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html$text('Steam')
+					_elm_lang$html$Html$text('Gog/Steam/Both')
 				]))
 		]));
 var _elm_lang$elm_architecture_tutorial$MainModule$initialModel = {
@@ -8781,21 +8761,37 @@ var _elm_lang$elm_architecture_tutorial$MainModule$initialModel = {
 		[]),
 	message: 'Click to refresh'
 };
-var _elm_lang$elm_architecture_tutorial$MainModule$GameEntry = F3(
-	function (a, b, c) {
-		return {name: a, onGog: b, onSteam: c};
+var _elm_lang$elm_architecture_tutorial$MainModule$GameEntry = F2(
+	function (a, b) {
+		return {name: a, convergence: b};
 	});
-var _elm_lang$elm_architecture_tutorial$MainModule$decodeResponse = _elm_lang$core$Json_Decode$list(
-	A4(
-		_elm_lang$core$Json_Decode$object3,
-		_elm_lang$elm_architecture_tutorial$MainModule$GameEntry,
-		A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
-		A2(_elm_lang$core$Json_Decode_ops[':='], 'onGog', _elm_lang$core$Json_Decode$bool),
-		A2(_elm_lang$core$Json_Decode_ops[':='], 'onSteam', _elm_lang$core$Json_Decode$bool)));
 var _elm_lang$elm_architecture_tutorial$MainModule$Model = F2(
 	function (a, b) {
 		return {entries: a, message: b};
 	});
+var _elm_lang$elm_architecture_tutorial$MainModule$Both = {ctor: 'Both'};
+var _elm_lang$elm_architecture_tutorial$MainModule$Steam = {ctor: 'Steam'};
+var _elm_lang$elm_architecture_tutorial$MainModule$Gog = {ctor: 'Gog'};
+var _elm_lang$elm_architecture_tutorial$MainModule$convergenceFormString = function (s) {
+	var _p0 = s;
+	switch (_p0) {
+		case 'Gog':
+			return _elm_lang$elm_architecture_tutorial$MainModule$Gog;
+		case 'Steam':
+			return _elm_lang$elm_architecture_tutorial$MainModule$Steam;
+		default:
+			return _elm_lang$elm_architecture_tutorial$MainModule$Both;
+	}
+};
+var _elm_lang$elm_architecture_tutorial$MainModule$decodeResponse = _elm_lang$core$Json_Decode$list(
+	A3(
+		_elm_lang$core$Json_Decode$object2,
+		_elm_lang$elm_architecture_tutorial$MainModule$GameEntry,
+		A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
+		A2(
+			_elm_lang$core$Json_Decode$map,
+			_elm_lang$elm_architecture_tutorial$MainModule$convergenceFormString,
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'convergence', _elm_lang$core$Json_Decode$string))));
 var _elm_lang$elm_architecture_tutorial$MainModule$RefreshError = function (a) {
 	return {ctor: 'RefreshError', _0: a};
 };
@@ -8812,20 +8808,20 @@ var _elm_lang$elm_architecture_tutorial$MainModule$getResponse = function (addre
 };
 var _elm_lang$elm_architecture_tutorial$MainModule$update = F2(
 	function (msg, model) {
-		var _p0 = msg;
-		switch (_p0.ctor) {
+		var _p1 = msg;
+		switch (_p1.ctor) {
 			case 'SendRefresh':
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: _elm_lang$elm_architecture_tutorial$MainModule$getResponse(_p0._0)
+					_1: _elm_lang$elm_architecture_tutorial$MainModule$getResponse(_p1._0)
 				};
 			case 'ReceiveRefresh':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{entries: _p0._0}),
+						{entries: _p1._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			default:
@@ -8836,7 +8832,7 @@ var _elm_lang$elm_architecture_tutorial$MainModule$update = F2(
 						{
 							entries: _elm_lang$core$Native_List.fromArray(
 								[]),
-							message: _elm_lang$core$Basics$toString(_p0._0)
+							message: _elm_lang$core$Basics$toString(_p1._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -8899,7 +8895,7 @@ var _elm_lang$elm_architecture_tutorial$MainModule$main = {
 			init: {ctor: '_Tuple2', _0: _elm_lang$elm_architecture_tutorial$MainModule$initialModel, _1: _elm_lang$core$Platform_Cmd$none},
 			view: _elm_lang$elm_architecture_tutorial$MainModule$view,
 			update: _elm_lang$elm_architecture_tutorial$MainModule$update,
-			subscriptions: function (_p1) {
+			subscriptions: function (_p2) {
 				return _elm_lang$core$Platform_Sub$none;
 			}
 		})

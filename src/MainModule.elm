@@ -12,7 +12,9 @@ main =
 
 -- MODEL
 
-type alias GameEntry = {name : String, onGog : Bool, onSteam : Bool}
+type EntryConvergence = Gog | Steam | Both
+
+type alias GameEntry = {name : String, convergence : EntryConvergence}
 
 type alias Model = {entries : List GameEntry, message : String}
 
@@ -49,13 +51,13 @@ view model =
 
 gameTableTitle =
     tr [] [ th[][text "Game"]
-          , th[][text "Gog"]
-          , th[][text "Steam"]]
+          , th[][text "Gog/Steam/Both"]
+          ]
 
 gameTableRow e =
     tr [] [ td[][text e.name]
-          , td[class <| "cell_" ++ toString e.onGog  ][]
-          , td[class <| "cell_" ++ toString e.onSteam][]]
+          , td[class <| "cell_" ++ toString e.convergence  ][]
+          ]
 
 getResponse address=
   let
@@ -65,7 +67,13 @@ getResponse address=
 
 decodeResponse : Json.Decoder (List GameEntry)
 decodeResponse =
-  list (object3 GameEntry
+  list (object2 GameEntry
                 ("name" := string)
-                ("onGog" := bool)
-                ("onSteam" := bool))
+                (map convergenceFormString ("convergence" := string))
+                )
+
+convergenceFormString s =
+    case s of
+        "Gog" -> Gog
+        "Steam" -> Steam
+        _ -> Both
