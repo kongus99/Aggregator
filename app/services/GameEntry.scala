@@ -31,6 +31,8 @@ object GameEntry{
   }
 
   def generateFromNames(gogNames : List[String], steamNames : List[String]) : List[GameEntry]= {
+    println(gogNames.flatMap(g => steamNames.map(s => (g, s))).map(p => (p._1, p._2, ThresholdLevenshtein.count(p._1, p._2, 2))).filter(t => t._3 == 1))
+
     val gog = gogNames.map(GameEntry(_, GameOn.Gog ::Nil))
     val steam = steamNames.map(GameEntry(_, GameOn.Steam :: Nil))
     def merge(entries : List[GameEntry]) : List[GameOn] = entries.flatMap(e => e.on)
