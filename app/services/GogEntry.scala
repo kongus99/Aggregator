@@ -11,15 +11,12 @@ object GogEntry{
   implicit val gogReads: Reads[GogEntry] = ((JsPath \ "title").read[String] and (JsPath \ "rating").read[Int]) (GogEntry.apply _)
 
   def getFromGog(data: Seq[String]): Seq[GameEntry] = {
-    generateFromNames(data.flatMap(parseGogNames).toList, currentSteamData)
+    val allNames: List[String] = data.flatMap(parseGogNames).toList
+    currentGogData = allNames
+    generateFromNames(allNames, currentSteamData)
   }
 
-  def getGogPageNumber(body : String) : Int ={
-    (Json.parse(body) \ "totalPages").as[Int]
-  }
+  def getGogPageNumber(body : String) : Int = (Json.parse(body) \ "totalPages").as[Int]
 
-  def parseGogNames(body: String): List[String] = {
-    currentGogData = (Json.parse(body) \ "products").validate[List[GogEntry]].get.map(_.title)
-    currentGogData
-  }
+  def parseGogNames(body: String): List[String] = (Json.parse(body) \ "products").validate[List[GogEntry]].get.map(_.title)
 }
