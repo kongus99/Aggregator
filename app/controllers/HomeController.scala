@@ -2,6 +2,7 @@ package controllers
 
 import javax.inject._
 
+import model.Tables
 import play.api.Configuration
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
@@ -15,7 +16,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 @Singleton
-class HomeController @Inject()(client: WSClient, configuration: Configuration)(implicit exec: ExecutionContext) extends Controller {
+class HomeController @Inject()(client: WSClient, configuration: Configuration, tables : Tables)(implicit exec: ExecutionContext) extends Controller {
 
   val gogRetriever = new GogPageRetriever(client, configuration)
   val steamRetriever = new SteamPageRetriever(client)
@@ -27,7 +28,7 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration)(i
   }
 
   def gogData() = Action.async { implicit request =>
-    gogRetriever.retrieve().map(getGogPageNumber).flatMap(gogRetriever.retrievePages).map(getFromGog).map(d => Ok(Json.toJson(d)))
+    gogRetriever.retrieve().map(getGogPageNumber).flatMap(gogRetriever.retrievePages).flatMap(getFromGog(tables)).map(d => Ok(Json.toJson(d)))
   }
 
   def steamData() = Action.async { implicit request =>

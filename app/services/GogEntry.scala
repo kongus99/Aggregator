@@ -1,22 +1,23 @@
 package services
 
+import model.Tables
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Json, Reads}
 import services.GameEntry._
 
-case class GogEntry(title: String, rating : Int)
+import scala.concurrent.{ExecutionContext, Future}
+
+case class GogEntry(id : Option[Long], title: String, gogId : Long)
 
 object GogEntry{
 
-  implicit val gogReads: Reads[GogEntry] = ((JsPath \ "title").read[String] and (JsPath \ "rating").read[Int]) (GogEntry.apply _)
+  implicit val gogReads: Reads[GogEntry] = ((JsPath \ "title").read[String] and (JsPath \ "id").read[Long])((t, i) => GogEntry(None, t, i))
 
-  def getFromGog(data: Seq[String]): Seq[GameEntry] = {
-    val allNames: List[String] = data.flatMap(parseGogNames).toList
-    currentGogData = allNames
-    generateFromNames(allNames, currentSteamData)
+  def getFromGog(tables : Tables)(data: Seq[String])(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
+    tables.replaceGogData(data.flatMap(parseGogEntries).toList).map(data => generateFromNames(data.map(_.title).toList, currentSteamData))
   }
 
   def getGogPageNumber(body : String) : Int = (Json.parse(body) \ "totalPages").as[Int]
 
-  def parseGogNames(body: String): List[String] = (Json.parse(body) \ "products").validate[List[GogEntry]].get.map(_.title)
+  def parseGogEntries(body: String): List[GogEntry] = (Json.parse(body) \ "products").validate[List[GogEntry]].get
 }
