@@ -3,7 +3,7 @@ package model
 import javax.inject._
 
 import play.api.db.slick.DatabaseConfigProvider
-import services.GogEntry
+import services.{GogEntry, SteamEntry}
 import slick.driver.JdbcProfile
 import slick.jdbc.meta.MTable
 import slick.lifted.ProvenShape
@@ -40,18 +40,29 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     }
   }
 
-  class SteamData(tag: Tag) extends Table[(Int, String, Int)](tag, "STEAM_DATA") {
-    def id = column[Int]("STEAM_DATA_ID", O.PrimaryKey, O.AutoInc)
+  class SteamData(tag: Tag) extends Table[SteamEntry](tag, "STEAM_DATA") {
+    def id = column[Long]("STEAM_DATA_ID", O.PrimaryKey, O.AutoInc)
 
     def name = column[String]("STEAM_DATA_NAME")
 
-    def steamId = column[Int]("STEAM_DATA_GOG_ID")
+    def steamId = column[Long]("STEAM_DATA_STEAM_ID")
 
-    def * = (id, name, steamId)
+    def * : ProvenShape[SteamEntry] = {
+
+      val apply: (Option[Long], String, Long) => SteamEntry =
+        (id, name, steamId) => new SteamEntry(id, name, steamId)
+
+      val unapply: (SteamEntry) => Option[(Option[Long], String, Long)] =
+        g => Some((g.id, g.name, g.steamId))
+      (id.?, name, steamId) <>(apply.tupled, unapply)
+    }
   }
 
-  def replaceGogData(data : List[GogEntry]) :Future[Seq[GogEntry]] =
+  def replaceGogData(data : List[GogEntry]) : Future[Seq[GogEntry]] =
     db.run(gogData.delete andThen (gogData ++= data) andThen gogData.result)
+
+  def replaceSteamData(data : List[SteamEntry]) : Future[Seq[SteamEntry]] =
+    db.run(steamData.delete andThen (steamData ++= data) andThen steamData.result)
 
   lazy val get = {
     def start() = {

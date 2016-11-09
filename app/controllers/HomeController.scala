@@ -32,7 +32,7 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
   }
 
   def steamData() = Action.async { implicit request =>
-    steamRetriever.retrieve().map(getFromSteam).map(d => Ok(Json.toJson(d)))
+    steamRetriever.retrieve().flatMap(getFromSteam(tables)).map(d => Ok(Json.toJson(d)))
   }
 
 
