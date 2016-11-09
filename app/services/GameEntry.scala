@@ -1,13 +1,16 @@
 package services
 
+import model.Tables
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Writes}
 import services.GameOn.GameOn
 
+import scala.concurrent.{ExecutionContext, Future}
+
 
 case class UrlAddress(url: String, cookies : Option[String])
 
-case class GameEntry(name: String, on : List[GameOn])
+case class GameEntry(name: String, on : Seq[GameOn])
 
 
 object GameOn extends Enumeration {
@@ -17,26 +20,25 @@ object GameOn extends Enumeration {
 
 object GameEntry{
 
-  var currentGogData :List[String]= Nil
-
-  var currentSteamData : List[String] = Nil
-
   implicit val gameWrites: Writes[GameEntry] = (
     (JsPath \ "name").write[String] and
-    (JsPath \ "on").write[List[String]]
+    (JsPath \ "on").write[Seq[String]]
     ) (unlift(GameEntry.unpackToJson))
 
-  def unpackToJson(e : GameEntry) : Option[(String, List[String])] = {
+  def unpackToJson(e : GameEntry) : Option[(String, Seq[String])] = {
     Some(e.name, e.on.map(x => x.toString))
   }
 
-  def generateFromNames(gogNames : List[String], steamNames : List[String]) : List[GameEntry]= {
+  def generateFromNames(tables : Tables)(implicit ec: ExecutionContext) : Future[Seq[GameEntry]]= {
 //    println(gogNames.flatMap(g => steamNames.map(s => (g, s))).map(p => (p._1, p._2, ThresholdLevenshtein.count(p._1, p._2, 2))).filter(t => t._3 == 1))
+    def merge(entries : Seq[GameEntry]) : Seq[GameOn] = entries.flatMap(e => e.on)
 
-    val gog = gogNames.map(GameEntry(_, GameOn.Gog ::Nil))
-    val steam = steamNames.map(GameEntry(_, GameOn.Steam :: Nil))
-    def merge(entries : List[GameEntry]) : List[GameOn] = entries.flatMap(e => e.on)
-    (gog ::: steam).groupBy(_.name).toList.map(e => GameEntry(e._1, merge(e._2))).sortBy(_.name)
+    for{
+      gog <- tables.getGogEntries.map(_.map(e => GameEntry(e.title, GameOn.Gog ::Nil)))
+      steam <- tables.getSteamEntries.map(_.map(e => GameEntry(e.name, GameOn.Steam :: Nil)))
+    } yield {
+       (gog ++ steam).groupBy(_.name).toSeq.map(e => GameEntry(e._1, merge(e._2))).sortBy(_.name)
+    }
   }
 }
 

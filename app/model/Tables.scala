@@ -13,6 +13,8 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 
 @Singleton
 class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: ExecutionContext) {
+
+
   val dbConfig = dbConfigProvider.get[JdbcProfile]
 
   import dbConfig.driver.api._
@@ -58,11 +60,15 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     }
   }
 
-  def replaceGogData(data : List[GogEntry]) : Future[Seq[GogEntry]] =
-    db.run(gogData.delete andThen (gogData ++= data) andThen gogData.result)
+  def replaceGogData(data : List[GogEntry]) =
+    db.run(gogData.delete andThen (gogData ++= data))
 
-  def replaceSteamData(data : List[SteamEntry]) : Future[Seq[SteamEntry]] =
-    db.run(steamData.delete andThen (steamData ++= data) andThen steamData.result)
+  def getGogEntries : Future[Seq[GogEntry]] = db.run(gogData.result)
+
+  def getSteamEntries : Future[Seq[SteamEntry]] = db.run(steamData.result)
+
+  def replaceSteamData(data : List[SteamEntry]) =
+    db.run(steamData.delete andThen (steamData ++= data))
 
   lazy val get = {
     def start() = {

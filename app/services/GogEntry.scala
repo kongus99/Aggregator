@@ -14,7 +14,7 @@ object GogEntry{
   implicit val gogReads: Reads[GogEntry] = ((JsPath \ "title").read[String] and (JsPath \ "id").read[Long])((t, i) => GogEntry(None, t, i))
 
   def getFromGog(tables : Tables)(data: Seq[String])(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
-    tables.replaceGogData(data.flatMap(parseGogEntries).toList).map(data => generateFromNames(data.map(_.title).toList, currentSteamData))
+    tables.replaceGogData(data.flatMap(parseGogEntries).toList).flatMap(r => generateFromNames(tables))
   }
 
   def getGogPageNumber(body : String) : Int = (Json.parse(body) \ "totalPages").as[Int]
