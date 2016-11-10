@@ -9,7 +9,7 @@ import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.GogEntry._
 import services.SteamEntry._
-import services.{GogPageRetriever, SteamPageRetriever}
+import services._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,12 +34,17 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
       getData.map(p => Ok(Json.toJson(p)))
   }
 
+  def limitToClose(gog: Seq[GogEntry], steam: Seq[SteamEntry]) = {
+    val tuples = gog.flatMap(g => steam.map(s => (g, s))).map(p => (p._1, p._2, ThresholdLevenshtein.count(p._1.title, p._2.name, 2))).filter(t => t._3 < 2)
+    (tuples.map(_._1), tuples.map(_._2))
+  }
+
   def getData = {
     for {
       gog <- tables.getGogEntries
       steam <- tables.getSteamEntries
     } yield {
-      (gog.sortBy(_.title), steam.sortBy(_.name))
+      limitToClose(gog.sortBy(_.title), steam.sortBy(_.name))
     }
   }
 }

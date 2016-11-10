@@ -41,7 +41,6 @@ object GameEntry{
   }
 
   def generateFromNames(tables : Tables)(implicit ec: ExecutionContext) : Future[Seq[GameEntry]]= {
-//    println(gogNames.flatMap(g => steamNames.map(s => (g, s))).map(p => (p._1, p._2, ThresholdLevenshtein.count(p._1, p._2, 2))).filter(t => t._3 == 1))
     def merge(entries : Seq[GameEntry]) : EntrySimilarity = entries.map(e => e.similarities).fold(EntrySimilarity(Seq()))((s1, s2) => s1.merge(s2))
 
     for{
