@@ -10,8 +10,19 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class UrlAddress(url: String, cookies : Option[String])
 
-case class GameEntry(name: String, on : Seq[GameOn])
+case class GameEntry(name: String, similarities : EntrySimilarity)
 
+case class EntrySimilarity(same : Seq[(Long, GameOn)]) {
+  def this(entry: GogEntry) = this(Seq((entry.gogId, GameOn.Gog)))
+
+  def this(entry: SteamEntry) = this(Seq((entry.steamId, GameOn.Steam)))
+
+  def add(entry: GogEntry) : EntrySimilarity = EntrySimilarity(same :+ (entry.gogId, GameOn.Gog))
+
+  def add(entry: SteamEntry) : EntrySimilarity = EntrySimilarity(same :+ (entry.steamId, GameOn.Steam))
+
+  def merge(similarity : EntrySimilarity) : EntrySimilarity = EntrySimilarity(same ++ similarity.same)
+}
 
 object GameOn extends Enumeration {
   type GameOn = Value
@@ -26,16 +37,16 @@ object GameEntry{
     ) (unlift(GameEntry.unpackToJson))
 
   def unpackToJson(e : GameEntry) : Option[(String, Seq[String])] = {
-    Some(e.name, e.on.map(x => x.toString))
+    Some(e.name, e.similarities.same.map(x => x._2.toString))
   }
 
   def generateFromNames(tables : Tables)(implicit ec: ExecutionContext) : Future[Seq[GameEntry]]= {
 //    println(gogNames.flatMap(g => steamNames.map(s => (g, s))).map(p => (p._1, p._2, ThresholdLevenshtein.count(p._1, p._2, 2))).filter(t => t._3 == 1))
-    def merge(entries : Seq[GameEntry]) : Seq[GameOn] = entries.flatMap(e => e.on)
+    def merge(entries : Seq[GameEntry]) : EntrySimilarity = entries.map(e => e.similarities).fold(EntrySimilarity(Seq()))((s1, s2) => s1.merge(s2))
 
     for{
-      gog <- tables.getGogEntries.map(_.map(e => GameEntry(e.title, GameOn.Gog ::Nil)))
-      steam <- tables.getSteamEntries.map(_.map(e => GameEntry(e.name, GameOn.Steam :: Nil)))
+      gog <- tables.getGogEntries.map(_.map(e => GameEntry(e.title, new EntrySimilarity(e))))
+      steam <- tables.getSteamEntries.map(_.map(e => GameEntry(e.name, new EntrySimilarity(e))))
     } yield {
        (gog ++ steam).groupBy(_.name).toSeq.map(e => GameEntry(e._1, merge(e._2))).sortBy(_.name)
     }
