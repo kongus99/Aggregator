@@ -4,29 +4,39 @@ table {
     width: 100%;
 }
 
+.inlineTable {
+    display: inline-block;
+    vertical-align:top;
+    width: 50%;
+}
+
 td, th {
     border: 1px solid #dddddd;
     text-align: left;
     padding: 8px;
 }
 
-table, th, td {
+th, td {
     border: 1px solid black;
 }
 
 tr:nth-child(even) {
     background-color: #dddddd;
 }
+
 table .cell_Gog {
     background-color: blue;
 }
+
 table .cell_Both {
-    border:1px solid black;
-    background: linear-gradient(90deg,blue 50%, red 50%);
+    border: 1px solid black;
+    background: linear-gradient(90deg, blue 50%, red 50%);
 }
+
 table .cell_Steam {
     background-color: red;
 }
-td span:last-child{
-    float:right;
+
+td span:last-child {
+    float: right;
 }

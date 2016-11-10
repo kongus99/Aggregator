@@ -21,7 +21,7 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
   val gogRetriever = new GogPageRetriever(client, configuration)
   val steamRetriever = new SteamPageRetriever(client)
 
-  def index = Action.async {
+  def main = Action.async {
     Future {
       Ok(views.html.main("Aggregator - summary", "javascripts/mainPage.js", "MainPage"))
     }

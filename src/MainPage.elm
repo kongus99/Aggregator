@@ -6,19 +6,15 @@ import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Json exposing (..)
 import Task
+import Model exposing (..)
 
 main =
     App.program { init = ( initialModel, getResponse "allData" ), view = view, update = update, subscriptions = \_ -> Sub.none }
 
 -- MODEL
 
-type GameOn = Gog | Steam
-
-type alias GameEntry = {name : String, gameOn : List GameOn}
-
 type alias Model = {entries : List GameEntry, message : String}
 
-initialModel : Model
 initialModel = {entries = [], message = "Click to refresh"}
 
 -- UPDATE
