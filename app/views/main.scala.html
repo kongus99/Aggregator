@@ -1,30 +1,21 @@
-@*
-* This template is called from the `index` template. This template
-* handles the rendering of the page header and body tags. It takes
-* two arguments, a `String` for the title of the page and an `Html`
-* object to insert into the body of the page.
-*@
-@(title: String)(content: String)
+@(title: String, scriptName: String, elmModuleName : String)
 
 <!DOCTYPE html>
 
 <html lang="en">
 
     <head>
-        <title>Aggregator</title>
+        <title>@title</title>
         <link rel="stylesheet" href="@routes.Assets.versioned("stylesheets/main.css")">
-        <script type="text/javascript" src="@routes.Assets.versioned("javascripts/mainPage.js")"></script>
-        <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.js"></script>
+        <script type="text/javascript" src="@routes.Assets.versioned(scriptName)"></script>
     </head>
 
     <body>
         <div id="mainBody"></div>
-        <div id="content">@content</div>
     </body>
 
     <script type="text/javascript">
-            var mainDiv = document.getElementById('mainBody');
-            Elm.MainPage.embed(mainDiv);
+            Elm["@elmModuleName"].embed(document.getElementById('mainBody'));
     </script>
 
 </html>

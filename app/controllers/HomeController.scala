@@ -23,10 +23,9 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
 
   def index = Action.async {
     Future {
-      Ok(views.html.index(""))
+      Ok(views.html.main("Aggregator - summary", "javascripts/mainPage.js", "MainPage"))
     }
   }
-
   def allData() = Action.async { implicit request =>
     generateFromNames(tables).map(d => Ok(Json.toJson(d)))
   }
