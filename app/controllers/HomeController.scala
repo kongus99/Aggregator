@@ -27,6 +27,11 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
     }
   }
 
+  def allData() = Action.async { implicit request =>
+    generateFromNames(tables).map(d => Ok(Json.toJson(d)))
+  }
+
+
   def gogData() = Action.async { implicit request =>
     gogRetriever.retrieve().map(getGogPageNumber).flatMap(gogRetriever.retrievePages).flatMap(getFromGog(tables)).map(d => Ok(Json.toJson(d)))
   }

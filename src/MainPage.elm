@@ -1,4 +1,4 @@
-module MainModule exposing (..)
+module MainPage exposing (..)
 import Html exposing (Html, button, div, text, span, table, tr, th, td)
 import Html.Attributes exposing(class)
 import Html.App as App
@@ -8,7 +8,7 @@ import Json.Decode as Json exposing (..)
 import Task
 
 main =
-    App.program { init = ( initialModel, Cmd.none ), view = view, update = update, subscriptions = \_ -> Sub.none }
+    App.program { init = ( initialModel, getResponse "allData" ), view = view, update = update, subscriptions = \_ -> Sub.none }
 
 -- MODEL
 

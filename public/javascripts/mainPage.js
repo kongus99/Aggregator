@@ -8704,7 +8704,7 @@ var _evancz$elm_http$Http$post = F3(
 			A2(_evancz$elm_http$Http$send, _evancz$elm_http$Http$defaultSettings, request));
 	});
 
-var _elm_lang$elm_architecture_tutorial$MainModule$toSpan = F2(
+var _elm_lang$elm_architecture_tutorial$MainPage$toSpan = F2(
 	function (n, styleClass) {
 		return (_elm_lang$core$Native_Utils.cmp(n, 1) > 0) ? A2(
 			_elm_lang$html$Html$span,
@@ -8723,7 +8723,7 @@ var _elm_lang$elm_architecture_tutorial$MainModule$toSpan = F2(
 			_elm_lang$core$Native_List.fromArray(
 				[]));
 	});
-var _elm_lang$elm_architecture_tutorial$MainModule$gameTableTitle = A2(
+var _elm_lang$elm_architecture_tutorial$MainPage$gameTableTitle = A2(
 	_elm_lang$html$Html$tr,
 	_elm_lang$core$Native_List.fromArray(
 		[]),
@@ -8746,65 +8746,65 @@ var _elm_lang$elm_architecture_tutorial$MainModule$gameTableTitle = A2(
 					_elm_lang$html$Html$text('Gog/Steam/Both')
 				]))
 		]));
-var _elm_lang$elm_architecture_tutorial$MainModule$initialModel = {
+var _elm_lang$elm_architecture_tutorial$MainPage$initialModel = {
 	entries: _elm_lang$core$Native_List.fromArray(
 		[]),
 	message: 'Click to refresh'
 };
-var _elm_lang$elm_architecture_tutorial$MainModule$GameEntry = F2(
+var _elm_lang$elm_architecture_tutorial$MainPage$GameEntry = F2(
 	function (a, b) {
 		return {name: a, gameOn: b};
 	});
-var _elm_lang$elm_architecture_tutorial$MainModule$Model = F2(
+var _elm_lang$elm_architecture_tutorial$MainPage$Model = F2(
 	function (a, b) {
 		return {entries: a, message: b};
 	});
-var _elm_lang$elm_architecture_tutorial$MainModule$Steam = {ctor: 'Steam'};
-var _elm_lang$elm_architecture_tutorial$MainModule$Gog = {ctor: 'Gog'};
-var _elm_lang$elm_architecture_tutorial$MainModule$mapSingle = function (e) {
-	return _elm_lang$core$Native_Utils.eq(e, 'Gog') ? _elm_lang$elm_architecture_tutorial$MainModule$Gog : _elm_lang$elm_architecture_tutorial$MainModule$Steam;
+var _elm_lang$elm_architecture_tutorial$MainPage$Steam = {ctor: 'Steam'};
+var _elm_lang$elm_architecture_tutorial$MainPage$Gog = {ctor: 'Gog'};
+var _elm_lang$elm_architecture_tutorial$MainPage$mapSingle = function (e) {
+	return _elm_lang$core$Native_Utils.eq(e, 'Gog') ? _elm_lang$elm_architecture_tutorial$MainPage$Gog : _elm_lang$elm_architecture_tutorial$MainPage$Steam;
 };
-var _elm_lang$elm_architecture_tutorial$MainModule$gamesOn = function (list) {
-	return A2(_elm_lang$core$List$map, _elm_lang$elm_architecture_tutorial$MainModule$mapSingle, list);
+var _elm_lang$elm_architecture_tutorial$MainPage$gamesOn = function (list) {
+	return A2(_elm_lang$core$List$map, _elm_lang$elm_architecture_tutorial$MainPage$mapSingle, list);
 };
-var _elm_lang$elm_architecture_tutorial$MainModule$decodeResponse = _elm_lang$core$Json_Decode$list(
+var _elm_lang$elm_architecture_tutorial$MainPage$decodeResponse = _elm_lang$core$Json_Decode$list(
 	A3(
 		_elm_lang$core$Json_Decode$object2,
-		_elm_lang$elm_architecture_tutorial$MainModule$GameEntry,
+		_elm_lang$elm_architecture_tutorial$MainPage$GameEntry,
 		A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
 		A2(
 			_elm_lang$core$Json_Decode$map,
-			_elm_lang$elm_architecture_tutorial$MainModule$gamesOn,
+			_elm_lang$elm_architecture_tutorial$MainPage$gamesOn,
 			A2(
 				_elm_lang$core$Json_Decode_ops[':='],
 				'on',
 				_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)))));
-var _elm_lang$elm_architecture_tutorial$MainModule$toStyle = function (gamesOn) {
-	var onSteam = A2(_elm_lang$core$List$member, _elm_lang$elm_architecture_tutorial$MainModule$Steam, gamesOn);
-	var onGog = A2(_elm_lang$core$List$member, _elm_lang$elm_architecture_tutorial$MainModule$Gog, gamesOn);
+var _elm_lang$elm_architecture_tutorial$MainPage$toStyle = function (gamesOn) {
+	var onSteam = A2(_elm_lang$core$List$member, _elm_lang$elm_architecture_tutorial$MainPage$Steam, gamesOn);
+	var onGog = A2(_elm_lang$core$List$member, _elm_lang$elm_architecture_tutorial$MainPage$Gog, gamesOn);
 	return (onGog && onSteam) ? 'cell_Both' : (onGog ? 'cell_Gog' : 'cell_Steam');
 };
-var _elm_lang$elm_architecture_tutorial$MainModule$toText = function (gamesOn) {
+var _elm_lang$elm_architecture_tutorial$MainPage$toText = function (gamesOn) {
 	var onSteamNumber = _elm_lang$core$List$length(
 		A2(
 			_elm_lang$core$List$filter,
 			function (g) {
-				return _elm_lang$core$Native_Utils.eq(g, _elm_lang$elm_architecture_tutorial$MainModule$Steam);
+				return _elm_lang$core$Native_Utils.eq(g, _elm_lang$elm_architecture_tutorial$MainPage$Steam);
 			},
 			gamesOn));
-	var onSteamSpan = A2(_elm_lang$elm_architecture_tutorial$MainModule$toSpan, onSteamNumber, 'steam_number');
+	var onSteamSpan = A2(_elm_lang$elm_architecture_tutorial$MainPage$toSpan, onSteamNumber, 'steam_number');
 	var onGogNumber = _elm_lang$core$List$length(
 		A2(
 			_elm_lang$core$List$filter,
 			function (g) {
-				return _elm_lang$core$Native_Utils.eq(g, _elm_lang$elm_architecture_tutorial$MainModule$Gog);
+				return _elm_lang$core$Native_Utils.eq(g, _elm_lang$elm_architecture_tutorial$MainPage$Gog);
 			},
 			gamesOn));
-	var onGogSpan = A2(_elm_lang$elm_architecture_tutorial$MainModule$toSpan, onGogNumber, 'gog_number');
+	var onGogSpan = A2(_elm_lang$elm_architecture_tutorial$MainPage$toSpan, onGogNumber, 'gog_number');
 	return _elm_lang$core$Native_List.fromArray(
 		[onGogSpan, onSteamSpan]);
 };
-var _elm_lang$elm_architecture_tutorial$MainModule$gameTableRow = function (e) {
+var _elm_lang$elm_architecture_tutorial$MainPage$gameTableRow = function (e) {
 	return A2(
 		_elm_lang$html$Html$tr,
 		_elm_lang$core$Native_List.fromArray(
@@ -8824,26 +8824,26 @@ var _elm_lang$elm_architecture_tutorial$MainModule$gameTableRow = function (e) {
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html_Attributes$class(
-						_elm_lang$elm_architecture_tutorial$MainModule$toStyle(e.gameOn))
+						_elm_lang$elm_architecture_tutorial$MainPage$toStyle(e.gameOn))
 					]),
-				_elm_lang$elm_architecture_tutorial$MainModule$toText(e.gameOn))
+				_elm_lang$elm_architecture_tutorial$MainPage$toText(e.gameOn))
 			]));
 };
-var _elm_lang$elm_architecture_tutorial$MainModule$RefreshError = function (a) {
+var _elm_lang$elm_architecture_tutorial$MainPage$RefreshError = function (a) {
 	return {ctor: 'RefreshError', _0: a};
 };
-var _elm_lang$elm_architecture_tutorial$MainModule$ReceiveRefresh = function (a) {
+var _elm_lang$elm_architecture_tutorial$MainPage$ReceiveRefresh = function (a) {
 	return {ctor: 'ReceiveRefresh', _0: a};
 };
-var _elm_lang$elm_architecture_tutorial$MainModule$getResponse = function (address) {
+var _elm_lang$elm_architecture_tutorial$MainPage$getResponse = function (address) {
 	var url = A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:9000/', address);
 	return A3(
 		_elm_lang$core$Task$perform,
-		_elm_lang$elm_architecture_tutorial$MainModule$RefreshError,
-		_elm_lang$elm_architecture_tutorial$MainModule$ReceiveRefresh,
-		A2(_evancz$elm_http$Http$get, _elm_lang$elm_architecture_tutorial$MainModule$decodeResponse, url));
+		_elm_lang$elm_architecture_tutorial$MainPage$RefreshError,
+		_elm_lang$elm_architecture_tutorial$MainPage$ReceiveRefresh,
+		A2(_evancz$elm_http$Http$get, _elm_lang$elm_architecture_tutorial$MainPage$decodeResponse, url));
 };
-var _elm_lang$elm_architecture_tutorial$MainModule$update = F2(
+var _elm_lang$elm_architecture_tutorial$MainPage$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
 		switch (_p0.ctor) {
@@ -8851,7 +8851,7 @@ var _elm_lang$elm_architecture_tutorial$MainModule$update = F2(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: _elm_lang$elm_architecture_tutorial$MainModule$getResponse(_p0._0)
+					_1: _elm_lang$elm_architecture_tutorial$MainPage$getResponse(_p0._0)
 				};
 			case 'ReceiveRefresh':
 				return {
@@ -8875,10 +8875,10 @@ var _elm_lang$elm_architecture_tutorial$MainModule$update = F2(
 				};
 		}
 	});
-var _elm_lang$elm_architecture_tutorial$MainModule$SendRefresh = function (a) {
+var _elm_lang$elm_architecture_tutorial$MainPage$SendRefresh = function (a) {
 	return {ctor: 'SendRefresh', _0: a};
 };
-var _elm_lang$elm_architecture_tutorial$MainModule$view = function (model) {
+var _elm_lang$elm_architecture_tutorial$MainPage$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -8890,7 +8890,7 @@ var _elm_lang$elm_architecture_tutorial$MainModule$view = function (model) {
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html_Events$onClick(
-						_elm_lang$elm_architecture_tutorial$MainModule$SendRefresh('gogData'))
+						_elm_lang$elm_architecture_tutorial$MainPage$SendRefresh('gogData'))
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
@@ -8901,7 +8901,7 @@ var _elm_lang$elm_architecture_tutorial$MainModule$view = function (model) {
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html_Events$onClick(
-						_elm_lang$elm_architecture_tutorial$MainModule$SendRefresh('steamData'))
+						_elm_lang$elm_architecture_tutorial$MainPage$SendRefresh('steamData'))
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
@@ -8922,16 +8922,20 @@ var _elm_lang$elm_architecture_tutorial$MainModule$view = function (model) {
 					[]),
 				A2(
 					_elm_lang$core$List_ops['::'],
-					_elm_lang$elm_architecture_tutorial$MainModule$gameTableTitle,
-					A2(_elm_lang$core$List$map, _elm_lang$elm_architecture_tutorial$MainModule$gameTableRow, model.entries)))
+					_elm_lang$elm_architecture_tutorial$MainPage$gameTableTitle,
+					A2(_elm_lang$core$List$map, _elm_lang$elm_architecture_tutorial$MainPage$gameTableRow, model.entries)))
 			]));
 };
-var _elm_lang$elm_architecture_tutorial$MainModule$main = {
+var _elm_lang$elm_architecture_tutorial$MainPage$main = {
 	main: _elm_lang$html$Html_App$program(
 		{
-			init: {ctor: '_Tuple2', _0: _elm_lang$elm_architecture_tutorial$MainModule$initialModel, _1: _elm_lang$core$Platform_Cmd$none},
-			view: _elm_lang$elm_architecture_tutorial$MainModule$view,
-			update: _elm_lang$elm_architecture_tutorial$MainModule$update,
+			init: {
+				ctor: '_Tuple2',
+				_0: _elm_lang$elm_architecture_tutorial$MainPage$initialModel,
+				_1: _elm_lang$elm_architecture_tutorial$MainPage$getResponse('allData')
+			},
+			view: _elm_lang$elm_architecture_tutorial$MainPage$view,
+			update: _elm_lang$elm_architecture_tutorial$MainPage$update,
 			subscriptions: function (_p1) {
 				return _elm_lang$core$Platform_Sub$none;
 			}
@@ -8939,8 +8943,8 @@ var _elm_lang$elm_architecture_tutorial$MainModule$main = {
 };
 
 var Elm = {};
-Elm['MainModule'] = Elm['MainModule'] || {};
-_elm_lang$core$Native_Platform.addPublicModule(Elm['MainModule'], 'MainModule', typeof _elm_lang$elm_architecture_tutorial$MainModule$main === 'undefined' ? null : _elm_lang$elm_architecture_tutorial$MainModule$main);
+Elm['MainPage'] = Elm['MainPage'] || {};
+_elm_lang$core$Native_Platform.addPublicModule(Elm['MainPage'], 'MainPage', typeof _elm_lang$elm_architecture_tutorial$MainPage$main === 'undefined' ? null : _elm_lang$elm_architecture_tutorial$MainPage$main);
 
 if (typeof define === "function" && define['amd'])
 {
