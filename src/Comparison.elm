@@ -6,45 +6,42 @@ import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Json exposing (..)
 import Task
+import String
 import Model exposing (..)
 
 main =
-    App.program { init = ( initialModel, Cmd.none ), view = view, update = update, subscriptions = \_ -> Sub.none }
+    App.program { init = ( initialModel, getResponse "comparison/data" ), view = view, update = update, subscriptions = \_ -> Sub.none }
 
 -- MODEL
 
-type alias Entries = {leftEntries : List GogEntry, rightEntries : List SteamEntry}
+type alias Entries = {left : List GogEntry, right : List SteamEntry}
 
-type alias Model = {leftEntries : List GogEntry, rightEntries : List SteamEntry, message : String}
+type alias Model = {entries : Entries, message : String}
 
-initialModel = {leftEntries = [], rightEntries = [], message = "Click to refresh"}
+initialModel = {entries = Entries [] [], message = ""}
 
 -- UPDATE
 
 type Msg
-  = SendRefresh String
-  | ReceiveRefresh Entries
-  | RefreshError Http.Error
+  = ReceiveData Entries
+  | DataError Http.Error
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    SendRefresh address ->
-      (model, getResponse address)
-    ReceiveRefresh entries ->
-      ({model | leftEntries = entries.leftEntries, rightEntries = entries.rightEntries} , Cmd.none)
-    RefreshError err ->
-      ({model | leftEntries = [], rightEntries = [], message = toString err} , Cmd.none)
+    ReceiveData entries ->
+      ({model | entries = entries} , Cmd.none)
+    DataError err ->
+      ({model | entries = Entries [] [], message = toString err} , Cmd.none)
 
 -- VIEW
 
 view : Model -> Html Msg
 view model =
   div [] <|
-    [ button [ onClick <| SendRefresh "comparison/data"] [ text "Fetch data"   ]
-    , div [] [ text (toString model.message) ]
-    , div [] [ table[class <| "inlineTable"] <| gogTableTitle :: (List.map gogTableRow model.leftEntries)
-             , table[class <| "inlineTable"] <| steamTableTitle :: (List.map steamTableRow model.rightEntries)
+    [ div [] (if String.isEmpty model.message then [] else [ text (toString model.message) ])
+    , div [] [ table[class <| "inlineTable"] <| gogTableTitle :: (List.map gogTableRow model.entries.left)
+             , table[class <| "inlineTable"] <| steamTableTitle :: (List.map steamTableRow model.entries.right)
              ]
     ]
 
@@ -61,7 +58,7 @@ getResponse address=
   let
     url = "http://localhost:9000/" ++ address
   in
-    Task.perform RefreshError ReceiveRefresh (Http.get decodeResponse url)
+    Task.perform DataError ReceiveData (Http.get decodeResponse url)
 
 decodeResponse : Json.Decoder Entries
 decodeResponse =

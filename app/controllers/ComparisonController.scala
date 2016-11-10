@@ -39,7 +39,7 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
       gog <- tables.getGogEntries
       steam <- tables.getSteamEntries
     } yield {
-      (gog, steam)
+      (gog.sortBy(_.title), steam.sortBy(_.name))
     }
   }
 }
