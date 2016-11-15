@@ -4060,6 +4060,1011 @@ var _elm_lang$core$Dict$diff = F2(
 			t2);
 	});
 
+var _eeue56$elm_all_dict$AllDict$foldr = F3(
+	function (f, acc, t) {
+		foldr:
+		while (true) {
+			var _p0 = t;
+			if (_p0.ctor === 'RBEmpty_elm_builtin') {
+				return acc;
+			} else {
+				var _v1 = f,
+					_v2 = A3(
+					f,
+					_p0._1,
+					_p0._2,
+					A3(_eeue56$elm_all_dict$AllDict$foldr, f, acc, _p0._4)),
+					_v3 = _p0._3;
+				f = _v1;
+				acc = _v2;
+				t = _v3;
+				continue foldr;
+			}
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$keys = function (dict) {
+	return A3(
+		_eeue56$elm_all_dict$AllDict$foldr,
+		F3(
+			function (key, value, keyList) {
+				return A2(_elm_lang$core$List_ops['::'], key, keyList);
+			}),
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		dict);
+};
+var _eeue56$elm_all_dict$AllDict$values = function (dict) {
+	return A3(
+		_eeue56$elm_all_dict$AllDict$foldr,
+		F3(
+			function (key, value, valueList) {
+				return A2(_elm_lang$core$List_ops['::'], value, valueList);
+			}),
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		dict);
+};
+var _eeue56$elm_all_dict$AllDict$toList = function (dict) {
+	return A3(
+		_eeue56$elm_all_dict$AllDict$foldr,
+		F3(
+			function (key, value, list) {
+				return A2(
+					_elm_lang$core$List_ops['::'],
+					{ctor: '_Tuple2', _0: key, _1: value},
+					list);
+			}),
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		dict);
+};
+var _eeue56$elm_all_dict$AllDict$foldl = F3(
+	function (f, acc, dict) {
+		foldl:
+		while (true) {
+			var _p1 = dict;
+			if (_p1.ctor === 'RBEmpty_elm_builtin') {
+				return acc;
+			} else {
+				var _v5 = f,
+					_v6 = A3(
+					f,
+					_p1._1,
+					_p1._2,
+					A3(_eeue56$elm_all_dict$AllDict$foldl, f, acc, _p1._3)),
+					_v7 = _p1._4;
+				f = _v5;
+				acc = _v6;
+				dict = _v7;
+				continue foldl;
+			}
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$isBBlack = function (dict) {
+	var _p2 = dict;
+	_v8_2:
+	do {
+		if (_p2.ctor === 'RBNode_elm_builtin') {
+			if (_p2._0.ctor === 'BBlack') {
+				return true;
+			} else {
+				break _v8_2;
+			}
+		} else {
+			if (_p2._0.ctor === 'LBBlack') {
+				return true;
+			} else {
+				break _v8_2;
+			}
+		}
+	} while(false);
+	return false;
+};
+var _eeue56$elm_all_dict$AllDict$showFlag = function (f) {
+	var _p3 = f;
+	switch (_p3.ctor) {
+		case 'Insert':
+			return 'Insert';
+		case 'Remove':
+			return 'Remove';
+		default:
+			return 'Same';
+	}
+};
+var _eeue56$elm_all_dict$AllDict$sizeHelp = F2(
+	function (n, dict) {
+		sizeHelp:
+		while (true) {
+			var _p4 = dict;
+			if (_p4.ctor === 'RBEmpty_elm_builtin') {
+				return n;
+			} else {
+				var _v11 = A2(_eeue56$elm_all_dict$AllDict$sizeHelp, n + 1, _p4._4),
+					_v12 = _p4._3;
+				n = _v11;
+				dict = _v12;
+				continue sizeHelp;
+			}
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$size = function (dict) {
+	return A2(_eeue56$elm_all_dict$AllDict$sizeHelp, 0, dict);
+};
+var _eeue56$elm_all_dict$AllDict$isEmpty = function (dict) {
+	var _p5 = dict;
+	if (_p5.ctor === 'RBEmpty_elm_builtin') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var _eeue56$elm_all_dict$AllDict$getOrd = function (dict) {
+	getOrd:
+	while (true) {
+		var _p6 = dict;
+		if (_p6.ctor === 'RBEmpty_elm_builtin') {
+			return _p6._1;
+		} else {
+			var _v15 = _p6._3;
+			dict = _v15;
+			continue getOrd;
+		}
+	}
+};
+var _eeue56$elm_all_dict$AllDict$get$ = F2(
+	function (targetKey, dict) {
+		get$:
+		while (true) {
+			var ord = _eeue56$elm_all_dict$AllDict$getOrd(dict);
+			var _p7 = dict;
+			if (_p7.ctor === 'RBEmpty_elm_builtin') {
+				return _elm_lang$core$Maybe$Nothing;
+			} else {
+				var _p8 = A2(
+					_elm_lang$core$Basics$compare,
+					ord(targetKey),
+					ord(_p7._1));
+				switch (_p8.ctor) {
+					case 'LT':
+						var _v18 = targetKey,
+							_v19 = _p7._3;
+						targetKey = _v18;
+						dict = _v19;
+						continue get$;
+					case 'EQ':
+						return _elm_lang$core$Maybe$Just(_p7._2);
+					default:
+						var _v20 = targetKey,
+							_v21 = _p7._4;
+						targetKey = _v20;
+						dict = _v21;
+						continue get$;
+				}
+			}
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$get = F2(
+	function (targetKey, dict) {
+		return A2(_eeue56$elm_all_dict$AllDict$get$, targetKey, dict);
+	});
+var _eeue56$elm_all_dict$AllDict$member = F2(
+	function (key, dict) {
+		var _p9 = A2(_eeue56$elm_all_dict$AllDict$get$, key, dict);
+		if (_p9.ctor === 'Just') {
+			return true;
+		} else {
+			return false;
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$max = function (dict) {
+	max:
+	while (true) {
+		var _p10 = dict;
+		if (_p10.ctor === 'RBNode_elm_builtin') {
+			if (_p10._4.ctor === 'RBEmpty_elm_builtin') {
+				return {ctor: '_Tuple2', _0: _p10._1, _1: _p10._2};
+			} else {
+				var _v24 = _p10._4;
+				dict = _v24;
+				continue max;
+			}
+		} else {
+			return _elm_lang$core$Native_Utils.crashCase(
+				'AllDict',
+				{
+					start: {line: 157, column: 5},
+					end: {line: 165, column: 51}
+				},
+				_p10)('(max Empty) is not defined');
+		}
+	}
+};
+var _eeue56$elm_all_dict$AllDict$min = function (dict) {
+	min:
+	while (true) {
+		var _p12 = dict;
+		if (_p12.ctor === 'RBNode_elm_builtin') {
+			if ((_p12._3.ctor === 'RBEmpty_elm_builtin') && (_p12._3._0.ctor === 'LBlack')) {
+				return {ctor: '_Tuple2', _0: _p12._1, _1: _p12._2};
+			} else {
+				var _v26 = _p12._3;
+				dict = _v26;
+				continue min;
+			}
+		} else {
+			return _elm_lang$core$Native_Utils.crashCase(
+				'AllDict',
+				{
+					start: {line: 145, column: 5},
+					end: {line: 153, column: 51}
+				},
+				_p12)('(min Empty) is not defined');
+		}
+	}
+};
+var _eeue56$elm_all_dict$AllDict$fullEq = F2(
+	function (first, second) {
+		return _elm_lang$core$Native_Utils.eq(
+			_eeue56$elm_all_dict$AllDict$toList(first),
+			_eeue56$elm_all_dict$AllDict$toList(second)) && _elm_lang$core$Native_Utils.eq(
+			_eeue56$elm_all_dict$AllDict$getOrd(first),
+			_eeue56$elm_all_dict$AllDict$getOrd(second));
+	});
+var _eeue56$elm_all_dict$AllDict$eq = F2(
+	function (first, second) {
+		return _elm_lang$core$Native_Utils.eq(
+			_eeue56$elm_all_dict$AllDict$toList(first),
+			_eeue56$elm_all_dict$AllDict$toList(second));
+	});
+var _eeue56$elm_all_dict$AllDict$showLColor = function (color) {
+	var _p14 = color;
+	if (_p14.ctor === 'LBlack') {
+		return 'LBlack';
+	} else {
+		return 'LBBlack';
+	}
+};
+var _eeue56$elm_all_dict$AllDict$showNColor = function (c) {
+	var _p15 = c;
+	switch (_p15.ctor) {
+		case 'Red':
+			return 'Red';
+		case 'Black':
+			return 'Black';
+		case 'BBlack':
+			return 'BBlack';
+		default:
+			return 'NBlack';
+	}
+};
+var _eeue56$elm_all_dict$AllDict$reportRemBug = F4(
+	function (msg, c, lgot, rgot) {
+		return _elm_lang$core$Native_Utils.crash(
+			'AllDict',
+			{
+				start: {line: 365, column: 3},
+				end: {line: 365, column: 14}
+			})(
+			_elm_lang$core$String$concat(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						'Internal red-black tree invariant violated, expected ',
+						msg,
+						' and got ',
+						_eeue56$elm_all_dict$AllDict$showNColor(c),
+						'/',
+						lgot,
+						'/',
+						rgot,
+						'\nPlease report this bug to <https://github.com/elm-lang/Elm/issues>'
+					])));
+	});
+var _eeue56$elm_all_dict$AllDict$NBlack = {ctor: 'NBlack'};
+var _eeue56$elm_all_dict$AllDict$BBlack = {ctor: 'BBlack'};
+var _eeue56$elm_all_dict$AllDict$Black = {ctor: 'Black'};
+var _eeue56$elm_all_dict$AllDict$blackish = function (t) {
+	var _p16 = t;
+	if (_p16.ctor === 'RBNode_elm_builtin') {
+		var _p17 = _p16._0;
+		return _elm_lang$core$Native_Utils.eq(_p17, _eeue56$elm_all_dict$AllDict$Black) || _elm_lang$core$Native_Utils.eq(_p17, _eeue56$elm_all_dict$AllDict$BBlack);
+	} else {
+		return true;
+	}
+};
+var _eeue56$elm_all_dict$AllDict$Red = {ctor: 'Red'};
+var _eeue56$elm_all_dict$AllDict$moreBlack = function (color) {
+	var _p18 = color;
+	switch (_p18.ctor) {
+		case 'Black':
+			return _eeue56$elm_all_dict$AllDict$BBlack;
+		case 'Red':
+			return _eeue56$elm_all_dict$AllDict$Black;
+		case 'NBlack':
+			return _eeue56$elm_all_dict$AllDict$Red;
+		default:
+			return _elm_lang$core$Native_Utils.crashCase(
+				'AllDict',
+				{
+					start: {line: 339, column: 5},
+					end: {line: 343, column: 73}
+				},
+				_p18)('Can\'t make a double black node more black!');
+	}
+};
+var _eeue56$elm_all_dict$AllDict$lessBlack = function (color) {
+	var _p20 = color;
+	switch (_p20.ctor) {
+		case 'BBlack':
+			return _eeue56$elm_all_dict$AllDict$Black;
+		case 'Black':
+			return _eeue56$elm_all_dict$AllDict$Red;
+		case 'Red':
+			return _eeue56$elm_all_dict$AllDict$NBlack;
+		default:
+			return _elm_lang$core$Native_Utils.crashCase(
+				'AllDict',
+				{
+					start: {line: 348, column: 5},
+					end: {line: 352, column: 75}
+				},
+				_p20)('Can\'t make a negative black node less black!');
+	}
+};
+var _eeue56$elm_all_dict$AllDict$LBBlack = {ctor: 'LBBlack'};
+var _eeue56$elm_all_dict$AllDict$LBlack = {ctor: 'LBlack'};
+var _eeue56$elm_all_dict$AllDict$RBEmpty_elm_builtin = F2(
+	function (a, b) {
+		return {ctor: 'RBEmpty_elm_builtin', _0: a, _1: b};
+	});
+var _eeue56$elm_all_dict$AllDict$empty = function (ord) {
+	return A2(_eeue56$elm_all_dict$AllDict$RBEmpty_elm_builtin, _eeue56$elm_all_dict$AllDict$LBlack, ord);
+};
+var _eeue56$elm_all_dict$AllDict$RBNode_elm_builtin = F5(
+	function (a, b, c, d, e) {
+		return {ctor: 'RBNode_elm_builtin', _0: a, _1: b, _2: c, _3: d, _4: e};
+	});
+var _eeue56$elm_all_dict$AllDict$ensureBlackRoot = function (dict) {
+	var _p22 = dict;
+	_v32_2:
+	do {
+		if (_p22.ctor === 'RBNode_elm_builtin') {
+			switch (_p22._0.ctor) {
+				case 'Red':
+					return A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Black, _p22._1, _p22._2, _p22._3, _p22._4);
+				case 'Black':
+					return dict;
+				default:
+					break _v32_2;
+			}
+		} else {
+			break _v32_2;
+		}
+	} while(false);
+	return dict;
+};
+var _eeue56$elm_all_dict$AllDict$lessBlackTree = function (dict) {
+	var _p23 = dict;
+	if (_p23.ctor === 'RBNode_elm_builtin') {
+		return A5(
+			_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin,
+			_eeue56$elm_all_dict$AllDict$lessBlack(_p23._0),
+			_p23._1,
+			_p23._2,
+			_p23._3,
+			_p23._4);
+	} else {
+		if (_p23._0.ctor === 'LBBlack') {
+			return A2(_eeue56$elm_all_dict$AllDict$RBEmpty_elm_builtin, _eeue56$elm_all_dict$AllDict$LBlack, _p23._1);
+		} else {
+			return dict;
+		}
+	}
+};
+var _eeue56$elm_all_dict$AllDict$blacken = function (t) {
+	var _p24 = t;
+	if (_p24.ctor === 'RBEmpty_elm_builtin') {
+		return A2(_eeue56$elm_all_dict$AllDict$RBEmpty_elm_builtin, _eeue56$elm_all_dict$AllDict$LBlack, _p24._1);
+	} else {
+		return A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Black, _p24._1, _p24._2, _p24._3, _p24._4);
+	}
+};
+var _eeue56$elm_all_dict$AllDict$redden = function (t) {
+	var _p25 = t;
+	if (_p25.ctor === 'RBEmpty_elm_builtin') {
+		return _elm_lang$core$Native_Utils.crashCase(
+			'AllDict',
+			{
+				start: {line: 486, column: 5},
+				end: {line: 488, column: 69}
+			},
+			_p25)('can\'t make a Leaf red');
+	} else {
+		return A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Red, _p25._1, _p25._2, _p25._3, _p25._4);
+	}
+};
+var _eeue56$elm_all_dict$AllDict$balance_node = function (t) {
+	var assemble = function (col) {
+		return function (xk) {
+			return function (xv) {
+				return function (yk) {
+					return function (yv) {
+						return function (zk) {
+							return function (zv) {
+								return function (a) {
+									return function (b) {
+										return function (c) {
+											return function (d) {
+												return A5(
+													_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin,
+													_eeue56$elm_all_dict$AllDict$lessBlack(col),
+													yk,
+													yv,
+													A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Black, xk, xv, a, b),
+													A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Black, zk, zv, c, d));
+											};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+	if (_eeue56$elm_all_dict$AllDict$blackish(t)) {
+		var _p27 = t;
+		_v36_6:
+		do {
+			_v36_5:
+			do {
+				_v36_4:
+				do {
+					_v36_3:
+					do {
+						_v36_2:
+						do {
+							_v36_1:
+							do {
+								_v36_0:
+								do {
+									if (_p27.ctor === 'RBNode_elm_builtin') {
+										if (_p27._3.ctor === 'RBNode_elm_builtin') {
+											if (_p27._4.ctor === 'RBNode_elm_builtin') {
+												switch (_p27._3._0.ctor) {
+													case 'Red':
+														switch (_p27._4._0.ctor) {
+															case 'Red':
+																if ((_p27._3._3.ctor === 'RBNode_elm_builtin') && (_p27._3._3._0.ctor === 'Red')) {
+																	break _v36_0;
+																} else {
+																	if ((_p27._3._4.ctor === 'RBNode_elm_builtin') && (_p27._3._4._0.ctor === 'Red')) {
+																		break _v36_1;
+																	} else {
+																		if ((_p27._4._3.ctor === 'RBNode_elm_builtin') && (_p27._4._3._0.ctor === 'Red')) {
+																			break _v36_2;
+																		} else {
+																			if ((_p27._4._4.ctor === 'RBNode_elm_builtin') && (_p27._4._4._0.ctor === 'Red')) {
+																				break _v36_3;
+																			} else {
+																				break _v36_6;
+																			}
+																		}
+																	}
+																}
+															case 'NBlack':
+																if ((_p27._3._3.ctor === 'RBNode_elm_builtin') && (_p27._3._3._0.ctor === 'Red')) {
+																	break _v36_0;
+																} else {
+																	if ((_p27._3._4.ctor === 'RBNode_elm_builtin') && (_p27._3._4._0.ctor === 'Red')) {
+																		break _v36_1;
+																	} else {
+																		if (((_p27._0.ctor === 'BBlack') && (_p27._4._3.ctor === 'RBNode_elm_builtin')) && (_p27._4._3._0.ctor === 'Black')) {
+																			break _v36_4;
+																		} else {
+																			break _v36_6;
+																		}
+																	}
+																}
+															default:
+																if ((_p27._3._3.ctor === 'RBNode_elm_builtin') && (_p27._3._3._0.ctor === 'Red')) {
+																	break _v36_0;
+																} else {
+																	if ((_p27._3._4.ctor === 'RBNode_elm_builtin') && (_p27._3._4._0.ctor === 'Red')) {
+																		break _v36_1;
+																	} else {
+																		break _v36_6;
+																	}
+																}
+														}
+													case 'NBlack':
+														switch (_p27._4._0.ctor) {
+															case 'Red':
+																if ((_p27._4._3.ctor === 'RBNode_elm_builtin') && (_p27._4._3._0.ctor === 'Red')) {
+																	break _v36_2;
+																} else {
+																	if ((_p27._4._4.ctor === 'RBNode_elm_builtin') && (_p27._4._4._0.ctor === 'Red')) {
+																		break _v36_3;
+																	} else {
+																		if (((_p27._0.ctor === 'BBlack') && (_p27._3._4.ctor === 'RBNode_elm_builtin')) && (_p27._3._4._0.ctor === 'Black')) {
+																			break _v36_5;
+																		} else {
+																			break _v36_6;
+																		}
+																	}
+																}
+															case 'NBlack':
+																if (_p27._0.ctor === 'BBlack') {
+																	if ((_p27._4._3.ctor === 'RBNode_elm_builtin') && (_p27._4._3._0.ctor === 'Black')) {
+																		break _v36_4;
+																	} else {
+																		if ((_p27._3._4.ctor === 'RBNode_elm_builtin') && (_p27._3._4._0.ctor === 'Black')) {
+																			break _v36_5;
+																		} else {
+																			break _v36_6;
+																		}
+																	}
+																} else {
+																	break _v36_6;
+																}
+															default:
+																if (((_p27._0.ctor === 'BBlack') && (_p27._3._4.ctor === 'RBNode_elm_builtin')) && (_p27._3._4._0.ctor === 'Black')) {
+																	break _v36_5;
+																} else {
+																	break _v36_6;
+																}
+														}
+													default:
+														switch (_p27._4._0.ctor) {
+															case 'Red':
+																if ((_p27._4._3.ctor === 'RBNode_elm_builtin') && (_p27._4._3._0.ctor === 'Red')) {
+																	break _v36_2;
+																} else {
+																	if ((_p27._4._4.ctor === 'RBNode_elm_builtin') && (_p27._4._4._0.ctor === 'Red')) {
+																		break _v36_3;
+																	} else {
+																		break _v36_6;
+																	}
+																}
+															case 'NBlack':
+																if (((_p27._0.ctor === 'BBlack') && (_p27._4._3.ctor === 'RBNode_elm_builtin')) && (_p27._4._3._0.ctor === 'Black')) {
+																	break _v36_4;
+																} else {
+																	break _v36_6;
+																}
+															default:
+																break _v36_6;
+														}
+												}
+											} else {
+												switch (_p27._3._0.ctor) {
+													case 'Red':
+														if ((_p27._3._3.ctor === 'RBNode_elm_builtin') && (_p27._3._3._0.ctor === 'Red')) {
+															break _v36_0;
+														} else {
+															if ((_p27._3._4.ctor === 'RBNode_elm_builtin') && (_p27._3._4._0.ctor === 'Red')) {
+																break _v36_1;
+															} else {
+																break _v36_6;
+															}
+														}
+													case 'NBlack':
+														if (((_p27._0.ctor === 'BBlack') && (_p27._3._4.ctor === 'RBNode_elm_builtin')) && (_p27._3._4._0.ctor === 'Black')) {
+															break _v36_5;
+														} else {
+															break _v36_6;
+														}
+													default:
+														break _v36_6;
+												}
+											}
+										} else {
+											if (_p27._4.ctor === 'RBNode_elm_builtin') {
+												switch (_p27._4._0.ctor) {
+													case 'Red':
+														if ((_p27._4._3.ctor === 'RBNode_elm_builtin') && (_p27._4._3._0.ctor === 'Red')) {
+															break _v36_2;
+														} else {
+															if ((_p27._4._4.ctor === 'RBNode_elm_builtin') && (_p27._4._4._0.ctor === 'Red')) {
+																break _v36_3;
+															} else {
+																break _v36_6;
+															}
+														}
+													case 'NBlack':
+														if (((_p27._0.ctor === 'BBlack') && (_p27._4._3.ctor === 'RBNode_elm_builtin')) && (_p27._4._3._0.ctor === 'Black')) {
+															break _v36_4;
+														} else {
+															break _v36_6;
+														}
+													default:
+														break _v36_6;
+												}
+											} else {
+												break _v36_6;
+											}
+										}
+									} else {
+										break _v36_6;
+									}
+								} while(false);
+								return assemble(_p27._0)(_p27._3._3._1)(_p27._3._3._2)(_p27._3._1)(_p27._3._2)(_p27._1)(_p27._2)(_p27._3._3._3)(_p27._3._3._4)(_p27._3._4)(_p27._4);
+							} while(false);
+							return assemble(_p27._0)(_p27._3._1)(_p27._3._2)(_p27._3._4._1)(_p27._3._4._2)(_p27._1)(_p27._2)(_p27._3._3)(_p27._3._4._3)(_p27._3._4._4)(_p27._4);
+						} while(false);
+						return assemble(_p27._0)(_p27._1)(_p27._2)(_p27._4._3._1)(_p27._4._3._2)(_p27._4._1)(_p27._4._2)(_p27._3)(_p27._4._3._3)(_p27._4._3._4)(_p27._4._4);
+					} while(false);
+					return assemble(_p27._0)(_p27._1)(_p27._2)(_p27._4._1)(_p27._4._2)(_p27._4._4._1)(_p27._4._4._2)(_p27._3)(_p27._4._3)(_p27._4._4._3)(_p27._4._4._4);
+				} while(false);
+				var _p29 = _p27._4._4;
+				var _p28 = _p29;
+				if ((_p28.ctor === 'RBNode_elm_builtin') && (_p28._0.ctor === 'Black')) {
+					return A5(
+						_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin,
+						_eeue56$elm_all_dict$AllDict$Black,
+						_p27._4._3._1,
+						_p27._4._3._2,
+						A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Black, _p27._1, _p27._2, _p27._3, _p27._4._3._3),
+						A5(
+							_eeue56$elm_all_dict$AllDict$balance,
+							_eeue56$elm_all_dict$AllDict$Black,
+							_p27._4._1,
+							_p27._4._2,
+							_p27._4._3._4,
+							_eeue56$elm_all_dict$AllDict$redden(_p29)));
+				} else {
+					return t;
+				}
+			} while(false);
+			var _p31 = _p27._3._3;
+			var _p30 = _p31;
+			if ((_p30.ctor === 'RBNode_elm_builtin') && (_p30._0.ctor === 'Black')) {
+				return A5(
+					_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin,
+					_eeue56$elm_all_dict$AllDict$Black,
+					_p27._3._4._1,
+					_p27._3._4._2,
+					A5(
+						_eeue56$elm_all_dict$AllDict$balance,
+						_eeue56$elm_all_dict$AllDict$Black,
+						_p27._3._1,
+						_p27._3._2,
+						_eeue56$elm_all_dict$AllDict$redden(_p31),
+						_p27._3._4._3),
+					A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Black, _p27._1, _p27._2, _p27._3._4._4, _p27._4));
+			} else {
+				return t;
+			}
+		} while(false);
+		return t;
+	} else {
+		return t;
+	}
+};
+var _eeue56$elm_all_dict$AllDict$balance = F5(
+	function (c, k, v, l, r) {
+		return _eeue56$elm_all_dict$AllDict$balance_node(
+			A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, c, k, v, l, r));
+	});
+var _eeue56$elm_all_dict$AllDict$bubble = F5(
+	function (c, k, v, l, r) {
+		return (_eeue56$elm_all_dict$AllDict$isBBlack(l) || _eeue56$elm_all_dict$AllDict$isBBlack(r)) ? A5(
+			_eeue56$elm_all_dict$AllDict$balance,
+			_eeue56$elm_all_dict$AllDict$moreBlack(c),
+			k,
+			v,
+			_eeue56$elm_all_dict$AllDict$lessBlackTree(l),
+			_eeue56$elm_all_dict$AllDict$lessBlackTree(r)) : A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, c, k, v, l, r);
+	});
+var _eeue56$elm_all_dict$AllDict$remove_max = F5(
+	function (c, k, v, l, r) {
+		var _p32 = r;
+		if (_p32.ctor === 'RBEmpty_elm_builtin') {
+			return A3(_eeue56$elm_all_dict$AllDict$rem, c, l, r);
+		} else {
+			return A5(
+				_eeue56$elm_all_dict$AllDict$bubble,
+				c,
+				k,
+				v,
+				l,
+				A5(_eeue56$elm_all_dict$AllDict$remove_max, _p32._0, _p32._1, _p32._2, _p32._3, _p32._4));
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$rem = F3(
+	function (c, l, r) {
+		var _p33 = {ctor: '_Tuple2', _0: l, _1: r};
+		if (_p33._0.ctor === 'RBEmpty_elm_builtin') {
+			if (_p33._1.ctor === 'RBEmpty_elm_builtin') {
+				var _p35 = _p33._0._1;
+				var _p34 = c;
+				switch (_p34.ctor) {
+					case 'Red':
+						return A2(_eeue56$elm_all_dict$AllDict$RBEmpty_elm_builtin, _eeue56$elm_all_dict$AllDict$LBlack, _p35);
+					case 'Black':
+						return A2(_eeue56$elm_all_dict$AllDict$RBEmpty_elm_builtin, _eeue56$elm_all_dict$AllDict$LBBlack, _p35);
+					default:
+						return _eeue56$elm_all_dict$Native_Debug.crash('cannot have bblack or nblack nodes at this point');
+				}
+			} else {
+				var _p38 = _p33._1._0;
+				var _p37 = _p33._0._0;
+				var _p36 = {ctor: '_Tuple3', _0: c, _1: _p37, _2: _p38};
+				if ((((_p36.ctor === '_Tuple3') && (_p36._0.ctor === 'Black')) && (_p36._1.ctor === 'LBlack')) && (_p36._2.ctor === 'Red')) {
+					return A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Black, _p33._1._1, _p33._1._2, _p33._1._3, _p33._1._4);
+				} else {
+					return A4(
+						_eeue56$elm_all_dict$AllDict$reportRemBug,
+						'Black/LBlack/Red',
+						c,
+						_eeue56$elm_all_dict$AllDict$showLColor(_p37),
+						_eeue56$elm_all_dict$AllDict$showNColor(_p38));
+				}
+			}
+		} else {
+			if (_p33._1.ctor === 'RBEmpty_elm_builtin') {
+				var _p41 = _p33._1._0;
+				var _p40 = _p33._0._0;
+				var _p39 = {ctor: '_Tuple3', _0: c, _1: _p40, _2: _p41};
+				if ((((_p39.ctor === '_Tuple3') && (_p39._0.ctor === 'Black')) && (_p39._1.ctor === 'Red')) && (_p39._2.ctor === 'LBlack')) {
+					return A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Black, _p33._0._1, _p33._0._2, _p33._0._3, _p33._0._4);
+				} else {
+					return A4(
+						_eeue56$elm_all_dict$AllDict$reportRemBug,
+						'Black/Red/LBlack',
+						c,
+						_eeue56$elm_all_dict$AllDict$showNColor(_p40),
+						_eeue56$elm_all_dict$AllDict$showLColor(_p41));
+				}
+			} else {
+				var _p47 = _p33._0._2;
+				var _p46 = _p33._0._4;
+				var _p45 = _p33._0._3;
+				var _p44 = _p33._0._1;
+				var _p43 = _p33._0._0;
+				var l$ = A5(_eeue56$elm_all_dict$AllDict$remove_max, _p43, _p44, _p47, _p45, _p46);
+				var r = A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _p33._1._0, _p33._1._1, _p33._1._2, _p33._1._3, _p33._1._4);
+				var l = A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _p43, _p44, _p47, _p45, _p46);
+				var _p42 = _eeue56$elm_all_dict$AllDict$max(l);
+				var k = _p42._0;
+				var v = _p42._1;
+				return A5(_eeue56$elm_all_dict$AllDict$bubble, c, k, v, l$, r);
+			}
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$map = F2(
+	function (f, dict) {
+		var _p48 = dict;
+		if (_p48.ctor === 'RBEmpty_elm_builtin') {
+			return dict;
+		} else {
+			var _p49 = _p48._1;
+			return A5(
+				_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin,
+				_p48._0,
+				_p49,
+				A2(f, _p49, _p48._2),
+				A2(_eeue56$elm_all_dict$AllDict$map, f, _p48._3),
+				A2(_eeue56$elm_all_dict$AllDict$map, f, _p48._4));
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$Same = {ctor: 'Same'};
+var _eeue56$elm_all_dict$AllDict$Remove = {ctor: 'Remove'};
+var _eeue56$elm_all_dict$AllDict$Insert = {ctor: 'Insert'};
+var _eeue56$elm_all_dict$AllDict$update = F3(
+	function (k, alter, dict) {
+		var ord = _eeue56$elm_all_dict$AllDict$getOrd(dict);
+		var empty$ = _eeue56$elm_all_dict$AllDict$empty(ord);
+		var up = function (dict) {
+			var _p50 = dict;
+			if (_p50.ctor === 'RBEmpty_elm_builtin') {
+				var _p51 = alter(_elm_lang$core$Maybe$Nothing);
+				if (_p51.ctor === 'Nothing') {
+					return {ctor: '_Tuple2', _0: _eeue56$elm_all_dict$AllDict$Same, _1: empty$};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: _eeue56$elm_all_dict$AllDict$Insert,
+						_1: A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _eeue56$elm_all_dict$AllDict$Red, k, _p51._0, empty$, empty$)
+					};
+				}
+			} else {
+				var _p62 = _p50._2;
+				var _p61 = _p50._4;
+				var _p60 = _p50._3;
+				var _p59 = _p50._1;
+				var _p58 = _p50._0;
+				var _p52 = A2(
+					_elm_lang$core$Basics$compare,
+					ord(k),
+					ord(_p59));
+				switch (_p52.ctor) {
+					case 'EQ':
+						var _p53 = alter(
+							_elm_lang$core$Maybe$Just(_p62));
+						if (_p53.ctor === 'Nothing') {
+							return {
+								ctor: '_Tuple2',
+								_0: _eeue56$elm_all_dict$AllDict$Remove,
+								_1: A3(_eeue56$elm_all_dict$AllDict$rem, _p58, _p60, _p61)
+							};
+						} else {
+							return {
+								ctor: '_Tuple2',
+								_0: _eeue56$elm_all_dict$AllDict$Same,
+								_1: A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _p58, _p59, _p53._0, _p60, _p61)
+							};
+						}
+					case 'LT':
+						var _p54 = up(_p60);
+						var flag = _p54._0;
+						var newLeft = _p54._1;
+						var _p55 = flag;
+						switch (_p55.ctor) {
+							case 'Same':
+								return {
+									ctor: '_Tuple2',
+									_0: _eeue56$elm_all_dict$AllDict$Same,
+									_1: A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _p58, _p59, _p62, newLeft, _p61)
+								};
+							case 'Insert':
+								return {
+									ctor: '_Tuple2',
+									_0: _eeue56$elm_all_dict$AllDict$Insert,
+									_1: A5(_eeue56$elm_all_dict$AllDict$balance, _p58, _p59, _p62, newLeft, _p61)
+								};
+							default:
+								return {
+									ctor: '_Tuple2',
+									_0: _eeue56$elm_all_dict$AllDict$Remove,
+									_1: A5(_eeue56$elm_all_dict$AllDict$bubble, _p58, _p59, _p62, newLeft, _p61)
+								};
+						}
+					default:
+						var _p56 = up(_p61);
+						var flag = _p56._0;
+						var newRight = _p56._1;
+						var _p57 = flag;
+						switch (_p57.ctor) {
+							case 'Same':
+								return {
+									ctor: '_Tuple2',
+									_0: _eeue56$elm_all_dict$AllDict$Same,
+									_1: A5(_eeue56$elm_all_dict$AllDict$RBNode_elm_builtin, _p58, _p59, _p62, _p60, newRight)
+								};
+							case 'Insert':
+								return {
+									ctor: '_Tuple2',
+									_0: _eeue56$elm_all_dict$AllDict$Insert,
+									_1: A5(_eeue56$elm_all_dict$AllDict$balance, _p58, _p59, _p62, _p60, newRight)
+								};
+							default:
+								return {
+									ctor: '_Tuple2',
+									_0: _eeue56$elm_all_dict$AllDict$Remove,
+									_1: A5(_eeue56$elm_all_dict$AllDict$bubble, _p58, _p59, _p62, _p60, newRight)
+								};
+						}
+				}
+			}
+		};
+		var _p63 = up(dict);
+		var flag = _p63._0;
+		var updatedDict = _p63._1;
+		var _p64 = flag;
+		switch (_p64.ctor) {
+			case 'Same':
+				return updatedDict;
+			case 'Insert':
+				return _eeue56$elm_all_dict$AllDict$ensureBlackRoot(updatedDict);
+			default:
+				return _eeue56$elm_all_dict$AllDict$blacken(updatedDict);
+		}
+	});
+var _eeue56$elm_all_dict$AllDict$insert = F3(
+	function (key, value, dict) {
+		return A3(
+			_eeue56$elm_all_dict$AllDict$update,
+			key,
+			_elm_lang$core$Basics$always(
+				_elm_lang$core$Maybe$Just(value)),
+			dict);
+	});
+var _eeue56$elm_all_dict$AllDict$singleton = F3(
+	function (ord, key, value) {
+		return A3(
+			_eeue56$elm_all_dict$AllDict$insert,
+			key,
+			value,
+			_eeue56$elm_all_dict$AllDict$empty(ord));
+	});
+var _eeue56$elm_all_dict$AllDict$union = F2(
+	function (t1, t2) {
+		return A3(_eeue56$elm_all_dict$AllDict$foldl, _eeue56$elm_all_dict$AllDict$insert, t2, t1);
+	});
+var _eeue56$elm_all_dict$AllDict$fromList = F2(
+	function (ord, assocs) {
+		return A3(
+			_elm_lang$core$List$foldl,
+			F2(
+				function (_p65, dict) {
+					var _p66 = _p65;
+					return A3(_eeue56$elm_all_dict$AllDict$insert, _p66._0, _p66._1, dict);
+				}),
+			_eeue56$elm_all_dict$AllDict$empty(ord),
+			assocs);
+	});
+var _eeue56$elm_all_dict$AllDict$filter = F2(
+	function (predicate, dictionary) {
+		var add = F3(
+			function (key, value, dict) {
+				return A2(predicate, key, value) ? A3(_eeue56$elm_all_dict$AllDict$insert, key, value, dict) : dict;
+			});
+		return A3(
+			_eeue56$elm_all_dict$AllDict$foldl,
+			add,
+			_eeue56$elm_all_dict$AllDict$empty(
+				_eeue56$elm_all_dict$AllDict$getOrd(dictionary)),
+			dictionary);
+	});
+var _eeue56$elm_all_dict$AllDict$intersect = F2(
+	function (t1, t2) {
+		return A2(
+			_eeue56$elm_all_dict$AllDict$filter,
+			F2(
+				function (k, _p67) {
+					return A2(_eeue56$elm_all_dict$AllDict$member, k, t2);
+				}),
+			t1);
+	});
+var _eeue56$elm_all_dict$AllDict$partition = F2(
+	function (predicate, dict) {
+		var ord = _eeue56$elm_all_dict$AllDict$getOrd(dict);
+		var add = F3(
+			function (key, value, _p68) {
+				var _p69 = _p68;
+				var _p71 = _p69._1;
+				var _p70 = _p69._0;
+				return A2(predicate, key, value) ? {
+					ctor: '_Tuple2',
+					_0: A3(_eeue56$elm_all_dict$AllDict$insert, key, value, _p70),
+					_1: _p71
+				} : {
+					ctor: '_Tuple2',
+					_0: _p70,
+					_1: A3(_eeue56$elm_all_dict$AllDict$insert, key, value, _p71)
+				};
+			});
+		return A3(
+			_eeue56$elm_all_dict$AllDict$foldl,
+			add,
+			{
+				ctor: '_Tuple2',
+				_0: _eeue56$elm_all_dict$AllDict$empty(ord),
+				_1: _eeue56$elm_all_dict$AllDict$empty(ord)
+			},
+			dict);
+	});
+var _eeue56$elm_all_dict$AllDict$remove = F2(
+	function (key, dict) {
+		return A3(
+			_eeue56$elm_all_dict$AllDict$update,
+			key,
+			_elm_lang$core$Basics$always(_elm_lang$core$Maybe$Nothing),
+			dict);
+	});
+var _eeue56$elm_all_dict$AllDict$diff = F2(
+	function (t1, t2) {
+		return A3(
+			_eeue56$elm_all_dict$AllDict$foldl,
+			F3(
+				function (k, v, t) {
+					return A2(_eeue56$elm_all_dict$AllDict$remove, k, t);
+				}),
+			t1,
+			t2);
+	});
+
 //import Native.List //
 
 var _elm_lang$core$Native_Array = function() {
@@ -8780,6 +9785,163 @@ var _elm_lang$elm_architecture_tutorial$Comparison$tableTitle = function (title)
 					]))
 			]));
 };
+var _elm_lang$elm_architecture_tutorial$Comparison$selectedSource = function (on) {
+	return A2(
+		_elm_lang$html$Html$select,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$option,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$selected(
+						_elm_lang$core$Native_Utils.eq(on, _elm_lang$elm_architecture_tutorial$Model$Gog))
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(
+						_elm_lang$core$Basics$toString(_elm_lang$elm_architecture_tutorial$Model$Gog))
+					])),
+				A2(
+				_elm_lang$html$Html$option,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$selected(
+						_elm_lang$core$Native_Utils.eq(on, _elm_lang$elm_architecture_tutorial$Model$Steam))
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(
+						_elm_lang$core$Basics$toString(_elm_lang$elm_architecture_tutorial$Model$Steam))
+					]))
+			]));
+};
+var _elm_lang$elm_architecture_tutorial$Comparison$getHalf = F2(
+	function (half, model) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			{
+				ctor: '_Tuple2',
+				_0: _elm_lang$elm_architecture_tutorial$Model$Gog,
+				_1: _elm_lang$core$Native_List.fromArray(
+					[])
+			},
+			A2(_eeue56$elm_all_dict$AllDict$get, half, model.half));
+	});
+var _elm_lang$elm_architecture_tutorial$Comparison$getOn = F2(
+	function (half, model) {
+		return _elm_lang$core$Basics$fst(
+			A2(_elm_lang$elm_architecture_tutorial$Comparison$getHalf, half, model));
+	});
+var _elm_lang$elm_architecture_tutorial$Comparison$getEntries = F2(
+	function (half, model) {
+		return _elm_lang$core$Basics$snd(
+			A2(_elm_lang$elm_architecture_tutorial$Comparison$getHalf, half, model));
+	});
+var _elm_lang$elm_architecture_tutorial$Comparison$toUrl = function (half) {
+	var _p3 = half;
+	if (_p3.ctor === 'Left') {
+		return 'left';
+	} else {
+		return 'right';
+	}
+};
+var _elm_lang$elm_architecture_tutorial$Comparison$NamedEntry = F3(
+	function (a, b, c) {
+		return {internalId: a, externalId: b, name: c};
+	});
+var _elm_lang$elm_architecture_tutorial$Comparison$decodeResponse = A3(
+	_elm_lang$core$Json_Decode$tuple2,
+	F2(
+		function (a, b) {
+			return {ctor: '_Tuple2', _0: a, _1: b};
+		}),
+	_elm_lang$core$Json_Decode$list(
+		A4(
+			_elm_lang$core$Json_Decode$object3,
+			_elm_lang$elm_architecture_tutorial$Comparison$NamedEntry,
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'internalId', _elm_lang$core$Json_Decode$int),
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'externalId', _elm_lang$core$Json_Decode$int),
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string))),
+	_elm_lang$core$Json_Decode$list(
+		A4(
+			_elm_lang$core$Json_Decode$object3,
+			_elm_lang$elm_architecture_tutorial$Comparison$NamedEntry,
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'internalId', _elm_lang$core$Json_Decode$int),
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'externalId', _elm_lang$core$Json_Decode$int),
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string))));
+var _elm_lang$elm_architecture_tutorial$Comparison$Model = F2(
+	function (a, b) {
+		return {half: a, message: b};
+	});
+var _elm_lang$elm_architecture_tutorial$Comparison$Right = {ctor: 'Right'};
+var _elm_lang$elm_architecture_tutorial$Comparison$Left = {ctor: 'Left'};
+var _elm_lang$elm_architecture_tutorial$Comparison$initialModel = {
+	half: A2(
+		_eeue56$elm_all_dict$AllDict$fromList,
+		_elm_lang$core$Basics$toString,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				{
+				ctor: '_Tuple2',
+				_0: _elm_lang$elm_architecture_tutorial$Comparison$Left,
+				_1: {
+					ctor: '_Tuple2',
+					_0: _elm_lang$elm_architecture_tutorial$Model$Gog,
+					_1: _elm_lang$core$Native_List.fromArray(
+						[])
+				}
+			},
+				{
+				ctor: '_Tuple2',
+				_0: _elm_lang$elm_architecture_tutorial$Comparison$Right,
+				_1: {
+					ctor: '_Tuple2',
+					_0: _elm_lang$elm_architecture_tutorial$Model$Steam,
+					_1: _elm_lang$core$Native_List.fromArray(
+						[])
+				}
+			}
+			])),
+	message: ''
+};
+var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
+	function (msg, model) {
+		var _p4 = msg;
+		if (_p4.ctor === 'ReceiveData') {
+			var oldRightOn = A2(_elm_lang$elm_architecture_tutorial$Comparison$getOn, _elm_lang$elm_architecture_tutorial$Comparison$Right, model);
+			var oldLeftOn = A2(_elm_lang$elm_architecture_tutorial$Comparison$getOn, _elm_lang$elm_architecture_tutorial$Comparison$Left, model);
+			var newHalves = A3(
+				_eeue56$elm_all_dict$AllDict$insert,
+				_elm_lang$elm_architecture_tutorial$Comparison$Right,
+				{ctor: '_Tuple2', _0: oldRightOn, _1: _p4._0._1},
+				A3(
+					_eeue56$elm_all_dict$AllDict$insert,
+					_elm_lang$elm_architecture_tutorial$Comparison$Left,
+					{ctor: '_Tuple2', _0: oldLeftOn, _1: _p4._0._0},
+					model.half));
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.update(
+					model,
+					{half: newHalves}),
+				_1: _elm_lang$core$Platform_Cmd$none
+			};
+		} else {
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						half: _elm_lang$elm_architecture_tutorial$Comparison$initialModel.half,
+						message: _elm_lang$core$Basics$toString(_p4._0)
+					}),
+				_1: _elm_lang$core$Platform_Cmd$none
+			};
+		}
+	});
 var _elm_lang$elm_architecture_tutorial$Comparison$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -8811,8 +9973,18 @@ var _elm_lang$elm_architecture_tutorial$Comparison$view = function (model) {
 							]),
 						A2(
 							_elm_lang$core$List_ops['::'],
-							A2(_elm_lang$elm_architecture_tutorial$Comparison$title, model.leftOn, _elm_lang$elm_architecture_tutorial$Comparison$tableTitle),
-							A2(_elm_lang$core$List$map, _elm_lang$elm_architecture_tutorial$Comparison$tableRow, model.entries.left))),
+							_elm_lang$elm_architecture_tutorial$Comparison$selectedSource(
+								A2(_elm_lang$elm_architecture_tutorial$Comparison$getOn, _elm_lang$elm_architecture_tutorial$Comparison$Left, model)),
+							A2(
+								_elm_lang$core$List_ops['::'],
+								A2(
+									_elm_lang$elm_architecture_tutorial$Comparison$title,
+									A2(_elm_lang$elm_architecture_tutorial$Comparison$getOn, _elm_lang$elm_architecture_tutorial$Comparison$Left, model),
+									_elm_lang$elm_architecture_tutorial$Comparison$tableTitle),
+								A2(
+									_elm_lang$core$List$map,
+									_elm_lang$elm_architecture_tutorial$Comparison$tableRow,
+									A2(_elm_lang$elm_architecture_tutorial$Comparison$getEntries, _elm_lang$elm_architecture_tutorial$Comparison$Left, model))))),
 						A2(
 						_elm_lang$html$Html$table,
 						_elm_lang$core$Native_List.fromArray(
@@ -8821,80 +9993,21 @@ var _elm_lang$elm_architecture_tutorial$Comparison$view = function (model) {
 							]),
 						A2(
 							_elm_lang$core$List_ops['::'],
-							A2(_elm_lang$elm_architecture_tutorial$Comparison$title, model.rightOn, _elm_lang$elm_architecture_tutorial$Comparison$tableTitle),
-							A2(_elm_lang$core$List$map, _elm_lang$elm_architecture_tutorial$Comparison$tableRow, model.entries.right)))
+							_elm_lang$elm_architecture_tutorial$Comparison$selectedSource(
+								A2(_elm_lang$elm_architecture_tutorial$Comparison$getOn, _elm_lang$elm_architecture_tutorial$Comparison$Right, model)),
+							A2(
+								_elm_lang$core$List_ops['::'],
+								A2(
+									_elm_lang$elm_architecture_tutorial$Comparison$title,
+									A2(_elm_lang$elm_architecture_tutorial$Comparison$getOn, _elm_lang$elm_architecture_tutorial$Comparison$Right, model),
+									_elm_lang$elm_architecture_tutorial$Comparison$tableTitle),
+								A2(
+									_elm_lang$core$List$map,
+									_elm_lang$elm_architecture_tutorial$Comparison$tableRow,
+									A2(_elm_lang$elm_architecture_tutorial$Comparison$getEntries, _elm_lang$elm_architecture_tutorial$Comparison$Right, model)))))
 					]))
 			]));
 };
-var _elm_lang$elm_architecture_tutorial$Comparison$NamedEntry = F3(
-	function (a, b, c) {
-		return {internalId: a, externalId: b, name: c};
-	});
-var _elm_lang$elm_architecture_tutorial$Comparison$Entries = F2(
-	function (a, b) {
-		return {left: a, right: b};
-	});
-var _elm_lang$elm_architecture_tutorial$Comparison$initialModel = {
-	entries: A2(
-		_elm_lang$elm_architecture_tutorial$Comparison$Entries,
-		_elm_lang$core$Native_List.fromArray(
-			[]),
-		_elm_lang$core$Native_List.fromArray(
-			[])),
-	leftOn: _elm_lang$elm_architecture_tutorial$Model$Gog,
-	rightOn: _elm_lang$elm_architecture_tutorial$Model$Steam,
-	message: ''
-};
-var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
-	function (msg, model) {
-		var _p3 = msg;
-		if (_p3.ctor === 'ReceiveData') {
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$core$Native_Utils.update(
-					model,
-					{entries: _p3._0}),
-				_1: _elm_lang$core$Platform_Cmd$none
-			};
-		} else {
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$core$Native_Utils.update(
-					model,
-					{
-						entries: A2(
-							_elm_lang$elm_architecture_tutorial$Comparison$Entries,
-							_elm_lang$core$Native_List.fromArray(
-								[]),
-							_elm_lang$core$Native_List.fromArray(
-								[])),
-						message: _elm_lang$core$Basics$toString(_p3._0)
-					}),
-				_1: _elm_lang$core$Platform_Cmd$none
-			};
-		}
-	});
-var _elm_lang$elm_architecture_tutorial$Comparison$decodeResponse = A3(
-	_elm_lang$core$Json_Decode$tuple2,
-	_elm_lang$elm_architecture_tutorial$Comparison$Entries,
-	_elm_lang$core$Json_Decode$list(
-		A4(
-			_elm_lang$core$Json_Decode$object3,
-			_elm_lang$elm_architecture_tutorial$Comparison$NamedEntry,
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'internalId', _elm_lang$core$Json_Decode$int),
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'externalId', _elm_lang$core$Json_Decode$int),
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string))),
-	_elm_lang$core$Json_Decode$list(
-		A4(
-			_elm_lang$core$Json_Decode$object3,
-			_elm_lang$elm_architecture_tutorial$Comparison$NamedEntry,
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'internalId', _elm_lang$core$Json_Decode$int),
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'externalId', _elm_lang$core$Json_Decode$int),
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string))));
-var _elm_lang$elm_architecture_tutorial$Comparison$Model = F4(
-	function (a, b, c, d) {
-		return {entries: a, leftOn: b, rightOn: c, message: d};
-	});
 var _elm_lang$elm_architecture_tutorial$Comparison$DataError = function (a) {
 	return {ctor: 'DataError', _0: a};
 };
@@ -8930,13 +10043,21 @@ var _elm_lang$elm_architecture_tutorial$Comparison$main = {
 					'comparison/data',
 					_elm_lang$core$Native_List.fromArray(
 						[
-							{ctor: '_Tuple2', _0: 'left', _1: _elm_lang$elm_architecture_tutorial$Comparison$initialModel.leftOn},
-							{ctor: '_Tuple2', _0: 'right', _1: _elm_lang$elm_architecture_tutorial$Comparison$initialModel.rightOn}
+							{
+							ctor: '_Tuple2',
+							_0: _elm_lang$elm_architecture_tutorial$Comparison$toUrl(_elm_lang$elm_architecture_tutorial$Comparison$Left),
+							_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$getOn, _elm_lang$elm_architecture_tutorial$Comparison$Left, _elm_lang$elm_architecture_tutorial$Comparison$initialModel)
+						},
+							{
+							ctor: '_Tuple2',
+							_0: _elm_lang$elm_architecture_tutorial$Comparison$toUrl(_elm_lang$elm_architecture_tutorial$Comparison$Right),
+							_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$getOn, _elm_lang$elm_architecture_tutorial$Comparison$Right, _elm_lang$elm_architecture_tutorial$Comparison$initialModel)
+						}
 						]))
 			},
 			view: _elm_lang$elm_architecture_tutorial$Comparison$view,
 			update: _elm_lang$elm_architecture_tutorial$Comparison$update,
-			subscriptions: function (_p4) {
+			subscriptions: function (_p5) {
 				return _elm_lang$core$Platform_Sub$none;
 			}
 		})
