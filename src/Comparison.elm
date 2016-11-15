@@ -1,17 +1,17 @@
 module Comparison exposing (..)
 import AllDict exposing (AllDict)
 import Html exposing (Html, button, div, text, span, table, tr, th, td, select, option)
-import Html.Attributes exposing(class, selected)
+import Html.Attributes exposing(class, selected, value)
 import Html.App as App
-import Html.Events exposing (onClick, on)
+import Html.Events exposing (onClick, on, targetValue)
 import Http
-import Json.Decode as Json exposing (..)
+import Json.Decode as Json exposing (tuple2, int, string, list, object3, (:=))
 import Task
 import String
 import Model exposing (..)
 
 main =
-    App.program { init = ( initialModel, getResponse "comparison/data" [(toUrl Left, getOn Left initialModel), (toUrl Right, getOn Right initialModel)]),
+    App.program { init = ( initialModel, refresh initialModel),
     view = view, update = update, subscriptions = \_ -> Sub.none }
 
 -- MODEL
@@ -20,6 +20,9 @@ type PageHalf = Left | Right
 type alias NamedEntry = {internalId : Int, externalId : Int, name : String}
 
 type alias Model = {half : AllDict PageHalf (GameOn, List NamedEntry) String, message : String}
+
+refresh model =
+    getResponse "comparison/data" [(toUrl Left, getOn Left model), (toUrl Right, getOn Right model)]
 
 initialModel = {half = AllDict.fromList toString [(Left, (Gog, [])), (Right, (Steam, []))], message = ""}
 
@@ -42,7 +45,7 @@ getEntries half model =
 type Msg
   = ReceiveData (List NamedEntry, List NamedEntry)
   | DataError Http.Error
---  | Refresh
+  | Refresh PageHalf String
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -56,6 +59,15 @@ update msg model =
             ({model | half = newHalves} , Cmd.none)
     DataError err ->
       ({model | half = initialModel.half, message = toString err} , Cmd.none)
+    Refresh half value ->
+        let
+            gameOn = case value of
+                "Steam" -> Steam
+                _ -> Gog
+            newHalves = AllDict.insert half (gameOn, getEntries half model) model.half
+            newModel = { model | half =  newHalves}
+        in
+            (newModel, refresh newModel)
 
 -- VIEW
 
@@ -63,22 +75,27 @@ view : Model -> Html Msg
 view model =
   div [] <|
     [ div [] (if String.isEmpty model.message then [] else [ text (toString model.message) ])
-    , div [] [ table[class <| "inlineTable"] <| (selectedSource <| getOn Left model)  :: title (getOn Left model) tableTitle  :: (List.map tableRow (getEntries Left model))
-             , table[class <| "inlineTable"] <| (selectedSource <| getOn Right model) :: title (getOn Right model) tableTitle :: (List.map tableRow (getEntries Right model))
+    , div [] [ table[class <| "inlineTable"] <| selectedSource Left model  :: title Left model  :: (List.map tableRow (getEntries Left model))
+             , table[class <| "inlineTable"] <| selectedSource Right model :: title Right model :: (List.map tableRow (getEntries Right model))
              ]
     ]
 
-selectedSource on =
-    select [] [option [selected (on == Gog)][text <| toString Gog], option [selected (on == Steam)][text <| toString Steam]]
-
-tableTitle title = tr [] [ th[][text title] ]
+selectedSource half model =
+    let
+        gameOn = getOn half model
+    in
+        select [onSelect <| Refresh half] [option [selected (gameOn == Gog), value <| toString Gog][text <| toString Gog], option [selected (gameOn == Steam), value <| toString Steam][text <| toString Steam]]
 
 tableRow e = tr [] [ td[][text e.name] ]
 
-title on fn =
-    case on of
-        Gog -> fn "Gog Game"
-        Steam -> fn "Steam Game"
+title half model =
+    let
+        gameOn = getOn half model
+        tableTitle title = tr [] [ th[][text title] ]
+    in
+        case gameOn of
+            Gog -> tableTitle "Gog Game"
+            Steam -> tableTitle "Steam Game"
 
 getResponse address params =
   let
@@ -89,9 +106,9 @@ getResponse address params =
 joinParameters params =
     String.join "&&" (List.map (\((k, v)) -> k ++ "=" ++ (toString v)) params)
 
---onSelect : GameOn -> Html.Attribute msg
---onSelect msg =
---    on "change" (Json.succeed msg)
+onSelect : (String -> Msg) -> Html.Attribute Msg
+onSelect msg =
+    on "change" (Json.map msg targetValue)
 
 decodeResponse : Json.Decoder (List NamedEntry, List NamedEntry)
 decodeResponse =
