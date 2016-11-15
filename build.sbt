@@ -6,6 +6,8 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.11.7"
 
+routesImport += "binders.CustomBinders._"
+
 libraryDependencies ++= Seq(
   cache,
   ws,

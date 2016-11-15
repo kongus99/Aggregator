@@ -8719,7 +8719,34 @@ var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F3(
 var _elm_lang$elm_architecture_tutorial$Model$Steam = {ctor: 'Steam'};
 var _elm_lang$elm_architecture_tutorial$Model$Gog = {ctor: 'Gog'};
 
-var _elm_lang$elm_architecture_tutorial$Comparison$steamTableRow = function (e) {
+var _elm_lang$elm_architecture_tutorial$Comparison$joinParameters = function (params) {
+	return A2(
+		_elm_lang$core$String$join,
+		'&&',
+		A2(
+			_elm_lang$core$List$map,
+			function (_p0) {
+				var _p1 = _p0;
+				return A2(
+					_elm_lang$core$Basics_ops['++'],
+					_p1._0,
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						'=',
+						_elm_lang$core$Basics$toString(_p1._1)));
+			},
+			params));
+};
+var _elm_lang$elm_architecture_tutorial$Comparison$title = F2(
+	function (on, fn) {
+		var _p2 = on;
+		if (_p2.ctor === 'Gog') {
+			return fn('Gog Game');
+		} else {
+			return fn('Steam Game');
+		}
+	});
+var _elm_lang$elm_architecture_tutorial$Comparison$tableRow = function (e) {
 	return A2(
 		_elm_lang$html$Html$tr,
 		_elm_lang$core$Native_List.fromArray(
@@ -8736,22 +8763,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$steamTableRow = function (e) 
 					]))
 			]));
 };
-var _elm_lang$elm_architecture_tutorial$Comparison$steamTableTitle = A2(
-	_elm_lang$html$Html$tr,
-	_elm_lang$core$Native_List.fromArray(
-		[]),
-	_elm_lang$core$Native_List.fromArray(
-		[
-			A2(
-			_elm_lang$html$Html$th,
-			_elm_lang$core$Native_List.fromArray(
-				[]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html$text('Steam Game')
-				]))
-		]));
-var _elm_lang$elm_architecture_tutorial$Comparison$gogTableRow = function (e) {
+var _elm_lang$elm_architecture_tutorial$Comparison$tableTitle = function (title) {
 	return A2(
 		_elm_lang$html$Html$tr,
 		_elm_lang$core$Native_List.fromArray(
@@ -8759,30 +8771,15 @@ var _elm_lang$elm_architecture_tutorial$Comparison$gogTableRow = function (e) {
 		_elm_lang$core$Native_List.fromArray(
 			[
 				A2(
-				_elm_lang$html$Html$td,
+				_elm_lang$html$Html$th,
 				_elm_lang$core$Native_List.fromArray(
 					[]),
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html$text(e.title)
+						_elm_lang$html$Html$text(title)
 					]))
 			]));
 };
-var _elm_lang$elm_architecture_tutorial$Comparison$gogTableTitle = A2(
-	_elm_lang$html$Html$tr,
-	_elm_lang$core$Native_List.fromArray(
-		[]),
-	_elm_lang$core$Native_List.fromArray(
-		[
-			A2(
-			_elm_lang$html$Html$th,
-			_elm_lang$core$Native_List.fromArray(
-				[]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html$text('Gog Game')
-				]))
-		]));
 var _elm_lang$elm_architecture_tutorial$Comparison$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -8814,8 +8811,8 @@ var _elm_lang$elm_architecture_tutorial$Comparison$view = function (model) {
 							]),
 						A2(
 							_elm_lang$core$List_ops['::'],
-							_elm_lang$elm_architecture_tutorial$Comparison$gogTableTitle,
-							A2(_elm_lang$core$List$map, _elm_lang$elm_architecture_tutorial$Comparison$gogTableRow, model.entries.left))),
+							A2(_elm_lang$elm_architecture_tutorial$Comparison$title, model.leftOn, _elm_lang$elm_architecture_tutorial$Comparison$tableTitle),
+							A2(_elm_lang$core$List$map, _elm_lang$elm_architecture_tutorial$Comparison$tableRow, model.entries.left))),
 						A2(
 						_elm_lang$html$Html$table,
 						_elm_lang$core$Native_List.fromArray(
@@ -8824,11 +8821,15 @@ var _elm_lang$elm_architecture_tutorial$Comparison$view = function (model) {
 							]),
 						A2(
 							_elm_lang$core$List_ops['::'],
-							_elm_lang$elm_architecture_tutorial$Comparison$steamTableTitle,
-							A2(_elm_lang$core$List$map, _elm_lang$elm_architecture_tutorial$Comparison$steamTableRow, model.entries.right)))
+							A2(_elm_lang$elm_architecture_tutorial$Comparison$title, model.rightOn, _elm_lang$elm_architecture_tutorial$Comparison$tableTitle),
+							A2(_elm_lang$core$List$map, _elm_lang$elm_architecture_tutorial$Comparison$tableRow, model.entries.right)))
 					]))
 			]));
 };
+var _elm_lang$elm_architecture_tutorial$Comparison$NamedEntry = F3(
+	function (a, b, c) {
+		return {internalId: a, externalId: b, name: c};
+	});
 var _elm_lang$elm_architecture_tutorial$Comparison$Entries = F2(
 	function (a, b) {
 		return {left: a, right: b};
@@ -8840,17 +8841,19 @@ var _elm_lang$elm_architecture_tutorial$Comparison$initialModel = {
 			[]),
 		_elm_lang$core$Native_List.fromArray(
 			[])),
+	leftOn: _elm_lang$elm_architecture_tutorial$Model$Gog,
+	rightOn: _elm_lang$elm_architecture_tutorial$Model$Steam,
 	message: ''
 };
 var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 	function (msg, model) {
-		var _p0 = msg;
-		if (_p0.ctor === 'ReceiveData') {
+		var _p3 = msg;
+		if (_p3.ctor === 'ReceiveData') {
 			return {
 				ctor: '_Tuple2',
 				_0: _elm_lang$core$Native_Utils.update(
 					model,
-					{entries: _p0._0}),
+					{entries: _p3._0}),
 				_1: _elm_lang$core$Platform_Cmd$none
 			};
 		} else {
@@ -8865,7 +8868,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 								[]),
 							_elm_lang$core$Native_List.fromArray(
 								[])),
-						message: _elm_lang$core$Basics$toString(_p0._0)
+						message: _elm_lang$core$Basics$toString(_p3._0)
 					}),
 				_1: _elm_lang$core$Platform_Cmd$none
 			};
@@ -8877,20 +8880,20 @@ var _elm_lang$elm_architecture_tutorial$Comparison$decodeResponse = A3(
 	_elm_lang$core$Json_Decode$list(
 		A4(
 			_elm_lang$core$Json_Decode$object3,
-			_elm_lang$elm_architecture_tutorial$Model$GogEntry,
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'id', _elm_lang$core$Json_Decode$int),
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'title', _elm_lang$core$Json_Decode$string),
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'gogId', _elm_lang$core$Json_Decode$int))),
+			_elm_lang$elm_architecture_tutorial$Comparison$NamedEntry,
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'internalId', _elm_lang$core$Json_Decode$int),
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'externalId', _elm_lang$core$Json_Decode$int),
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string))),
 	_elm_lang$core$Json_Decode$list(
 		A4(
 			_elm_lang$core$Json_Decode$object3,
-			_elm_lang$elm_architecture_tutorial$Model$SteamEntry,
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'id', _elm_lang$core$Json_Decode$int),
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'steamId', _elm_lang$core$Json_Decode$int))));
-var _elm_lang$elm_architecture_tutorial$Comparison$Model = F2(
-	function (a, b) {
-		return {entries: a, message: b};
+			_elm_lang$elm_architecture_tutorial$Comparison$NamedEntry,
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'internalId', _elm_lang$core$Json_Decode$int),
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'externalId', _elm_lang$core$Json_Decode$int),
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string))));
+var _elm_lang$elm_architecture_tutorial$Comparison$Model = F4(
+	function (a, b, c, d) {
+		return {entries: a, leftOn: b, rightOn: c, message: d};
 	});
 var _elm_lang$elm_architecture_tutorial$Comparison$DataError = function (a) {
 	return {ctor: 'DataError', _0: a};
@@ -8898,25 +8901,42 @@ var _elm_lang$elm_architecture_tutorial$Comparison$DataError = function (a) {
 var _elm_lang$elm_architecture_tutorial$Comparison$ReceiveData = function (a) {
 	return {ctor: 'ReceiveData', _0: a};
 };
-var _elm_lang$elm_architecture_tutorial$Comparison$getResponse = function (address) {
-	var url = A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:9000/', address);
-	return A3(
-		_elm_lang$core$Task$perform,
-		_elm_lang$elm_architecture_tutorial$Comparison$DataError,
-		_elm_lang$elm_architecture_tutorial$Comparison$ReceiveData,
-		A2(_evancz$elm_http$Http$get, _elm_lang$elm_architecture_tutorial$Comparison$decodeResponse, url));
-};
+var _elm_lang$elm_architecture_tutorial$Comparison$getResponse = F2(
+	function (address, params) {
+		var url = A2(
+			_elm_lang$core$Basics_ops['++'],
+			'http://localhost:9000/',
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				address,
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'?',
+					_elm_lang$elm_architecture_tutorial$Comparison$joinParameters(params))));
+		return A3(
+			_elm_lang$core$Task$perform,
+			_elm_lang$elm_architecture_tutorial$Comparison$DataError,
+			_elm_lang$elm_architecture_tutorial$Comparison$ReceiveData,
+			A2(_evancz$elm_http$Http$get, _elm_lang$elm_architecture_tutorial$Comparison$decodeResponse, url));
+	});
 var _elm_lang$elm_architecture_tutorial$Comparison$main = {
 	main: _elm_lang$html$Html_App$program(
 		{
 			init: {
 				ctor: '_Tuple2',
 				_0: _elm_lang$elm_architecture_tutorial$Comparison$initialModel,
-				_1: _elm_lang$elm_architecture_tutorial$Comparison$getResponse('comparison/data')
+				_1: A2(
+					_elm_lang$elm_architecture_tutorial$Comparison$getResponse,
+					'comparison/data',
+					_elm_lang$core$Native_List.fromArray(
+						[
+							{ctor: '_Tuple2', _0: 'left', _1: _elm_lang$elm_architecture_tutorial$Comparison$initialModel.leftOn},
+							{ctor: '_Tuple2', _0: 'right', _1: _elm_lang$elm_architecture_tutorial$Comparison$initialModel.rightOn}
+						]))
 			},
 			view: _elm_lang$elm_architecture_tutorial$Comparison$view,
 			update: _elm_lang$elm_architecture_tutorial$Comparison$update,
-			subscriptions: function (_p1) {
+			subscriptions: function (_p4) {
 				return _elm_lang$core$Platform_Sub$none;
 			}
 		})

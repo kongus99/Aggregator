@@ -9,7 +9,7 @@ GET        /steamData           controllers.HomeController.steamData
 GET        /allData             controllers.HomeController.allData
 
 GET        /comparison          controllers.ComparisonController.main
-GET        /comparison/data     controllers.ComparisonController.data
+GET        /comparison/data     controllers.ComparisonController.data(left : services.GameOn.GameOn, right : services.GameOn.GameOn)
 
 
 # Map static resources from the /public folder to the /assets URL path
