@@ -9794,7 +9794,12 @@ var _elm_lang$elm_architecture_tutorial$Comparison$ComparisonEntry = F3(
 		return {left: a, metricResult: b, right: c};
 	});
 var _elm_lang$elm_architecture_tutorial$Comparison$decodeResponse = _elm_lang$core$Json_Decode$list(
-	A4(_elm_lang$core$Json_Decode$tuple3, _elm_lang$elm_architecture_tutorial$Comparison$ComparisonEntry, _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson, _elm_lang$core$Json_Decode$int, _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson));
+	A4(
+		_elm_lang$core$Json_Decode$object3,
+		_elm_lang$elm_architecture_tutorial$Comparison$ComparisonEntry,
+		A2(_elm_lang$core$Json_Decode_ops[':='], 'left', _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson),
+		A2(_elm_lang$core$Json_Decode_ops[':='], 'metricResult', _elm_lang$core$Json_Decode$int),
+		A2(_elm_lang$core$Json_Decode_ops[':='], 'left', _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson)));
 var _elm_lang$elm_architecture_tutorial$Comparison$Model = F5(
 	function (a, b, c, d, e) {
 		return {comparisons: a, leftOn: b, rightOn: c, minimumMetric: d, message: e};

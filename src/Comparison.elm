@@ -115,5 +115,5 @@ onSelect msg =
 
 decodeResponse : Json.Decoder (List ComparisonEntry)
 decodeResponse =
-    list (tuple3 ComparisonEntry namedEntryJson int namedEntryJson)
+    list (object3 ComparisonEntry ("left" := namedEntryJson) ("metricResult" := int) ("left" := namedEntryJson))
 namedEntryJson = object3 NamedEntry ("internalId" := int) ("externalId" := int) ("name" := string)
