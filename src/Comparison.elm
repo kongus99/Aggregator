@@ -5,7 +5,7 @@ import Html.Attributes exposing(class, selected, value)
 import Html.App as App
 import Html.Events exposing (onClick, on, targetValue)
 import Http
-import Json.Decode as Json exposing (tuple2, int, string, list, object3, (:=))
+import Json.Decode as Json exposing (tuple3, int, string, list, object3, (:=))
 import Task
 import String
 import Model exposing (..)
@@ -15,88 +15,91 @@ main =
     view = view, update = update, subscriptions = \_ -> Sub.none }
 
 -- MODEL
-type PageHalf = Left | Right
+type PageSide = Left | Right
 
 type alias NamedEntry = {internalId : Int, externalId : Int, name : String}
 
-type alias Model = {half : AllDict PageHalf (GameOn, List NamedEntry) String, message : String}
+type alias ComparisonEntry = {left : NamedEntry, metricResult : Int, right : NamedEntry}
+
+type alias Model = {comparisons : List ComparisonEntry, leftOn : GameOn, rightOn : GameOn, minimumMetric : Int, message : String}
+
+initialModel = Model [] Gog Steam 3 ""
 
 refresh model =
-    getResponse "comparison/data" [(toUrl Left, getOn Left model), (toUrl Right, getOn Right model)]
+    getResponse "comparison/data" [("left", toString model.leftOn), ("right", toString model.rightOn), ("minimumMetric", toString model.minimumMetric)]
 
-initialModel = {half = AllDict.fromList toString [(Left, (Gog, [])), (Right, (Steam, []))], message = ""}
-
-toUrl half =
-    case half of
-        Left -> "left"
-        Right -> "right"
-
-getHalf half model =
-    AllDict.get half model.half |> Maybe.withDefault (Gog, [])
-
-getOn half model =
-    getHalf half model |> fst
-
-getEntries half model =
-   getHalf half model |> snd
+getOn side model =
+    if side == Left then model.leftOn else model.rightOn
 
 -- UPDATE
 
 type Msg
-  = ReceiveData (List NamedEntry, List NamedEntry)
+  = ReceiveData (List ComparisonEntry)
   | DataError Http.Error
-  | Refresh PageHalf String
+  | Refresh PageSide String
+  | Increment
+  | Decrement
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    ReceiveData (leftList, rightList) ->
+    ReceiveData comparisons -> ({model | comparisons = comparisons} , Cmd.none)
+    DataError err -> ({initialModel | message = toString err} , Cmd.none)
+    Refresh side value ->
         let
-            oldLeftOn = getOn Left model
-            oldRightOn = getOn Right model
-            newHalves = AllDict.insert Left (oldLeftOn, leftList) model.half |> AllDict.insert Right (oldRightOn, rightList)
+            gameOn = if value == "Steam" then Steam else Gog
+            newModel = if side == Left then {model | leftOn = gameOn} else {model | rightOn = gameOn}
         in
-            ({model | half = newHalves} , Cmd.none)
-    DataError err ->
-      ({model | half = initialModel.half, message = toString err} , Cmd.none)
-    Refresh half value ->
+            ({ newModel | comparisons = []}, refresh newModel)
+    Increment ->
         let
-            gameOn = case value of
-                "Steam" -> Steam
-                _ -> Gog
-            newHalves = AllDict.insert half (gameOn, getEntries half model) model.half
-            newModel = { model | half =  newHalves}
+            newModel = {model | minimumMetric = model.minimumMetric + 1}
         in
-            (newModel, refresh newModel)
-
+            (newModel , refresh newModel)
+    Decrement ->
+        let
+            newModel = {model | minimumMetric = model.minimumMetric - 1}
+        in
+            (newModel , refresh newModel)
 -- VIEW
 
 view : Model -> Html Msg
 view model =
   div [] <|
     [ div [] (if String.isEmpty model.message then [] else [ text (toString model.message) ])
-    , div [] [ table[class <| "inlineTable"] <| selectedSource Left model  :: title Left model  :: (List.map tableRow (getEntries Left model))
-             , table[class <| "inlineTable"] <| selectedSource Right model :: title Right model :: (List.map tableRow (getEntries Right model))
+    , div [] [ table[class <| "inlineTable"] <| selectedSource Left model  :: selectedSource Right model :: title model  :: (List.map tableRow model.comparisons)
              ]
     ]
 
-selectedSource half model =
+selectedSource side model =
     let
-        gameOn = getOn half model
+        gameOn = getOn side model
     in
-        select [onSelect <| Refresh half] [option [selected (gameOn == Gog), value <| toString Gog][text <| toString Gog], option [selected (gameOn == Steam), value <| toString Steam][text <| toString Steam]]
+        select [onSelect <| Refresh side] [option [selected (gameOn == Gog), value <| toString Gog][text <| toString Gog], option [selected (gameOn == Steam), value <| toString Steam][text <| toString Steam]]
 
-tableRow e = tr [] [ td[][text e.name] ]
+tableRow e = tr [] [ td[][text e.left.name]
+                   , td[][text <| toString e.metricResult]
+                   , td[][text e.right.name] ]
 
-title half model =
+title model =
     let
-        gameOn = getOn half model
-        tableTitle title = tr [] [ th[][text title] ]
+        tableTitle t1 t2 = tr [] [ th[][text t1]
+                                 , th[] <| metricButtons model.minimumMetric
+                                 , th[][text t2]]
+        getTitle on = case on of
+                          Gog -> "Gog Games"
+                          Steam -> "Steam Games"
     in
-        case gameOn of
-            Gog -> tableTitle "Gog Game"
-            Steam -> tableTitle "Steam Game"
+        tableTitle (getTitle model.leftOn) (getTitle model.rightOn)
 
+
+metricButtons value =
+    [ button [ onClick Increment ] [ text "+" ]
+        , div [] [ text <| "Maximum editing distance " ++ (toString (value - 1)) ]
+        , button [ onClick Decrement ] [ text "-" ]
+    ]
+
+getResponse : String -> List ( String, String ) -> Cmd Msg
 getResponse address params =
   let
     url = "http://localhost:9000/" ++ address ++ "?" ++ (joinParameters params)
@@ -104,15 +107,13 @@ getResponse address params =
     Task.perform DataError ReceiveData (Http.get decodeResponse url)
 
 joinParameters params =
-    String.join "&&" (List.map (\((k, v)) -> k ++ "=" ++ (toString v)) params)
+    String.join "&&" (List.map (\((k, v)) -> k ++ "=" ++ v) params)
 
 onSelect : (String -> Msg) -> Html.Attribute Msg
 onSelect msg =
     on "change" (Json.map msg targetValue)
 
-decodeResponse : Json.Decoder (List NamedEntry, List NamedEntry)
+decodeResponse : Json.Decoder (List ComparisonEntry)
 decodeResponse =
-  tuple2
-    (\a -> \b -> (a, b))
-    (list <| object3 NamedEntry ("internalId" := int) ("externalId" := int) ("name" := string))
-    (list <| object3 NamedEntry ("internalId" := int) ("externalId" := int) ("name" := string))
+    list (tuple3 ComparisonEntry namedEntryJson int namedEntryJson)
+namedEntryJson = object3 NamedEntry ("internalId" := int) ("externalId" := int) ("name" := string)

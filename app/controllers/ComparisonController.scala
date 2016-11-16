@@ -33,25 +33,26 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
     }
   }
 
-  implicit def tuple2Writes[A, B](implicit a: Writes[A], b: Writes[B]): Writes[(A, B)] = new Writes[(A, B)] {
-    def writes(tuple: (A, B)) = JsArray(Seq(a.writes(tuple._1), b.writes(tuple._2)))
+  implicit def tuple2Writes[A, B](implicit a: Writes[A], mid : Writes[Int], b: Writes[B]): Writes[(A, Int, B)] = new Writes[(A, Int, B)] {
+    def writes(t: (A, Int, B)) = {
+      JsArray(Seq(a.writes(t._1), mid.writes(t._2), b.writes(t._3)))
+    }
   }
 
-  def data(left : GameOn, right: GameOn) = Action.async {
-      getData(left, right).map(p => Ok(Json.toJson(p)))
+  def data(left : GameOn, right: GameOn, minimumMetric : Int) = Action.async {
+      getData(left, right, minimumMetric).map(p => Ok(Json.toJson(p)))
   }
 
-  def limitToClose(gog: Seq[NamedEntry], steam: Seq[NamedEntry]): (Seq[NamedEntry], Seq[NamedEntry]) = {
-    val tuples = gog.flatMap(g => steam.map(s => (g, s))).map(p => (p._1, p._2, ThresholdLevenshtein.count(p._1.name, p._2.name, 2))).filter(t => t._3 < 2)
-    (tuples.map(_._1), tuples.map(_._2))
+  def limitToClose(gog: Seq[NamedEntry], steam: Seq[NamedEntry], minimumMetric : Int): Seq[(NamedEntry, Int, NamedEntry)] = {
+    gog.flatMap(g => steam.map(s => (g, s))).map(p => (p._1, ThresholdLevenshtein.count(p._1.name, p._2.name, minimumMetric), p._2)).filter(t => t._2 < minimumMetric)
   }
 
-  def getData(left : GameOn, right: GameOn) = {
+  def getData(left : GameOn, right: GameOn, minimumMetric : Int) = {
     for {
       leftEntries <- getEntries(left)
       rightEntries <- getEntries(right)
     } yield {
-      limitToClose(leftEntries.sortBy(_.name), rightEntries.sortBy(_.name))
+      limitToClose(leftEntries.sortBy(_.name), rightEntries.sortBy(_.name), minimumMetric)
     }
   }
   def getEntries(on : GameOn) : Future[Seq[NamedEntry]] ={

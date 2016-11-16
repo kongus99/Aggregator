@@ -9741,10 +9741,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$joinParameters = function (pa
 				return A2(
 					_elm_lang$core$Basics_ops['++'],
 					_p1._0,
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						'=',
-						_elm_lang$core$Basics$toString(_p1._1)));
+					A2(_elm_lang$core$Basics_ops['++'], '=', _p1._1));
 			},
 			params));
 };
@@ -9761,30 +9758,111 @@ var _elm_lang$elm_architecture_tutorial$Comparison$tableRow = function (e) {
 					[]),
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html$text(e.name)
+						_elm_lang$html$Html$text(e.left.name)
+					])),
+				A2(
+				_elm_lang$html$Html$td,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(
+						_elm_lang$core$Basics$toString(e.metricResult))
+					])),
+				A2(
+				_elm_lang$html$Html$td,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(e.right.name)
 					]))
 			]));
 };
-var _elm_lang$elm_architecture_tutorial$Comparison$getHalf = F2(
-	function (half, model) {
-		return A2(
-			_elm_lang$core$Maybe$withDefault,
-			{
-				ctor: '_Tuple2',
-				_0: _elm_lang$elm_architecture_tutorial$Model$Gog,
-				_1: _elm_lang$core$Native_List.fromArray(
-					[])
-			},
-			A2(_eeue56$elm_all_dict$AllDict$get, half, model.half));
+var _elm_lang$elm_architecture_tutorial$Comparison$NamedEntry = F3(
+	function (a, b, c) {
+		return {internalId: a, externalId: b, name: c};
 	});
+var _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson = A4(
+	_elm_lang$core$Json_Decode$object3,
+	_elm_lang$elm_architecture_tutorial$Comparison$NamedEntry,
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'internalId', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'externalId', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string));
+var _elm_lang$elm_architecture_tutorial$Comparison$ComparisonEntry = F3(
+	function (a, b, c) {
+		return {left: a, metricResult: b, right: c};
+	});
+var _elm_lang$elm_architecture_tutorial$Comparison$decodeResponse = _elm_lang$core$Json_Decode$list(
+	A4(_elm_lang$core$Json_Decode$tuple3, _elm_lang$elm_architecture_tutorial$Comparison$ComparisonEntry, _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson, _elm_lang$core$Json_Decode$int, _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson));
+var _elm_lang$elm_architecture_tutorial$Comparison$Model = F5(
+	function (a, b, c, d, e) {
+		return {comparisons: a, leftOn: b, rightOn: c, minimumMetric: d, message: e};
+	});
+var _elm_lang$elm_architecture_tutorial$Comparison$initialModel = A5(
+	_elm_lang$elm_architecture_tutorial$Comparison$Model,
+	_elm_lang$core$Native_List.fromArray(
+		[]),
+	_elm_lang$elm_architecture_tutorial$Model$Gog,
+	_elm_lang$elm_architecture_tutorial$Model$Steam,
+	3,
+	'');
+var _elm_lang$elm_architecture_tutorial$Comparison$Right = {ctor: 'Right'};
+var _elm_lang$elm_architecture_tutorial$Comparison$Left = {ctor: 'Left'};
 var _elm_lang$elm_architecture_tutorial$Comparison$getOn = F2(
-	function (half, model) {
-		return _elm_lang$core$Basics$fst(
-			A2(_elm_lang$elm_architecture_tutorial$Comparison$getHalf, half, model));
+	function (side, model) {
+		return _elm_lang$core$Native_Utils.eq(side, _elm_lang$elm_architecture_tutorial$Comparison$Left) ? model.leftOn : model.rightOn;
 	});
-var _elm_lang$elm_architecture_tutorial$Comparison$title = F2(
-	function (half, model) {
-		var tableTitle = function (title) {
+var _elm_lang$elm_architecture_tutorial$Comparison$Decrement = {ctor: 'Decrement'};
+var _elm_lang$elm_architecture_tutorial$Comparison$Increment = {ctor: 'Increment'};
+var _elm_lang$elm_architecture_tutorial$Comparison$metricButtons = function (value) {
+	return _elm_lang$core$Native_List.fromArray(
+		[
+			A2(
+			_elm_lang$html$Html$button,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Events$onClick(_elm_lang$elm_architecture_tutorial$Comparison$Increment)
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('+')
+				])),
+			A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text(
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						'Maximum editing distance ',
+						_elm_lang$core$Basics$toString(value - 1)))
+				])),
+			A2(
+			_elm_lang$html$Html$button,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Events$onClick(_elm_lang$elm_architecture_tutorial$Comparison$Decrement)
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('-')
+				]))
+		]);
+};
+var _elm_lang$elm_architecture_tutorial$Comparison$title = function (model) {
+	var getTitle = function (on) {
+		var _p2 = on;
+		if (_p2.ctor === 'Gog') {
+			return 'Gog Games';
+		} else {
+			return 'Steam Games';
+		}
+	};
+	var tableTitle = F2(
+		function (t1, t2) {
 			return A2(
 				_elm_lang$html$Html$tr,
 				_elm_lang$core$Native_List.fromArray(
@@ -9797,103 +9875,41 @@ var _elm_lang$elm_architecture_tutorial$Comparison$title = F2(
 							[]),
 						_elm_lang$core$Native_List.fromArray(
 							[
-								_elm_lang$html$Html$text(title)
+								_elm_lang$html$Html$text(t1)
+							])),
+						A2(
+						_elm_lang$html$Html$th,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$elm_architecture_tutorial$Comparison$metricButtons(model.minimumMetric)),
+						A2(
+						_elm_lang$html$Html$th,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text(t2)
 							]))
 					]));
-		};
-		var gameOn = A2(_elm_lang$elm_architecture_tutorial$Comparison$getOn, half, model);
-		var _p2 = gameOn;
-		if (_p2.ctor === 'Gog') {
-			return tableTitle('Gog Game');
-		} else {
-			return tableTitle('Steam Game');
-		}
-	});
-var _elm_lang$elm_architecture_tutorial$Comparison$getEntries = F2(
-	function (half, model) {
-		return _elm_lang$core$Basics$snd(
-			A2(_elm_lang$elm_architecture_tutorial$Comparison$getHalf, half, model));
-	});
-var _elm_lang$elm_architecture_tutorial$Comparison$toUrl = function (half) {
-	var _p3 = half;
-	if (_p3.ctor === 'Left') {
-		return 'left';
-	} else {
-		return 'right';
-	}
-};
-var _elm_lang$elm_architecture_tutorial$Comparison$NamedEntry = F3(
-	function (a, b, c) {
-		return {internalId: a, externalId: b, name: c};
-	});
-var _elm_lang$elm_architecture_tutorial$Comparison$decodeResponse = A3(
-	_elm_lang$core$Json_Decode$tuple2,
-	F2(
-		function (a, b) {
-			return {ctor: '_Tuple2', _0: a, _1: b};
-		}),
-	_elm_lang$core$Json_Decode$list(
-		A4(
-			_elm_lang$core$Json_Decode$object3,
-			_elm_lang$elm_architecture_tutorial$Comparison$NamedEntry,
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'internalId', _elm_lang$core$Json_Decode$int),
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'externalId', _elm_lang$core$Json_Decode$int),
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string))),
-	_elm_lang$core$Json_Decode$list(
-		A4(
-			_elm_lang$core$Json_Decode$object3,
-			_elm_lang$elm_architecture_tutorial$Comparison$NamedEntry,
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'internalId', _elm_lang$core$Json_Decode$int),
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'externalId', _elm_lang$core$Json_Decode$int),
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string))));
-var _elm_lang$elm_architecture_tutorial$Comparison$Model = F2(
-	function (a, b) {
-		return {half: a, message: b};
-	});
-var _elm_lang$elm_architecture_tutorial$Comparison$Right = {ctor: 'Right'};
-var _elm_lang$elm_architecture_tutorial$Comparison$Left = {ctor: 'Left'};
-var _elm_lang$elm_architecture_tutorial$Comparison$initialModel = {
-	half: A2(
-		_eeue56$elm_all_dict$AllDict$fromList,
-		_elm_lang$core$Basics$toString,
-		_elm_lang$core$Native_List.fromArray(
-			[
-				{
-				ctor: '_Tuple2',
-				_0: _elm_lang$elm_architecture_tutorial$Comparison$Left,
-				_1: {
-					ctor: '_Tuple2',
-					_0: _elm_lang$elm_architecture_tutorial$Model$Gog,
-					_1: _elm_lang$core$Native_List.fromArray(
-						[])
-				}
-			},
-				{
-				ctor: '_Tuple2',
-				_0: _elm_lang$elm_architecture_tutorial$Comparison$Right,
-				_1: {
-					ctor: '_Tuple2',
-					_0: _elm_lang$elm_architecture_tutorial$Model$Steam,
-					_1: _elm_lang$core$Native_List.fromArray(
-						[])
-				}
-			}
-			])),
-	message: ''
+		});
+	return A2(
+		tableTitle,
+		getTitle(model.leftOn),
+		getTitle(model.rightOn));
 };
 var _elm_lang$elm_architecture_tutorial$Comparison$Refresh = F2(
 	function (a, b) {
 		return {ctor: 'Refresh', _0: a, _1: b};
 	});
 var _elm_lang$elm_architecture_tutorial$Comparison$selectedSource = F2(
-	function (half, model) {
-		var gameOn = A2(_elm_lang$elm_architecture_tutorial$Comparison$getOn, half, model);
+	function (side, model) {
+		var gameOn = A2(_elm_lang$elm_architecture_tutorial$Comparison$getOn, side, model);
 		return A2(
 			_elm_lang$html$Html$select,
 			_elm_lang$core$Native_List.fromArray(
 				[
 					_elm_lang$elm_architecture_tutorial$Comparison$onSelect(
-					_elm_lang$elm_architecture_tutorial$Comparison$Refresh(half))
+					_elm_lang$elm_architecture_tutorial$Comparison$Refresh(side))
 				]),
 			_elm_lang$core$Native_List.fromArray(
 				[
@@ -9961,27 +9977,11 @@ var _elm_lang$elm_architecture_tutorial$Comparison$view = function (model) {
 							A2(_elm_lang$elm_architecture_tutorial$Comparison$selectedSource, _elm_lang$elm_architecture_tutorial$Comparison$Left, model),
 							A2(
 								_elm_lang$core$List_ops['::'],
-								A2(_elm_lang$elm_architecture_tutorial$Comparison$title, _elm_lang$elm_architecture_tutorial$Comparison$Left, model),
+								A2(_elm_lang$elm_architecture_tutorial$Comparison$selectedSource, _elm_lang$elm_architecture_tutorial$Comparison$Right, model),
 								A2(
-									_elm_lang$core$List$map,
-									_elm_lang$elm_architecture_tutorial$Comparison$tableRow,
-									A2(_elm_lang$elm_architecture_tutorial$Comparison$getEntries, _elm_lang$elm_architecture_tutorial$Comparison$Left, model))))),
-						A2(
-						_elm_lang$html$Html$table,
-						_elm_lang$core$Native_List.fromArray(
-							[
-								_elm_lang$html$Html_Attributes$class('inlineTable')
-							]),
-						A2(
-							_elm_lang$core$List_ops['::'],
-							A2(_elm_lang$elm_architecture_tutorial$Comparison$selectedSource, _elm_lang$elm_architecture_tutorial$Comparison$Right, model),
-							A2(
-								_elm_lang$core$List_ops['::'],
-								A2(_elm_lang$elm_architecture_tutorial$Comparison$title, _elm_lang$elm_architecture_tutorial$Comparison$Right, model),
-								A2(
-									_elm_lang$core$List$map,
-									_elm_lang$elm_architecture_tutorial$Comparison$tableRow,
-									A2(_elm_lang$elm_architecture_tutorial$Comparison$getEntries, _elm_lang$elm_architecture_tutorial$Comparison$Right, model)))))
+									_elm_lang$core$List_ops['::'],
+									_elm_lang$elm_architecture_tutorial$Comparison$title(model),
+									A2(_elm_lang$core$List$map, _elm_lang$elm_architecture_tutorial$Comparison$tableRow, model.comparisons)))))
 					]))
 			]));
 };
@@ -10017,72 +10017,73 @@ var _elm_lang$elm_architecture_tutorial$Comparison$refresh = function (model) {
 			[
 				{
 				ctor: '_Tuple2',
-				_0: _elm_lang$elm_architecture_tutorial$Comparison$toUrl(_elm_lang$elm_architecture_tutorial$Comparison$Left),
-				_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$getOn, _elm_lang$elm_architecture_tutorial$Comparison$Left, model)
+				_0: 'left',
+				_1: _elm_lang$core$Basics$toString(model.leftOn)
 			},
 				{
 				ctor: '_Tuple2',
-				_0: _elm_lang$elm_architecture_tutorial$Comparison$toUrl(_elm_lang$elm_architecture_tutorial$Comparison$Right),
-				_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$getOn, _elm_lang$elm_architecture_tutorial$Comparison$Right, model)
+				_0: 'right',
+				_1: _elm_lang$core$Basics$toString(model.rightOn)
+			},
+				{
+				ctor: '_Tuple2',
+				_0: 'minimumMetric',
+				_1: _elm_lang$core$Basics$toString(model.minimumMetric)
 			}
 			]));
 };
 var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 	function (msg, model) {
-		var _p4 = msg;
-		switch (_p4.ctor) {
+		var _p3 = msg;
+		switch (_p3.ctor) {
 			case 'ReceiveData':
-				var oldRightOn = A2(_elm_lang$elm_architecture_tutorial$Comparison$getOn, _elm_lang$elm_architecture_tutorial$Comparison$Right, model);
-				var oldLeftOn = A2(_elm_lang$elm_architecture_tutorial$Comparison$getOn, _elm_lang$elm_architecture_tutorial$Comparison$Left, model);
-				var newHalves = A3(
-					_eeue56$elm_all_dict$AllDict$insert,
-					_elm_lang$elm_architecture_tutorial$Comparison$Right,
-					{ctor: '_Tuple2', _0: oldRightOn, _1: _p4._0._1},
-					A3(
-						_eeue56$elm_all_dict$AllDict$insert,
-						_elm_lang$elm_architecture_tutorial$Comparison$Left,
-						{ctor: '_Tuple2', _0: oldLeftOn, _1: _p4._0._0},
-						model.half));
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{half: newHalves}),
+						{comparisons: _p3._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'DataError':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
-						model,
+						_elm_lang$elm_architecture_tutorial$Comparison$initialModel,
 						{
-							half: _elm_lang$elm_architecture_tutorial$Comparison$initialModel.half,
-							message: _elm_lang$core$Basics$toString(_p4._0)
+							message: _elm_lang$core$Basics$toString(_p3._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			default:
-				var _p6 = _p4._0;
-				var gameOn = function () {
-					var _p5 = _p4._1;
-					if (_p5 === 'Steam') {
-						return _elm_lang$elm_architecture_tutorial$Model$Steam;
-					} else {
-						return _elm_lang$elm_architecture_tutorial$Model$Gog;
-					}
-				}();
-				var newHalves = A3(
-					_eeue56$elm_all_dict$AllDict$insert,
-					_p6,
-					{
-						ctor: '_Tuple2',
-						_0: gameOn,
-						_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$getEntries, _p6, model)
-					},
-					model.half);
+			case 'Refresh':
+				var gameOn = _elm_lang$core$Native_Utils.eq(_p3._1, 'Steam') ? _elm_lang$elm_architecture_tutorial$Model$Steam : _elm_lang$elm_architecture_tutorial$Model$Gog;
+				var newModel = _elm_lang$core$Native_Utils.eq(_p3._0, _elm_lang$elm_architecture_tutorial$Comparison$Left) ? _elm_lang$core$Native_Utils.update(
+					model,
+					{leftOn: gameOn}) : _elm_lang$core$Native_Utils.update(
+					model,
+					{rightOn: gameOn});
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						newModel,
+						{
+							comparisons: _elm_lang$core$Native_List.fromArray(
+								[])
+						}),
+					_1: _elm_lang$elm_architecture_tutorial$Comparison$refresh(newModel)
+				};
+			case 'Increment':
 				var newModel = _elm_lang$core$Native_Utils.update(
 					model,
-					{half: newHalves});
+					{minimumMetric: model.minimumMetric + 1});
+				return {
+					ctor: '_Tuple2',
+					_0: newModel,
+					_1: _elm_lang$elm_architecture_tutorial$Comparison$refresh(newModel)
+				};
+			default:
+				var newModel = _elm_lang$core$Native_Utils.update(
+					model,
+					{minimumMetric: model.minimumMetric - 1});
 				return {
 					ctor: '_Tuple2',
 					_0: newModel,
@@ -10100,7 +10101,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$main = {
 			},
 			view: _elm_lang$elm_architecture_tutorial$Comparison$view,
 			update: _elm_lang$elm_architecture_tutorial$Comparison$update,
-			subscriptions: function (_p7) {
+			subscriptions: function (_p4) {
 				return _elm_lang$core$Platform_Sub$none;
 			}
 		})
