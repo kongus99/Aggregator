@@ -9776,6 +9776,15 @@ var _elm_lang$elm_architecture_tutorial$Comparison$tableRow = function (e) {
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html$text(e.right.name)
+					])),
+				A2(
+				_elm_lang$html$Html$td,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(
+						_elm_lang$core$Basics$toString(e.matches))
 					]))
 			]));
 };
@@ -9789,17 +9798,18 @@ var _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson = A4(
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'internalId', _elm_lang$core$Json_Decode$int),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'externalId', _elm_lang$core$Json_Decode$int),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string));
-var _elm_lang$elm_architecture_tutorial$Comparison$ComparisonEntry = F3(
-	function (a, b, c) {
-		return {left: a, metricResult: b, right: c};
+var _elm_lang$elm_architecture_tutorial$Comparison$ComparisonEntry = F4(
+	function (a, b, c, d) {
+		return {left: a, metricResult: b, right: c, matches: d};
 	});
 var _elm_lang$elm_architecture_tutorial$Comparison$decodeResponse = _elm_lang$core$Json_Decode$list(
-	A4(
-		_elm_lang$core$Json_Decode$object3,
+	A5(
+		_elm_lang$core$Json_Decode$object4,
 		_elm_lang$elm_architecture_tutorial$Comparison$ComparisonEntry,
 		A2(_elm_lang$core$Json_Decode_ops[':='], 'left', _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson),
 		A2(_elm_lang$core$Json_Decode_ops[':='], 'metricResult', _elm_lang$core$Json_Decode$int),
-		A2(_elm_lang$core$Json_Decode_ops[':='], 'left', _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson)));
+		A2(_elm_lang$core$Json_Decode_ops[':='], 'left', _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson),
+		A2(_elm_lang$core$Json_Decode_ops[':='], 'matches', _elm_lang$core$Json_Decode$bool)));
 var _elm_lang$elm_architecture_tutorial$Comparison$Model = F5(
 	function (a, b, c, d, e) {
 		return {comparisons: a, leftOn: b, rightOn: c, minimumMetric: d, message: e};
@@ -9894,6 +9904,14 @@ var _elm_lang$elm_architecture_tutorial$Comparison$title = function (model) {
 						_elm_lang$core$Native_List.fromArray(
 							[
 								_elm_lang$html$Html$text(t2)
+							])),
+						A2(
+						_elm_lang$html$Html$th,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text('Matches')
 							]))
 					]));
 		});

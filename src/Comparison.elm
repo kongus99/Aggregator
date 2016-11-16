@@ -5,7 +5,7 @@ import Html.Attributes exposing(class, selected, value)
 import Html.App as App
 import Html.Events exposing (onClick, on, targetValue)
 import Http
-import Json.Decode as Json exposing (tuple3, int, string, list, object3, (:=))
+import Json.Decode as Json exposing (object4, int, string, list, object3, (:=), bool)
 import Task
 import String
 import Model exposing (..)
@@ -19,7 +19,7 @@ type PageSide = Left | Right
 
 type alias NamedEntry = {internalId : Int, externalId : Int, name : String}
 
-type alias ComparisonEntry = {left : NamedEntry, metricResult : Int, right : NamedEntry}
+type alias ComparisonEntry = {left : NamedEntry, metricResult : Int, right : NamedEntry, matches : Bool}
 
 type alias Model = {comparisons : List ComparisonEntry, leftOn : GameOn, rightOn : GameOn, minimumMetric : Int, message : String}
 
@@ -79,13 +79,15 @@ selectedSource side model =
 
 tableRow e = tr [] [ td[][text e.left.name]
                    , td[][text <| toString e.metricResult]
-                   , td[][text e.right.name] ]
+                   , td[][text e.right.name]
+                   , td[][text <| toString e.matches] ]
 
 title model =
     let
         tableTitle t1 t2 = tr [] [ th[][text t1]
                                  , th[] <| metricButtons model.minimumMetric
-                                 , th[][text t2]]
+                                 , th[][text t2]
+                                 , th[][text "Matches"] ]
         getTitle on = case on of
                           Gog -> "Gog Games"
                           Steam -> "Steam Games"
@@ -115,5 +117,5 @@ onSelect msg =
 
 decodeResponse : Json.Decoder (List ComparisonEntry)
 decodeResponse =
-    list (object3 ComparisonEntry ("left" := namedEntryJson) ("metricResult" := int) ("left" := namedEntryJson))
+    list (object4 ComparisonEntry ("left" := namedEntryJson) ("metricResult" := int) ("left" := namedEntryJson) ("matches" := bool))
 namedEntryJson = object3 NamedEntry ("internalId" := int) ("externalId" := int) ("name" := string)

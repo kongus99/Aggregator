@@ -16,7 +16,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class NamedEntry(internalId : Long, externalId : Long, name : String)
 
-case class ComparisonEntry(left : NamedEntry, metricResult : Int, right : NamedEntry)
+case class ComparisonEntry(left : NamedEntry, metricResult : Int, right : NamedEntry, matches : Boolean)
 
 @Singleton
 class ComparisonController @Inject()(client: WSClient, configuration: Configuration, tables: Tables)(implicit exec: ExecutionContext) extends Controller {
@@ -29,7 +29,8 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
   implicit val comparisonWriter: Writes[ComparisonEntry] = (
     (JsPath \ "left").write[NamedEntry] and
       (JsPath \ "metricResult").write[Int] and
-      (JsPath \ "right").write[NamedEntry])((t) => (t.left, t.metricResult, t.right))
+      (JsPath \ "right").write[NamedEntry] and
+      (JsPath \ "matches").write[Boolean])((t) => (t.left, t.metricResult, t.right, t.matches))
 
   val gogRetriever = new GogPageRetriever(client, configuration)
   val steamRetriever = new SteamPageRetriever(client)
@@ -45,7 +46,8 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
   }
 
   def limitToClose(gog: Seq[NamedEntry], steam: Seq[NamedEntry], minimumMetric : Int): Seq[ComparisonEntry] = {
-    gog.flatMap(g => steam.map(s => (g, s))).map(p => ComparisonEntry(p._1, ThresholdLevenshtein.count(p._1.name, p._2.name, minimumMetric), p._2)).filter(t => t.metricResult < minimumMetric)
+    val cartesian = gog.flatMap(g => steam.map(s => (g, s)))
+    cartesian.map(p => ComparisonEntry(p._1, ThresholdLevenshtein.count(p._1.name, p._2.name, minimumMetric), p._2, matches = false)).filter(t => t.metricResult < minimumMetric)
   }
 
   def getData(left : GameOn, right: GameOn, minimumMetric : Int) = {
