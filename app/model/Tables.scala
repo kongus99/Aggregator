@@ -3,7 +3,8 @@ package model
 import javax.inject._
 
 import play.api.db.slick.DatabaseConfigProvider
-import services.{GogEntry, SteamEntry}
+import services.GameOn._
+import services.{GameOn, GogEntry, SteamEntry}
 import slick.driver.JdbcProfile
 import slick.jdbc.meta.MTable
 import slick.lifted.ProvenShape
@@ -23,6 +24,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
   val gogData = TableQuery[GogData]
   val steamData = TableQuery[SteamData]
+  val matchData = TableQuery[MatchData]
 
   class GogData(tag: Tag) extends Table[GogEntry](tag, "GOG_DATA") {
     def id = column[Long]("GOG_DATA_ID", O.PrimaryKey, O.AutoInc)
@@ -60,6 +62,37 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     }
   }
 
+  class MatchData(tag: Tag) extends Table[(GameOn, GameOn, Long, Long)](tag, "MATCH_DATA") {
+    def leftOn = column[String]("MATCH_LEFT_ON")
+
+    def rightOn = column[String]("MATCH_RIGHT_ON")
+
+    def leftId = column[Long]("MATCH_LEFT_ID")
+
+    def rightId = column[Long]("MATCH_RIGHT_ID")
+
+    def allUnique = primaryKey("MATCH_DATA_ALL_UNIQUE", (leftOn, rightOn, leftId, rightId))
+
+    override def * : ProvenShape[(GameOn, GameOn, Long, Long)] = {
+
+      val apply: (String, String, Long, Long) => (GameOn, GameOn, Long, Long) =
+        (leftOn, rightOn, leftId, rightId) => (GameOn.withName(leftOn), GameOn.withName(rightOn), leftId, rightId)
+
+      val unapply: (GameOn, GameOn, Long, Long) => Option[(String, String, Long, Long)] =
+        (leftOn, rightOn, leftId, rightId) => Some(leftOn.toString, rightOn.toString, leftId, rightId)
+
+      (leftOn, rightOn, leftId, rightId) <> (apply.tupled, unapply.tupled)
+    }
+  }
+
+  def changeMatch(leftOn : GameOn, rightOn : GameOn, leftId : Long, rightId : Long) : Future[Boolean] = {
+    val condition: (MatchData) => Rep[Boolean] = e => e.leftOn === leftOn.toString && e.rightOn === rightOn.toString && e.leftId === leftId && e.rightId === rightId
+    def deleteRow() = db.run(matchData.filter(condition).delete).map(_ => false)
+    def insertRow() = db.run(matchData += (leftOn, rightOn, leftId, rightId)).map(_ => true)
+    db.run(matchData.filter(condition).result.headOption)
+      .flatMap(value => if(value.isDefined) deleteRow() else insertRow())
+  }
+
   def replaceGogData(data : List[GogEntry]) =
     db.run(gogData.delete andThen (gogData ++= data))
 
@@ -74,7 +107,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     def start() = {
       val initialization = MTable.getTables.flatMap(tables => {
         val areCreated = tables.exists(t => t.name.name == "GOG_DATA")
-        if(areCreated) DBIO.successful(1) else (gogData.schema ++ steamData.schema).create
+        if(areCreated) DBIO.successful(1) else (gogData.schema ++ steamData.schema ++ matchData.schema).create
       })
       Await.result(db.run(initialization), Duration.Inf)
     }

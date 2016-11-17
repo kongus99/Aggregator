@@ -1,7 +1,7 @@
 module Comparison exposing (..)
 import AllDict exposing (AllDict)
-import Html exposing (Html, button, div, text, span, table, tr, th, td, select, option)
-import Html.Attributes exposing(class, selected, value)
+import Html exposing (Html, button, div, text, span, table, tr, th, td, select, option, input)
+import Html.Attributes exposing(class, selected, value, type', checked)
 import Html.App as App
 import Html.Events exposing (onClick, on, targetValue)
 import Http
@@ -39,6 +39,8 @@ type Msg
   | Refresh PageSide String
   | Increment
   | Decrement
+  | Toggle GameOn GameOn Int Int
+  | ToggleStored String
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -61,13 +63,24 @@ update msg model =
             newModel = {model | minimumMetric = model.minimumMetric - 1}
         in
             (newModel , refresh newModel)
+    Toggle leftOn rightOn leftId rightId ->
+        let
+            updateEntry e =
+                if e.left.internalId == leftId && e.right.internalId == rightId
+                then {e | matches = not e.matches}
+                else e
+            newComparisons = List.map updateEntry model.comparisons
+        in
+            ({model | comparisons = newComparisons}, postUpdate "toggleMatch" [("leftOn", toString leftOn), ("rightOn", toString rightOn), ("leftId", toString leftId), ("rightId", toString rightId)])
+    ToggleStored mess ->
+        (model , Cmd.none)
 -- VIEW
 
 view : Model -> Html Msg
 view model =
   div [] <|
     [ div [] (if String.isEmpty model.message then [] else [ text (toString model.message) ])
-    , div [] [ table[class <| "inlineTable"] <| selectedSource Left model  :: selectedSource Right model :: title model  :: (List.map tableRow model.comparisons)
+    , div [] [ table[class <| "inlineTable"] <| selectedSource Left model  :: selectedSource Right model :: title model  :: (List.map (tableRow model) model.comparisons)
              ]
     ]
 
@@ -77,10 +90,10 @@ selectedSource side model =
     in
         select [onSelect <| Refresh side] [option [selected (gameOn == Gog), value <| toString Gog][text <| toString Gog], option [selected (gameOn == Steam), value <| toString Steam][text <| toString Steam]]
 
-tableRow e = tr [] [ td[][text e.left.name]
+tableRow model e = tr [] [ td[][text e.left.name]
                    , td[][text <| toString e.metricResult]
                    , td[][text e.right.name]
-                   , td[][text <| toString e.matches] ]
+                   , td[][input[onClick <| Toggle model.leftOn model.rightOn e.left.internalId e.right.internalId ,type' "checkbox", checked e.matches][]] ]
 
 title model =
     let
@@ -101,6 +114,12 @@ metricButtons value =
         , button [ onClick Decrement ] [ text "-" ]
     ]
 
+postUpdate address params =
+    let
+        url = "http://localhost:9000/" ++ address ++ "?" ++ (joinParameters params)
+      in
+        Task.perform DataError ToggleStored (Http.post string url Http.empty)
+
 getResponse : String -> List ( String, String ) -> Cmd Msg
 getResponse address params =
   let
@@ -117,5 +136,5 @@ onSelect msg =
 
 decodeResponse : Json.Decoder (List ComparisonEntry)
 decodeResponse =
-    list (object4 ComparisonEntry ("left" := namedEntryJson) ("metricResult" := int) ("left" := namedEntryJson) ("matches" := bool))
+    list (object4 ComparisonEntry ("left" := namedEntryJson) ("metricResult" := int) ("right" := namedEntryJson) ("matches" := bool))
 namedEntryJson = object3 NamedEntry ("internalId" := int) ("externalId" := int) ("name" := string)

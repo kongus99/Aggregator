@@ -9745,49 +9745,6 @@ var _elm_lang$elm_architecture_tutorial$Comparison$joinParameters = function (pa
 			},
 			params));
 };
-var _elm_lang$elm_architecture_tutorial$Comparison$tableRow = function (e) {
-	return A2(
-		_elm_lang$html$Html$tr,
-		_elm_lang$core$Native_List.fromArray(
-			[]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				A2(
-				_elm_lang$html$Html$td,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text(e.left.name)
-					])),
-				A2(
-				_elm_lang$html$Html$td,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text(
-						_elm_lang$core$Basics$toString(e.metricResult))
-					])),
-				A2(
-				_elm_lang$html$Html$td,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text(e.right.name)
-					])),
-				A2(
-				_elm_lang$html$Html$td,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text(
-						_elm_lang$core$Basics$toString(e.matches))
-					]))
-			]));
-};
 var _elm_lang$elm_architecture_tutorial$Comparison$NamedEntry = F3(
 	function (a, b, c) {
 		return {internalId: a, externalId: b, name: c};
@@ -9808,7 +9765,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$decodeResponse = _elm_lang$co
 		_elm_lang$elm_architecture_tutorial$Comparison$ComparisonEntry,
 		A2(_elm_lang$core$Json_Decode_ops[':='], 'left', _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson),
 		A2(_elm_lang$core$Json_Decode_ops[':='], 'metricResult', _elm_lang$core$Json_Decode$int),
-		A2(_elm_lang$core$Json_Decode_ops[':='], 'left', _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson),
+		A2(_elm_lang$core$Json_Decode_ops[':='], 'right', _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson),
 		A2(_elm_lang$core$Json_Decode_ops[':='], 'matches', _elm_lang$core$Json_Decode$bool)));
 var _elm_lang$elm_architecture_tutorial$Comparison$Model = F5(
 	function (a, b, c, d, e) {
@@ -9827,6 +9784,66 @@ var _elm_lang$elm_architecture_tutorial$Comparison$Left = {ctor: 'Left'};
 var _elm_lang$elm_architecture_tutorial$Comparison$getOn = F2(
 	function (side, model) {
 		return _elm_lang$core$Native_Utils.eq(side, _elm_lang$elm_architecture_tutorial$Comparison$Left) ? model.leftOn : model.rightOn;
+	});
+var _elm_lang$elm_architecture_tutorial$Comparison$ToggleStored = function (a) {
+	return {ctor: 'ToggleStored', _0: a};
+};
+var _elm_lang$elm_architecture_tutorial$Comparison$Toggle = F4(
+	function (a, b, c, d) {
+		return {ctor: 'Toggle', _0: a, _1: b, _2: c, _3: d};
+	});
+var _elm_lang$elm_architecture_tutorial$Comparison$tableRow = F2(
+	function (model, e) {
+		return A2(
+			_elm_lang$html$Html$tr,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(
+					_elm_lang$html$Html$td,
+					_elm_lang$core$Native_List.fromArray(
+						[]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text(e.left.name)
+						])),
+					A2(
+					_elm_lang$html$Html$td,
+					_elm_lang$core$Native_List.fromArray(
+						[]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text(
+							_elm_lang$core$Basics$toString(e.metricResult))
+						])),
+					A2(
+					_elm_lang$html$Html$td,
+					_elm_lang$core$Native_List.fromArray(
+						[]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text(e.right.name)
+						])),
+					A2(
+					_elm_lang$html$Html$td,
+					_elm_lang$core$Native_List.fromArray(
+						[]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A2(
+							_elm_lang$html$Html$input,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Events$onClick(
+									A4(_elm_lang$elm_architecture_tutorial$Comparison$Toggle, model.leftOn, model.rightOn, e.left.internalId, e.right.internalId)),
+									_elm_lang$html$Html_Attributes$type$('checkbox'),
+									_elm_lang$html$Html_Attributes$checked(e.matches)
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[]))
+						]))
+				]));
 	});
 var _elm_lang$elm_architecture_tutorial$Comparison$Decrement = {ctor: 'Decrement'};
 var _elm_lang$elm_architecture_tutorial$Comparison$Increment = {ctor: 'Increment'};
@@ -10004,13 +10021,34 @@ var _elm_lang$elm_architecture_tutorial$Comparison$view = function (model) {
 								A2(
 									_elm_lang$core$List_ops['::'],
 									_elm_lang$elm_architecture_tutorial$Comparison$title(model),
-									A2(_elm_lang$core$List$map, _elm_lang$elm_architecture_tutorial$Comparison$tableRow, model.comparisons)))))
+									A2(
+										_elm_lang$core$List$map,
+										_elm_lang$elm_architecture_tutorial$Comparison$tableRow(model),
+										model.comparisons)))))
 					]))
 			]));
 };
 var _elm_lang$elm_architecture_tutorial$Comparison$DataError = function (a) {
 	return {ctor: 'DataError', _0: a};
 };
+var _elm_lang$elm_architecture_tutorial$Comparison$postUpdate = F2(
+	function (address, params) {
+		var url = A2(
+			_elm_lang$core$Basics_ops['++'],
+			'http://localhost:9000/',
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				address,
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'?',
+					_elm_lang$elm_architecture_tutorial$Comparison$joinParameters(params))));
+		return A3(
+			_elm_lang$core$Task$perform,
+			_elm_lang$elm_architecture_tutorial$Comparison$DataError,
+			_elm_lang$elm_architecture_tutorial$Comparison$ToggleStored,
+			A3(_evancz$elm_http$Http$post, _elm_lang$core$Json_Decode$string, url, _evancz$elm_http$Http$empty));
+	});
 var _elm_lang$elm_architecture_tutorial$Comparison$ReceiveData = function (a) {
 	return {ctor: 'ReceiveData', _0: a};
 };
@@ -10103,7 +10141,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 					_0: newModel,
 					_1: _elm_lang$elm_architecture_tutorial$Comparison$refresh(newModel)
 				};
-			default:
+			case 'Decrement':
 				var newModel = _elm_lang$core$Native_Utils.update(
 					model,
 					{minimumMetric: model.minimumMetric - 1});
@@ -10112,6 +10150,51 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 					_0: newModel,
 					_1: _elm_lang$elm_architecture_tutorial$Comparison$refresh(newModel)
 				};
+			case 'Toggle':
+				var _p5 = _p3._3;
+				var _p4 = _p3._2;
+				var updateEntry = function (e) {
+					return (_elm_lang$core$Native_Utils.eq(e.left.internalId, _p4) && _elm_lang$core$Native_Utils.eq(e.right.internalId, _p5)) ? _elm_lang$core$Native_Utils.update(
+						e,
+						{
+							matches: _elm_lang$core$Basics$not(e.matches)
+						}) : e;
+				};
+				var newComparisons = A2(_elm_lang$core$List$map, updateEntry, model.comparisons);
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{comparisons: newComparisons}),
+					_1: A2(
+						_elm_lang$elm_architecture_tutorial$Comparison$postUpdate,
+						'toggleMatch',
+						_elm_lang$core$Native_List.fromArray(
+							[
+								{
+								ctor: '_Tuple2',
+								_0: 'leftOn',
+								_1: _elm_lang$core$Basics$toString(_p3._0)
+							},
+								{
+								ctor: '_Tuple2',
+								_0: 'rightOn',
+								_1: _elm_lang$core$Basics$toString(_p3._1)
+							},
+								{
+								ctor: '_Tuple2',
+								_0: 'leftId',
+								_1: _elm_lang$core$Basics$toString(_p4)
+							},
+								{
+								ctor: '_Tuple2',
+								_0: 'rightId',
+								_1: _elm_lang$core$Basics$toString(_p5)
+							}
+							]))
+				};
+			default:
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}
 	});
 var _elm_lang$elm_architecture_tutorial$Comparison$main = {
@@ -10124,7 +10207,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$main = {
 			},
 			view: _elm_lang$elm_architecture_tutorial$Comparison$view,
 			update: _elm_lang$elm_architecture_tutorial$Comparison$update,
-			subscriptions: function (_p4) {
+			subscriptions: function (_p6) {
 				return _elm_lang$core$Platform_Sub$none;
 			}
 		})
