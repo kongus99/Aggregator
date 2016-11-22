@@ -18,6 +18,8 @@ case class NamedEntry(internalId: Long, externalId: Long, name: String)
 
 case class ComparisonEntry(left: NamedEntry, metricResult: Int, right: NamedEntry, matches: Boolean)
 
+case class MatchEntry(leftOn: GameOn, rightOn: GameOn, leftId: Long, rightId: Long)
+
 @Singleton
 class ComparisonController @Inject()(client: WSClient, configuration: Configuration, tables: Tables)(implicit exec: ExecutionContext) extends Controller {
 
@@ -45,28 +47,37 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
     getData(left, right, minimumMetric).map(p => Ok(Json.toJson(p)))
   }
 
-  def limitToClose(gog: Seq[NamedEntry], steam: Seq[NamedEntry], minimumMetric: Int): Seq[ComparisonEntry] = {
-    val cartesian = gog.flatMap(g => steam.map(s => (g, s)))
-    cartesian.map(p => ComparisonEntry(p._1, ThresholdLevenshtein.count(p._1.name, p._2.name, minimumMetric), p._2, matches = false)).filter(t => t.metricResult < minimumMetric)
+  def limitToClose(left: Seq[(GameOn, NamedEntry)], right: Seq[(GameOn, NamedEntry)], minimumMetric: Int, matches: Seq[MatchEntry]): Seq[ComparisonEntry] = {
+    val cartesian: Seq[((GameOn, NamedEntry), (GameOn, NamedEntry))] = left.flatMap(g => right.map(s => (g, s)))
+    val originalMatches = matches.groupBy(e => (e.leftOn, e.rightOn)).mapValues(_.map(e => (e.leftId, e.rightId)).toSet)
+    val reflexiveMatches = originalMatches.map(e => (e._1.swap, e._2.map(_.swap)))
+    val allMatches = originalMatches ++ reflexiveMatches
+    cartesian.map(c => {
+      val key = (c._1._1, c._2._1)
+      val matchIds = allMatches.getOrElse(key, Set())
+      val threshold = ThresholdLevenshtein.count(c._1._2.name, c._2._2.name, minimumMetric)
+      ComparisonEntry(c._1._2, threshold, c._2._2, matches = matchIds.contains((c._1._2.internalId, c._2._2.internalId)))
+    }).filter(t => t.metricResult < minimumMetric)
   }
 
   def getData(left: GameOn, right: GameOn, minimumMetric: Int) = {
     for {
       leftEntries <- getEntries(left)
       rightEntries <- getEntries(right)
+      matches <- tables.getAllMatches
     } yield {
-      limitToClose(leftEntries.sortBy(_.name), rightEntries.sortBy(_.name), minimumMetric)
+      limitToClose(leftEntries.sortBy(_._2.name), rightEntries.sortBy(_._2.name), minimumMetric, matches)
     }
   }
 
-  def getEntries(on: GameOn): Future[Seq[NamedEntry]] = {
+  def getEntries(on: GameOn): Future[Seq[(GameOn, NamedEntry)]] = {
     on match {
-      case GameOn.Gog => tables.getGogEntries.map(_.map(e => NamedEntry(e.id.getOrElse(0), e.gogId, e.title)))
-      case GameOn.Steam => tables.getSteamEntries.map(_.map(e => NamedEntry(e.id.getOrElse(0), e.steamId, e.name)))
+      case GameOn.Gog => tables.getGogEntries.map(_.map(e => (GameOn.Gog, NamedEntry(e.id.getOrElse(0), e.gogId, e.title))))
+      case GameOn.Steam => tables.getSteamEntries.map(_.map(e => (GameOn.Steam, NamedEntry(e.id.getOrElse(0), e.steamId, e.name))))
     }
   }
 
-  def toggleMatch(leftOn: GameOn, rightOn: GameOn, leftId: Long, rightId: Long) = Action.async {
-    tables.changeMatch(leftOn, rightOn, leftId, rightId).map(r => Ok(Json.toJson("Ok")))
+  def toggleMatch(leftOn: GameOn, rightOn: GameOn, leftInternalId: Long, rightInternalId: Long) = Action.async {
+    tables.changeMatch(MatchEntry(leftOn, rightOn, leftInternalId, rightInternalId)).map(r => Ok(Json.toJson("Ok")))
   }
 }

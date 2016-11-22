@@ -2,6 +2,7 @@ package model
 
 import javax.inject._
 
+import controllers.MatchEntry
 import play.api.db.slick.DatabaseConfigProvider
 import services.GameOn._
 import services.{GameOn, GogEntry, SteamEntry}
@@ -62,7 +63,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     }
   }
 
-  class MatchData(tag: Tag) extends Table[(GameOn, GameOn, Long, Long)](tag, "MATCH_DATA") {
+  class MatchData(tag: Tag) extends Table[MatchEntry](tag, "MATCH_DATA") {
     def leftOn = column[String]("MATCH_LEFT_ON")
 
     def rightOn = column[String]("MATCH_RIGHT_ON")
@@ -73,22 +74,26 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def allUnique = primaryKey("MATCH_DATA_ALL_UNIQUE", (leftOn, rightOn, leftId, rightId))
 
-    override def * : ProvenShape[(GameOn, GameOn, Long, Long)] = {
+    override def * : ProvenShape[MatchEntry] = {
 
-      val apply: (String, String, Long, Long) => (GameOn, GameOn, Long, Long) =
-        (leftOn, rightOn, leftId, rightId) => (GameOn.withName(leftOn), GameOn.withName(rightOn), leftId, rightId)
+      val apply: (String, String, Long, Long) => MatchEntry =
+        (leftOn, rightOn, leftId, rightId) => MatchEntry(GameOn.withName(leftOn), GameOn.withName(rightOn), leftId, rightId)
 
-      val unapply: (GameOn, GameOn, Long, Long) => Option[(String, String, Long, Long)] =
-        (leftOn, rightOn, leftId, rightId) => Some(leftOn.toString, rightOn.toString, leftId, rightId)
+      val unapply: MatchEntry => Option[(String, String, Long, Long)] =
+        e => Some(e.leftOn.toString, e.rightOn.toString, e.leftId, e.rightId)
 
-      (leftOn, rightOn, leftId, rightId) <> (apply.tupled, unapply.tupled)
+      (leftOn, rightOn, leftId, rightId) <> (apply.tupled, unapply)
     }
   }
 
-  def changeMatch(leftOn : GameOn, rightOn : GameOn, leftId : Long, rightId : Long) : Future[Boolean] = {
-    val condition: (MatchData) => Rep[Boolean] = e => e.leftOn === leftOn.toString && e.rightOn === rightOn.toString && e.leftId === leftId && e.rightId === rightId
+  def getAllMatches : Future[Seq[MatchEntry]] = {
+    db.run(matchData.result)
+  }
+
+  def changeMatch(e : MatchEntry) : Future[Boolean] = {
+    val condition: (MatchData) => Rep[Boolean] = d => d.leftOn === e.leftOn.toString && d.rightOn === e.rightOn.toString && d.leftId === e.leftId && d.rightId === e.rightId
     def deleteRow() = db.run(matchData.filter(condition).delete).map(_ => false)
-    def insertRow() = db.run(matchData += (leftOn, rightOn, leftId, rightId)).map(_ => true)
+    def insertRow() = db.run(matchData += e).map(_ => true)
     db.run(matchData.filter(condition).result.headOption)
       .flatMap(value => if(value.isDefined) deleteRow() else insertRow())
   }
