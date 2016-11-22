@@ -53,7 +53,7 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
       val key = (c._1._1, c._2._1)
       val matchIds = allMatches.getOrElse(key, Set())
       val threshold = ThresholdLevenshtein.count(c._1._2.name, c._2._2.name, minimumMetric)
-      ComparisonEntry(c._1._2, threshold, c._2._2, matches = matchIds.contains((c._1._2.internalId, c._2._2.internalId)))
+      ComparisonEntry(c._1._2, threshold, c._2._2, matches = matchIds.contains((c._1._2.externalId, c._2._2.externalId)))
     }).filter(t => t.metricResult < minimumMetric)
   }
 
