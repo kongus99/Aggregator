@@ -66,7 +66,7 @@ update msg model =
     Toggle leftOn rightOn leftId rightId ->
         let
             updateEntry e =
-                if e.left.internalId == leftId && e.right.internalId == rightId
+                if e.left.externalId == leftId && e.right.externalId == rightId
                 then {e | matches = not e.matches}
                 else e
             newComparisons = List.map updateEntry model.comparisons
@@ -93,7 +93,7 @@ selectedSource side model =
 tableRow model e = tr [] [ td[][text e.left.name]
                    , td[][text <| toString e.metricResult]
                    , td[][text e.right.name]
-                   , td[][input[onClick <| Toggle model.leftOn model.rightOn e.left.internalId e.right.internalId ,type' "checkbox", checked e.matches][]] ]
+                   , td[][input[onClick <| Toggle model.leftOn model.rightOn e.left.externalId e.right.externalId ,type' "checkbox", checked e.matches][]] ]
 
 title model =
     let

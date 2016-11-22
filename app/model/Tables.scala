@@ -110,7 +110,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
       allMatches.get(key).map(s => s.contains(value)).collect({
         case true => deleteRow()
         case false => insertRow()
-      }).get
+      }).getOrElse(insertRow())
     })
 
 

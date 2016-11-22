@@ -74,7 +74,7 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
     }
   }
 
-  def toggleMatch(leftOn: GameOn, rightOn: GameOn, leftInternalId: Long, rightInternalId: Long) = Action.async {
-    tables.changeMatch(MatchEntry(leftOn, rightOn, leftInternalId, rightInternalId)).map(r => Ok(Json.toJson("Ok")))
+  def toggleMatch(leftOn: GameOn, rightOn: GameOn, leftExternalId: Long, rightExternalId: Long) = Action.async {
+    tables.changeMatch(MatchEntry(leftOn, rightOn, leftExternalId, rightExternalId)).map(r => Ok(Json.toJson("Ok")))
   }
 }

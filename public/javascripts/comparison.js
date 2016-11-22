@@ -9836,7 +9836,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$tableRow = F2(
 							_elm_lang$core$Native_List.fromArray(
 								[
 									_elm_lang$html$Html_Events$onClick(
-									A4(_elm_lang$elm_architecture_tutorial$Comparison$Toggle, model.leftOn, model.rightOn, e.left.internalId, e.right.internalId)),
+									A4(_elm_lang$elm_architecture_tutorial$Comparison$Toggle, model.leftOn, model.rightOn, e.left.externalId, e.right.externalId)),
 									_elm_lang$html$Html_Attributes$type$('checkbox'),
 									_elm_lang$html$Html_Attributes$checked(e.matches)
 								]),
@@ -10154,7 +10154,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 				var _p5 = _p3._3;
 				var _p4 = _p3._2;
 				var updateEntry = function (e) {
-					return (_elm_lang$core$Native_Utils.eq(e.left.internalId, _p4) && _elm_lang$core$Native_Utils.eq(e.right.internalId, _p5)) ? _elm_lang$core$Native_Utils.update(
+					return (_elm_lang$core$Native_Utils.eq(e.left.externalId, _p4) && _elm_lang$core$Native_Utils.eq(e.right.externalId, _p5)) ? _elm_lang$core$Native_Utils.update(
 						e,
 						{
 							matches: _elm_lang$core$Basics$not(e.matches)
