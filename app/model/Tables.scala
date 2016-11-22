@@ -86,16 +86,34 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     }
   }
 
-  def getAllMatches : Future[Seq[MatchEntry]] = {
-    db.run(matchData.result)
+  def getAllMatches : Future[Map[(GameOn, GameOn), Set[(Long, Long)]]] = {
+    for{
+      matches <- db.run(matchData.result)
+    }
+    yield {
+      val originalMatches = matches.groupBy(e => (e.leftOn, e.rightOn)).mapValues(_.map(e => (e.leftId, e.rightId)).toSet)
+      val reflexiveMatches = originalMatches.map(e => (e._1.swap, e._2.map(_.swap)))
+      (originalMatches.keySet ++ reflexiveMatches.keySet).map(k => (k,reflexiveMatches.getOrElse(k, Set()) ++ originalMatches.getOrElse(k, Set()))).toMap
+    }
   }
 
-  def changeMatch(e : MatchEntry) : Future[Boolean] = {
-    val condition: (MatchData) => Rep[Boolean] = d => d.leftOn === e.leftOn.toString && d.rightOn === e.rightOn.toString && d.leftId === e.leftId && d.rightId === e.rightId
+  def changeMatch(e: MatchEntry): Future[Boolean] = {
+    val condition: (MatchData) => Rep[Boolean] =
+      d => (d.leftOn === e.leftOn.toString && d.rightOn === e.rightOn.toString && d.leftId === e.leftId && d.rightId === e.rightId) ||
+           (d.rightOn === e.leftOn.toString && d.leftOn === e.rightOn.toString && d.rightId === e.leftId && d.leftId === e.rightId)
     def deleteRow() = db.run(matchData.filter(condition).delete).map(_ => false)
     def insertRow() = db.run(matchData += e).map(_ => true)
-    db.run(matchData.filter(condition).result.headOption)
-      .flatMap(value => if(value.isDefined) deleteRow() else insertRow())
+
+    getAllMatches.flatMap(allMatches => {
+      val key = (e.leftOn, e.rightOn)
+      val value = (e.leftId, e.rightId)
+      allMatches.get(key).map(s => s.contains(value)).collect({
+        case true => deleteRow()
+        case false => insertRow()
+      }).get
+    })
+
+
   }
 
   def replaceGogData(data : List[GogEntry]) =

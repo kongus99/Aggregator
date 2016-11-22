@@ -47,11 +47,8 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
     getData(left, right, minimumMetric).map(p => Ok(Json.toJson(p)))
   }
 
-  def limitToClose(left: Seq[(GameOn, NamedEntry)], right: Seq[(GameOn, NamedEntry)], minimumMetric: Int, matches: Seq[MatchEntry]): Seq[ComparisonEntry] = {
+  def limitToClose(left: Seq[(GameOn, NamedEntry)], right: Seq[(GameOn, NamedEntry)], minimumMetric: Int, allMatches: Map[(GameOn, GameOn), Set[(Long, Long)]]): Seq[ComparisonEntry] = {
     val cartesian: Seq[((GameOn, NamedEntry), (GameOn, NamedEntry))] = left.flatMap(g => right.map(s => (g, s)))
-    val originalMatches = matches.groupBy(e => (e.leftOn, e.rightOn)).mapValues(_.map(e => (e.leftId, e.rightId)).toSet)
-    val reflexiveMatches = originalMatches.map(e => (e._1.swap, e._2.map(_.swap)))
-    val allMatches = originalMatches ++ reflexiveMatches
     cartesian.map(c => {
       val key = (c._1._1, c._2._1)
       val matchIds = allMatches.getOrElse(key, Set())
@@ -64,9 +61,9 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
     for {
       leftEntries <- getEntries(left)
       rightEntries <- getEntries(right)
-      matches <- tables.getAllMatches
+      allMatches <- tables.getAllMatches
     } yield {
-      limitToClose(leftEntries.sortBy(_._2.name), rightEntries.sortBy(_._2.name), minimumMetric, matches)
+      limitToClose(leftEntries.sortBy(_._2.name), rightEntries.sortBy(_._2.name), minimumMetric, allMatches)
     }
   }
 
