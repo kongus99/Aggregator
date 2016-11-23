@@ -11,6 +11,7 @@ import play.api.mvc._
 import services.GameOn.GameOn
 import services._
 
+import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -47,14 +48,29 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
     getData(left, right, minimumMetric).map(p => Ok(Json.toJson(p)))
   }
 
-  def limitToClose(left: Seq[(GameOn, NamedEntry)], right: Seq[(GameOn, NamedEntry)], minimumMetric: Int, allMatches: Map[(GameOn, GameOn), Set[(Long, Long)]]): Seq[ComparisonEntry] = {
-    val cartesian: Seq[((GameOn, NamedEntry), (GameOn, NamedEntry))] = left.flatMap(g => right.map(s => (g, s)))
-    cartesian.map(c => {
-      val key = (c._1._1, c._2._1)
-      val matchIds = allMatches.getOrElse(key, Set())
-      val threshold = ThresholdLevenshtein.count(c._1._2.name, c._2._2.name, minimumMetric)
-      ComparisonEntry(c._1._2, threshold, c._2._2, matches = matchIds.contains((c._1._2.externalId, c._2._2.externalId)))
+  private def filterMirrored(toCheck: Seq[ComparisonEntry]) = {
+    val mirrors = mutable.HashSet[(NamedEntry, NamedEntry)]()
+    var result = mutable.Seq[ComparisonEntry]()
+    toCheck.foreach(x => {
+      val p = (x.left, x.right)
+      if (!mirrors.contains(p)) {
+        if(x.left.externalId != x.right.externalId)
+          result = result :+ x
+        mirrors += p += p.swap
+      }
+    })
+    result.toList
+  }
+
+  def limitToClose(left: (GameOn, Seq[NamedEntry]), right: (GameOn, Seq[NamedEntry]), minimumMetric: Int, allMatches: Map[(GameOn, GameOn), Set[(Long, Long)]]): Seq[ComparisonEntry] = {
+    val (leftOn, leftEntries) = left
+    val (rightOn, rightEntries) = right
+    val result = leftEntries.flatMap(g => rightEntries.map(s => (g, s))).map({ case (leftEntry, rightEntry) =>
+      val threshold = ThresholdLevenshtein.count(leftEntry.name, rightEntry.name, minimumMetric)
+      val matches = allMatches.getOrElse((leftOn, rightOn), Set()).contains((leftEntry.externalId, rightEntry.externalId))
+      ComparisonEntry(leftEntry, threshold, rightEntry, matches)
     }).filter(t => t.metricResult < minimumMetric)
+    if(leftOn == rightOn) filterMirrored(result) else result
   }
 
   private def getData(left: GameOn, right: GameOn, minimumMetric: Int) = {
@@ -63,14 +79,14 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
       rightEntries <- getEntries(right)
       allMatches <- tables.getAllMatches
     } yield {
-      limitToClose(leftEntries.sortBy(_._2.name), rightEntries.sortBy(_._2.name), minimumMetric, allMatches)
+      limitToClose(leftEntries, rightEntries, minimumMetric, allMatches).sortBy(_.left.name)
     }
   }
 
-  def getEntries(on: GameOn): Future[Seq[(GameOn, NamedEntry)]] = {
+  def getEntries(on: GameOn): Future[(GameOn, Seq[NamedEntry])] = {
     on match {
-      case GameOn.Gog => tables.getGogEntries.map(_.map(e => (GameOn.Gog, NamedEntry(e.id.getOrElse(0), e.gogId, e.title))))
-      case GameOn.Steam => tables.getSteamEntries.map(_.map(e => (GameOn.Steam, NamedEntry(e.id.getOrElse(0), e.steamId, e.name))))
+      case GameOn.Gog => tables.getGogEntries.map(s => (on, s.map(e => NamedEntry(e.id.get, e.gogId, e.title))))
+      case GameOn.Steam => tables.getSteamEntries.map(s => (on, s.map(e => NamedEntry(e.id.get, e.steamId, e.name))))
     }
   }
 
