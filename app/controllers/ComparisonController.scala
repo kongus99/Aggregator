@@ -37,13 +37,13 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
   val gogRetriever = new GogPageRetriever(client, configuration)
   val steamRetriever = new SteamPageRetriever(client)
 
-  def main = Action.async {
+  def main: Action[AnyContent] = Action.async {
     Future {
       Ok(views.html.main("Aggregator - comparison", "javascripts/comparison.js", "Comparison"))
     }
   }
 
-  def data(left: GameOn, right: GameOn, minimumMetric: Int) = Action.async {
+  def data(left: GameOn, right: GameOn, minimumMetric: Int): Action[AnyContent] = Action.async {
     getData(left, right, minimumMetric).map(p => Ok(Json.toJson(p)))
   }
 
@@ -57,7 +57,7 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
     }).filter(t => t.metricResult < minimumMetric)
   }
 
-  def getData(left: GameOn, right: GameOn, minimumMetric: Int) = {
+  private def getData(left: GameOn, right: GameOn, minimumMetric: Int) = {
     for {
       leftEntries <- getEntries(left)
       rightEntries <- getEntries(right)
@@ -74,7 +74,7 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
     }
   }
 
-  def toggleMatch(leftOn: GameOn, rightOn: GameOn, leftExternalId: Long, rightExternalId: Long) = Action.async {
+  def toggleMatch(leftOn: GameOn, rightOn: GameOn, leftExternalId: Long, rightExternalId: Long): Action[AnyContent] = Action.async {
     tables.changeMatch(MatchEntry(leftOn, rightOn, leftExternalId, rightExternalId)).map(r => Ok(Json.toJson("Ok")))
   }
 }

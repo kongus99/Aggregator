@@ -52,7 +52,7 @@ object GameEntry{
   }
 }
 
-//TODO : Different names - editing distance, manual matching, table for matches - high
-//TODO : Duplicate entries - more states during merge, table for reverse mapping in case of duplicates - High
+//TODO : Duplicate entries - more states during merge, table for reverse mapping in case of duplicates - High - show ids? filter out for same source lists entries that have same ids on left and right?
+//TODO : column filters - high
 //TODO : DLC - eliminate entries, move to separate table? - low
 //TODO : case sensitivity - fix the entries by upper casing? - low
