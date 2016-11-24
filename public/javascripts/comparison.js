@@ -9753,7 +9753,6 @@ var _elm_lang$elm_architecture_tutorial$Comparison$elmAddressChange = _elm_lang$
 	function (v) {
 		return v;
 	});
-var _elm_lang$elm_architecture_tutorial$Comparison$pageLoadAddress = _elm_lang$core$Native_Platform.incomingPort('pageLoadAddress', _elm_lang$core$Json_Decode$string);
 var _elm_lang$elm_architecture_tutorial$Comparison$NamedEntry = F3(
 	function (a, b, c) {
 		return {internalId: a, externalId: b, name: c};
@@ -9793,12 +9792,6 @@ var _elm_lang$elm_architecture_tutorial$Comparison$initialModel = A4(
 	'');
 var _elm_lang$elm_architecture_tutorial$Comparison$Right = {ctor: 'Right'};
 var _elm_lang$elm_architecture_tutorial$Comparison$Left = {ctor: 'Left'};
-var _elm_lang$elm_architecture_tutorial$Comparison$LoadAddress = function (a) {
-	return {ctor: 'LoadAddress', _0: a};
-};
-var _elm_lang$elm_architecture_tutorial$Comparison$subscriptions = function (model) {
-	return _elm_lang$elm_architecture_tutorial$Comparison$pageLoadAddress(_elm_lang$elm_architecture_tutorial$Comparison$LoadAddress);
-};
 var _elm_lang$elm_architecture_tutorial$Comparison$ToggleStored = function (a) {
 	return {ctor: 'ToggleStored', _0: a};
 };
@@ -9859,98 +9852,6 @@ var _elm_lang$elm_architecture_tutorial$Comparison$tableRow = F2(
 						]))
 				]));
 	});
-var _elm_lang$elm_architecture_tutorial$Comparison$Decrement = {ctor: 'Decrement'};
-var _elm_lang$elm_architecture_tutorial$Comparison$Increment = {ctor: 'Increment'};
-var _elm_lang$elm_architecture_tutorial$Comparison$metricButtons = function (value) {
-	return _elm_lang$core$Native_List.fromArray(
-		[
-			A2(
-			_elm_lang$html$Html$button,
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html_Events$onClick(_elm_lang$elm_architecture_tutorial$Comparison$Increment)
-				]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html$text('+')
-				])),
-			A2(
-			_elm_lang$html$Html$div,
-			_elm_lang$core$Native_List.fromArray(
-				[]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html$text(
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						'Maximum editing distance ',
-						_elm_lang$core$Basics$toString(value - 1)))
-				])),
-			A2(
-			_elm_lang$html$Html$button,
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html_Events$onClick(_elm_lang$elm_architecture_tutorial$Comparison$Decrement)
-				]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html$text('-')
-				]))
-		]);
-};
-var _elm_lang$elm_architecture_tutorial$Comparison$title = function (model) {
-	var getTitle = function (on) {
-		var _p2 = on;
-		if (_p2.ctor === 'Gog') {
-			return 'Gog Games';
-		} else {
-			return 'Steam Games';
-		}
-	};
-	var tableTitle = F2(
-		function (t1, t2) {
-			return A2(
-				_elm_lang$html$Html$tr,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						A2(
-						_elm_lang$html$Html$th,
-						_elm_lang$core$Native_List.fromArray(
-							[]),
-						_elm_lang$core$Native_List.fromArray(
-							[
-								_elm_lang$html$Html$text(t1)
-							])),
-						A2(
-						_elm_lang$html$Html$th,
-						_elm_lang$core$Native_List.fromArray(
-							[]),
-						_elm_lang$elm_architecture_tutorial$Comparison$metricButtons(model.parameters.minimumMetric)),
-						A2(
-						_elm_lang$html$Html$th,
-						_elm_lang$core$Native_List.fromArray(
-							[]),
-						_elm_lang$core$Native_List.fromArray(
-							[
-								_elm_lang$html$Html$text(t2)
-							])),
-						A2(
-						_elm_lang$html$Html$th,
-						_elm_lang$core$Native_List.fromArray(
-							[]),
-						_elm_lang$core$Native_List.fromArray(
-							[
-								_elm_lang$html$Html$text('Matches')
-							]))
-					]));
-		});
-	return A2(
-		tableTitle,
-		getTitle(model.parameters.leftOn),
-		getTitle(model.parameters.rightOn));
-};
 var _elm_lang$elm_architecture_tutorial$Comparison$Refresh = function (a) {
 	return {ctor: 'Refresh', _0: a};
 };
@@ -10008,6 +9909,104 @@ var _elm_lang$elm_architecture_tutorial$Comparison$selectedSource = F2(
 						]))
 				]));
 	});
+var _elm_lang$elm_architecture_tutorial$Comparison$metricButtons = function (parameters) {
+	var decrement = _elm_lang$elm_architecture_tutorial$Comparison$Refresh(
+		_elm_lang$core$Native_Utils.update(
+			parameters,
+			{minimumMetric: parameters.minimumMetric - 1}));
+	var increment = _elm_lang$elm_architecture_tutorial$Comparison$Refresh(
+		_elm_lang$core$Native_Utils.update(
+			parameters,
+			{minimumMetric: parameters.minimumMetric + 1}));
+	return _elm_lang$core$Native_List.fromArray(
+		[
+			A2(
+			_elm_lang$html$Html$button,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Events$onClick(increment)
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('+')
+				])),
+			A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text(
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						'Maximum editing distance ',
+						_elm_lang$core$Basics$toString(parameters.minimumMetric - 1)))
+				])),
+			A2(
+			_elm_lang$html$Html$button,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Events$onClick(decrement)
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('-')
+				]))
+		]);
+};
+var _elm_lang$elm_architecture_tutorial$Comparison$title = function (model) {
+	var getTitle = function (on) {
+		var _p2 = on;
+		if (_p2.ctor === 'Gog') {
+			return 'Gog Games';
+		} else {
+			return 'Steam Games';
+		}
+	};
+	var tableTitle = F2(
+		function (t1, t2) {
+			return A2(
+				_elm_lang$html$Html$tr,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$th,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text(t1)
+							])),
+						A2(
+						_elm_lang$html$Html$th,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$elm_architecture_tutorial$Comparison$metricButtons(model.parameters)),
+						A2(
+						_elm_lang$html$Html$th,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text(t2)
+							])),
+						A2(
+						_elm_lang$html$Html$th,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text('Matches')
+							]))
+					]));
+		});
+	return A2(
+		tableTitle,
+		getTitle(model.parameters.leftOn),
+		getTitle(model.parameters.rightOn));
+};
 var _elm_lang$elm_architecture_tutorial$Comparison$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -10132,6 +10131,42 @@ var _elm_lang$elm_architecture_tutorial$Comparison$refresh = F2(
 				}
 				]));
 	});
+var _elm_lang$elm_architecture_tutorial$Comparison$initProgram = function (address) {
+	var parseInt = function (value) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			0,
+			_elm_lang$core$Result$toMaybe(
+				_elm_lang$core$String$toInt(value)));
+	};
+	var decodeAddress = A4(
+		_elm_lang$core$Json_Decode$object3,
+		_elm_lang$elm_architecture_tutorial$Comparison$ComparisonParameters,
+		A2(
+			_elm_lang$core$Json_Decode_ops[':='],
+			'left',
+			A2(_elm_lang$core$Json_Decode$map, _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString, _elm_lang$core$Json_Decode$string)),
+		A2(
+			_elm_lang$core$Json_Decode_ops[':='],
+			'right',
+			A2(_elm_lang$core$Json_Decode$map, _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString, _elm_lang$core$Json_Decode$string)),
+		A2(
+			_elm_lang$core$Json_Decode_ops[':='],
+			'minimumMetric',
+			A2(_elm_lang$core$Json_Decode$map, parseInt, _elm_lang$core$Json_Decode$string)));
+	var decodedParameters = A2(
+		_elm_lang$core$Maybe$withDefault,
+		_elm_lang$elm_architecture_tutorial$Comparison$initialModel.parameters,
+		_elm_lang$core$Result$toMaybe(
+			A2(_elm_lang$core$Json_Decode$decodeString, decodeAddress, address)));
+	return {
+		ctor: '_Tuple2',
+		_0: _elm_lang$core$Native_Utils.update(
+			_elm_lang$elm_architecture_tutorial$Comparison$initialModel,
+			{parameters: decodedParameters}),
+		_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, _elm_lang$elm_architecture_tutorial$Comparison$initialModel.baseUrl, decodedParameters)
+	};
+};
 var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 	function (msg, model) {
 		var _p3 = msg;
@@ -10166,38 +10201,6 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 							parameters: _p4
 						}),
 					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model.baseUrl, _p4)
-				};
-			case 'Increment':
-				var currentParameters = model.parameters;
-				var newParameters = _elm_lang$core$Native_Utils.update(
-					currentParameters,
-					{minimumMetric: currentParameters.minimumMetric + 1});
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							comparisons: _elm_lang$core$Native_List.fromArray(
-								[]),
-							parameters: newParameters
-						}),
-					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model.baseUrl, newParameters)
-				};
-			case 'Decrement':
-				var currentParameters = model.parameters;
-				var newParameters = _elm_lang$core$Native_Utils.update(
-					currentParameters,
-					{minimumMetric: currentParameters.minimumMetric - 1});
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							comparisons: _elm_lang$core$Native_List.fromArray(
-								[]),
-							parameters: newParameters
-						}),
-					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model.baseUrl, newParameters)
 				};
 			case 'Toggle':
 				var _p6 = _p3._3;
@@ -10243,50 +10246,21 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 							}
 							]))
 				};
-			case 'ToggleStored':
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			default:
-				var _p7 = _p3._0;
-				var x = A2(_elm_lang$core$Debug$log, 'XXX', _p7);
-				var parseInt = function (value) {
-					return A2(
-						_elm_lang$core$Maybe$withDefault,
-						0,
-						_elm_lang$core$Result$toMaybe(
-							_elm_lang$core$String$toInt(value)));
-				};
-				var decodeAddress = A4(
-					_elm_lang$core$Json_Decode$object3,
-					_elm_lang$elm_architecture_tutorial$Comparison$ComparisonParameters,
-					A2(
-						_elm_lang$core$Json_Decode_ops[':='],
-						'left',
-						A2(_elm_lang$core$Json_Decode$map, _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString, _elm_lang$core$Json_Decode$string)),
-					A2(
-						_elm_lang$core$Json_Decode_ops[':='],
-						'right',
-						A2(_elm_lang$core$Json_Decode$map, _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString, _elm_lang$core$Json_Decode$string)),
-					A2(
-						_elm_lang$core$Json_Decode_ops[':='],
-						'minimumMetric',
-						A2(_elm_lang$core$Json_Decode$map, parseInt, _elm_lang$core$Json_Decode$string)));
-				var y = A2(_elm_lang$core$Json_Decode$decodeString, decodeAddress, _p7);
-				var z = A2(_elm_lang$core$Debug$log, 'YYY', y);
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}
 	});
 var _elm_lang$elm_architecture_tutorial$Comparison$main = {
-	main: _elm_lang$html$Html_App$program(
+	main: _elm_lang$html$Html_App$programWithFlags(
 		{
-			init: {
-				ctor: '_Tuple2',
-				_0: _elm_lang$elm_architecture_tutorial$Comparison$initialModel,
-				_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, _elm_lang$elm_architecture_tutorial$Comparison$initialModel.baseUrl, _elm_lang$elm_architecture_tutorial$Comparison$initialModel.parameters)
-			},
+			init: _elm_lang$elm_architecture_tutorial$Comparison$initProgram,
 			view: _elm_lang$elm_architecture_tutorial$Comparison$view,
 			update: _elm_lang$elm_architecture_tutorial$Comparison$update,
-			subscriptions: _elm_lang$elm_architecture_tutorial$Comparison$subscriptions
-		})
+			subscriptions: function (_p7) {
+				return _elm_lang$core$Platform_Sub$none;
+			}
+		}),
+	flags: _elm_lang$core$Json_Decode$string
 };
 
 var Elm = {};

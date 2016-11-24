@@ -15,12 +15,6 @@
     </body>
 
     <script type="text/javascript">
-            var app = Elm["@elmModuleName"].embed(document.getElementById('mainBody'));
-
-            app.ports.elmAddressChange.subscribe(function(address) {
-                window.history.pushState({},"@title",address);
-            });
-
             var urlParams;
             (window.onpopstate = function () {
                 var match,
@@ -33,7 +27,12 @@
                 while (match = search.exec(query))
                     urlParams[decode(match[1])] = decode(match[2]);
             })();
-            app.ports.pageLoadAddress.send(JSON.stringify(urlParams));
+
+            var app = Elm["@elmModuleName"].embed(document.getElementById('mainBody'), JSON.stringify(urlParams));
+
+            app.ports.elmAddressChange.subscribe(function(address) {
+                window.history.pushState({},"@title",address);
+            });
 
     </script>
 

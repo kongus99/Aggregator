@@ -10,19 +10,19 @@ import Task
 import String
 import Model exposing (..)
 
-main =
-    App.program { init = ( initialModel, refresh initialModel.baseUrl initialModel.parameters),
-    view = view, update = update, subscriptions = subscriptions }
+initProgram : String -> ( Model, Cmd Msg )
+initProgram address =
+    let
+        parseInt value = String.toInt value |> Result.toMaybe |> Maybe.withDefault 0
+        decodeAddress = object3 ComparisonParameters ("left" := Json.map gameOnFromString string) ("right" := Json.map gameOnFromString string) ("minimumMetric" := Json.map parseInt string)
+        decodedParameters = Json.decodeString decodeAddress address |> Result.toMaybe |> Maybe.withDefault initialModel.parameters
+    in
+        ( {initialModel | parameters = decodedParameters}, refresh initialModel.baseUrl decodedParameters)
+
+main = App.programWithFlags { init = initProgram, view = view, update = update, subscriptions = \_ -> Sub.none }
 
 -- PORTS
 port elmAddressChange : String -> Cmd msg
-
-port pageLoadAddress : (String ->  msg) -> Sub msg
-
--- SUBSCRIPTIONS
-subscriptions : Model -> Sub Msg
-subscriptions model =
-     pageLoadAddress LoadAddress
 
 -- MODEL
 type PageSide = Left | Right
@@ -47,31 +47,15 @@ type Msg
   = ReceiveData (List ComparisonEntry)
   | DataError Http.Error
   | Refresh ComparisonParameters
-  | Increment
-  | Decrement
   | Toggle GameOn GameOn Int Int
   | ToggleStored String
-  | LoadAddress String
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     ReceiveData comparisons -> ({model | comparisons = comparisons} , Cmd.none)
     DataError err -> ({initialModel | message = toString err} , Cmd.none)
-    Refresh parameters ->
-        ({ model | comparisons = [], parameters = parameters}, refresh model.baseUrl parameters)
-    Increment ->
-        let
-            currentParameters = model.parameters
-            newParameters = {currentParameters | minimumMetric = currentParameters.minimumMetric + 1}
-        in
-            ({ model | comparisons = [], parameters = newParameters} , refresh model.baseUrl newParameters)
-    Decrement ->
-        let
-            currentParameters = model.parameters
-            newParameters = {currentParameters | minimumMetric = currentParameters.minimumMetric - 1}
-        in
-            ({ model | comparisons = [], parameters = newParameters} , refresh model.baseUrl newParameters)
+    Refresh parameters -> ({ model | comparisons = [], parameters = parameters}, refresh model.baseUrl parameters)
     Toggle leftOn rightOn leftId rightId ->
         let
             updateEntry e =
@@ -83,15 +67,6 @@ update msg model =
             ({model | comparisons = newComparisons}, postUpdate model "/toggleMatch" [("leftOn", toString leftOn), ("rightOn", toString rightOn), ("leftId", toString leftId), ("rightId", toString rightId)])
     ToggleStored mess ->
         (model , Cmd.none)
-    LoadAddress address ->
-        let
-            parseInt value = String.toInt value |> Result.toMaybe |> Maybe.withDefault 0
-            decodeAddress = object3 ComparisonParameters ("left" := Json.map gameOnFromString string) ("right" := Json.map gameOnFromString string) ("minimumMetric" := Json.map parseInt string)
-            y = Json.decodeString decodeAddress address
-            x = Debug.log "XXX" address
-            z = Debug.log "YYY" y
-        in
-            (model , Cmd.none)
 
 -- VIEW
 
@@ -119,7 +94,7 @@ tableRow model e = tr [] [ td[][text e.left.name]
 title model =
     let
         tableTitle t1 t2 = tr [] [ th[][text t1]
-                                 , th[] <| metricButtons model.parameters.minimumMetric
+                                 , th[] <| metricButtons model.parameters
                                  , th[][text t2]
                                  , th[][text "Matches"] ]
         getTitle on = case on of
@@ -129,11 +104,15 @@ title model =
         tableTitle (getTitle model.parameters.leftOn) (getTitle model.parameters.rightOn)
 
 
-metricButtons value =
-    [ button [ onClick Increment ] [ text "+" ]
-        , div [] [ text <| "Maximum editing distance " ++ (toString (value - 1)) ]
-        , button [ onClick Decrement ] [ text "-" ]
-    ]
+metricButtons parameters =
+    let
+        increment = Refresh {parameters | minimumMetric = parameters.minimumMetric + 1}
+        decrement = Refresh {parameters | minimumMetric = parameters.minimumMetric - 1}
+    in
+        [ button [ onClick increment ] [ text "+" ]
+            , div [] [ text <| "Maximum editing distance " ++ (toString (parameters.minimumMetric - 1)) ]
+            , button [ onClick decrement ] [ text "-" ]
+        ]
 
 postUpdate model address params =
     let
