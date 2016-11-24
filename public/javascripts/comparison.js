@@ -481,7 +481,7 @@ function Tuple2(x, y)
 
 function chr(c)
 {
-	return new String(c);
+	return String(c);
 }
 
 
@@ -928,7 +928,6 @@ var _elm_lang$core$Maybe$withDefault = F2(
 	});
 var _elm_lang$core$Maybe$Nothing = {ctor: 'Nothing'};
 var _elm_lang$core$Maybe$oneOf = function (maybes) {
-	oneOf:
 	while (true) {
 		var _p1 = maybes;
 		if (_p1.ctor === '[]') {
@@ -939,7 +938,7 @@ var _elm_lang$core$Maybe$oneOf = function (maybes) {
 			if (_p2.ctor === 'Nothing') {
 				var _v3 = _p1._1;
 				maybes = _v3;
-				continue oneOf;
+
 			} else {
 				return _p3;
 			}
@@ -1169,7 +1168,6 @@ var _elm_lang$core$List$sort = function (xs) {
 };
 var _elm_lang$core$List$drop = F2(
 	function (n, list) {
-		drop:
 		while (true) {
 			if (_elm_lang$core$Native_Utils.cmp(n, 0) < 1) {
 				return list;
@@ -1182,7 +1180,7 @@ var _elm_lang$core$List$drop = F2(
 						_v2 = _p0._1;
 					n = _v1;
 					list = _v2;
-					continue drop;
+
 				}
 			}
 		}
@@ -1193,7 +1191,6 @@ var _elm_lang$core$List$map3 = _elm_lang$core$Native_List.map3;
 var _elm_lang$core$List$map2 = _elm_lang$core$Native_List.map2;
 var _elm_lang$core$List$any = F2(
 	function (isOkay, list) {
-		any:
 		while (true) {
 			var _p1 = list;
 			if (_p1.ctor === '[]') {
@@ -1206,7 +1203,7 @@ var _elm_lang$core$List$any = F2(
 						_v5 = _p1._1;
 					isOkay = _v4;
 					list = _v5;
-					continue any;
+
 				}
 			}
 		}
@@ -1225,7 +1222,6 @@ var _elm_lang$core$List$all = F2(
 var _elm_lang$core$List$foldr = _elm_lang$core$Native_List.foldr;
 var _elm_lang$core$List$foldl = F3(
 	function (func, acc, list) {
-		foldl:
 		while (true) {
 			var _p3 = list;
 			if (_p3.ctor === '[]') {
@@ -1237,7 +1233,7 @@ var _elm_lang$core$List$foldl = F3(
 				func = _v7;
 				acc = _v8;
 				list = _v9;
-				continue foldl;
+
 			}
 		}
 	});
@@ -1520,7 +1516,6 @@ var _elm_lang$core$List$intersperse = F2(
 	});
 var _elm_lang$core$List$takeReverse = F3(
 	function (n, list, taken) {
-		takeReverse:
 		while (true) {
 			if (_elm_lang$core$Native_Utils.cmp(n, 0) < 1) {
 				return taken;
@@ -1535,7 +1530,7 @@ var _elm_lang$core$List$takeReverse = F3(
 					n = _v23;
 					list = _v24;
 					taken = _v25;
-					continue takeReverse;
+
 				}
 			}
 		}
@@ -1617,7 +1612,7 @@ var _elm_lang$core$List$takeFast = F3(
 								}
 							} else {
 								if (_p23._0 === 1) {
-									break _v26_1;
+									break;
 								} else {
 									break _v26_5;
 								}
@@ -1639,7 +1634,6 @@ var _elm_lang$core$List$take = F2(
 	});
 var _elm_lang$core$List$repeatHelp = F3(
 	function (result, n, value) {
-		repeatHelp:
 		while (true) {
 			if (_elm_lang$core$Native_Utils.cmp(n, 0) < 1) {
 				return result;
@@ -1650,7 +1644,7 @@ var _elm_lang$core$List$repeatHelp = F3(
 				result = _v27;
 				n = _v28;
 				value = _v29;
-				continue repeatHelp;
+
 			}
 		}
 	});
@@ -1820,12 +1814,12 @@ function addPublicModule(object, name, main)
 	object['worker'] = function worker(flags)
 	{
 		return init(undefined, flags, false);
-	}
+	};;;;;;;;;;
 
 	object['embed'] = function embed(domNode, flags)
 	{
 		return init(domNode, flags, true);
-	}
+	};;;;;;;;;;
 
 	object['fullscreen'] = function fullscreen(flags)
 	{
@@ -3168,7 +3162,6 @@ var _elm_lang$core$String$isEmpty = _elm_lang$core$Native_String.isEmpty;
 
 var _elm_lang$core$Dict$foldr = F3(
 	function (f, acc, t) {
-		foldr:
 		while (true) {
 			var _p0 = t;
 			if (_p0.ctor === 'RBEmpty_elm_builtin') {
@@ -3184,7 +3177,7 @@ var _elm_lang$core$Dict$foldr = F3(
 				f = _v1;
 				acc = _v2;
 				t = _v3;
-				continue foldr;
+
 			}
 		}
 	});
@@ -3226,7 +3219,6 @@ var _elm_lang$core$Dict$toList = function (dict) {
 };
 var _elm_lang$core$Dict$foldl = F3(
 	function (f, acc, dict) {
-		foldl:
 		while (true) {
 			var _p1 = dict;
 			if (_p1.ctor === 'RBEmpty_elm_builtin') {
@@ -3242,7 +3234,7 @@ var _elm_lang$core$Dict$foldl = F3(
 				f = _v5;
 				acc = _v6;
 				dict = _v7;
-				continue foldl;
+
 			}
 		}
 	});
@@ -3250,7 +3242,6 @@ var _elm_lang$core$Dict$merge = F6(
 	function (leftStep, bothStep, rightStep, leftDict, rightDict, initialResult) {
 		var stepState = F3(
 			function (rKey, rValue, _p2) {
-				stepState:
 				while (true) {
 					var _p3 = _p2;
 					var _p9 = _p3._1;
@@ -3277,7 +3268,7 @@ var _elm_lang$core$Dict$merge = F6(
 							rKey = _v10;
 							rValue = _v11;
 							_p2 = _v12;
-							continue stepState;
+
 						} else {
 							if (_elm_lang$core$Native_Utils.cmp(_p5, rKey) > 0) {
 								return {
@@ -3336,19 +3327,18 @@ var _elm_lang$core$Dict$reportRemBug = F4(
 	});
 var _elm_lang$core$Dict$isBBlack = function (dict) {
 	var _p13 = dict;
-	_v14_2:
 	do {
 		if (_p13.ctor === 'RBNode_elm_builtin') {
 			if (_p13._0.ctor === 'BBlack') {
 				return true;
 			} else {
-				break _v14_2;
+				break;
 			}
 		} else {
 			if (_p13._0.ctor === 'LBBlack') {
 				return true;
 			} else {
-				break _v14_2;
+				break;
 			}
 		}
 	} while(false);
@@ -3356,7 +3346,6 @@ var _elm_lang$core$Dict$isBBlack = function (dict) {
 };
 var _elm_lang$core$Dict$sizeHelp = F2(
 	function (n, dict) {
-		sizeHelp:
 		while (true) {
 			var _p14 = dict;
 			if (_p14.ctor === 'RBEmpty_elm_builtin') {
@@ -3366,7 +3355,7 @@ var _elm_lang$core$Dict$sizeHelp = F2(
 					_v17 = _p14._3;
 				n = _v16;
 				dict = _v17;
-				continue sizeHelp;
+
 			}
 		}
 	});
@@ -3375,7 +3364,6 @@ var _elm_lang$core$Dict$size = function (dict) {
 };
 var _elm_lang$core$Dict$get = F2(
 	function (targetKey, dict) {
-		get:
 		while (true) {
 			var _p15 = dict;
 			if (_p15.ctor === 'RBEmpty_elm_builtin') {
@@ -3396,7 +3384,7 @@ var _elm_lang$core$Dict$get = F2(
 							_v23 = _p15._4;
 						targetKey = _v22;
 						dict = _v23;
-						continue get;
+
 				}
 			}
 		}
@@ -3412,7 +3400,6 @@ var _elm_lang$core$Dict$member = F2(
 	});
 var _elm_lang$core$Dict$maxWithDefault = F3(
 	function (k, v, r) {
-		maxWithDefault:
 		while (true) {
 			var _p18 = r;
 			if (_p18.ctor === 'RBEmpty_elm_builtin') {
@@ -3424,7 +3411,7 @@ var _elm_lang$core$Dict$maxWithDefault = F3(
 				k = _v26;
 				v = _v27;
 				r = _v28;
-				continue maxWithDefault;
+
 			}
 		}
 	});
@@ -4062,7 +4049,6 @@ var _elm_lang$core$Dict$diff = F2(
 
 var _eeue56$elm_all_dict$AllDict$foldr = F3(
 	function (f, acc, t) {
-		foldr:
 		while (true) {
 			var _p0 = t;
 			if (_p0.ctor === 'RBEmpty_elm_builtin') {
@@ -4078,7 +4064,7 @@ var _eeue56$elm_all_dict$AllDict$foldr = F3(
 				f = _v1;
 				acc = _v2;
 				t = _v3;
-				continue foldr;
+
 			}
 		}
 	});
@@ -4120,7 +4106,6 @@ var _eeue56$elm_all_dict$AllDict$toList = function (dict) {
 };
 var _eeue56$elm_all_dict$AllDict$foldl = F3(
 	function (f, acc, dict) {
-		foldl:
 		while (true) {
 			var _p1 = dict;
 			if (_p1.ctor === 'RBEmpty_elm_builtin') {
@@ -4136,25 +4121,24 @@ var _eeue56$elm_all_dict$AllDict$foldl = F3(
 				f = _v5;
 				acc = _v6;
 				dict = _v7;
-				continue foldl;
+
 			}
 		}
 	});
 var _eeue56$elm_all_dict$AllDict$isBBlack = function (dict) {
 	var _p2 = dict;
-	_v8_2:
 	do {
 		if (_p2.ctor === 'RBNode_elm_builtin') {
 			if (_p2._0.ctor === 'BBlack') {
 				return true;
 			} else {
-				break _v8_2;
+				break;
 			}
 		} else {
 			if (_p2._0.ctor === 'LBBlack') {
 				return true;
 			} else {
-				break _v8_2;
+				break;
 			}
 		}
 	} while(false);
@@ -4173,7 +4157,6 @@ var _eeue56$elm_all_dict$AllDict$showFlag = function (f) {
 };
 var _eeue56$elm_all_dict$AllDict$sizeHelp = F2(
 	function (n, dict) {
-		sizeHelp:
 		while (true) {
 			var _p4 = dict;
 			if (_p4.ctor === 'RBEmpty_elm_builtin') {
@@ -4183,7 +4166,7 @@ var _eeue56$elm_all_dict$AllDict$sizeHelp = F2(
 					_v12 = _p4._3;
 				n = _v11;
 				dict = _v12;
-				continue sizeHelp;
+
 			}
 		}
 	});
@@ -4199,7 +4182,6 @@ var _eeue56$elm_all_dict$AllDict$isEmpty = function (dict) {
 	}
 };
 var _eeue56$elm_all_dict$AllDict$getOrd = function (dict) {
-	getOrd:
 	while (true) {
 		var _p6 = dict;
 		if (_p6.ctor === 'RBEmpty_elm_builtin') {
@@ -4207,13 +4189,12 @@ var _eeue56$elm_all_dict$AllDict$getOrd = function (dict) {
 		} else {
 			var _v15 = _p6._3;
 			dict = _v15;
-			continue getOrd;
+
 		}
 	}
 };
 var _eeue56$elm_all_dict$AllDict$get$ = F2(
 	function (targetKey, dict) {
-		get$:
 		while (true) {
 			var ord = _eeue56$elm_all_dict$AllDict$getOrd(dict);
 			var _p7 = dict;
@@ -4230,7 +4211,7 @@ var _eeue56$elm_all_dict$AllDict$get$ = F2(
 							_v19 = _p7._3;
 						targetKey = _v18;
 						dict = _v19;
-						continue get$;
+						continue;
 					case 'EQ':
 						return _elm_lang$core$Maybe$Just(_p7._2);
 					default:
@@ -4238,7 +4219,7 @@ var _eeue56$elm_all_dict$AllDict$get$ = F2(
 							_v21 = _p7._4;
 						targetKey = _v20;
 						dict = _v21;
-						continue get$;
+
 				}
 			}
 		}
@@ -4257,7 +4238,6 @@ var _eeue56$elm_all_dict$AllDict$member = F2(
 		}
 	});
 var _eeue56$elm_all_dict$AllDict$max = function (dict) {
-	max:
 	while (true) {
 		var _p10 = dict;
 		if (_p10.ctor === 'RBNode_elm_builtin') {
@@ -4266,7 +4246,7 @@ var _eeue56$elm_all_dict$AllDict$max = function (dict) {
 			} else {
 				var _v24 = _p10._4;
 				dict = _v24;
-				continue max;
+
 			}
 		} else {
 			return _elm_lang$core$Native_Utils.crashCase(
@@ -4280,7 +4260,6 @@ var _eeue56$elm_all_dict$AllDict$max = function (dict) {
 	}
 };
 var _eeue56$elm_all_dict$AllDict$min = function (dict) {
-	min:
 	while (true) {
 		var _p12 = dict;
 		if (_p12.ctor === 'RBNode_elm_builtin') {
@@ -4289,7 +4268,7 @@ var _eeue56$elm_all_dict$AllDict$min = function (dict) {
 			} else {
 				var _v26 = _p12._3;
 				dict = _v26;
-				continue min;
+
 			}
 		} else {
 			return _elm_lang$core$Native_Utils.crashCase(
@@ -4437,7 +4416,7 @@ var _eeue56$elm_all_dict$AllDict$ensureBlackRoot = function (dict) {
 					break _v32_2;
 			}
 		} else {
-			break _v32_2;
+			break;
 		}
 	} while(false);
 	return dict;
@@ -7348,9 +7327,8 @@ function makeEventHandler(eventNode, info)
 				currentEventNode = currentEventNode.parent;
 			}
 		}
-	};
-
-	eventHandler.info = info;
+    }
+    eventHandler.info = info;
 
 	return eventHandler;
 }
@@ -8098,7 +8076,7 @@ function applyPatchesHelp(rootDomNode, patches)
 	for (var i = 0; i < patches.length; i++)
 	{
 		var patch = patches[i];
-		var localDomNode = patch.domNode
+		var localDomNode = patch.domNode;;;;;;;;;;
 		var newNode = applyPatch(localDomNode, patch);
 		if (localDomNode === rootDomNode)
 		{
@@ -9438,7 +9416,7 @@ function send(settings, request)
 
 function toResponse(req)
 {
-	var tag = req.responseType === 'blob' ? 'Blob' : 'Text'
+	var tag = req.responseType === 'blob' ? 'Blob' : 'Text';;;;;;;;;;
 	var response = tag === 'Blob' ? req.response : req.responseText;
 	return {
 		status: req.status,
@@ -9745,6 +9723,12 @@ var _elm_lang$elm_architecture_tutorial$Comparison$joinParameters = function (pa
 			},
 			params));
 };
+var _elm_lang$elm_architecture_tutorial$Comparison$elmAddressChange = _elm_lang$core$Native_Platform.outgoingPort(
+	'elmAddressChange',
+	function (v) {
+		return v;
+	});
+var _elm_lang$elm_architecture_tutorial$Comparison$pageLoadAddress = _elm_lang$core$Native_Platform.incomingPort('pageLoadAddress', _elm_lang$core$Json_Decode$string);
 var _elm_lang$elm_architecture_tutorial$Comparison$NamedEntry = F3(
 	function (a, b, c) {
 		return {internalId: a, externalId: b, name: c};
@@ -9767,12 +9751,13 @@ var _elm_lang$elm_architecture_tutorial$Comparison$decodeResponse = _elm_lang$co
 		A2(_elm_lang$core$Json_Decode_ops[':='], 'metricResult', _elm_lang$core$Json_Decode$int),
 		A2(_elm_lang$core$Json_Decode_ops[':='], 'right', _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson),
 		A2(_elm_lang$core$Json_Decode_ops[':='], 'matches', _elm_lang$core$Json_Decode$bool)));
-var _elm_lang$elm_architecture_tutorial$Comparison$Model = F5(
-	function (a, b, c, d, e) {
-		return {comparisons: a, leftOn: b, rightOn: c, minimumMetric: d, message: e};
+var _elm_lang$elm_architecture_tutorial$Comparison$Model = F6(
+	function (a, b, c, d, e, f) {
+		return {baseUrl: a, comparisons: b, leftOn: c, rightOn: d, minimumMetric: e, message: f};
 	});
-var _elm_lang$elm_architecture_tutorial$Comparison$initialModel = A5(
+var _elm_lang$elm_architecture_tutorial$Comparison$initialModel = A6(
 	_elm_lang$elm_architecture_tutorial$Comparison$Model,
+	'http://localhost:9000/comparison/',
 	_elm_lang$core$Native_List.fromArray(
 		[]),
 	_elm_lang$elm_architecture_tutorial$Model$Gog,
@@ -9785,6 +9770,12 @@ var _elm_lang$elm_architecture_tutorial$Comparison$getOn = F2(
 	function (side, model) {
 		return _elm_lang$core$Native_Utils.eq(side, _elm_lang$elm_architecture_tutorial$Comparison$Left) ? model.leftOn : model.rightOn;
 	});
+var _elm_lang$elm_architecture_tutorial$Comparison$LoadAddress = function (a) {
+	return {ctor: 'LoadAddress', _0: a};
+};
+var _elm_lang$elm_architecture_tutorial$Comparison$subscriptions = function (model) {
+	return _elm_lang$elm_architecture_tutorial$Comparison$pageLoadAddress(_elm_lang$elm_architecture_tutorial$Comparison$LoadAddress);
+};
 var _elm_lang$elm_architecture_tutorial$Comparison$ToggleStored = function (a) {
 	return {ctor: 'ToggleStored', _0: a};
 };
@@ -10031,11 +10022,11 @@ var _elm_lang$elm_architecture_tutorial$Comparison$view = function (model) {
 var _elm_lang$elm_architecture_tutorial$Comparison$DataError = function (a) {
 	return {ctor: 'DataError', _0: a};
 };
-var _elm_lang$elm_architecture_tutorial$Comparison$postUpdate = F2(
-	function (address, params) {
+var _elm_lang$elm_architecture_tutorial$Comparison$postUpdate = F3(
+	function (model, address, params) {
 		var url = A2(
 			_elm_lang$core$Basics_ops['++'],
-			'http://localhost:9000/',
+			model.baseUrl,
 			A2(
 				_elm_lang$core$Basics_ops['++'],
 				address,
@@ -10052,11 +10043,18 @@ var _elm_lang$elm_architecture_tutorial$Comparison$postUpdate = F2(
 var _elm_lang$elm_architecture_tutorial$Comparison$ReceiveData = function (a) {
 	return {ctor: 'ReceiveData', _0: a};
 };
-var _elm_lang$elm_architecture_tutorial$Comparison$getResponse = F2(
-	function (address, params) {
-		var url = A2(
+var _elm_lang$elm_architecture_tutorial$Comparison$getResponse = F3(
+	function (model, address, params) {
+		var pageUrl = A2(
 			_elm_lang$core$Basics_ops['++'],
-			'http://localhost:9000/',
+			model.baseUrl,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'?',
+				_elm_lang$elm_architecture_tutorial$Comparison$joinParameters(params)));
+		var dataUrl = A2(
+			_elm_lang$core$Basics_ops['++'],
+			model.baseUrl,
 			A2(
 				_elm_lang$core$Basics_ops['++'],
 				address,
@@ -10064,16 +10062,22 @@ var _elm_lang$elm_architecture_tutorial$Comparison$getResponse = F2(
 					_elm_lang$core$Basics_ops['++'],
 					'?',
 					_elm_lang$elm_architecture_tutorial$Comparison$joinParameters(params))));
-		return A3(
-			_elm_lang$core$Task$perform,
-			_elm_lang$elm_architecture_tutorial$Comparison$DataError,
-			_elm_lang$elm_architecture_tutorial$Comparison$ReceiveData,
-			A2(_evancz$elm_http$Http$get, _elm_lang$elm_architecture_tutorial$Comparison$decodeResponse, url));
+		return _elm_lang$core$Platform_Cmd$batch(
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A3(
+					_elm_lang$core$Task$perform,
+					_elm_lang$elm_architecture_tutorial$Comparison$DataError,
+					_elm_lang$elm_architecture_tutorial$Comparison$ReceiveData,
+					A2(_evancz$elm_http$Http$get, _elm_lang$elm_architecture_tutorial$Comparison$decodeResponse, dataUrl)),
+					_elm_lang$elm_architecture_tutorial$Comparison$elmAddressChange(pageUrl)
+				]));
 	});
 var _elm_lang$elm_architecture_tutorial$Comparison$refresh = function (model) {
-	return A2(
+	return A3(
 		_elm_lang$elm_architecture_tutorial$Comparison$getResponse,
-		'comparison/data',
+		model,
+		'data',
 		_elm_lang$core$Native_List.fromArray(
 			[
 				{
@@ -10166,8 +10170,9 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{comparisons: newComparisons}),
-					_1: A2(
+					_1: A3(
 						_elm_lang$elm_architecture_tutorial$Comparison$postUpdate,
+						model,
 						'toggleMatch',
 						_elm_lang$core$Native_List.fromArray(
 							[
@@ -10193,6 +10198,8 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 							}
 							]))
 				};
+			case 'ToggleStored':
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			default:
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}

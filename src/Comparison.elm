@@ -1,4 +1,4 @@
-module Comparison exposing (..)
+port module Comparison exposing (..)
 import AllDict exposing (AllDict)
 import Html exposing (Html, button, div, text, span, table, tr, th, td, select, option, input)
 import Html.Attributes exposing(class, selected, value, type', checked)
@@ -14,6 +14,16 @@ main =
     App.program { init = ( initialModel, refresh initialModel),
     view = view, update = update, subscriptions = \_ -> Sub.none }
 
+-- PORTS
+port elmAddressChange : String -> Cmd msg
+
+port pageLoadAddress : (String -> msg) -> Sub msg
+
+-- SUBSCRIPTIONS
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    pageLoadAddress LoadAddress
+
 -- MODEL
 type PageSide = Left | Right
 
@@ -21,12 +31,12 @@ type alias NamedEntry = {internalId : Int, externalId : Int, name : String}
 
 type alias ComparisonEntry = {left : NamedEntry, metricResult : Int, right : NamedEntry, matches : Bool}
 
-type alias Model = {comparisons : List ComparisonEntry, leftOn : GameOn, rightOn : GameOn, minimumMetric : Int, message : String}
+type alias Model = {baseUrl : String, comparisons : List ComparisonEntry, leftOn : GameOn, rightOn : GameOn, minimumMetric : Int, message : String}
 
-initialModel = Model [] Gog Steam 3 ""
+initialModel = Model "http://localhost:9000/comparison/" [] Gog Steam 3 ""
 
 refresh model =
-    getResponse "comparison/data" [("left", toString model.leftOn), ("right", toString model.rightOn), ("minimumMetric", toString model.minimumMetric)]
+    getResponse model "data" [("left", toString model.leftOn), ("right", toString model.rightOn), ("minimumMetric", toString model.minimumMetric)]
 
 getOn side model =
     if side == Left then model.leftOn else model.rightOn
@@ -41,6 +51,7 @@ type Msg
   | Decrement
   | Toggle GameOn GameOn Int Int
   | ToggleStored String
+  | LoadAddress String
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -71,9 +82,12 @@ update msg model =
                 else e
             newComparisons = List.map updateEntry model.comparisons
         in
-            ({model | comparisons = newComparisons}, postUpdate "toggleMatch" [("leftOn", toString leftOn), ("rightOn", toString rightOn), ("leftId", toString leftId), ("rightId", toString rightId)])
+            ({model | comparisons = newComparisons}, postUpdate model "toggleMatch" [("leftOn", toString leftOn), ("rightOn", toString rightOn), ("leftId", toString leftId), ("rightId", toString rightId)])
     ToggleStored mess ->
         (model , Cmd.none)
+    LoadAddress address ->
+        (model , Cmd.none)
+
 -- VIEW
 
 view : Model -> Html Msg
@@ -114,18 +128,19 @@ metricButtons value =
         , button [ onClick Decrement ] [ text "-" ]
     ]
 
-postUpdate address params =
+postUpdate model address params =
     let
-        url = "http://localhost:9000/" ++ address ++ "?" ++ (joinParameters params)
+        url = model.baseUrl ++ address ++ "?" ++ (joinParameters params)
       in
         Task.perform DataError ToggleStored (Http.post string url Http.empty)
 
-getResponse : String -> List ( String, String ) -> Cmd Msg
-getResponse address params =
+getResponse : Model -> String -> List ( String, String ) -> Cmd Msg
+getResponse model address params =
   let
-    url = "http://localhost:9000/" ++ address ++ "?" ++ (joinParameters params)
+    dataUrl = model.baseUrl ++ address ++ "?" ++ (joinParameters params)
+    pageUrl = model.baseUrl ++ "?" ++ (joinParameters params)
   in
-    Task.perform DataError ReceiveData (Http.get decodeResponse url)
+    Cmd.batch [Task.perform DataError ReceiveData (Http.get decodeResponse dataUrl), elmAddressChange pageUrl]
 
 joinParameters params =
     String.join "&&" (List.map (\((k, v)) -> k ++ "=" ++ v) params)

@@ -15,7 +15,11 @@
     </body>
 
     <script type="text/javascript">
-            Elm["@elmModuleName"].embed(document.getElementById('mainBody'));
+            var app = Elm["@elmModuleName"].embed(document.getElementById('mainBody'));
+
+            app.ports.elmAddressChange.subscribe(function(address) {
+                window.history.pushState({},"@title",address);
+            });
     </script>
 
 </html>
