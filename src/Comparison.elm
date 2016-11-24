@@ -5,7 +5,7 @@ import Html.Attributes exposing(class, selected, value, type', checked)
 import Html.App as App
 import Html.Events exposing (onClick, on, targetValue)
 import Http
-import Json.Decode as Json exposing (object4, int, string, list, object3, (:=), bool, decodeString)
+import Json.Decode as Json exposing (object2, object4, int, string, list, object3, (:=), bool, decodeString)
 import Task
 import String
 import Model exposing (..)
@@ -27,7 +27,7 @@ port elmAddressChange : String -> Cmd msg
 -- MODEL
 type PageSide = Left | Right
 
-type alias NamedEntry = {internalId : Int, externalId : Int, name : String}
+type alias NamedEntry = {id : Int, name : String}
 
 type alias ComparisonEntry = {left : NamedEntry, metricResult : Int, right : NamedEntry, matches : Bool}
 
@@ -59,7 +59,7 @@ update msg model =
     Toggle leftId rightId ->
         let
             updateEntry e =
-                if e.left.externalId == leftId && e.right.externalId == rightId
+                if e.left.id == leftId && e.right.id == rightId
                 then {e | matches = not e.matches}
                 else e
             newComparisons = List.map updateEntry model.comparisons
@@ -90,7 +90,7 @@ tableRow model e =
             tr [] [ td[][text e.left.name]
                   , td[][text <| toString e.metricResult]
                   , td[][text e.right.name]
-                  , td[][input[onClick <| Toggle e.left.externalId e.right.externalId ,type' "checkbox", checked e.matches][]] ]
+                  , td[][input[onClick <| Toggle e.left.id e.right.id ,type' "checkbox", checked e.matches][]] ]
 
 title model =
     let
@@ -111,7 +111,7 @@ metricButtons parameters =
         decrement = RefreshData {parameters | minimumMetric = parameters.minimumMetric - 1}
     in
         [ button [ onClick increment ] [ text "+" ]
-            , div [] [ text <| "Maximum editing distance " ++ (toString (parameters.minimumMetric - 1)) ]
+            , div [] [ text <| "Editing distance less than " ++ (toString parameters.minimumMetric) ]
             , button [ onClick decrement ] [ text "-" ]
         ]
 
@@ -139,4 +139,4 @@ onSelect msg =
 decodeResponse : Json.Decoder (List ComparisonEntry)
 decodeResponse =
     list (object4 ComparisonEntry ("left" := namedEntryJson) ("metricResult" := int) ("right" := namedEntryJson) ("matches" := bool))
-namedEntryJson = object3 NamedEntry ("internalId" := int) ("externalId" := int) ("name" := string)
+namedEntryJson = object2 NamedEntry ("id" := int) ("name" := string)

@@ -9753,15 +9753,14 @@ var _elm_lang$elm_architecture_tutorial$Comparison$elmAddressChange = _elm_lang$
 	function (v) {
 		return v;
 	});
-var _elm_lang$elm_architecture_tutorial$Comparison$NamedEntry = F3(
-	function (a, b, c) {
-		return {internalId: a, externalId: b, name: c};
+var _elm_lang$elm_architecture_tutorial$Comparison$NamedEntry = F2(
+	function (a, b) {
+		return {id: a, name: b};
 	});
-var _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson = A4(
-	_elm_lang$core$Json_Decode$object3,
+var _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson = A3(
+	_elm_lang$core$Json_Decode$object2,
 	_elm_lang$elm_architecture_tutorial$Comparison$NamedEntry,
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'internalId', _elm_lang$core$Json_Decode$int),
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'externalId', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'id', _elm_lang$core$Json_Decode$int),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string));
 var _elm_lang$elm_architecture_tutorial$Comparison$ComparisonEntry = F4(
 	function (a, b, c, d) {
@@ -9843,7 +9842,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$tableRow = F2(
 							_elm_lang$core$Native_List.fromArray(
 								[
 									_elm_lang$html$Html_Events$onClick(
-									A2(_elm_lang$elm_architecture_tutorial$Comparison$Toggle, e.left.externalId, e.right.externalId)),
+									A2(_elm_lang$elm_architecture_tutorial$Comparison$Toggle, e.left.id, e.right.id)),
 									_elm_lang$html$Html_Attributes$type$('checkbox'),
 									_elm_lang$html$Html_Attributes$checked(e.matches)
 								]),
@@ -9939,8 +9938,8 @@ var _elm_lang$elm_architecture_tutorial$Comparison$metricButtons = function (par
 					_elm_lang$html$Html$text(
 					A2(
 						_elm_lang$core$Basics_ops['++'],
-						'Maximum editing distance ',
-						_elm_lang$core$Basics$toString(parameters.minimumMetric - 1)))
+						'Editing distance less than ',
+						_elm_lang$core$Basics$toString(parameters.minimumMetric)))
 				])),
 			A2(
 			_elm_lang$html$Html$button,
@@ -10206,7 +10205,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 				var _p6 = _p3._1;
 				var _p5 = _p3._0;
 				var updateEntry = function (e) {
-					return (_elm_lang$core$Native_Utils.eq(e.left.externalId, _p5) && _elm_lang$core$Native_Utils.eq(e.right.externalId, _p6)) ? _elm_lang$core$Native_Utils.update(
+					return (_elm_lang$core$Native_Utils.eq(e.left.id, _p5) && _elm_lang$core$Native_Utils.eq(e.right.id, _p6)) ? _elm_lang$core$Native_Utils.update(
 						e,
 						{
 							matches: _elm_lang$core$Basics$not(e.matches)

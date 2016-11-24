@@ -15,7 +15,7 @@ import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class NamedEntry(internalId: Long, externalId: Long, name: String)
+case class NamedEntry(externalId: Long, name: String)
 
 case class ComparisonEntry(left: NamedEntry, metricResult: Int, right: NamedEntry, matches: Boolean)
 
@@ -25,9 +25,8 @@ case class MatchEntry(leftOn: GameOn, rightOn: GameOn, leftId: Long, rightId: Lo
 class ComparisonController @Inject()(client: WSClient, configuration: Configuration, tables: Tables)(implicit exec: ExecutionContext) extends Controller {
 
   implicit val namedWriter: Writes[NamedEntry] = (
-    (JsPath \ "internalId").write[Long] and
-      (JsPath \ "externalId").write[Long] and
-      (JsPath \ "name").write[String]) ((e) => (e.internalId, e.externalId, e.name))
+    (JsPath \ "id").write[Long] and
+    (JsPath \ "name").write[String]) ((e) => (e.externalId, e.name))
 
   implicit val comparisonWriter: Writes[ComparisonEntry] = (
     (JsPath \ "left").write[NamedEntry] and
@@ -85,12 +84,12 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
 
   def getEntries(on: GameOn): Future[(GameOn, Seq[NamedEntry])] = {
     on match {
-      case GameOn.Gog => tables.getGogEntries.map(s => (on, s.map(e => NamedEntry(e.id.get, e.gogId, e.title))))
-      case GameOn.Steam => tables.getSteamEntries.map(s => (on, s.map(e => NamedEntry(e.id.get, e.steamId, e.name))))
+      case GameOn.Gog => tables.getGogEntries.map(s => (on, s.map(e => NamedEntry(e.gogId, e.title))))
+      case GameOn.Steam => tables.getSteamEntries.map(s => (on, s.map(e => NamedEntry(e.steamId, e.name))))
     }
   }
 
   def toggleMatch(leftOn: GameOn, rightOn: GameOn, leftExternalId: Long, rightExternalId: Long): Action[AnyContent] = Action.async {
-    tables.changeMatch(MatchEntry(leftOn, rightOn, leftExternalId, rightExternalId)).map(r => Ok(Json.toJson("Ok")))
+    tables.changeMatch(MatchEntry(leftOn, rightOn, leftExternalId, rightExternalId)).map(_ => Ok(Json.toJson("Ok")))
   }
 }
