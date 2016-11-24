@@ -11,7 +11,7 @@ import String
 import Model exposing (..)
 
 main =
-    App.program { init = ( initialModel, refresh initialModel initialModel.parameters),
+    App.program { init = ( initialModel, refresh initialModel.baseUrl initialModel.parameters),
     view = view, update = update, subscriptions = subscriptions }
 
 -- PORTS
@@ -37,8 +37,8 @@ type alias ComparisonParameters = {leftOn : GameOn, rightOn : GameOn, minimumMet
 
 initialModel = Model "http://localhost:9000/comparison" [] (ComparisonParameters Gog Steam 3) ""
 
-refresh model parameters =
-    getResponse model "/data" [("left", toString parameters.leftOn), ("right", toString parameters.rightOn), ("minimumMetric", toString model.parameters.minimumMetric)]
+refresh url parameters =
+    getResponse url "/data" [("left", toString parameters.leftOn), ("right", toString parameters.rightOn), ("minimumMetric", toString parameters.minimumMetric)]
 
 gameOnFromString value = if value == "Steam" then Steam else Gog
 -- UPDATE
@@ -47,6 +47,7 @@ type Msg
   = ReceiveData (List ComparisonEntry)
   | DataError Http.Error
   | Refresh PageSide String
+  | RefreshData ComparisonParameters
   | Increment
   | Decrement
   | Toggle GameOn GameOn Int Int
@@ -58,24 +59,26 @@ update msg model =
   case msg of
     ReceiveData comparisons -> ({model | comparisons = comparisons} , Cmd.none)
     DataError err -> ({initialModel | message = toString err} , Cmd.none)
+    RefreshData parameters ->
+        ({ model | comparisons = [], parameters = parameters}, refresh model.baseUrl parameters)
     Refresh side value ->
         let
             currentParameters = model.parameters
             newParameters = if side == Left then {currentParameters | leftOn = gameOnFromString value} else {currentParameters | rightOn = gameOnFromString value}
         in
-            ({ model | comparisons = [], parameters = newParameters}, refresh model newParameters)
+            ({ model | comparisons = [], parameters = newParameters}, refresh model.baseUrl newParameters)
     Increment ->
         let
             currentParameters = model.parameters
             newParameters = {currentParameters | minimumMetric = currentParameters.minimumMetric + 1}
         in
-            ({ model | comparisons = [], parameters = newParameters} , refresh model newParameters)
+            ({ model | comparisons = [], parameters = newParameters} , refresh model.baseUrl newParameters)
     Decrement ->
         let
             currentParameters = model.parameters
             newParameters = {currentParameters | minimumMetric = currentParameters.minimumMetric - 1}
         in
-            ({ model | comparisons = [], parameters = newParameters} , refresh model newParameters)
+            ({ model | comparisons = [], parameters = newParameters} , refresh model.baseUrl newParameters)
     Toggle leftOn rightOn leftId rightId ->
         let
             updateEntry e =
@@ -103,13 +106,13 @@ view : Model -> Html Msg
 view model =
   div [] <|
     [ div [] (if String.isEmpty model.message then [] else [ text (toString model.message) ])
-    , div [] [ table[class <| "inlineTable"] <| selectedSource Left model  :: selectedSource Right model :: title model  :: (List.map (tableRow model) model.comparisons)
+    , div [] [ table[class <| "inlineTable"] <| selectedSource Left model.parameters  :: selectedSource Right model.parameters :: title model  :: (List.map (tableRow model) model.comparisons)
              ]
     ]
 
-selectedSource side model =
+selectedSource side parameters =
     let
-        gameOn = if side == Left then model.parameters.leftOn else model.parameters.rightOn
+        gameOn = if side == Left then parameters.leftOn else parameters.rightOn
     in
         select [onSelect <| Refresh side] [option [selected (gameOn == Gog), value <| toString Gog][text <| toString Gog], option [selected (gameOn == Steam), value <| toString Steam][text <| toString Steam]]
 
@@ -143,11 +146,11 @@ postUpdate model address params =
       in
         Task.perform DataError ToggleStored (Http.post string url Http.empty)
 
-getResponse : Model -> String -> List ( String, String ) -> Cmd Msg
-getResponse model address params =
+getResponse : String -> String -> List ( String, String ) -> Cmd Msg
+getResponse prefix suffix params =
   let
-    dataUrl = model.baseUrl ++ address ++ "?" ++ (joinParameters params)
-    pageUrl = model.baseUrl ++ "?" ++ (joinParameters params)
+    dataUrl = prefix ++ suffix ++ "?" ++ (joinParameters params)
+    pageUrl = prefix ++ "?" ++ (joinParameters params)
   in
     Cmd.batch [Task.perform DataError ReceiveData (Http.get decodeResponse dataUrl), elmAddressChange pageUrl]
 

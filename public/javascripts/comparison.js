@@ -481,7 +481,7 @@ function Tuple2(x, y)
 
 function chr(c)
 {
-	return String(c);
+	return new String(c);
 }
 
 
@@ -939,7 +939,7 @@ var _elm_lang$core$Maybe$oneOf = function (maybes) {
 			if (_p2.ctor === 'Nothing') {
 				var _v3 = _p1._1;
 				maybes = _v3;
-
+				continue oneOf;
 			} else {
 				return _p3;
 			}
@@ -1182,7 +1182,7 @@ var _elm_lang$core$List$drop = F2(
 						_v2 = _p0._1;
 					n = _v1;
 					list = _v2;
-
+					continue drop;
 				}
 			}
 		}
@@ -1206,7 +1206,7 @@ var _elm_lang$core$List$any = F2(
 						_v5 = _p1._1;
 					isOkay = _v4;
 					list = _v5;
-
+					continue any;
 				}
 			}
 		}
@@ -1237,7 +1237,7 @@ var _elm_lang$core$List$foldl = F3(
 				func = _v7;
 				acc = _v8;
 				list = _v9;
-
+				continue foldl;
 			}
 		}
 	});
@@ -1535,7 +1535,7 @@ var _elm_lang$core$List$takeReverse = F3(
 					n = _v23;
 					list = _v24;
 					taken = _v25;
-
+					continue takeReverse;
 				}
 			}
 		}
@@ -1617,7 +1617,7 @@ var _elm_lang$core$List$takeFast = F3(
 								}
 							} else {
 								if (_p23._0 === 1) {
-									break;
+									break _v26_1;
 								} else {
 									break _v26_5;
 								}
@@ -1650,7 +1650,7 @@ var _elm_lang$core$List$repeatHelp = F3(
 				result = _v27;
 				n = _v28;
 				value = _v29;
-
+				continue repeatHelp;
 			}
 		}
 	});
@@ -1820,12 +1820,12 @@ function addPublicModule(object, name, main)
 	object['worker'] = function worker(flags)
 	{
 		return init(undefined, flags, false);
-	};;;;;;
+	}
 
 	object['embed'] = function embed(domNode, flags)
 	{
 		return init(domNode, flags, true);
-	};;;;;;
+	}
 
 	object['fullscreen'] = function fullscreen(flags)
 	{
@@ -3184,7 +3184,7 @@ var _elm_lang$core$Dict$foldr = F3(
 				f = _v1;
 				acc = _v2;
 				t = _v3;
-
+				continue foldr;
 			}
 		}
 	});
@@ -3242,7 +3242,7 @@ var _elm_lang$core$Dict$foldl = F3(
 				f = _v5;
 				acc = _v6;
 				dict = _v7;
-
+				continue foldl;
 			}
 		}
 	});
@@ -3277,7 +3277,7 @@ var _elm_lang$core$Dict$merge = F6(
 							rKey = _v10;
 							rValue = _v11;
 							_p2 = _v12;
-
+							continue stepState;
 						} else {
 							if (_elm_lang$core$Native_Utils.cmp(_p5, rKey) > 0) {
 								return {
@@ -3342,13 +3342,13 @@ var _elm_lang$core$Dict$isBBlack = function (dict) {
 			if (_p13._0.ctor === 'BBlack') {
 				return true;
 			} else {
-				break;
+				break _v14_2;
 			}
 		} else {
 			if (_p13._0.ctor === 'LBBlack') {
 				return true;
 			} else {
-				break;
+				break _v14_2;
 			}
 		}
 	} while(false);
@@ -3366,7 +3366,7 @@ var _elm_lang$core$Dict$sizeHelp = F2(
 					_v17 = _p14._3;
 				n = _v16;
 				dict = _v17;
-
+				continue sizeHelp;
 			}
 		}
 	});
@@ -3375,6 +3375,7 @@ var _elm_lang$core$Dict$size = function (dict) {
 };
 var _elm_lang$core$Dict$get = F2(
 	function (targetKey, dict) {
+		get:
 		while (true) {
 			var _p15 = dict;
 			if (_p15.ctor === 'RBEmpty_elm_builtin') {
@@ -3395,7 +3396,7 @@ var _elm_lang$core$Dict$get = F2(
 							_v23 = _p15._4;
 						targetKey = _v22;
 						dict = _v23;
-
+						continue get;
 				}
 			}
 		}
@@ -3423,7 +3424,7 @@ var _elm_lang$core$Dict$maxWithDefault = F3(
 				k = _v26;
 				v = _v27;
 				r = _v28;
-
+				continue maxWithDefault;
 			}
 		}
 	});
@@ -4077,7 +4078,7 @@ var _eeue56$elm_all_dict$AllDict$foldr = F3(
 				f = _v1;
 				acc = _v2;
 				t = _v3;
-
+				continue foldr;
 			}
 		}
 	});
@@ -4135,7 +4136,7 @@ var _eeue56$elm_all_dict$AllDict$foldl = F3(
 				f = _v5;
 				acc = _v6;
 				dict = _v7;
-
+				continue foldl;
 			}
 		}
 	});
@@ -4147,13 +4148,13 @@ var _eeue56$elm_all_dict$AllDict$isBBlack = function (dict) {
 			if (_p2._0.ctor === 'BBlack') {
 				return true;
 			} else {
-				break;
+				break _v8_2;
 			}
 		} else {
 			if (_p2._0.ctor === 'LBBlack') {
 				return true;
 			} else {
-				break;
+				break _v8_2;
 			}
 		}
 	} while(false);
@@ -4182,7 +4183,7 @@ var _eeue56$elm_all_dict$AllDict$sizeHelp = F2(
 					_v12 = _p4._3;
 				n = _v11;
 				dict = _v12;
-
+				continue sizeHelp;
 			}
 		}
 	});
@@ -4206,7 +4207,7 @@ var _eeue56$elm_all_dict$AllDict$getOrd = function (dict) {
 		} else {
 			var _v15 = _p6._3;
 			dict = _v15;
-
+			continue getOrd;
 		}
 	}
 };
@@ -4229,7 +4230,7 @@ var _eeue56$elm_all_dict$AllDict$get$ = F2(
 							_v19 = _p7._3;
 						targetKey = _v18;
 						dict = _v19;
-						continue;
+						continue get$;
 					case 'EQ':
 						return _elm_lang$core$Maybe$Just(_p7._2);
 					default:
@@ -4237,7 +4238,7 @@ var _eeue56$elm_all_dict$AllDict$get$ = F2(
 							_v21 = _p7._4;
 						targetKey = _v20;
 						dict = _v21;
-
+						continue get$;
 				}
 			}
 		}
@@ -4265,7 +4266,7 @@ var _eeue56$elm_all_dict$AllDict$max = function (dict) {
 			} else {
 				var _v24 = _p10._4;
 				dict = _v24;
-
+				continue max;
 			}
 		} else {
 			return _elm_lang$core$Native_Utils.crashCase(
@@ -4288,7 +4289,7 @@ var _eeue56$elm_all_dict$AllDict$min = function (dict) {
 			} else {
 				var _v26 = _p12._3;
 				dict = _v26;
-
+				continue min;
 			}
 		} else {
 			return _elm_lang$core$Native_Utils.crashCase(
@@ -4436,7 +4437,7 @@ var _eeue56$elm_all_dict$AllDict$ensureBlackRoot = function (dict) {
 					break _v32_2;
 			}
 		} else {
-			break;
+			break _v32_2;
 		}
 	} while(false);
 	return dict;
@@ -7347,8 +7348,9 @@ function makeEventHandler(eventNode, info)
 				currentEventNode = currentEventNode.parent;
 			}
 		}
-    }
-    eventHandler.info = info;
+	};
+
+	eventHandler.info = info;
 
 	return eventHandler;
 }
@@ -8096,7 +8098,7 @@ function applyPatchesHelp(rootDomNode, patches)
 	for (var i = 0; i < patches.length; i++)
 	{
 		var patch = patches[i];
-		var localDomNode = patch.domNode;;;;;;
+		var localDomNode = patch.domNode
 		var newNode = applyPatch(localDomNode, patch);
 		if (localDomNode === rootDomNode)
 		{
@@ -9436,7 +9438,7 @@ function send(settings, request)
 
 function toResponse(req)
 {
-	var tag = req.responseType === 'blob' ? 'Blob' : 'Text';;;;;;
+	var tag = req.responseType === 'blob' ? 'Blob' : 'Text'
 	var response = tag === 'Blob' ? req.response : req.responseText;
 	return {
 		status: req.status,
@@ -9949,13 +9951,16 @@ var _elm_lang$elm_architecture_tutorial$Comparison$title = function (model) {
 		getTitle(model.parameters.leftOn),
 		getTitle(model.parameters.rightOn));
 };
+var _elm_lang$elm_architecture_tutorial$Comparison$RefreshData = function (a) {
+	return {ctor: 'RefreshData', _0: a};
+};
 var _elm_lang$elm_architecture_tutorial$Comparison$Refresh = F2(
 	function (a, b) {
 		return {ctor: 'Refresh', _0: a, _1: b};
 	});
 var _elm_lang$elm_architecture_tutorial$Comparison$selectedSource = F2(
-	function (side, model) {
-		var gameOn = _elm_lang$core$Native_Utils.eq(side, _elm_lang$elm_architecture_tutorial$Comparison$Left) ? model.parameters.leftOn : model.parameters.rightOn;
+	function (side, parameters) {
+		var gameOn = _elm_lang$core$Native_Utils.eq(side, _elm_lang$elm_architecture_tutorial$Comparison$Left) ? parameters.leftOn : parameters.rightOn;
 		return A2(
 			_elm_lang$html$Html$select,
 			_elm_lang$core$Native_List.fromArray(
@@ -10026,10 +10031,10 @@ var _elm_lang$elm_architecture_tutorial$Comparison$view = function (model) {
 							]),
 						A2(
 							_elm_lang$core$List_ops['::'],
-							A2(_elm_lang$elm_architecture_tutorial$Comparison$selectedSource, _elm_lang$elm_architecture_tutorial$Comparison$Left, model),
+							A2(_elm_lang$elm_architecture_tutorial$Comparison$selectedSource, _elm_lang$elm_architecture_tutorial$Comparison$Left, model.parameters),
 							A2(
 								_elm_lang$core$List_ops['::'],
-								A2(_elm_lang$elm_architecture_tutorial$Comparison$selectedSource, _elm_lang$elm_architecture_tutorial$Comparison$Right, model),
+								A2(_elm_lang$elm_architecture_tutorial$Comparison$selectedSource, _elm_lang$elm_architecture_tutorial$Comparison$Right, model.parameters),
 								A2(
 									_elm_lang$core$List_ops['::'],
 									_elm_lang$elm_architecture_tutorial$Comparison$title(model),
@@ -10065,20 +10070,20 @@ var _elm_lang$elm_architecture_tutorial$Comparison$ReceiveData = function (a) {
 	return {ctor: 'ReceiveData', _0: a};
 };
 var _elm_lang$elm_architecture_tutorial$Comparison$getResponse = F3(
-	function (model, address, params) {
+	function (prefix, suffix, params) {
 		var pageUrl = A2(
 			_elm_lang$core$Basics_ops['++'],
-			model.baseUrl,
+			prefix,
 			A2(
 				_elm_lang$core$Basics_ops['++'],
 				'?',
 				_elm_lang$elm_architecture_tutorial$Comparison$joinParameters(params)));
 		var dataUrl = A2(
 			_elm_lang$core$Basics_ops['++'],
-			model.baseUrl,
+			prefix,
 			A2(
 				_elm_lang$core$Basics_ops['++'],
-				address,
+				suffix,
 				A2(
 					_elm_lang$core$Basics_ops['++'],
 					'?',
@@ -10095,10 +10100,10 @@ var _elm_lang$elm_architecture_tutorial$Comparison$getResponse = F3(
 				]));
 	});
 var _elm_lang$elm_architecture_tutorial$Comparison$refresh = F2(
-	function (model, parameters) {
+	function (url, parameters) {
 		return A3(
 			_elm_lang$elm_architecture_tutorial$Comparison$getResponse,
-			model,
+			url,
 			'/data',
 			_elm_lang$core$Native_List.fromArray(
 				[
@@ -10115,7 +10120,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$refresh = F2(
 					{
 					ctor: '_Tuple2',
 					_0: 'minimumMetric',
-					_1: _elm_lang$core$Basics$toString(model.parameters.minimumMetric)
+					_1: _elm_lang$core$Basics$toString(parameters.minimumMetric)
 				}
 				]));
 	});
@@ -10141,17 +10146,30 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
+			case 'RefreshData':
+				var _p4 = _p3._0;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							comparisons: _elm_lang$core$Native_List.fromArray(
+								[]),
+							parameters: _p4
+						}),
+					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model.baseUrl, _p4)
+				};
 			case 'Refresh':
-				var _p4 = _p3._1;
+				var _p5 = _p3._1;
 				var currentParameters = model.parameters;
 				var newParameters = _elm_lang$core$Native_Utils.eq(_p3._0, _elm_lang$elm_architecture_tutorial$Comparison$Left) ? _elm_lang$core$Native_Utils.update(
 					currentParameters,
 					{
-						leftOn: _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString(_p4)
+						leftOn: _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString(_p5)
 					}) : _elm_lang$core$Native_Utils.update(
 					currentParameters,
 					{
-						rightOn: _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString(_p4)
+						rightOn: _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString(_p5)
 					});
 				return {
 					ctor: '_Tuple2',
@@ -10162,7 +10180,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 								[]),
 							parameters: newParameters
 						}),
-					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model, newParameters)
+					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model.baseUrl, newParameters)
 				};
 			case 'Increment':
 				var currentParameters = model.parameters;
@@ -10178,7 +10196,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 								[]),
 							parameters: newParameters
 						}),
-					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model, newParameters)
+					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model.baseUrl, newParameters)
 				};
 			case 'Decrement':
 				var currentParameters = model.parameters;
@@ -10194,13 +10212,13 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 								[]),
 							parameters: newParameters
 						}),
-					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model, newParameters)
+					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model.baseUrl, newParameters)
 				};
 			case 'Toggle':
-				var _p6 = _p3._3;
-				var _p5 = _p3._2;
+				var _p7 = _p3._3;
+				var _p6 = _p3._2;
 				var updateEntry = function (e) {
-					return (_elm_lang$core$Native_Utils.eq(e.left.externalId, _p5) && _elm_lang$core$Native_Utils.eq(e.right.externalId, _p6)) ? _elm_lang$core$Native_Utils.update(
+					return (_elm_lang$core$Native_Utils.eq(e.left.externalId, _p6) && _elm_lang$core$Native_Utils.eq(e.right.externalId, _p7)) ? _elm_lang$core$Native_Utils.update(
 						e,
 						{
 							matches: _elm_lang$core$Basics$not(e.matches)
@@ -10231,20 +10249,20 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 								{
 								ctor: '_Tuple2',
 								_0: 'leftId',
-								_1: _elm_lang$core$Basics$toString(_p5)
+								_1: _elm_lang$core$Basics$toString(_p6)
 							},
 								{
 								ctor: '_Tuple2',
 								_0: 'rightId',
-								_1: _elm_lang$core$Basics$toString(_p6)
+								_1: _elm_lang$core$Basics$toString(_p7)
 							}
 							]))
 				};
 			case 'ToggleStored':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			default:
-				var _p7 = _p3._0;
-				var x = A2(_elm_lang$core$Debug$log, 'XXX', _p7);
+				var _p8 = _p3._0;
+				var x = A2(_elm_lang$core$Debug$log, 'XXX', _p8);
 				var parseInt = function (value) {
 					return A2(
 						_elm_lang$core$Maybe$withDefault,
@@ -10267,7 +10285,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 						_elm_lang$core$Json_Decode_ops[':='],
 						'minimumMetric',
 						A2(_elm_lang$core$Json_Decode$map, parseInt, _elm_lang$core$Json_Decode$string)));
-				var y = A2(_elm_lang$core$Json_Decode$decodeString, decodeAddress, _p7);
+				var y = A2(_elm_lang$core$Json_Decode$decodeString, decodeAddress, _p8);
 				var z = A2(_elm_lang$core$Debug$log, 'YYY', y);
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}
@@ -10278,7 +10296,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$main = {
 			init: {
 				ctor: '_Tuple2',
 				_0: _elm_lang$elm_architecture_tutorial$Comparison$initialModel,
-				_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, _elm_lang$elm_architecture_tutorial$Comparison$initialModel, _elm_lang$elm_architecture_tutorial$Comparison$initialModel.parameters)
+				_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, _elm_lang$elm_architecture_tutorial$Comparison$initialModel.baseUrl, _elm_lang$elm_architecture_tutorial$Comparison$initialModel.parameters)
 			},
 			view: _elm_lang$elm_architecture_tutorial$Comparison$view,
 			update: _elm_lang$elm_architecture_tutorial$Comparison$update,
