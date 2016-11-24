@@ -9795,9 +9795,9 @@ var _elm_lang$elm_architecture_tutorial$Comparison$Left = {ctor: 'Left'};
 var _elm_lang$elm_architecture_tutorial$Comparison$ToggleStored = function (a) {
 	return {ctor: 'ToggleStored', _0: a};
 };
-var _elm_lang$elm_architecture_tutorial$Comparison$Toggle = F4(
-	function (a, b, c, d) {
-		return {ctor: 'Toggle', _0: a, _1: b, _2: c, _3: d};
+var _elm_lang$elm_architecture_tutorial$Comparison$Toggle = F2(
+	function (a, b) {
+		return {ctor: 'Toggle', _0: a, _1: b};
 	});
 var _elm_lang$elm_architecture_tutorial$Comparison$tableRow = F2(
 	function (model, e) {
@@ -9843,7 +9843,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$tableRow = F2(
 							_elm_lang$core$Native_List.fromArray(
 								[
 									_elm_lang$html$Html_Events$onClick(
-									A4(_elm_lang$elm_architecture_tutorial$Comparison$Toggle, model.parameters.leftOn, model.parameters.rightOn, e.left.externalId, e.right.externalId)),
+									A2(_elm_lang$elm_architecture_tutorial$Comparison$Toggle, e.left.externalId, e.right.externalId)),
 									_elm_lang$html$Html_Attributes$type$('checkbox'),
 									_elm_lang$html$Html_Attributes$checked(e.matches)
 								]),
@@ -10203,8 +10203,8 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model.baseUrl, _p4)
 				};
 			case 'Toggle':
-				var _p6 = _p3._3;
-				var _p5 = _p3._2;
+				var _p6 = _p3._1;
+				var _p5 = _p3._0;
 				var updateEntry = function (e) {
 					return (_elm_lang$core$Native_Utils.eq(e.left.externalId, _p5) && _elm_lang$core$Native_Utils.eq(e.right.externalId, _p6)) ? _elm_lang$core$Native_Utils.update(
 						e,
@@ -10227,12 +10227,12 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 								{
 								ctor: '_Tuple2',
 								_0: 'leftOn',
-								_1: _elm_lang$core$Basics$toString(_p3._0)
+								_1: _elm_lang$core$Basics$toString(model.parameters.leftOn)
 							},
 								{
 								ctor: '_Tuple2',
 								_0: 'rightOn',
-								_1: _elm_lang$core$Basics$toString(_p3._1)
+								_1: _elm_lang$core$Basics$toString(model.parameters.leftOn)
 							},
 								{
 								ctor: '_Tuple2',

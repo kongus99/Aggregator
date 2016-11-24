@@ -47,7 +47,7 @@ type Msg
   = ReceiveData (List ComparisonEntry)
   | DataError Http.Error
   | Refresh ComparisonParameters
-  | Toggle GameOn GameOn Int Int
+  | Toggle Int Int
   | ToggleStored String
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -56,7 +56,7 @@ update msg model =
     ReceiveData comparisons -> ({model | comparisons = comparisons} , Cmd.none)
     DataError err -> ({initialModel | message = toString err} , Cmd.none)
     Refresh parameters -> ({ model | comparisons = [], parameters = parameters}, refresh model.baseUrl parameters)
-    Toggle leftOn rightOn leftId rightId ->
+    Toggle leftId rightId ->
         let
             updateEntry e =
                 if e.left.externalId == leftId && e.right.externalId == rightId
@@ -64,7 +64,7 @@ update msg model =
                 else e
             newComparisons = List.map updateEntry model.comparisons
         in
-            ({model | comparisons = newComparisons}, postUpdate model "/toggleMatch" [("leftOn", toString leftOn), ("rightOn", toString rightOn), ("leftId", toString leftId), ("rightId", toString rightId)])
+            ({model | comparisons = newComparisons}, postUpdate model "/toggleMatch" [("leftOn", toString model.parameters.leftOn), ("rightOn", toString model.parameters.leftOn), ("leftId", toString leftId), ("rightId", toString rightId)])
     ToggleStored mess ->
         (model , Cmd.none)
 
@@ -86,10 +86,11 @@ selectedSource side parameters =
     in
         select [onSelect <| refreshSide] [option [selected (gameOn == Gog), value <| toString Gog][text <| toString Gog], option [selected (gameOn == Steam), value <| toString Steam][text <| toString Steam]]
 
-tableRow model e = tr [] [ td[][text e.left.name]
-                   , td[][text <| toString e.metricResult]
-                   , td[][text e.right.name]
-                   , td[][input[onClick <| Toggle model.parameters.leftOn model.parameters.rightOn e.left.externalId e.right.externalId ,type' "checkbox", checked e.matches][]] ]
+tableRow model e =
+            tr [] [ td[][text e.left.name]
+                  , td[][text <| toString e.metricResult]
+                  , td[][text e.right.name]
+                  , td[][input[onClick <| Toggle e.left.externalId e.right.externalId ,type' "checkbox", checked e.matches][]] ]
 
 title model =
     let
