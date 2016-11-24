@@ -928,6 +928,7 @@ var _elm_lang$core$Maybe$withDefault = F2(
 	});
 var _elm_lang$core$Maybe$Nothing = {ctor: 'Nothing'};
 var _elm_lang$core$Maybe$oneOf = function (maybes) {
+	oneOf:
 	while (true) {
 		var _p1 = maybes;
 		if (_p1.ctor === '[]') {
@@ -1168,6 +1169,7 @@ var _elm_lang$core$List$sort = function (xs) {
 };
 var _elm_lang$core$List$drop = F2(
 	function (n, list) {
+		drop:
 		while (true) {
 			if (_elm_lang$core$Native_Utils.cmp(n, 0) < 1) {
 				return list;
@@ -1191,6 +1193,7 @@ var _elm_lang$core$List$map3 = _elm_lang$core$Native_List.map3;
 var _elm_lang$core$List$map2 = _elm_lang$core$Native_List.map2;
 var _elm_lang$core$List$any = F2(
 	function (isOkay, list) {
+		any:
 		while (true) {
 			var _p1 = list;
 			if (_p1.ctor === '[]') {
@@ -1222,6 +1225,7 @@ var _elm_lang$core$List$all = F2(
 var _elm_lang$core$List$foldr = _elm_lang$core$Native_List.foldr;
 var _elm_lang$core$List$foldl = F3(
 	function (func, acc, list) {
+		foldl:
 		while (true) {
 			var _p3 = list;
 			if (_p3.ctor === '[]') {
@@ -1516,6 +1520,7 @@ var _elm_lang$core$List$intersperse = F2(
 	});
 var _elm_lang$core$List$takeReverse = F3(
 	function (n, list, taken) {
+		takeReverse:
 		while (true) {
 			if (_elm_lang$core$Native_Utils.cmp(n, 0) < 1) {
 				return taken;
@@ -1634,6 +1639,7 @@ var _elm_lang$core$List$take = F2(
 	});
 var _elm_lang$core$List$repeatHelp = F3(
 	function (result, n, value) {
+		repeatHelp:
 		while (true) {
 			if (_elm_lang$core$Native_Utils.cmp(n, 0) < 1) {
 				return result;
@@ -1814,12 +1820,12 @@ function addPublicModule(object, name, main)
 	object['worker'] = function worker(flags)
 	{
 		return init(undefined, flags, false);
-	};;;;;;;;;;
+	};;;;;;
 
 	object['embed'] = function embed(domNode, flags)
 	{
 		return init(domNode, flags, true);
-	};;;;;;;;;;
+	};;;;;;
 
 	object['fullscreen'] = function fullscreen(flags)
 	{
@@ -3162,6 +3168,7 @@ var _elm_lang$core$String$isEmpty = _elm_lang$core$Native_String.isEmpty;
 
 var _elm_lang$core$Dict$foldr = F3(
 	function (f, acc, t) {
+		foldr:
 		while (true) {
 			var _p0 = t;
 			if (_p0.ctor === 'RBEmpty_elm_builtin') {
@@ -3219,6 +3226,7 @@ var _elm_lang$core$Dict$toList = function (dict) {
 };
 var _elm_lang$core$Dict$foldl = F3(
 	function (f, acc, dict) {
+		foldl:
 		while (true) {
 			var _p1 = dict;
 			if (_p1.ctor === 'RBEmpty_elm_builtin') {
@@ -3242,6 +3250,7 @@ var _elm_lang$core$Dict$merge = F6(
 	function (leftStep, bothStep, rightStep, leftDict, rightDict, initialResult) {
 		var stepState = F3(
 			function (rKey, rValue, _p2) {
+				stepState:
 				while (true) {
 					var _p3 = _p2;
 					var _p9 = _p3._1;
@@ -3327,6 +3336,7 @@ var _elm_lang$core$Dict$reportRemBug = F4(
 	});
 var _elm_lang$core$Dict$isBBlack = function (dict) {
 	var _p13 = dict;
+	_v14_2:
 	do {
 		if (_p13.ctor === 'RBNode_elm_builtin') {
 			if (_p13._0.ctor === 'BBlack') {
@@ -3346,6 +3356,7 @@ var _elm_lang$core$Dict$isBBlack = function (dict) {
 };
 var _elm_lang$core$Dict$sizeHelp = F2(
 	function (n, dict) {
+		sizeHelp:
 		while (true) {
 			var _p14 = dict;
 			if (_p14.ctor === 'RBEmpty_elm_builtin') {
@@ -3400,6 +3411,7 @@ var _elm_lang$core$Dict$member = F2(
 	});
 var _elm_lang$core$Dict$maxWithDefault = F3(
 	function (k, v, r) {
+		maxWithDefault:
 		while (true) {
 			var _p18 = r;
 			if (_p18.ctor === 'RBEmpty_elm_builtin') {
@@ -4049,6 +4061,7 @@ var _elm_lang$core$Dict$diff = F2(
 
 var _eeue56$elm_all_dict$AllDict$foldr = F3(
 	function (f, acc, t) {
+		foldr:
 		while (true) {
 			var _p0 = t;
 			if (_p0.ctor === 'RBEmpty_elm_builtin') {
@@ -4106,6 +4119,7 @@ var _eeue56$elm_all_dict$AllDict$toList = function (dict) {
 };
 var _eeue56$elm_all_dict$AllDict$foldl = F3(
 	function (f, acc, dict) {
+		foldl:
 		while (true) {
 			var _p1 = dict;
 			if (_p1.ctor === 'RBEmpty_elm_builtin') {
@@ -4127,6 +4141,7 @@ var _eeue56$elm_all_dict$AllDict$foldl = F3(
 	});
 var _eeue56$elm_all_dict$AllDict$isBBlack = function (dict) {
 	var _p2 = dict;
+	_v8_2:
 	do {
 		if (_p2.ctor === 'RBNode_elm_builtin') {
 			if (_p2._0.ctor === 'BBlack') {
@@ -4157,6 +4172,7 @@ var _eeue56$elm_all_dict$AllDict$showFlag = function (f) {
 };
 var _eeue56$elm_all_dict$AllDict$sizeHelp = F2(
 	function (n, dict) {
+		sizeHelp:
 		while (true) {
 			var _p4 = dict;
 			if (_p4.ctor === 'RBEmpty_elm_builtin') {
@@ -4182,6 +4198,7 @@ var _eeue56$elm_all_dict$AllDict$isEmpty = function (dict) {
 	}
 };
 var _eeue56$elm_all_dict$AllDict$getOrd = function (dict) {
+	getOrd:
 	while (true) {
 		var _p6 = dict;
 		if (_p6.ctor === 'RBEmpty_elm_builtin') {
@@ -4195,6 +4212,7 @@ var _eeue56$elm_all_dict$AllDict$getOrd = function (dict) {
 };
 var _eeue56$elm_all_dict$AllDict$get$ = F2(
 	function (targetKey, dict) {
+		get$:
 		while (true) {
 			var ord = _eeue56$elm_all_dict$AllDict$getOrd(dict);
 			var _p7 = dict;
@@ -4238,6 +4256,7 @@ var _eeue56$elm_all_dict$AllDict$member = F2(
 		}
 	});
 var _eeue56$elm_all_dict$AllDict$max = function (dict) {
+	max:
 	while (true) {
 		var _p10 = dict;
 		if (_p10.ctor === 'RBNode_elm_builtin') {
@@ -4260,6 +4279,7 @@ var _eeue56$elm_all_dict$AllDict$max = function (dict) {
 	}
 };
 var _eeue56$elm_all_dict$AllDict$min = function (dict) {
+	min:
 	while (true) {
 		var _p12 = dict;
 		if (_p12.ctor === 'RBNode_elm_builtin') {
@@ -8076,7 +8096,7 @@ function applyPatchesHelp(rootDomNode, patches)
 	for (var i = 0; i < patches.length; i++)
 	{
 		var patch = patches[i];
-		var localDomNode = patch.domNode;;;;;;;;;;
+		var localDomNode = patch.domNode;;;;;;
 		var newNode = applyPatch(localDomNode, patch);
 		if (localDomNode === rootDomNode)
 		{
@@ -9416,7 +9436,7 @@ function send(settings, request)
 
 function toResponse(req)
 {
-	var tag = req.responseType === 'blob' ? 'Blob' : 'Text';;;;;;;;;;
+	var tag = req.responseType === 'blob' ? 'Blob' : 'Text';;;;;;
 	var response = tag === 'Blob' ? req.response : req.responseText;
 	return {
 		status: req.status,
@@ -9723,6 +9743,9 @@ var _elm_lang$elm_architecture_tutorial$Comparison$joinParameters = function (pa
 			},
 			params));
 };
+var _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString = function (value) {
+	return _elm_lang$core$Native_Utils.eq(value, 'Steam') ? _elm_lang$elm_architecture_tutorial$Model$Steam : _elm_lang$elm_architecture_tutorial$Model$Gog;
+};
 var _elm_lang$elm_architecture_tutorial$Comparison$elmAddressChange = _elm_lang$core$Native_Platform.outgoingPort(
 	'elmAddressChange',
 	function (v) {
@@ -9751,25 +9774,23 @@ var _elm_lang$elm_architecture_tutorial$Comparison$decodeResponse = _elm_lang$co
 		A2(_elm_lang$core$Json_Decode_ops[':='], 'metricResult', _elm_lang$core$Json_Decode$int),
 		A2(_elm_lang$core$Json_Decode_ops[':='], 'right', _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson),
 		A2(_elm_lang$core$Json_Decode_ops[':='], 'matches', _elm_lang$core$Json_Decode$bool)));
-var _elm_lang$elm_architecture_tutorial$Comparison$Model = F6(
-	function (a, b, c, d, e, f) {
-		return {baseUrl: a, comparisons: b, leftOn: c, rightOn: d, minimumMetric: e, message: f};
+var _elm_lang$elm_architecture_tutorial$Comparison$Model = F4(
+	function (a, b, c, d) {
+		return {baseUrl: a, comparisons: b, parameters: c, message: d};
 	});
-var _elm_lang$elm_architecture_tutorial$Comparison$initialModel = A6(
+var _elm_lang$elm_architecture_tutorial$Comparison$ComparisonParameters = F3(
+	function (a, b, c) {
+		return {leftOn: a, rightOn: b, minimumMetric: c};
+	});
+var _elm_lang$elm_architecture_tutorial$Comparison$initialModel = A4(
 	_elm_lang$elm_architecture_tutorial$Comparison$Model,
-	'http://localhost:9000/comparison/',
+	'http://localhost:9000/comparison',
 	_elm_lang$core$Native_List.fromArray(
 		[]),
-	_elm_lang$elm_architecture_tutorial$Model$Gog,
-	_elm_lang$elm_architecture_tutorial$Model$Steam,
-	3,
+	A3(_elm_lang$elm_architecture_tutorial$Comparison$ComparisonParameters, _elm_lang$elm_architecture_tutorial$Model$Gog, _elm_lang$elm_architecture_tutorial$Model$Steam, 3),
 	'');
 var _elm_lang$elm_architecture_tutorial$Comparison$Right = {ctor: 'Right'};
 var _elm_lang$elm_architecture_tutorial$Comparison$Left = {ctor: 'Left'};
-var _elm_lang$elm_architecture_tutorial$Comparison$getOn = F2(
-	function (side, model) {
-		return _elm_lang$core$Native_Utils.eq(side, _elm_lang$elm_architecture_tutorial$Comparison$Left) ? model.leftOn : model.rightOn;
-	});
 var _elm_lang$elm_architecture_tutorial$Comparison$LoadAddress = function (a) {
 	return {ctor: 'LoadAddress', _0: a};
 };
@@ -9827,7 +9848,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$tableRow = F2(
 							_elm_lang$core$Native_List.fromArray(
 								[
 									_elm_lang$html$Html_Events$onClick(
-									A4(_elm_lang$elm_architecture_tutorial$Comparison$Toggle, model.leftOn, model.rightOn, e.left.externalId, e.right.externalId)),
+									A4(_elm_lang$elm_architecture_tutorial$Comparison$Toggle, model.parameters.leftOn, model.parameters.rightOn, e.left.externalId, e.right.externalId)),
 									_elm_lang$html$Html_Attributes$type$('checkbox'),
 									_elm_lang$html$Html_Attributes$checked(e.matches)
 								]),
@@ -9904,7 +9925,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$title = function (model) {
 						_elm_lang$html$Html$th,
 						_elm_lang$core$Native_List.fromArray(
 							[]),
-						_elm_lang$elm_architecture_tutorial$Comparison$metricButtons(model.minimumMetric)),
+						_elm_lang$elm_architecture_tutorial$Comparison$metricButtons(model.parameters.minimumMetric)),
 						A2(
 						_elm_lang$html$Html$th,
 						_elm_lang$core$Native_List.fromArray(
@@ -9925,8 +9946,8 @@ var _elm_lang$elm_architecture_tutorial$Comparison$title = function (model) {
 		});
 	return A2(
 		tableTitle,
-		getTitle(model.leftOn),
-		getTitle(model.rightOn));
+		getTitle(model.parameters.leftOn),
+		getTitle(model.parameters.rightOn));
 };
 var _elm_lang$elm_architecture_tutorial$Comparison$Refresh = F2(
 	function (a, b) {
@@ -9934,7 +9955,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$Refresh = F2(
 	});
 var _elm_lang$elm_architecture_tutorial$Comparison$selectedSource = F2(
 	function (side, model) {
-		var gameOn = A2(_elm_lang$elm_architecture_tutorial$Comparison$getOn, side, model);
+		var gameOn = _elm_lang$core$Native_Utils.eq(side, _elm_lang$elm_architecture_tutorial$Comparison$Left) ? model.parameters.leftOn : model.parameters.rightOn;
 		return A2(
 			_elm_lang$html$Html$select,
 			_elm_lang$core$Native_List.fromArray(
@@ -10073,30 +10094,31 @@ var _elm_lang$elm_architecture_tutorial$Comparison$getResponse = F3(
 					_elm_lang$elm_architecture_tutorial$Comparison$elmAddressChange(pageUrl)
 				]));
 	});
-var _elm_lang$elm_architecture_tutorial$Comparison$refresh = function (model) {
-	return A3(
-		_elm_lang$elm_architecture_tutorial$Comparison$getResponse,
-		model,
-		'data',
-		_elm_lang$core$Native_List.fromArray(
-			[
-				{
-				ctor: '_Tuple2',
-				_0: 'left',
-				_1: _elm_lang$core$Basics$toString(model.leftOn)
-			},
-				{
-				ctor: '_Tuple2',
-				_0: 'right',
-				_1: _elm_lang$core$Basics$toString(model.rightOn)
-			},
-				{
-				ctor: '_Tuple2',
-				_0: 'minimumMetric',
-				_1: _elm_lang$core$Basics$toString(model.minimumMetric)
-			}
-			]));
-};
+var _elm_lang$elm_architecture_tutorial$Comparison$refresh = F2(
+	function (model, parameters) {
+		return A3(
+			_elm_lang$elm_architecture_tutorial$Comparison$getResponse,
+			model,
+			'/data',
+			_elm_lang$core$Native_List.fromArray(
+				[
+					{
+					ctor: '_Tuple2',
+					_0: 'left',
+					_1: _elm_lang$core$Basics$toString(parameters.leftOn)
+				},
+					{
+					ctor: '_Tuple2',
+					_0: 'right',
+					_1: _elm_lang$core$Basics$toString(parameters.rightOn)
+				},
+					{
+					ctor: '_Tuple2',
+					_0: 'minimumMetric',
+					_1: _elm_lang$core$Basics$toString(model.parameters.minimumMetric)
+				}
+				]));
+	});
 var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 	function (msg, model) {
 		var _p3 = msg;
@@ -10120,45 +10142,65 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'Refresh':
-				var gameOn = _elm_lang$core$Native_Utils.eq(_p3._1, 'Steam') ? _elm_lang$elm_architecture_tutorial$Model$Steam : _elm_lang$elm_architecture_tutorial$Model$Gog;
-				var newModel = _elm_lang$core$Native_Utils.eq(_p3._0, _elm_lang$elm_architecture_tutorial$Comparison$Left) ? _elm_lang$core$Native_Utils.update(
-					model,
-					{leftOn: gameOn}) : _elm_lang$core$Native_Utils.update(
-					model,
-					{rightOn: gameOn});
+				var _p4 = _p3._1;
+				var currentParameters = model.parameters;
+				var newParameters = _elm_lang$core$Native_Utils.eq(_p3._0, _elm_lang$elm_architecture_tutorial$Comparison$Left) ? _elm_lang$core$Native_Utils.update(
+					currentParameters,
+					{
+						leftOn: _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString(_p4)
+					}) : _elm_lang$core$Native_Utils.update(
+					currentParameters,
+					{
+						rightOn: _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString(_p4)
+					});
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
-						newModel,
+						model,
 						{
 							comparisons: _elm_lang$core$Native_List.fromArray(
-								[])
+								[]),
+							parameters: newParameters
 						}),
-					_1: _elm_lang$elm_architecture_tutorial$Comparison$refresh(newModel)
+					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model, newParameters)
 				};
 			case 'Increment':
-				var newModel = _elm_lang$core$Native_Utils.update(
-					model,
-					{minimumMetric: model.minimumMetric + 1});
+				var currentParameters = model.parameters;
+				var newParameters = _elm_lang$core$Native_Utils.update(
+					currentParameters,
+					{minimumMetric: currentParameters.minimumMetric + 1});
 				return {
 					ctor: '_Tuple2',
-					_0: newModel,
-					_1: _elm_lang$elm_architecture_tutorial$Comparison$refresh(newModel)
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							comparisons: _elm_lang$core$Native_List.fromArray(
+								[]),
+							parameters: newParameters
+						}),
+					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model, newParameters)
 				};
 			case 'Decrement':
-				var newModel = _elm_lang$core$Native_Utils.update(
-					model,
-					{minimumMetric: model.minimumMetric - 1});
+				var currentParameters = model.parameters;
+				var newParameters = _elm_lang$core$Native_Utils.update(
+					currentParameters,
+					{minimumMetric: currentParameters.minimumMetric - 1});
 				return {
 					ctor: '_Tuple2',
-					_0: newModel,
-					_1: _elm_lang$elm_architecture_tutorial$Comparison$refresh(newModel)
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							comparisons: _elm_lang$core$Native_List.fromArray(
+								[]),
+							parameters: newParameters
+						}),
+					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model, newParameters)
 				};
 			case 'Toggle':
-				var _p5 = _p3._3;
-				var _p4 = _p3._2;
+				var _p6 = _p3._3;
+				var _p5 = _p3._2;
 				var updateEntry = function (e) {
-					return (_elm_lang$core$Native_Utils.eq(e.left.externalId, _p4) && _elm_lang$core$Native_Utils.eq(e.right.externalId, _p5)) ? _elm_lang$core$Native_Utils.update(
+					return (_elm_lang$core$Native_Utils.eq(e.left.externalId, _p5) && _elm_lang$core$Native_Utils.eq(e.right.externalId, _p6)) ? _elm_lang$core$Native_Utils.update(
 						e,
 						{
 							matches: _elm_lang$core$Basics$not(e.matches)
@@ -10173,7 +10215,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 					_1: A3(
 						_elm_lang$elm_architecture_tutorial$Comparison$postUpdate,
 						model,
-						'toggleMatch',
+						'/toggleMatch',
 						_elm_lang$core$Native_List.fromArray(
 							[
 								{
@@ -10189,18 +10231,44 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 								{
 								ctor: '_Tuple2',
 								_0: 'leftId',
-								_1: _elm_lang$core$Basics$toString(_p4)
+								_1: _elm_lang$core$Basics$toString(_p5)
 							},
 								{
 								ctor: '_Tuple2',
 								_0: 'rightId',
-								_1: _elm_lang$core$Basics$toString(_p5)
+								_1: _elm_lang$core$Basics$toString(_p6)
 							}
 							]))
 				};
 			case 'ToggleStored':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			default:
+				var _p7 = _p3._0;
+				var x = A2(_elm_lang$core$Debug$log, 'XXX', _p7);
+				var parseInt = function (value) {
+					return A2(
+						_elm_lang$core$Maybe$withDefault,
+						0,
+						_elm_lang$core$Result$toMaybe(
+							_elm_lang$core$String$toInt(value)));
+				};
+				var decodeAddress = A4(
+					_elm_lang$core$Json_Decode$object3,
+					_elm_lang$elm_architecture_tutorial$Comparison$ComparisonParameters,
+					A2(
+						_elm_lang$core$Json_Decode_ops[':='],
+						'left',
+						A2(_elm_lang$core$Json_Decode$map, _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString, _elm_lang$core$Json_Decode$string)),
+					A2(
+						_elm_lang$core$Json_Decode_ops[':='],
+						'right',
+						A2(_elm_lang$core$Json_Decode$map, _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString, _elm_lang$core$Json_Decode$string)),
+					A2(
+						_elm_lang$core$Json_Decode_ops[':='],
+						'minimumMetric',
+						A2(_elm_lang$core$Json_Decode$map, parseInt, _elm_lang$core$Json_Decode$string)));
+				var y = A2(_elm_lang$core$Json_Decode$decodeString, decodeAddress, _p7);
+				var z = A2(_elm_lang$core$Debug$log, 'YYY', y);
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}
 	});
@@ -10210,13 +10278,11 @@ var _elm_lang$elm_architecture_tutorial$Comparison$main = {
 			init: {
 				ctor: '_Tuple2',
 				_0: _elm_lang$elm_architecture_tutorial$Comparison$initialModel,
-				_1: _elm_lang$elm_architecture_tutorial$Comparison$refresh(_elm_lang$elm_architecture_tutorial$Comparison$initialModel)
+				_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, _elm_lang$elm_architecture_tutorial$Comparison$initialModel, _elm_lang$elm_architecture_tutorial$Comparison$initialModel.parameters)
 			},
 			view: _elm_lang$elm_architecture_tutorial$Comparison$view,
 			update: _elm_lang$elm_architecture_tutorial$Comparison$update,
-			subscriptions: function (_p6) {
-				return _elm_lang$core$Platform_Sub$none;
-			}
+			subscriptions: _elm_lang$elm_architecture_tutorial$Comparison$subscriptions
 		})
 };
 
