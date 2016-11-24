@@ -46,8 +46,7 @@ gameOnFromString value = if value == "Steam" then Steam else Gog
 type Msg
   = ReceiveData (List ComparisonEntry)
   | DataError Http.Error
-  | Refresh PageSide String
-  | RefreshData ComparisonParameters
+  | Refresh ComparisonParameters
   | Increment
   | Decrement
   | Toggle GameOn GameOn Int Int
@@ -59,14 +58,8 @@ update msg model =
   case msg of
     ReceiveData comparisons -> ({model | comparisons = comparisons} , Cmd.none)
     DataError err -> ({initialModel | message = toString err} , Cmd.none)
-    RefreshData parameters ->
+    Refresh parameters ->
         ({ model | comparisons = [], parameters = parameters}, refresh model.baseUrl parameters)
-    Refresh side value ->
-        let
-            currentParameters = model.parameters
-            newParameters = if side == Left then {currentParameters | leftOn = gameOnFromString value} else {currentParameters | rightOn = gameOnFromString value}
-        in
-            ({ model | comparisons = [], parameters = newParameters}, refresh model.baseUrl newParameters)
     Increment ->
         let
             currentParameters = model.parameters
@@ -112,9 +105,11 @@ view model =
 
 selectedSource side parameters =
     let
+        refreshSide on =
+            if side == Left then Refresh {parameters | leftOn = gameOnFromString on} else Refresh {parameters | rightOn = gameOnFromString on}
         gameOn = if side == Left then parameters.leftOn else parameters.rightOn
     in
-        select [onSelect <| Refresh side] [option [selected (gameOn == Gog), value <| toString Gog][text <| toString Gog], option [selected (gameOn == Steam), value <| toString Steam][text <| toString Steam]]
+        select [onSelect <| refreshSide] [option [selected (gameOn == Gog), value <| toString Gog][text <| toString Gog], option [selected (gameOn == Steam), value <| toString Steam][text <| toString Steam]]
 
 tableRow model e = tr [] [ td[][text e.left.name]
                    , td[][text <| toString e.metricResult]

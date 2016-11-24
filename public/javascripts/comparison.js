@@ -9951,22 +9951,30 @@ var _elm_lang$elm_architecture_tutorial$Comparison$title = function (model) {
 		getTitle(model.parameters.leftOn),
 		getTitle(model.parameters.rightOn));
 };
-var _elm_lang$elm_architecture_tutorial$Comparison$RefreshData = function (a) {
-	return {ctor: 'RefreshData', _0: a};
+var _elm_lang$elm_architecture_tutorial$Comparison$Refresh = function (a) {
+	return {ctor: 'Refresh', _0: a};
 };
-var _elm_lang$elm_architecture_tutorial$Comparison$Refresh = F2(
-	function (a, b) {
-		return {ctor: 'Refresh', _0: a, _1: b};
-	});
 var _elm_lang$elm_architecture_tutorial$Comparison$selectedSource = F2(
 	function (side, parameters) {
 		var gameOn = _elm_lang$core$Native_Utils.eq(side, _elm_lang$elm_architecture_tutorial$Comparison$Left) ? parameters.leftOn : parameters.rightOn;
+		var refreshSide = function (on) {
+			return _elm_lang$core$Native_Utils.eq(side, _elm_lang$elm_architecture_tutorial$Comparison$Left) ? _elm_lang$elm_architecture_tutorial$Comparison$Refresh(
+				_elm_lang$core$Native_Utils.update(
+					parameters,
+					{
+						leftOn: _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString(on)
+					})) : _elm_lang$elm_architecture_tutorial$Comparison$Refresh(
+				_elm_lang$core$Native_Utils.update(
+					parameters,
+					{
+						rightOn: _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString(on)
+					}));
+		};
 		return A2(
 			_elm_lang$html$Html$select,
 			_elm_lang$core$Native_List.fromArray(
 				[
-					_elm_lang$elm_architecture_tutorial$Comparison$onSelect(
-					_elm_lang$elm_architecture_tutorial$Comparison$Refresh(side))
+					_elm_lang$elm_architecture_tutorial$Comparison$onSelect(refreshSide)
 				]),
 			_elm_lang$core$Native_List.fromArray(
 				[
@@ -10146,7 +10154,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			case 'RefreshData':
+			case 'Refresh':
 				var _p4 = _p3._0;
 				return {
 					ctor: '_Tuple2',
@@ -10158,29 +10166,6 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 							parameters: _p4
 						}),
 					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model.baseUrl, _p4)
-				};
-			case 'Refresh':
-				var _p5 = _p3._1;
-				var currentParameters = model.parameters;
-				var newParameters = _elm_lang$core$Native_Utils.eq(_p3._0, _elm_lang$elm_architecture_tutorial$Comparison$Left) ? _elm_lang$core$Native_Utils.update(
-					currentParameters,
-					{
-						leftOn: _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString(_p5)
-					}) : _elm_lang$core$Native_Utils.update(
-					currentParameters,
-					{
-						rightOn: _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString(_p5)
-					});
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							comparisons: _elm_lang$core$Native_List.fromArray(
-								[]),
-							parameters: newParameters
-						}),
-					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model.baseUrl, newParameters)
 				};
 			case 'Increment':
 				var currentParameters = model.parameters;
@@ -10215,10 +10200,10 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model.baseUrl, newParameters)
 				};
 			case 'Toggle':
-				var _p7 = _p3._3;
-				var _p6 = _p3._2;
+				var _p6 = _p3._3;
+				var _p5 = _p3._2;
 				var updateEntry = function (e) {
-					return (_elm_lang$core$Native_Utils.eq(e.left.externalId, _p6) && _elm_lang$core$Native_Utils.eq(e.right.externalId, _p7)) ? _elm_lang$core$Native_Utils.update(
+					return (_elm_lang$core$Native_Utils.eq(e.left.externalId, _p5) && _elm_lang$core$Native_Utils.eq(e.right.externalId, _p6)) ? _elm_lang$core$Native_Utils.update(
 						e,
 						{
 							matches: _elm_lang$core$Basics$not(e.matches)
@@ -10249,20 +10234,20 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 								{
 								ctor: '_Tuple2',
 								_0: 'leftId',
-								_1: _elm_lang$core$Basics$toString(_p6)
+								_1: _elm_lang$core$Basics$toString(_p5)
 							},
 								{
 								ctor: '_Tuple2',
 								_0: 'rightId',
-								_1: _elm_lang$core$Basics$toString(_p7)
+								_1: _elm_lang$core$Basics$toString(_p6)
 							}
 							]))
 				};
 			case 'ToggleStored':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			default:
-				var _p8 = _p3._0;
-				var x = A2(_elm_lang$core$Debug$log, 'XXX', _p8);
+				var _p7 = _p3._0;
+				var x = A2(_elm_lang$core$Debug$log, 'XXX', _p7);
 				var parseInt = function (value) {
 					return A2(
 						_elm_lang$core$Maybe$withDefault,
@@ -10285,7 +10270,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 						_elm_lang$core$Json_Decode_ops[':='],
 						'minimumMetric',
 						A2(_elm_lang$core$Json_Decode$map, parseInt, _elm_lang$core$Json_Decode$string)));
-				var y = A2(_elm_lang$core$Json_Decode$decodeString, decodeAddress, _p8);
+				var y = A2(_elm_lang$core$Json_Decode$decodeString, decodeAddress, _p7);
 				var z = A2(_elm_lang$core$Debug$log, 'YYY', y);
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}
