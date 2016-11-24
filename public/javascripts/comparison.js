@@ -9852,19 +9852,19 @@ var _elm_lang$elm_architecture_tutorial$Comparison$tableRow = F2(
 						]))
 				]));
 	});
-var _elm_lang$elm_architecture_tutorial$Comparison$Refresh = function (a) {
-	return {ctor: 'Refresh', _0: a};
+var _elm_lang$elm_architecture_tutorial$Comparison$RefreshData = function (a) {
+	return {ctor: 'RefreshData', _0: a};
 };
 var _elm_lang$elm_architecture_tutorial$Comparison$selectedSource = F2(
 	function (side, parameters) {
 		var gameOn = _elm_lang$core$Native_Utils.eq(side, _elm_lang$elm_architecture_tutorial$Comparison$Left) ? parameters.leftOn : parameters.rightOn;
 		var refreshSide = function (on) {
-			return _elm_lang$core$Native_Utils.eq(side, _elm_lang$elm_architecture_tutorial$Comparison$Left) ? _elm_lang$elm_architecture_tutorial$Comparison$Refresh(
+			return _elm_lang$core$Native_Utils.eq(side, _elm_lang$elm_architecture_tutorial$Comparison$Left) ? _elm_lang$elm_architecture_tutorial$Comparison$RefreshData(
 				_elm_lang$core$Native_Utils.update(
 					parameters,
 					{
 						leftOn: _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString(on)
-					})) : _elm_lang$elm_architecture_tutorial$Comparison$Refresh(
+					})) : _elm_lang$elm_architecture_tutorial$Comparison$RefreshData(
 				_elm_lang$core$Native_Utils.update(
 					parameters,
 					{
@@ -9910,11 +9910,11 @@ var _elm_lang$elm_architecture_tutorial$Comparison$selectedSource = F2(
 				]));
 	});
 var _elm_lang$elm_architecture_tutorial$Comparison$metricButtons = function (parameters) {
-	var decrement = _elm_lang$elm_architecture_tutorial$Comparison$Refresh(
+	var decrement = _elm_lang$elm_architecture_tutorial$Comparison$RefreshData(
 		_elm_lang$core$Native_Utils.update(
 			parameters,
 			{minimumMetric: parameters.minimumMetric - 1}));
-	var increment = _elm_lang$elm_architecture_tutorial$Comparison$Refresh(
+	var increment = _elm_lang$elm_architecture_tutorial$Comparison$RefreshData(
 		_elm_lang$core$Native_Utils.update(
 			parameters,
 			{minimumMetric: parameters.minimumMetric + 1}));
@@ -10189,7 +10189,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			case 'Refresh':
+			case 'RefreshData':
 				var _p4 = _p3._0;
 				return {
 					ctor: '_Tuple2',

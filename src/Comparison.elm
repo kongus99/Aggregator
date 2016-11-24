@@ -46,7 +46,7 @@ gameOnFromString value = if value == "Steam" then Steam else Gog
 type Msg
   = ReceiveData (List ComparisonEntry)
   | DataError Http.Error
-  | Refresh ComparisonParameters
+  | RefreshData ComparisonParameters
   | Toggle Int Int
   | ToggleStored String
 
@@ -55,7 +55,7 @@ update msg model =
   case msg of
     ReceiveData comparisons -> ({model | comparisons = comparisons} , Cmd.none)
     DataError err -> ({initialModel | message = toString err} , Cmd.none)
-    Refresh parameters -> ({ model | comparisons = [], parameters = parameters}, refresh model.baseUrl parameters)
+    RefreshData parameters -> ({ model | comparisons = [], parameters = parameters}, refresh model.baseUrl parameters)
     Toggle leftId rightId ->
         let
             updateEntry e =
@@ -81,7 +81,7 @@ view model =
 selectedSource side parameters =
     let
         refreshSide on =
-            if side == Left then Refresh {parameters | leftOn = gameOnFromString on} else Refresh {parameters | rightOn = gameOnFromString on}
+            if side == Left then RefreshData {parameters | leftOn = gameOnFromString on} else RefreshData {parameters | rightOn = gameOnFromString on}
         gameOn = if side == Left then parameters.leftOn else parameters.rightOn
     in
         select [onSelect <| refreshSide] [option [selected (gameOn == Gog), value <| toString Gog][text <| toString Gog], option [selected (gameOn == Steam), value <| toString Steam][text <| toString Steam]]
@@ -107,8 +107,8 @@ title model =
 
 metricButtons parameters =
     let
-        increment = Refresh {parameters | minimumMetric = parameters.minimumMetric + 1}
-        decrement = Refresh {parameters | minimumMetric = parameters.minimumMetric - 1}
+        increment = RefreshData {parameters | minimumMetric = parameters.minimumMetric + 1}
+        decrement = RefreshData {parameters | minimumMetric = parameters.minimumMetric - 1}
     in
         [ button [ onClick increment ] [ text "+" ]
             , div [] [ text <| "Maximum editing distance " ++ (toString (parameters.minimumMetric - 1)) ]
