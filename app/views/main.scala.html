@@ -7,33 +7,14 @@
     <head>
         <title>@title</title>
         <link rel="stylesheet" href="@routes.Assets.versioned("stylesheets/main.css")">
-        <script type="text/javascript" src="@routes.Assets.versioned(scriptName)"></script>
+        <script type="text/javascript" src="@routes.Assets.versioned(scriptName + ".js")"></script>
+        <script type="text/javascript" src="@routes.Assets.versioned(scriptName + "Activator.js")"></script>
     </head>
 
     <body>
         <div id="mainBody"></div>
     </body>
 
-    <script type="text/javascript">
-            var urlParams;
-            (window.onpopstate = function () {
-                var match,
-                        pl     = /\+/g,  // Regex for replacing addition symbol with a space
-                        search = /([^&=]+)=?([^&]*)/g,
-                        decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
-                        query  = window.location.search.substring(1);
-
-                urlParams = {};
-                while (match = search.exec(query))
-                    urlParams[decode(match[1])] = decode(match[2]);
-            })();
-
-            var app = Elm["@elmModuleName"].embed(document.getElementById('mainBody'), JSON.stringify(urlParams));
-
-            app.ports.elmAddressChange.subscribe(function(address) {
-                window.history.pushState({},"@title",address);
-            });
-
-    </script>
+    <script type="text/javascript"> activateElm("@elmModuleName"); </script>
 
 </html>

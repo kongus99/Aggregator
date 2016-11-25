@@ -23,7 +23,7 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
 
   def main = Action.async {
     Future {
-      Ok(views.html.main("Aggregator - summary", "javascripts/mainPage.js", "MainPage"))
+      Ok(views.html.main("Aggregator - summary", "javascripts/mainPage", "MainPage"))
     }
   }
   def allData() = Action.async { implicit request =>

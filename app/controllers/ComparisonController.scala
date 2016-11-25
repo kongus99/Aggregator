@@ -39,7 +39,7 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
 
   def main: Action[AnyContent] = Action.async {
     Future {
-      Ok(views.html.main("Aggregator - comparison", "javascripts/comparison.js", "Comparison"))
+      Ok(views.html.main("Aggregator - comparison", "javascripts/comparison", "Comparison"))
     }
   }
 
