@@ -15,23 +15,23 @@ import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class NamedEntry(externalId: Long, name: String)
+case class GameEntry(id: Long, name: String)
 
-case class ComparisonEntry(left: NamedEntry, metricResult: Int, right: NamedEntry, matches: Boolean)
+case class ComparisonEntry(left: GameEntry, metricResult: Int, right: GameEntry, matches: Boolean)
 
 case class MatchEntry(leftOn: GameOn, rightOn: GameOn, leftId: Long, rightId: Long)
 
 @Singleton
 class ComparisonController @Inject()(client: WSClient, configuration: Configuration, tables: Tables)(implicit exec: ExecutionContext) extends Controller {
 
-  implicit val namedWriter: Writes[NamedEntry] = (
+  implicit val namedWriter: Writes[GameEntry] = (
     (JsPath \ "id").write[Long] and
-    (JsPath \ "name").write[String]) ((e) => (e.externalId, e.name))
+    (JsPath \ "name").write[String]) ((e) => (e.id, e.name))
 
   implicit val comparisonWriter: Writes[ComparisonEntry] = (
-    (JsPath \ "left").write[NamedEntry] and
+    (JsPath \ "left").write[GameEntry] and
       (JsPath \ "metricResult").write[Int] and
-      (JsPath \ "right").write[NamedEntry] and
+      (JsPath \ "right").write[GameEntry] and
       (JsPath \ "matches").write[Boolean]) ((t) => (t.left, t.metricResult, t.right, t.matches))
 
   val gogRetriever = new GogPageRetriever(client, configuration)
@@ -48,12 +48,12 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
   }
 
   private def filterMirrored(toCheck: Seq[ComparisonEntry]) = {
-    val mirrors = mutable.HashSet[(NamedEntry, NamedEntry)]()
+    val mirrors = mutable.HashSet[(GameEntry, GameEntry)]()
     var result = mutable.Seq[ComparisonEntry]()
     toCheck.foreach(x => {
       val p = (x.left, x.right)
       if (!mirrors.contains(p)) {
-        if(x.left.externalId != x.right.externalId)
+        if(x.left.id != x.right.id)
           result = result :+ x
         mirrors += p += p.swap
       }
@@ -61,12 +61,12 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
     result.toList
   }
 
-  def limitToClose(left: (GameOn, Seq[NamedEntry]), right: (GameOn, Seq[NamedEntry]), minimumMetric: Int, allMatches: Map[(GameOn, GameOn), Set[(Long, Long)]]): Seq[ComparisonEntry] = {
+  def limitToClose(left: (GameOn, Seq[GameEntry]), right: (GameOn, Seq[GameEntry]), minimumMetric: Int, allMatches: Map[(GameOn, GameOn), Set[(Long, Long)]]): Seq[ComparisonEntry] = {
     val (leftOn, leftEntries) = left
     val (rightOn, rightEntries) = right
     val result = leftEntries.flatMap(g => rightEntries.map(s => (g, s))).map({ case (leftEntry, rightEntry) =>
       val threshold = ThresholdLevenshtein.count(leftEntry.name, rightEntry.name, minimumMetric)
-      val matches = allMatches.getOrElse((leftOn, rightOn), Set()).contains((leftEntry.externalId, rightEntry.externalId))
+      val matches = allMatches.getOrElse((leftOn, rightOn), Set()).contains((leftEntry.id, rightEntry.id))
       ComparisonEntry(leftEntry, threshold, rightEntry, matches)
     }).filter(t => t.metricResult < minimumMetric)
     if(leftOn == rightOn) filterMirrored(result) else result
@@ -82,14 +82,14 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
     }
   }
 
-  def getEntries(on: GameOn): Future[(GameOn, Seq[NamedEntry])] = {
+  def getEntries(on: GameOn): Future[(GameOn, Seq[GameEntry])] = {
     on match {
-      case GameOn.Gog => tables.getGogEntries.map(s => (on, s.map(e => NamedEntry(e.gogId, e.title))))
-      case GameOn.Steam => tables.getSteamEntries.map(s => (on, s.map(e => NamedEntry(e.steamId, e.name))))
+      case GameOn.Gog => tables.getGogEntries.map(s => (on, s.map(e => GameEntry(e.gogId, e.title))))
+      case GameOn.Steam => tables.getSteamEntries.map(s => (on, s.map(e => GameEntry(e.steamId, e.name))))
     }
   }
 
-  def toggleMatch(leftOn: GameOn, rightOn: GameOn, leftExternalId: Long, rightExternalId: Long): Action[AnyContent] = Action.async {
-    tables.changeMatch(MatchEntry(leftOn, rightOn, leftExternalId, rightExternalId)).map(_ => Ok(Json.toJson("Ok")))
+  def toggleMatch(leftOn: GameOn, rightOn: GameOn, leftId: Long, rightId: Long): Action[AnyContent] = Action.async {
+    tables.changeMatch(MatchEntry(leftOn, rightOn, leftId, rightId)).map(_ => Ok(Json.toJson("Ok")))
   }
 }

@@ -64,7 +64,7 @@ update msg model =
                 else e
             newComparisons = List.map updateEntry model.comparisons
         in
-            ({model | comparisons = newComparisons}, postUpdate model "/toggleMatch" [("leftOn", toString model.parameters.leftOn), ("rightOn", toString model.parameters.leftOn), ("leftId", toString leftId), ("rightId", toString rightId)])
+            ({model | comparisons = newComparisons}, postUpdate model.baseUrl "/toggleMatch" [("leftOn", toString model.parameters.leftOn), ("rightOn", toString model.parameters.leftOn), ("leftId", toString leftId), ("rightId", toString rightId)])
     ToggleStored mess ->
         (model , Cmd.none)
 
@@ -115,9 +115,9 @@ metricButtons parameters =
             , button [ onClick decrement ] [ text "-" ]
         ]
 
-postUpdate model address params =
+postUpdate prefix suffix params =
     let
-        url = model.baseUrl ++ address ++ "?" ++ (joinParameters params)
+        url = prefix ++ suffix ++ "?" ++ (joinParameters params)
       in
         Task.perform DataError ToggleStored (Http.post string url Http.empty)
 

@@ -7,15 +7,14 @@ import services.GameEntry._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class GogEntry(id : Option[Long], title: String, gogId : Long)
+case class GogEntry(title: String, gogId : Long)
 
 object GogEntry{
 
-  implicit val gogReads: Reads[GogEntry] = ((JsPath \ "title").read[String] and (JsPath \ "id").read[Long])((t, i) => GogEntry(None, t, i))
+  implicit val gogReads: Reads[GogEntry] = ((JsPath \ "title").read[String] and (JsPath \ "id").read[Long])((t, i) => GogEntry(t, i))
   implicit val gogWrites: Writes[GogEntry] = (
-      (JsPath \ "id").write[Long] and
       (JsPath \ "title").write[String] and
-      (JsPath \ "gogId").write[Long])((e) => (e.id.getOrElse(0), e.title, e.gogId))
+      (JsPath \ "gogId").write[Long])((e) => (e.title, e.gogId))
 
   def getFromGog(tables : Tables)(data: Seq[String])(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
     tables.replaceGogData(data.flatMap(parseGogEntries).toList).flatMap(r => generateFromNames(tables))

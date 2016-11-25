@@ -28,38 +28,30 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
   val matchData = TableQuery[MatchData]
 
   class GogData(tag: Tag) extends Table[GogEntry](tag, "GOG_DATA") {
-    def id = column[Long]("GOG_DATA_ID", O.PrimaryKey, O.AutoInc)
-
     def title = column[String]("GOG_DATA_TITLE")
 
-    def gogId = column[Long]("GOG_DATA_GOG_ID")
+    def gogId = column[Long]("GOG_DATA_GOG_ID", O.PrimaryKey)
 
     def * : ProvenShape[GogEntry] = {
 
-      val apply: (Option[Long], String, Long) => GogEntry =
-        (id, name, gogId) => new GogEntry(id, name, gogId)
+      val apply: (String, Long) => GogEntry = (name, gogId) => new GogEntry(name, gogId)
 
-      val unapply: (GogEntry) => Option[(Option[Long], String, Long)] =
-        g => Some((g.id, g.title, g.gogId))
-      (id.?, title, gogId) <>(apply.tupled, unapply)
+      val unapply: (GogEntry) => Option[(String, Long)] = g => Some((g.title, g.gogId))
+      (title, gogId) <>(apply.tupled, unapply)
     }
   }
 
   class SteamData(tag: Tag) extends Table[SteamEntry](tag, "STEAM_DATA") {
-    def id = column[Long]("STEAM_DATA_ID", O.PrimaryKey, O.AutoInc)
-
     def name = column[String]("STEAM_DATA_NAME")
 
-    def steamId = column[Long]("STEAM_DATA_STEAM_ID")
+    def steamId = column[Long]("STEAM_DATA_STEAM_ID", O.PrimaryKey)
 
     def * : ProvenShape[SteamEntry] = {
 
-      val apply: (Option[Long], String, Long) => SteamEntry =
-        (id, name, steamId) => new SteamEntry(id, name, steamId)
+      val apply: (String, Long) => SteamEntry = (name, steamId) => new SteamEntry(name, steamId)
 
-      val unapply: (SteamEntry) => Option[(Option[Long], String, Long)] =
-        g => Some((g.id, g.name, g.steamId))
-      (id.?, name, steamId) <>(apply.tupled, unapply)
+      val unapply: (SteamEntry) => Option[(String, Long)] = g => Some((g.name, g.steamId))
+      (name, steamId) <>(apply.tupled, unapply)
     }
   }
 
