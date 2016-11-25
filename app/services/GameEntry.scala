@@ -3,51 +3,48 @@ package services
 import model.Tables
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Writes}
-import services.GameOn.GameOn
 
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class UrlAddress(url: String, cookies : Option[String])
+case class UrlAddress(url: String, cookies: Option[String])
 
-case class GameEntry(name: String, similarities : EntrySimilarity)
-
-case class EntrySimilarity(same : Seq[(Long, GameOn)]) {
-  def this(entry: GogEntry) = this(Seq((entry.gogId, GameOn.Gog)))
-
-  def this(entry: SteamEntry) = this(Seq((entry.steamId, GameOn.Steam)))
-
-  def add(entry: GogEntry) : EntrySimilarity = EntrySimilarity(same :+ (entry.gogId, GameOn.Gog))
-
-  def add(entry: SteamEntry) : EntrySimilarity = EntrySimilarity(same :+ (entry.steamId, GameOn.Steam))
-
-  def merge(similarity : EntrySimilarity) : EntrySimilarity = EntrySimilarity(same ++ similarity.same)
+case class ListEntry(gog: Seq[GogEntry], steam: Seq[SteamEntry]){
+  val name: String = gog.headOption.map(_.title).getOrElse(steam.head.name)
 }
 
 object GameOn extends Enumeration {
   type GameOn = Value
-  val Gog,Steam = Value
+  val Gog, Steam = Value
 }
 
-object GameEntry{
+object ListEntry {
 
-  implicit val gameWrites: Writes[GameEntry] = (
-    (JsPath \ "name").write[String] and
-    (JsPath \ "on").write[Seq[String]]
-    ) (unlift(GameEntry.unpackToJson))
+  implicit val gameWrites: Writes[ListEntry] = (
+    (JsPath \ "gog").write[Seq[GogEntry]] and
+      (JsPath \ "steam").write[Seq[SteamEntry]]
+    ) (unlift(ListEntry.unpackToJson))
 
-  def unpackToJson(e : GameEntry) : Option[(String, Seq[String])] = {
-    Some(e.name, e.similarities.same.map(x => x._2.toString))
+  def unpackToJson(e: ListEntry): Option[(Seq[GogEntry], Seq[SteamEntry])] = {
+    Some((e.gog, e.steam))
   }
 
-  def generateFromNames(tables : Tables)(implicit ec: ExecutionContext) : Future[Seq[GameEntry]]= {
-    def merge(entries : Seq[GameEntry]) : EntrySimilarity = entries.map(e => e.similarities).fold(EntrySimilarity(Seq()))((s1, s2) => s1.merge(s2))
-
-    for{
-      gog <- tables.getGogEntries.map(_.map(e => GameEntry(e.title, new EntrySimilarity(e))))
-      steam <- tables.getSteamEntries.map(_.map(e => GameEntry(e.name, new EntrySimilarity(e))))
+  def generateFromNames(tables: Tables)(implicit ec: ExecutionContext): Future[Seq[ListEntry]] = {
+    for {
+      gog <- tables.getGogEntries
+      steam <- tables.getSteamEntries
+      matches <- tables.getAllMatches
     } yield {
-       (gog ++ steam).groupBy(_.name).toSeq.map(e => GameEntry(e._1, merge(e._2))).sortBy(_.name)
+      val repeatingGogIds = matches.filter(p => p._1._1 == GameOn.Gog).flatMap(_._2).keys.toSet
+      val repeatingSteamIds = matches.filter(p => p._1._1 == GameOn.Steam).flatMap(_._2).keys.toSet
+      val repeatingGogEntries = gog.filter(g => repeatingGogIds.contains(g.gogId))
+      val repeatingSteamEntries = steam.filter(s => repeatingSteamIds.contains(s.steamId))
+      val both = repeatingGogEntries.flatMap(g => repeatingSteamEntries.map(s => (g, s)))
+        .filter({case (g, s) => matches.get((GameOn.Gog, GameOn.Steam)).exists(set => set.contains(g.gogId, s.steamId))})
+        .map({case (g, s) => ListEntry(Seq(g), Seq(s))})
+      val onlyGog = gog.filter(g => !repeatingGogIds.contains(g.gogId)).map(g => ListEntry(Seq(g), Seq()))
+      val onlySteam = steam.filter(g => !repeatingSteamIds.contains(g.steamId)).map(s => ListEntry(Seq(), Seq(s)))
+      (both ++ onlyGog ++ onlySteam).sortBy(_.name)
     }
   }
 }

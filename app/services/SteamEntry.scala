@@ -3,7 +3,7 @@ package services
 import model.Tables
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Json, Reads, Writes}
-import services.GameEntry._
+import services.ListEntry._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -17,7 +17,7 @@ object SteamEntry{
       (JsPath \ "name").write[String] and
       (JsPath \ "steamId").write[Long])((e) => (e.name, e.steamId))
 
-  def getFromSteam(tables : Tables)(data: String)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
+  def getFromSteam(tables : Tables)(data: String)(implicit exec: ExecutionContext): Future[Seq[ListEntry]] = {
     val parsed = Json.parse(regExp.findAllMatchIn(data).map(m => m.group(1)).next()).validate[List[SteamEntry]].get
     tables.replaceSteamData(parsed).flatMap(r => generateFromNames(tables))
   }

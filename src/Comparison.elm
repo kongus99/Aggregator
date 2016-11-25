@@ -64,7 +64,7 @@ update msg model =
                 else e
             newComparisons = List.map updateEntry model.comparisons
         in
-            ({model | comparisons = newComparisons}, postUpdate model.baseUrl "/toggleMatch" [("leftOn", toString model.parameters.leftOn), ("rightOn", toString model.parameters.leftOn), ("leftId", toString leftId), ("rightId", toString rightId)])
+            ({model | comparisons = newComparisons}, postUpdate model.baseUrl "/toggleMatch" [("leftOn", toString model.parameters.leftOn), ("rightOn", toString model.parameters.rightOn), ("leftId", toString leftId), ("rightId", toString rightId)])
     ToggleStored mess ->
         (model , Cmd.none)
 

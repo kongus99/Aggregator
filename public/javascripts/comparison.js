@@ -10055,13 +10055,13 @@ var _elm_lang$elm_architecture_tutorial$Comparison$DataError = function (a) {
 	return {ctor: 'DataError', _0: a};
 };
 var _elm_lang$elm_architecture_tutorial$Comparison$postUpdate = F3(
-	function (model, address, params) {
+	function (prefix, suffix, params) {
 		var url = A2(
 			_elm_lang$core$Basics_ops['++'],
-			model.baseUrl,
+			prefix,
 			A2(
 				_elm_lang$core$Basics_ops['++'],
-				address,
+				suffix,
 				A2(
 					_elm_lang$core$Basics_ops['++'],
 					'?',
@@ -10219,7 +10219,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 						{comparisons: newComparisons}),
 					_1: A3(
 						_elm_lang$elm_architecture_tutorial$Comparison$postUpdate,
-						model,
+						model.baseUrl,
 						'/toggleMatch',
 						_elm_lang$core$Native_List.fromArray(
 							[
@@ -10231,7 +10231,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 								{
 								ctor: '_Tuple2',
 								_0: 'rightOn',
-								_1: _elm_lang$core$Basics$toString(model.parameters.leftOn)
+								_1: _elm_lang$core$Basics$toString(model.parameters.rightOn)
 							},
 								{
 								ctor: '_Tuple2',

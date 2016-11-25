@@ -7,8 +7,8 @@ import play.api.Configuration
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
-import services.GameEntry._
 import services.GogEntry.{getFromGog, getGogPageNumber}
+import services.ListEntry._
 import services.SteamEntry._
 import services.{GogPageRetriever, SteamPageRetriever}
 
@@ -26,16 +26,16 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
       Ok(views.html.main("Aggregator - summary", "javascripts/mainPage", "MainPage"))
     }
   }
-  def allData() = Action.async { implicit request =>
+  def allData() = Action.async {
     generateFromNames(tables).map(d => Ok(Json.toJson(d)))
   }
 
 
-  def gogData() = Action.async { implicit request =>
+  def gogData() = Action.async {
     gogRetriever.retrieve().map(getGogPageNumber).flatMap(gogRetriever.retrievePages).flatMap(getFromGog(tables)).map(d => Ok(Json.toJson(d)))
   }
 
-  def steamData() = Action.async { implicit request =>
+  def steamData() = Action.async {
     steamRetriever.retrieve().flatMap(getFromSteam(tables)).map(d => Ok(Json.toJson(d)))
   }
 
