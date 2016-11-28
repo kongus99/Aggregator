@@ -10,7 +10,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class UrlAddress(url: String, cookies: Option[String])
 
-case class GameEntry(gog: Seq[GogEntry], steam: Seq[SteamEntry]){
+case class GameEntry(gog: Seq[GogEntry], steam: Seq[SteamEntry]) {
   val name: String = gog.headOption.map(_.title).getOrElse(steam.head.name)
 }
 
@@ -31,6 +31,9 @@ object GameEntry {
   }
 
   def generateFromNames(tables: Tables)(implicit ec: ExecutionContext): Future[Seq[GameEntry]] = {
+    def simplify(p: ((GameOn, Long), (GameOn, Long))) = if (p._1._1 == GameOn.Gog || (p._1._1 == GameOn.Steam && p._2._1 == GameOn.Steam && p._1._2 < p._2._2)) p.swap else p
+
+
     for {
       gog <- tables.getGogEntries
       steam <- tables.getSteamEntries
@@ -38,7 +41,7 @@ object GameEntry {
     } yield {
       val gogMap = gog.map(e => (e.gogId, e)).toMap
       val steamMap = steam.map(e => (e.steamId, e)).toMap
-      def simplify(p: ((GameOn, Long), (GameOn, Long))) = if (p._1._1 == GameOn.Gog || (p._1._1 == GameOn.Steam && p._2._1 == GameOn.Steam && p._1._2 < p._2._2)) p.swap else p
+
       val simplified = matches.toSeq.flatMap(m => m._2.map(p => ((m._1._1, p._1), (m._1._2, p._2)))).map(simplify).distinct
       val mappedBySteamId = simplified.map(p => (p._1._2, p._2)).groupBy(_._1).mapValues(_.map(_._2))
       val repeated = mappedBySteamId.toSeq.map(p => (GameOn.Steam, p._1) +: p._2).map(s => s.partition(_._1 == GameOn.Steam)).map(p => GameEntry(p._2.map(e => gogMap(e._2)), p._1.map(e => steamMap(e._2))))
@@ -51,7 +54,6 @@ object GameEntry {
   }
 }
 
-//TODO : Duplicate entries - more states during merge, table for reverse mapping in case of duplicates - High - show ids? filter out for same source lists entries that have same ids on left and right?
 //TODO : column filters - high
 //TODO : DLC - eliminate entries, move to separate table? - low
 //TODO : case sensitivity - fix the entries by upper casing? - low
