@@ -51,8 +51,8 @@ gameTableTitle =
           ]
 
 gameTableRow e =
-    tr [] [ td[][text e.name]
-          , td[class <| toStyle e.gameOn  ](toText e.gameOn)
+    tr [] [ td[][text <| getName e]
+          , td[class <| toStyle e  ](toText e)
           ]
 
 getResponse address=
@@ -64,24 +64,31 @@ getResponse address=
 decodeResponse : Json.Decoder (List GameEntry)
 decodeResponse =
   list (object2 GameEntry
-                ("name" := string)
-                (map gamesOn ("on" := list string))
+                ("gog" := (list <| object2 GogEntry ("title" := string) ("gogId" := int)))
+                ("steam" := (list <| object2 SteamEntry ("name" := string) ("steamId" := int)))
                 )
 
 gamesOn list = List.map mapSingle list
 
 mapSingle e = if e == "Gog" then Gog else Steam
 
-toStyle gamesOn =
+toStyle gameEntry =
     let
-        onGog = List.member Gog gamesOn
-        onSteam = List.member Steam gamesOn
+        onGog = List.length gameEntry.gog > 0
+        onSteam = List.length gameEntry.steam > 0
     in
         if onGog && onSteam then "cell_Both" else if onGog then "cell_Gog" else "cell_Steam"
-toText gamesOn =
+
+getName gameEntry =
     let
-        onGogNumber = List.filter (\g -> g == Gog) gamesOn |> List.length
-        onSteamNumber = List.filter (\g -> g == Steam) gamesOn |> List.length
+        steamName = List.head gameEntry.steam |> Maybe.map (\g -> g.name) |> Maybe.withDefault ""
+    in
+        List.head gameEntry.gog |> Maybe.map (\g -> g.title) |> Maybe.withDefault steamName
+
+toText gameEntry =
+    let
+        onGogNumber = List.length gameEntry.gog
+        onSteamNumber = List.length gameEntry.steam
         onGogSpan = toSpan onGogNumber "gog_number"
         onSteamSpan = toSpan onSteamNumber "steam_number"
     in

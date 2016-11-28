@@ -8706,15 +8706,15 @@ var _evancz$elm_http$Http$post = F3(
 
 var _elm_lang$elm_architecture_tutorial$Model$GameEntry = F2(
 	function (a, b) {
-		return {name: a, gameOn: b};
+		return {gog: a, steam: b};
 	});
-var _elm_lang$elm_architecture_tutorial$Model$GogEntry = F3(
-	function (a, b, c) {
-		return {id: a, title: b, gogId: c};
+var _elm_lang$elm_architecture_tutorial$Model$GogEntry = F2(
+	function (a, b) {
+		return {title: a, gogId: b};
 	});
-var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F3(
-	function (a, b, c) {
-		return {id: a, name: b, steamID: c};
+var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F2(
+	function (a, b) {
+		return {name: a, steamId: b};
 	});
 var _elm_lang$elm_architecture_tutorial$Model$Steam = {ctor: 'Steam'};
 var _elm_lang$elm_architecture_tutorial$Model$Gog = {ctor: 'Gog'};
@@ -8738,29 +8738,41 @@ var _elm_lang$elm_architecture_tutorial$MainPage$toSpan = F2(
 			_elm_lang$core$Native_List.fromArray(
 				[]));
 	});
-var _elm_lang$elm_architecture_tutorial$MainPage$toText = function (gamesOn) {
-	var onSteamNumber = _elm_lang$core$List$length(
-		A2(
-			_elm_lang$core$List$filter,
-			function (g) {
-				return _elm_lang$core$Native_Utils.eq(g, _elm_lang$elm_architecture_tutorial$Model$Steam);
-			},
-			gamesOn));
+var _elm_lang$elm_architecture_tutorial$MainPage$toText = function (gameEntry) {
+	var onSteamNumber = _elm_lang$core$List$length(gameEntry.steam);
 	var onSteamSpan = A2(_elm_lang$elm_architecture_tutorial$MainPage$toSpan, onSteamNumber, 'steam_number');
-	var onGogNumber = _elm_lang$core$List$length(
-		A2(
-			_elm_lang$core$List$filter,
-			function (g) {
-				return _elm_lang$core$Native_Utils.eq(g, _elm_lang$elm_architecture_tutorial$Model$Gog);
-			},
-			gamesOn));
+	var onGogNumber = _elm_lang$core$List$length(gameEntry.gog);
 	var onGogSpan = A2(_elm_lang$elm_architecture_tutorial$MainPage$toSpan, onGogNumber, 'gog_number');
 	return _elm_lang$core$Native_List.fromArray(
 		[onGogSpan, onSteamSpan]);
 };
-var _elm_lang$elm_architecture_tutorial$MainPage$toStyle = function (gamesOn) {
-	var onSteam = A2(_elm_lang$core$List$member, _elm_lang$elm_architecture_tutorial$Model$Steam, gamesOn);
-	var onGog = A2(_elm_lang$core$List$member, _elm_lang$elm_architecture_tutorial$Model$Gog, gamesOn);
+var _elm_lang$elm_architecture_tutorial$MainPage$getName = function (gameEntry) {
+	var steamName = A2(
+		_elm_lang$core$Maybe$withDefault,
+		'',
+		A2(
+			_elm_lang$core$Maybe$map,
+			function (g) {
+				return g.name;
+			},
+			_elm_lang$core$List$head(gameEntry.steam)));
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		steamName,
+		A2(
+			_elm_lang$core$Maybe$map,
+			function (g) {
+				return g.title;
+			},
+			_elm_lang$core$List$head(gameEntry.gog)));
+};
+var _elm_lang$elm_architecture_tutorial$MainPage$toStyle = function (gameEntry) {
+	var onSteam = _elm_lang$core$Native_Utils.cmp(
+		_elm_lang$core$List$length(gameEntry.steam),
+		0) > 0;
+	var onGog = _elm_lang$core$Native_Utils.cmp(
+		_elm_lang$core$List$length(gameEntry.gog),
+		0) > 0;
 	return (onGog && onSteam) ? 'cell_Both' : (onGog ? 'cell_Gog' : 'cell_Steam');
 };
 var _elm_lang$elm_architecture_tutorial$MainPage$mapSingle = function (e) {
@@ -8773,14 +8785,24 @@ var _elm_lang$elm_architecture_tutorial$MainPage$decodeResponse = _elm_lang$core
 	A3(
 		_elm_lang$core$Json_Decode$object2,
 		_elm_lang$elm_architecture_tutorial$Model$GameEntry,
-		A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
 		A2(
-			_elm_lang$core$Json_Decode$map,
-			_elm_lang$elm_architecture_tutorial$MainPage$gamesOn,
-			A2(
-				_elm_lang$core$Json_Decode_ops[':='],
-				'on',
-				_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)))));
+			_elm_lang$core$Json_Decode_ops[':='],
+			'gog',
+			_elm_lang$core$Json_Decode$list(
+				A3(
+					_elm_lang$core$Json_Decode$object2,
+					_elm_lang$elm_architecture_tutorial$Model$GogEntry,
+					A2(_elm_lang$core$Json_Decode_ops[':='], 'title', _elm_lang$core$Json_Decode$string),
+					A2(_elm_lang$core$Json_Decode_ops[':='], 'gogId', _elm_lang$core$Json_Decode$int)))),
+		A2(
+			_elm_lang$core$Json_Decode_ops[':='],
+			'steam',
+			_elm_lang$core$Json_Decode$list(
+				A3(
+					_elm_lang$core$Json_Decode$object2,
+					_elm_lang$elm_architecture_tutorial$Model$SteamEntry,
+					A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
+					A2(_elm_lang$core$Json_Decode_ops[':='], 'steamId', _elm_lang$core$Json_Decode$int))))));
 var _elm_lang$elm_architecture_tutorial$MainPage$gameTableRow = function (e) {
 	return A2(
 		_elm_lang$html$Html$tr,
@@ -8794,16 +8816,17 @@ var _elm_lang$elm_architecture_tutorial$MainPage$gameTableRow = function (e) {
 					[]),
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html$text(e.name)
+						_elm_lang$html$Html$text(
+						_elm_lang$elm_architecture_tutorial$MainPage$getName(e))
 					])),
 				A2(
 				_elm_lang$html$Html$td,
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html_Attributes$class(
-						_elm_lang$elm_architecture_tutorial$MainPage$toStyle(e.gameOn))
+						_elm_lang$elm_architecture_tutorial$MainPage$toStyle(e))
 					]),
-				_elm_lang$elm_architecture_tutorial$MainPage$toText(e.gameOn))
+				_elm_lang$elm_architecture_tutorial$MainPage$toText(e))
 			]));
 };
 var _elm_lang$elm_architecture_tutorial$MainPage$gameTableTitle = A2(

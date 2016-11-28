@@ -9711,15 +9711,15 @@ var _evancz$elm_http$Http$post = F3(
 
 var _elm_lang$elm_architecture_tutorial$Model$GameEntry = F2(
 	function (a, b) {
-		return {name: a, gameOn: b};
+		return {gog: a, steam: b};
 	});
-var _elm_lang$elm_architecture_tutorial$Model$GogEntry = F3(
-	function (a, b, c) {
-		return {id: a, title: b, gogId: c};
+var _elm_lang$elm_architecture_tutorial$Model$GogEntry = F2(
+	function (a, b) {
+		return {title: a, gogId: b};
 	});
-var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F3(
-	function (a, b, c) {
-		return {id: a, name: b, steamID: c};
+var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F2(
+	function (a, b) {
+		return {name: a, steamId: b};
 	});
 var _elm_lang$elm_architecture_tutorial$Model$Steam = {ctor: 'Steam'};
 var _elm_lang$elm_architecture_tutorial$Model$Gog = {ctor: 'Gog'};

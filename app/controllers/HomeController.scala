@@ -7,8 +7,8 @@ import play.api.Configuration
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
+import services.GameEntry._
 import services.GogEntry.{getFromGog, getGogPageNumber}
-import services.ListEntry._
 import services.SteamEntry._
 import services.{GogPageRetriever, SteamPageRetriever}
 

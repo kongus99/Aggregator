@@ -3,7 +3,7 @@ package services
 import model.Tables
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Json, Reads, Writes}
-import services.ListEntry._
+import services.GameEntry._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -16,7 +16,7 @@ object GogEntry{
       (JsPath \ "title").write[String] and
       (JsPath \ "gogId").write[Long])((e) => (e.title, e.gogId))
 
-  def getFromGog(tables : Tables)(data: Seq[String])(implicit exec: ExecutionContext): Future[Seq[ListEntry]] = {
+  def getFromGog(tables : Tables)(data: Seq[String])(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
     tables.replaceGogData(data.flatMap(parseGogEntries).toList).flatMap(_ => generateFromNames(tables))
   }
 
