@@ -8,6 +8,7 @@ import Http
 import Json.Decode as Json exposing (object2, object4, int, string, list, object3, (:=), bool, decodeString)
 import Task
 import String
+import Router exposing (..)
 import Model exposing (..)
 
 initProgram : String -> ( Model, Cmd Msg )
@@ -17,7 +18,7 @@ initProgram address =
         decodeAddress = object3 ComparisonParameters ("left" := Json.map gameOnFromString string) ("right" := Json.map gameOnFromString string) ("minimumMetric" := Json.map parseInt string)
         decodedParameters = Json.decodeString decodeAddress address |> Result.toMaybe |> Maybe.withDefault initialModel.parameters
     in
-        ( {initialModel | parameters = decodedParameters}, refresh initialModel.baseUrl decodedParameters)
+        ( {initialModel | parameters = decodedParameters}, refresh decodedParameters)
 
 main = App.programWithFlags { init = initProgram, view = view, update = update, subscriptions = \_ -> Sub.none }
 
@@ -27,18 +28,14 @@ port elmAddressChange : String -> Cmd msg
 -- MODEL
 type PageSide = Left | Right
 
-type alias NamedEntry = {id : Int, name : String}
-
-type alias ComparisonEntry = {left : NamedEntry, metricResult : Int, right : NamedEntry, matches : Bool}
-
-type alias Model = {baseUrl : String, comparisons : List ComparisonEntry, parameters : ComparisonParameters, message : String}
+type alias Model = { comparisons : List ComparisonEntry, parameters : ComparisonParameters, message : String}
 
 type alias ComparisonParameters = {leftOn : GameOn, rightOn : GameOn, minimumMetric : Int}
 
-initialModel = Model "http://localhost:9000/comparison" [] (ComparisonParameters Gog Steam 3) ""
+initialModel = Model [] (ComparisonParameters Gog Steam 3) ""
 
-refresh url parameters =
-    getResponse url "/data" [("left", toString parameters.leftOn), ("right", toString parameters.rightOn), ("minimumMetric", toString parameters.minimumMetric)]
+refresh parameters =
+    getResponse [("left", toString parameters.leftOn), ("right", toString parameters.rightOn), ("minimumMetric", toString parameters.minimumMetric)]
 
 gameOnFromString value = if value == "Steam" then Steam else Gog
 -- UPDATE
@@ -55,7 +52,7 @@ update msg model =
   case msg of
     ReceiveData comparisons -> ({model | comparisons = comparisons} , Cmd.none)
     DataError err -> ({initialModel | message = toString err} , Cmd.none)
-    RefreshData parameters -> ({ model | comparisons = [], parameters = parameters}, refresh model.baseUrl parameters)
+    RefreshData parameters -> ({ model | comparisons = [], parameters = parameters}, refresh parameters)
     Toggle leftId rightId ->
         let
             updateEntry e =
@@ -64,7 +61,7 @@ update msg model =
                 else e
             newComparisons = List.map updateEntry model.comparisons
         in
-            ({model | comparisons = newComparisons}, postUpdate model.baseUrl "/toggleMatch" [("leftOn", toString model.parameters.leftOn), ("rightOn", toString model.parameters.rightOn), ("leftId", toString leftId), ("rightId", toString rightId)])
+            ({model | comparisons = newComparisons}, postUpdate [("leftOn", toString model.parameters.leftOn), ("rightOn", toString model.parameters.rightOn), ("leftId", toString leftId), ("rightId", toString rightId)])
     ToggleStored mess ->
         (model , Cmd.none)
 
@@ -115,28 +112,13 @@ metricButtons parameters =
             , button [ onClick decrement ] [ text "-" ]
         ]
 
-postUpdate prefix suffix params =
-    let
-        url = prefix ++ suffix ++ "?" ++ (joinParameters params)
-      in
-        Task.perform DataError ToggleStored (Http.post string url Http.empty)
+postUpdate params = Task.perform DataError ToggleStored (Http.post string (Router.url params) Http.empty)
 
-getResponse : String -> String -> List ( String, String ) -> Cmd Msg
-getResponse prefix suffix params =
-  let
-    dataUrl = prefix ++ suffix ++ "?" ++ (joinParameters params)
-    pageUrl = prefix ++ "?" ++ (joinParameters params)
-  in
-    Cmd.batch [Task.perform DataError ReceiveData (Http.get decodeResponse dataUrl), elmAddressChange pageUrl]
-
-joinParameters params =
-    String.join "&&" (List.map (\((k, v)) -> k ++ "=" ++ v) params)
+getResponse params =
+    Cmd.batch [Task.perform DataError ReceiveData (Http.get (list decodedComparisonEntry) (Router.dataUrl params)), elmAddressChange (Router.pageUrl params)]
 
 onSelect : (String -> Msg) -> Html.Attribute Msg
 onSelect msg =
     on "change" (Json.map msg targetValue)
 
-decodeResponse : Json.Decoder (List ComparisonEntry)
-decodeResponse =
-    list (object4 ComparisonEntry ("left" := namedEntryJson) ("metricResult" := int) ("right" := namedEntryJson) ("matches" := bool))
-namedEntryJson = object2 NamedEntry ("id" := int) ("name" := string)
+

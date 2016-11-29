@@ -9721,16 +9721,18 @@ var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F2(
 	function (a, b) {
 		return {name: a, steamId: b};
 	});
+var _elm_lang$elm_architecture_tutorial$Model$NamedEntry = F2(
+	function (a, b) {
+		return {id: a, name: b};
+	});
+var _elm_lang$elm_architecture_tutorial$Model$ComparisonEntry = F4(
+	function (a, b, c, d) {
+		return {left: a, metricResult: b, right: c, matches: d};
+	});
 var _elm_lang$elm_architecture_tutorial$Model$Steam = {ctor: 'Steam'};
 var _elm_lang$elm_architecture_tutorial$Model$Gog = {ctor: 'Gog'};
 
-var _elm_lang$elm_architecture_tutorial$Comparison$onSelect = function (msg) {
-	return A2(
-		_elm_lang$html$Html_Events$on,
-		'change',
-		A2(_elm_lang$core$Json_Decode$map, msg, _elm_lang$html$Html_Events$targetValue));
-};
-var _elm_lang$elm_architecture_tutorial$Comparison$joinParameters = function (params) {
+var _elm_lang$elm_architecture_tutorial$Router$joinParameters = function (params) {
 	return A2(
 		_elm_lang$core$String$join,
 		'&&',
@@ -9745,6 +9747,92 @@ var _elm_lang$elm_architecture_tutorial$Comparison$joinParameters = function (pa
 			},
 			params));
 };
+var _elm_lang$elm_architecture_tutorial$Router$url = function (params) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		'http://localhost:9000/comparison/toggleMatch',
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			'?',
+			_elm_lang$elm_architecture_tutorial$Router$joinParameters(params)));
+};
+var _elm_lang$elm_architecture_tutorial$Router$pageUrl = function (params) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		'http://localhost:9000/comparison',
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			'?',
+			_elm_lang$elm_architecture_tutorial$Router$joinParameters(params)));
+};
+var _elm_lang$elm_architecture_tutorial$Router$dataUrl = function (params) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		'http://localhost:9000/comparison/data',
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			'?',
+			_elm_lang$elm_architecture_tutorial$Router$joinParameters(params)));
+};
+var _elm_lang$elm_architecture_tutorial$Router$decodedNamedEntry = A3(
+	_elm_lang$core$Json_Decode$object2,
+	_elm_lang$elm_architecture_tutorial$Model$NamedEntry,
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'id', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string));
+var _elm_lang$elm_architecture_tutorial$Router$decodedComparisonEntry = A5(
+	_elm_lang$core$Json_Decode$object4,
+	_elm_lang$elm_architecture_tutorial$Model$ComparisonEntry,
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'left', _elm_lang$elm_architecture_tutorial$Router$decodedNamedEntry),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'metricResult', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'right', _elm_lang$elm_architecture_tutorial$Router$decodedNamedEntry),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'matches', _elm_lang$core$Json_Decode$bool));
+var _elm_lang$elm_architecture_tutorial$Router$decodedSteamEntry = A3(
+	_elm_lang$core$Json_Decode$object2,
+	_elm_lang$elm_architecture_tutorial$Model$SteamEntry,
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'steamId', _elm_lang$core$Json_Decode$int));
+var _elm_lang$elm_architecture_tutorial$Router$decodedGogEntry = A3(
+	_elm_lang$core$Json_Decode$object2,
+	_elm_lang$elm_architecture_tutorial$Model$GogEntry,
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'title', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'gogId', _elm_lang$core$Json_Decode$int));
+var _elm_lang$elm_architecture_tutorial$Router$decodedGameEntry = A3(
+	_elm_lang$core$Json_Decode$object2,
+	_elm_lang$elm_architecture_tutorial$Model$GameEntry,
+	A2(
+		_elm_lang$core$Json_Decode_ops[':='],
+		'gog',
+		_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGogEntry)),
+	A2(
+		_elm_lang$core$Json_Decode_ops[':='],
+		'steam',
+		_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedSteamEntry)));
+var _elm_lang$elm_architecture_tutorial$Router$prepareRequest = F2(
+	function (address, decoder) {
+		return A2(
+			_evancz$elm_http$Http$get,
+			decoder,
+			A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:9000/', address));
+	});
+var _elm_lang$elm_architecture_tutorial$Router$gogData = A2(
+	_elm_lang$elm_architecture_tutorial$Router$prepareRequest,
+	'gogData',
+	_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry));
+var _elm_lang$elm_architecture_tutorial$Router$steamData = A2(
+	_elm_lang$elm_architecture_tutorial$Router$prepareRequest,
+	'steamData',
+	_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry));
+var _elm_lang$elm_architecture_tutorial$Router$allData = A2(
+	_elm_lang$elm_architecture_tutorial$Router$prepareRequest,
+	'allData',
+	_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry));
+
+var _elm_lang$elm_architecture_tutorial$Comparison$onSelect = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(_elm_lang$core$Json_Decode$map, msg, _elm_lang$html$Html_Events$targetValue));
+};
 var _elm_lang$elm_architecture_tutorial$Comparison$gameOnFromString = function (value) {
 	return _elm_lang$core$Native_Utils.eq(value, 'Steam') ? _elm_lang$elm_architecture_tutorial$Model$Steam : _elm_lang$elm_architecture_tutorial$Model$Gog;
 };
@@ -9753,38 +9841,16 @@ var _elm_lang$elm_architecture_tutorial$Comparison$elmAddressChange = _elm_lang$
 	function (v) {
 		return v;
 	});
-var _elm_lang$elm_architecture_tutorial$Comparison$NamedEntry = F2(
-	function (a, b) {
-		return {id: a, name: b};
-	});
-var _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson = A3(
-	_elm_lang$core$Json_Decode$object2,
-	_elm_lang$elm_architecture_tutorial$Comparison$NamedEntry,
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'id', _elm_lang$core$Json_Decode$int),
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string));
-var _elm_lang$elm_architecture_tutorial$Comparison$ComparisonEntry = F4(
-	function (a, b, c, d) {
-		return {left: a, metricResult: b, right: c, matches: d};
-	});
-var _elm_lang$elm_architecture_tutorial$Comparison$decodeResponse = _elm_lang$core$Json_Decode$list(
-	A5(
-		_elm_lang$core$Json_Decode$object4,
-		_elm_lang$elm_architecture_tutorial$Comparison$ComparisonEntry,
-		A2(_elm_lang$core$Json_Decode_ops[':='], 'left', _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson),
-		A2(_elm_lang$core$Json_Decode_ops[':='], 'metricResult', _elm_lang$core$Json_Decode$int),
-		A2(_elm_lang$core$Json_Decode_ops[':='], 'right', _elm_lang$elm_architecture_tutorial$Comparison$namedEntryJson),
-		A2(_elm_lang$core$Json_Decode_ops[':='], 'matches', _elm_lang$core$Json_Decode$bool)));
-var _elm_lang$elm_architecture_tutorial$Comparison$Model = F4(
-	function (a, b, c, d) {
-		return {baseUrl: a, comparisons: b, parameters: c, message: d};
+var _elm_lang$elm_architecture_tutorial$Comparison$Model = F3(
+	function (a, b, c) {
+		return {comparisons: a, parameters: b, message: c};
 	});
 var _elm_lang$elm_architecture_tutorial$Comparison$ComparisonParameters = F3(
 	function (a, b, c) {
 		return {leftOn: a, rightOn: b, minimumMetric: c};
 	});
-var _elm_lang$elm_architecture_tutorial$Comparison$initialModel = A4(
+var _elm_lang$elm_architecture_tutorial$Comparison$initialModel = A3(
 	_elm_lang$elm_architecture_tutorial$Comparison$Model,
-	'http://localhost:9000/comparison',
 	_elm_lang$core$Native_List.fromArray(
 		[]),
 	A3(_elm_lang$elm_architecture_tutorial$Comparison$ComparisonParameters, _elm_lang$elm_architecture_tutorial$Model$Gog, _elm_lang$elm_architecture_tutorial$Model$Steam, 3),
@@ -9955,8 +10021,8 @@ var _elm_lang$elm_architecture_tutorial$Comparison$metricButtons = function (par
 };
 var _elm_lang$elm_architecture_tutorial$Comparison$title = function (model) {
 	var getTitle = function (on) {
-		var _p2 = on;
-		if (_p2.ctor === 'Gog') {
+		var _p0 = on;
+		if (_p0.ctor === 'Gog') {
 			return 'Gog Games';
 		} else {
 			return 'Steam Games';
@@ -10054,82 +10120,57 @@ var _elm_lang$elm_architecture_tutorial$Comparison$view = function (model) {
 var _elm_lang$elm_architecture_tutorial$Comparison$DataError = function (a) {
 	return {ctor: 'DataError', _0: a};
 };
-var _elm_lang$elm_architecture_tutorial$Comparison$postUpdate = F3(
-	function (prefix, suffix, params) {
-		var url = A2(
-			_elm_lang$core$Basics_ops['++'],
-			prefix,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				suffix,
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					'?',
-					_elm_lang$elm_architecture_tutorial$Comparison$joinParameters(params))));
-		return A3(
-			_elm_lang$core$Task$perform,
-			_elm_lang$elm_architecture_tutorial$Comparison$DataError,
-			_elm_lang$elm_architecture_tutorial$Comparison$ToggleStored,
-			A3(_evancz$elm_http$Http$post, _elm_lang$core$Json_Decode$string, url, _evancz$elm_http$Http$empty));
-	});
+var _elm_lang$elm_architecture_tutorial$Comparison$postUpdate = function (params) {
+	return A3(
+		_elm_lang$core$Task$perform,
+		_elm_lang$elm_architecture_tutorial$Comparison$DataError,
+		_elm_lang$elm_architecture_tutorial$Comparison$ToggleStored,
+		A3(
+			_evancz$elm_http$Http$post,
+			_elm_lang$core$Json_Decode$string,
+			_elm_lang$elm_architecture_tutorial$Router$url(params),
+			_evancz$elm_http$Http$empty));
+};
 var _elm_lang$elm_architecture_tutorial$Comparison$ReceiveData = function (a) {
 	return {ctor: 'ReceiveData', _0: a};
 };
-var _elm_lang$elm_architecture_tutorial$Comparison$getResponse = F3(
-	function (prefix, suffix, params) {
-		var pageUrl = A2(
-			_elm_lang$core$Basics_ops['++'],
-			prefix,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'?',
-				_elm_lang$elm_architecture_tutorial$Comparison$joinParameters(params)));
-		var dataUrl = A2(
-			_elm_lang$core$Basics_ops['++'],
-			prefix,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				suffix,
+var _elm_lang$elm_architecture_tutorial$Comparison$getResponse = function (params) {
+	return _elm_lang$core$Platform_Cmd$batch(
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A3(
+				_elm_lang$core$Task$perform,
+				_elm_lang$elm_architecture_tutorial$Comparison$DataError,
+				_elm_lang$elm_architecture_tutorial$Comparison$ReceiveData,
 				A2(
-					_elm_lang$core$Basics_ops['++'],
-					'?',
-					_elm_lang$elm_architecture_tutorial$Comparison$joinParameters(params))));
-		return _elm_lang$core$Platform_Cmd$batch(
-			_elm_lang$core$Native_List.fromArray(
-				[
-					A3(
-					_elm_lang$core$Task$perform,
-					_elm_lang$elm_architecture_tutorial$Comparison$DataError,
-					_elm_lang$elm_architecture_tutorial$Comparison$ReceiveData,
-					A2(_evancz$elm_http$Http$get, _elm_lang$elm_architecture_tutorial$Comparison$decodeResponse, dataUrl)),
-					_elm_lang$elm_architecture_tutorial$Comparison$elmAddressChange(pageUrl)
-				]));
-	});
-var _elm_lang$elm_architecture_tutorial$Comparison$refresh = F2(
-	function (url, parameters) {
-		return A3(
-			_elm_lang$elm_architecture_tutorial$Comparison$getResponse,
-			url,
-			'/data',
-			_elm_lang$core$Native_List.fromArray(
-				[
-					{
-					ctor: '_Tuple2',
-					_0: 'left',
-					_1: _elm_lang$core$Basics$toString(parameters.leftOn)
-				},
-					{
-					ctor: '_Tuple2',
-					_0: 'right',
-					_1: _elm_lang$core$Basics$toString(parameters.rightOn)
-				},
-					{
-					ctor: '_Tuple2',
-					_0: 'minimumMetric',
-					_1: _elm_lang$core$Basics$toString(parameters.minimumMetric)
-				}
-				]));
-	});
+					_evancz$elm_http$Http$get,
+					_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedComparisonEntry),
+					_elm_lang$elm_architecture_tutorial$Router$dataUrl(params))),
+				_elm_lang$elm_architecture_tutorial$Comparison$elmAddressChange(
+				_elm_lang$elm_architecture_tutorial$Router$pageUrl(params))
+			]));
+};
+var _elm_lang$elm_architecture_tutorial$Comparison$refresh = function (parameters) {
+	return _elm_lang$elm_architecture_tutorial$Comparison$getResponse(
+		_elm_lang$core$Native_List.fromArray(
+			[
+				{
+				ctor: '_Tuple2',
+				_0: 'left',
+				_1: _elm_lang$core$Basics$toString(parameters.leftOn)
+			},
+				{
+				ctor: '_Tuple2',
+				_0: 'right',
+				_1: _elm_lang$core$Basics$toString(parameters.rightOn)
+			},
+				{
+				ctor: '_Tuple2',
+				_0: 'minimumMetric',
+				_1: _elm_lang$core$Basics$toString(parameters.minimumMetric)
+			}
+			]));
+};
 var _elm_lang$elm_architecture_tutorial$Comparison$initProgram = function (address) {
 	var parseInt = function (value) {
 		return A2(
@@ -10163,19 +10204,19 @@ var _elm_lang$elm_architecture_tutorial$Comparison$initProgram = function (addre
 		_0: _elm_lang$core$Native_Utils.update(
 			_elm_lang$elm_architecture_tutorial$Comparison$initialModel,
 			{parameters: decodedParameters}),
-		_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, _elm_lang$elm_architecture_tutorial$Comparison$initialModel.baseUrl, decodedParameters)
+		_1: _elm_lang$elm_architecture_tutorial$Comparison$refresh(decodedParameters)
 	};
 };
 var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 	function (msg, model) {
-		var _p3 = msg;
-		switch (_p3.ctor) {
+		var _p1 = msg;
+		switch (_p1.ctor) {
 			case 'ReceiveData':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{comparisons: _p3._0}),
+						{comparisons: _p1._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'DataError':
@@ -10184,12 +10225,12 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						_elm_lang$elm_architecture_tutorial$Comparison$initialModel,
 						{
-							message: _elm_lang$core$Basics$toString(_p3._0)
+							message: _elm_lang$core$Basics$toString(_p1._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'RefreshData':
-				var _p4 = _p3._0;
+				var _p2 = _p1._0;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -10197,15 +10238,15 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 						{
 							comparisons: _elm_lang$core$Native_List.fromArray(
 								[]),
-							parameters: _p4
+							parameters: _p2
 						}),
-					_1: A2(_elm_lang$elm_architecture_tutorial$Comparison$refresh, model.baseUrl, _p4)
+					_1: _elm_lang$elm_architecture_tutorial$Comparison$refresh(_p2)
 				};
 			case 'Toggle':
-				var _p6 = _p3._1;
-				var _p5 = _p3._0;
+				var _p4 = _p1._1;
+				var _p3 = _p1._0;
 				var updateEntry = function (e) {
-					return (_elm_lang$core$Native_Utils.eq(e.left.id, _p5) && _elm_lang$core$Native_Utils.eq(e.right.id, _p6)) ? _elm_lang$core$Native_Utils.update(
+					return (_elm_lang$core$Native_Utils.eq(e.left.id, _p3) && _elm_lang$core$Native_Utils.eq(e.right.id, _p4)) ? _elm_lang$core$Native_Utils.update(
 						e,
 						{
 							matches: _elm_lang$core$Basics$not(e.matches)
@@ -10217,10 +10258,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{comparisons: newComparisons}),
-					_1: A3(
-						_elm_lang$elm_architecture_tutorial$Comparison$postUpdate,
-						model.baseUrl,
-						'/toggleMatch',
+					_1: _elm_lang$elm_architecture_tutorial$Comparison$postUpdate(
 						_elm_lang$core$Native_List.fromArray(
 							[
 								{
@@ -10236,12 +10274,12 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 								{
 								ctor: '_Tuple2',
 								_0: 'leftId',
-								_1: _elm_lang$core$Basics$toString(_p5)
+								_1: _elm_lang$core$Basics$toString(_p3)
 							},
 								{
 								ctor: '_Tuple2',
 								_0: 'rightId',
-								_1: _elm_lang$core$Basics$toString(_p6)
+								_1: _elm_lang$core$Basics$toString(_p4)
 							}
 							]))
 				};
@@ -10255,7 +10293,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$main = {
 			init: _elm_lang$elm_architecture_tutorial$Comparison$initProgram,
 			view: _elm_lang$elm_architecture_tutorial$Comparison$view,
 			update: _elm_lang$elm_architecture_tutorial$Comparison$update,
-			subscriptions: function (_p7) {
+			subscriptions: function (_p5) {
 				return _elm_lang$core$Platform_Sub$none;
 			}
 		}),

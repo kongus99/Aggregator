@@ -8716,9 +8716,71 @@ var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F2(
 	function (a, b) {
 		return {name: a, steamId: b};
 	});
+var _elm_lang$elm_architecture_tutorial$Model$NamedEntry = F2(
+	function (a, b) {
+		return {id: a, name: b};
+	});
+var _elm_lang$elm_architecture_tutorial$Model$ComparisonEntry = F4(
+	function (a, b, c, d) {
+		return {left: a, metricResult: b, right: c, matches: d};
+	});
 var _elm_lang$elm_architecture_tutorial$Model$Steam = {ctor: 'Steam'};
 var _elm_lang$elm_architecture_tutorial$Model$Gog = {ctor: 'Gog'};
 
+var _elm_lang$elm_architecture_tutorial$Router$joinParameters = function (params) {
+	return A2(
+		_elm_lang$core$String$join,
+		'&&',
+		A2(
+			_elm_lang$core$List$map,
+			function (_p0) {
+				var _p1 = _p0;
+				return A2(
+					_elm_lang$core$Basics_ops['++'],
+					_p1._0,
+					A2(_elm_lang$core$Basics_ops['++'], '=', _p1._1));
+			},
+			params));
+};
+var _elm_lang$elm_architecture_tutorial$Router$url = function (params) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		'http://localhost:9000/comparison/toggleMatch',
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			'?',
+			_elm_lang$elm_architecture_tutorial$Router$joinParameters(params)));
+};
+var _elm_lang$elm_architecture_tutorial$Router$pageUrl = function (params) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		'http://localhost:9000/comparison',
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			'?',
+			_elm_lang$elm_architecture_tutorial$Router$joinParameters(params)));
+};
+var _elm_lang$elm_architecture_tutorial$Router$dataUrl = function (params) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		'http://localhost:9000/comparison/data',
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			'?',
+			_elm_lang$elm_architecture_tutorial$Router$joinParameters(params)));
+};
+var _elm_lang$elm_architecture_tutorial$Router$decodedNamedEntry = A3(
+	_elm_lang$core$Json_Decode$object2,
+	_elm_lang$elm_architecture_tutorial$Model$NamedEntry,
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'id', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string));
+var _elm_lang$elm_architecture_tutorial$Router$decodedComparisonEntry = A5(
+	_elm_lang$core$Json_Decode$object4,
+	_elm_lang$elm_architecture_tutorial$Model$ComparisonEntry,
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'left', _elm_lang$elm_architecture_tutorial$Router$decodedNamedEntry),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'metricResult', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'right', _elm_lang$elm_architecture_tutorial$Router$decodedNamedEntry),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'matches', _elm_lang$core$Json_Decode$bool));
 var _elm_lang$elm_architecture_tutorial$Router$decodedSteamEntry = A3(
 	_elm_lang$core$Json_Decode$object2,
 	_elm_lang$elm_architecture_tutorial$Model$SteamEntry,
