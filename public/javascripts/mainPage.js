@@ -8883,6 +8883,12 @@ var _elm_lang$elm_architecture_tutorial$Router$comparisonData = function (params
 	};
 };
 
+var _elm_lang$elm_architecture_tutorial$MainPage$onSelect = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(_elm_lang$core$Json_Decode$map, msg, _elm_lang$html$Html_Events$targetValue));
+};
 var _elm_lang$elm_architecture_tutorial$MainPage$toSpan = F2(
 	function (n, styleClass) {
 		return (_elm_lang$core$Native_Utils.cmp(n, 1) > 0) ? A2(
@@ -8994,10 +9000,54 @@ var _elm_lang$elm_architecture_tutorial$MainPage$gameTableTitle = A2(
 					_elm_lang$html$Html$text('Gog/Steam/Both')
 				]))
 		]));
+var _elm_lang$elm_architecture_tutorial$MainPage$Model = F3(
+	function (a, b, c) {
+		return {sources: a, entries: b, message: c};
+	});
+var _elm_lang$elm_architecture_tutorial$MainPage$Both = {ctor: 'Both'};
+var _elm_lang$elm_architecture_tutorial$MainPage$WishList = {ctor: 'WishList'};
+var _elm_lang$elm_architecture_tutorial$MainPage$Owned = {ctor: 'Owned'};
+var _elm_lang$elm_architecture_tutorial$MainPage$initialModel = A3(
+	_elm_lang$elm_architecture_tutorial$MainPage$Model,
+	_elm_lang$elm_architecture_tutorial$MainPage$Owned,
+	_elm_lang$core$Native_List.fromArray(
+		[]),
+	'Click to refresh');
+var _elm_lang$elm_architecture_tutorial$MainPage$RefreshError = function (a) {
+	return {ctor: 'RefreshError', _0: a};
+};
+var _elm_lang$elm_architecture_tutorial$MainPage$ReceiveRefresh = function (a) {
+	return {ctor: 'ReceiveRefresh', _0: a};
+};
+var _elm_lang$elm_architecture_tutorial$MainPage$getResponse = function (httpRequest) {
+	return A3(_elm_lang$core$Task$perform, _elm_lang$elm_architecture_tutorial$MainPage$RefreshError, _elm_lang$elm_architecture_tutorial$MainPage$ReceiveRefresh, httpRequest);
+};
 var _elm_lang$elm_architecture_tutorial$MainPage$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
 		switch (_p0.ctor) {
+			case 'ChangeSources':
+				var _p1 = _p0._0;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							entries: _elm_lang$core$Native_List.fromArray(
+								[]),
+							sources: _p1
+						}),
+					_1: _elm_lang$elm_architecture_tutorial$MainPage$getResponse(
+						_elm_lang$elm_architecture_tutorial$Router$allData(
+							_elm_lang$core$Native_List.fromArray(
+								[
+									{
+									ctor: '_Tuple2',
+									_0: 'sources',
+									_1: _elm_lang$core$Basics$toString(_p1)
+								}
+								])))
+				};
 			case 'SendRefresh':
 				return {
 					ctor: '_Tuple2',
@@ -9031,30 +9081,79 @@ var _elm_lang$elm_architecture_tutorial$MainPage$update = F2(
 				};
 		}
 	});
-var _elm_lang$elm_architecture_tutorial$MainPage$Model = F3(
-	function (a, b, c) {
-		return {sources: a, entries: b, message: c};
-	});
-var _elm_lang$elm_architecture_tutorial$MainPage$Both = {ctor: 'Both'};
-var _elm_lang$elm_architecture_tutorial$MainPage$WishList = {ctor: 'WishList'};
-var _elm_lang$elm_architecture_tutorial$MainPage$Owned = {ctor: 'Owned'};
-var _elm_lang$elm_architecture_tutorial$MainPage$initialModel = A3(
-	_elm_lang$elm_architecture_tutorial$MainPage$Model,
-	_elm_lang$elm_architecture_tutorial$MainPage$Owned,
-	_elm_lang$core$Native_List.fromArray(
-		[]),
-	'Click to refresh');
-var _elm_lang$elm_architecture_tutorial$MainPage$RefreshError = function (a) {
-	return {ctor: 'RefreshError', _0: a};
-};
-var _elm_lang$elm_architecture_tutorial$MainPage$ReceiveRefresh = function (a) {
-	return {ctor: 'ReceiveRefresh', _0: a};
-};
-var _elm_lang$elm_architecture_tutorial$MainPage$getResponse = function (httpRequest) {
-	return A3(_elm_lang$core$Task$perform, _elm_lang$elm_architecture_tutorial$MainPage$RefreshError, _elm_lang$elm_architecture_tutorial$MainPage$ReceiveRefresh, httpRequest);
-};
 var _elm_lang$elm_architecture_tutorial$MainPage$SendRefresh = function (a) {
 	return {ctor: 'SendRefresh', _0: a};
+};
+var _elm_lang$elm_architecture_tutorial$MainPage$ChangeSources = function (a) {
+	return {ctor: 'ChangeSources', _0: a};
+};
+var _elm_lang$elm_architecture_tutorial$MainPage$sourcesSelect = function (sources) {
+	var sourcesFromString = function (value) {
+		var _p2 = value;
+		switch (_p2) {
+			case 'Owned':
+				return _elm_lang$elm_architecture_tutorial$MainPage$Owned;
+			case 'WishList':
+				return _elm_lang$elm_architecture_tutorial$MainPage$WishList;
+			default:
+				return _elm_lang$elm_architecture_tutorial$MainPage$Both;
+		}
+	};
+	var change = function (s) {
+		return _elm_lang$elm_architecture_tutorial$MainPage$ChangeSources(
+			sourcesFromString(s));
+	};
+	return A2(
+		_elm_lang$html$Html$select,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$elm_architecture_tutorial$MainPage$onSelect(change)
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$option,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$selected(
+						_elm_lang$core$Native_Utils.eq(sources, _elm_lang$elm_architecture_tutorial$MainPage$Owned)),
+						_elm_lang$html$Html_Attributes$value(
+						_elm_lang$core$Basics$toString(_elm_lang$elm_architecture_tutorial$MainPage$Owned))
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(
+						_elm_lang$core$Basics$toString(_elm_lang$elm_architecture_tutorial$MainPage$Owned))
+					])),
+				A2(
+				_elm_lang$html$Html$option,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$selected(
+						_elm_lang$core$Native_Utils.eq(sources, _elm_lang$elm_architecture_tutorial$MainPage$WishList)),
+						_elm_lang$html$Html_Attributes$value(
+						_elm_lang$core$Basics$toString(_elm_lang$elm_architecture_tutorial$MainPage$WishList))
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(
+						_elm_lang$core$Basics$toString(_elm_lang$elm_architecture_tutorial$MainPage$WishList))
+					])),
+				A2(
+				_elm_lang$html$Html$option,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$selected(
+						_elm_lang$core$Native_Utils.eq(sources, _elm_lang$elm_architecture_tutorial$MainPage$Both)),
+						_elm_lang$html$Html_Attributes$value(
+						_elm_lang$core$Basics$toString(_elm_lang$elm_architecture_tutorial$MainPage$Both))
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(
+						_elm_lang$core$Basics$toString(_elm_lang$elm_architecture_tutorial$MainPage$Both))
+					]))
+			]));
 };
 var _elm_lang$elm_architecture_tutorial$MainPage$view = function (model) {
 	return A2(
@@ -9111,6 +9210,14 @@ var _elm_lang$elm_architecture_tutorial$MainPage$view = function (model) {
 					[]),
 				_elm_lang$core$Native_List.fromArray(
 					[
+						_elm_lang$elm_architecture_tutorial$MainPage$sourcesSelect(model.sources)
+					])),
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
 						_elm_lang$html$Html$text(
 						_elm_lang$core$Basics$toString(model.message))
 					])),
@@ -9143,7 +9250,7 @@ var _elm_lang$elm_architecture_tutorial$MainPage$main = {
 			},
 			view: _elm_lang$elm_architecture_tutorial$MainPage$view,
 			update: _elm_lang$elm_architecture_tutorial$MainPage$update,
-			subscriptions: function (_p1) {
+			subscriptions: function (_p3) {
 				return _elm_lang$core$Platform_Sub$none;
 			}
 		})

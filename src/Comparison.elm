@@ -5,7 +5,7 @@ import Html.Attributes exposing(class, selected, value, type', checked)
 import Html.App as App
 import Html.Events exposing (onClick, on, targetValue)
 import Http
-import Json.Decode as Json exposing (object2, object4, int, string, list, object3, (:=), bool, decodeString)
+import Json.Decode as Json exposing (string, object3, (:=), decodeString)
 import Task
 import String
 import Router exposing (..)
@@ -81,7 +81,7 @@ selectedSource side parameters =
             if side == Left then RefreshData {parameters | leftOn = gameOnFromString on} else RefreshData {parameters | rightOn = gameOnFromString on}
         gameOn = if side == Left then parameters.leftOn else parameters.rightOn
     in
-        select [onSelect <| refreshSide] [option [selected (gameOn == Gog), value <| toString Gog][text <| toString Gog], option [selected (gameOn == Steam), value <| toString Steam][text <| toString Steam]]
+        select [onSelect refreshSide] [option [selected (gameOn == Gog), value <| toString Gog][text <| toString Gog], option [selected (gameOn == Steam), value <| toString Steam][text <| toString Steam]]
 
 tableRow model e =
             tr [] [ td[][text e.left.name]
@@ -120,7 +120,7 @@ getResponse params =
     in
         Cmd.batch [Task.perform DataError ReceiveData request, elmAddressChange address]
 
-onSelect : (String -> Msg) -> Html.Attribute Msg
+onSelect : (String -> a) -> Html.Attribute a
 onSelect msg =
     on "change" (Json.map msg targetValue)
 
