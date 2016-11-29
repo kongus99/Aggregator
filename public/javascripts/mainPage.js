@@ -8719,6 +8719,47 @@ var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F2(
 var _elm_lang$elm_architecture_tutorial$Model$Steam = {ctor: 'Steam'};
 var _elm_lang$elm_architecture_tutorial$Model$Gog = {ctor: 'Gog'};
 
+var _elm_lang$elm_architecture_tutorial$Router$decodedSteamEntry = A3(
+	_elm_lang$core$Json_Decode$object2,
+	_elm_lang$elm_architecture_tutorial$Model$SteamEntry,
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'steamId', _elm_lang$core$Json_Decode$int));
+var _elm_lang$elm_architecture_tutorial$Router$decodedGogEntry = A3(
+	_elm_lang$core$Json_Decode$object2,
+	_elm_lang$elm_architecture_tutorial$Model$GogEntry,
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'title', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'gogId', _elm_lang$core$Json_Decode$int));
+var _elm_lang$elm_architecture_tutorial$Router$decodedGameEntry = A3(
+	_elm_lang$core$Json_Decode$object2,
+	_elm_lang$elm_architecture_tutorial$Model$GameEntry,
+	A2(
+		_elm_lang$core$Json_Decode_ops[':='],
+		'gog',
+		_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGogEntry)),
+	A2(
+		_elm_lang$core$Json_Decode_ops[':='],
+		'steam',
+		_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedSteamEntry)));
+var _elm_lang$elm_architecture_tutorial$Router$prepareRequest = F2(
+	function (address, decoder) {
+		return A2(
+			_evancz$elm_http$Http$get,
+			decoder,
+			A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:9000/', address));
+	});
+var _elm_lang$elm_architecture_tutorial$Router$gogData = A2(
+	_elm_lang$elm_architecture_tutorial$Router$prepareRequest,
+	'gogData',
+	_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry));
+var _elm_lang$elm_architecture_tutorial$Router$steamData = A2(
+	_elm_lang$elm_architecture_tutorial$Router$prepareRequest,
+	'steamData',
+	_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry));
+var _elm_lang$elm_architecture_tutorial$Router$allData = A2(
+	_elm_lang$elm_architecture_tutorial$Router$prepareRequest,
+	'allData',
+	_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry));
+
 var _elm_lang$elm_architecture_tutorial$MainPage$toSpan = F2(
 	function (n, styleClass) {
 		return (_elm_lang$core$Native_Utils.cmp(n, 1) > 0) ? A2(
@@ -8781,28 +8822,6 @@ var _elm_lang$elm_architecture_tutorial$MainPage$mapSingle = function (e) {
 var _elm_lang$elm_architecture_tutorial$MainPage$gamesOn = function (list) {
 	return A2(_elm_lang$core$List$map, _elm_lang$elm_architecture_tutorial$MainPage$mapSingle, list);
 };
-var _elm_lang$elm_architecture_tutorial$MainPage$decodeResponse = _elm_lang$core$Json_Decode$list(
-	A3(
-		_elm_lang$core$Json_Decode$object2,
-		_elm_lang$elm_architecture_tutorial$Model$GameEntry,
-		A2(
-			_elm_lang$core$Json_Decode_ops[':='],
-			'gog',
-			_elm_lang$core$Json_Decode$list(
-				A3(
-					_elm_lang$core$Json_Decode$object2,
-					_elm_lang$elm_architecture_tutorial$Model$GogEntry,
-					A2(_elm_lang$core$Json_Decode_ops[':='], 'title', _elm_lang$core$Json_Decode$string),
-					A2(_elm_lang$core$Json_Decode_ops[':='], 'gogId', _elm_lang$core$Json_Decode$int)))),
-		A2(
-			_elm_lang$core$Json_Decode_ops[':='],
-			'steam',
-			_elm_lang$core$Json_Decode$list(
-				A3(
-					_elm_lang$core$Json_Decode$object2,
-					_elm_lang$elm_architecture_tutorial$Model$SteamEntry,
-					A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
-					A2(_elm_lang$core$Json_Decode_ops[':='], 'steamId', _elm_lang$core$Json_Decode$int))))));
 var _elm_lang$elm_architecture_tutorial$MainPage$gameTableRow = function (e) {
 	return A2(
 		_elm_lang$html$Html$tr,
@@ -8852,39 +8871,12 @@ var _elm_lang$elm_architecture_tutorial$MainPage$gameTableTitle = A2(
 					_elm_lang$html$Html$text('Gog/Steam/Both')
 				]))
 		]));
-var _elm_lang$elm_architecture_tutorial$MainPage$initialModel = {
-	entries: _elm_lang$core$Native_List.fromArray(
-		[]),
-	message: 'Click to refresh'
-};
-var _elm_lang$elm_architecture_tutorial$MainPage$Model = F2(
-	function (a, b) {
-		return {entries: a, message: b};
-	});
-var _elm_lang$elm_architecture_tutorial$MainPage$RefreshError = function (a) {
-	return {ctor: 'RefreshError', _0: a};
-};
-var _elm_lang$elm_architecture_tutorial$MainPage$ReceiveRefresh = function (a) {
-	return {ctor: 'ReceiveRefresh', _0: a};
-};
-var _elm_lang$elm_architecture_tutorial$MainPage$getResponse = function (address) {
-	var url = A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:9000/', address);
-	return A3(
-		_elm_lang$core$Task$perform,
-		_elm_lang$elm_architecture_tutorial$MainPage$RefreshError,
-		_elm_lang$elm_architecture_tutorial$MainPage$ReceiveRefresh,
-		A2(_evancz$elm_http$Http$get, _elm_lang$elm_architecture_tutorial$MainPage$decodeResponse, url));
-};
 var _elm_lang$elm_architecture_tutorial$MainPage$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
 		switch (_p0.ctor) {
 			case 'SendRefresh':
-				return {
-					ctor: '_Tuple2',
-					_0: model,
-					_1: _elm_lang$elm_architecture_tutorial$MainPage$getResponse(_p0._0)
-				};
+				return {ctor: '_Tuple2', _0: model, _1: _p0._0};
 			case 'ReceiveRefresh':
 				return {
 					ctor: '_Tuple2',
@@ -8907,6 +8899,24 @@ var _elm_lang$elm_architecture_tutorial$MainPage$update = F2(
 				};
 		}
 	});
+var _elm_lang$elm_architecture_tutorial$MainPage$initialModel = {
+	entries: _elm_lang$core$Native_List.fromArray(
+		[]),
+	message: 'Click to refresh'
+};
+var _elm_lang$elm_architecture_tutorial$MainPage$Model = F2(
+	function (a, b) {
+		return {entries: a, message: b};
+	});
+var _elm_lang$elm_architecture_tutorial$MainPage$RefreshError = function (a) {
+	return {ctor: 'RefreshError', _0: a};
+};
+var _elm_lang$elm_architecture_tutorial$MainPage$ReceiveRefresh = function (a) {
+	return {ctor: 'ReceiveRefresh', _0: a};
+};
+var _elm_lang$elm_architecture_tutorial$MainPage$getResponse = function (httpRequest) {
+	return A3(_elm_lang$core$Task$perform, _elm_lang$elm_architecture_tutorial$MainPage$RefreshError, _elm_lang$elm_architecture_tutorial$MainPage$ReceiveRefresh, httpRequest);
+};
 var _elm_lang$elm_architecture_tutorial$MainPage$SendRefresh = function (a) {
 	return {ctor: 'SendRefresh', _0: a};
 };
@@ -8922,7 +8932,8 @@ var _elm_lang$elm_architecture_tutorial$MainPage$view = function (model) {
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html_Events$onClick(
-						_elm_lang$elm_architecture_tutorial$MainPage$SendRefresh('gogData'))
+						_elm_lang$elm_architecture_tutorial$MainPage$SendRefresh(
+							_elm_lang$elm_architecture_tutorial$MainPage$getResponse(_elm_lang$elm_architecture_tutorial$Router$gogData)))
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
@@ -8933,7 +8944,8 @@ var _elm_lang$elm_architecture_tutorial$MainPage$view = function (model) {
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html_Events$onClick(
-						_elm_lang$elm_architecture_tutorial$MainPage$SendRefresh('steamData'))
+						_elm_lang$elm_architecture_tutorial$MainPage$SendRefresh(
+							_elm_lang$elm_architecture_tutorial$MainPage$getResponse(_elm_lang$elm_architecture_tutorial$Router$steamData)))
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
@@ -8964,7 +8976,7 @@ var _elm_lang$elm_architecture_tutorial$MainPage$main = {
 			init: {
 				ctor: '_Tuple2',
 				_0: _elm_lang$elm_architecture_tutorial$MainPage$initialModel,
-				_1: _elm_lang$elm_architecture_tutorial$MainPage$getResponse('allData')
+				_1: _elm_lang$elm_architecture_tutorial$MainPage$getResponse(_elm_lang$elm_architecture_tutorial$Router$allData)
 			},
 			view: _elm_lang$elm_architecture_tutorial$MainPage$view,
 			update: _elm_lang$elm_architecture_tutorial$MainPage$update,
