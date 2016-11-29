@@ -8786,9 +8786,33 @@ var _elm_lang$elm_architecture_tutorial$Router$Home = F3(
 	});
 var _elm_lang$elm_architecture_tutorial$Router$home = A3(
 	_elm_lang$elm_architecture_tutorial$Router$Home,
-	A2(_elm_lang$core$Basics_ops['++'], _elm_lang$elm_architecture_tutorial$Router$baseAddress, '/gogData'),
-	A2(_elm_lang$core$Basics_ops['++'], _elm_lang$elm_architecture_tutorial$Router$baseAddress, '/steamData'),
-	A2(_elm_lang$core$Basics_ops['++'], _elm_lang$elm_architecture_tutorial$Router$baseAddress, '/allData'));
+	function (params) {
+		return A2(
+			_elm_lang$core$Basics_ops['++'],
+			_elm_lang$elm_architecture_tutorial$Router$baseAddress,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'/gogData?',
+				_elm_lang$elm_architecture_tutorial$Router$joinParameters(params)));
+	},
+	function (params) {
+		return A2(
+			_elm_lang$core$Basics_ops['++'],
+			_elm_lang$elm_architecture_tutorial$Router$baseAddress,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'/steamData?',
+				_elm_lang$elm_architecture_tutorial$Router$joinParameters(params)));
+	},
+	function (params) {
+		return A2(
+			_elm_lang$core$Basics_ops['++'],
+			_elm_lang$elm_architecture_tutorial$Router$baseAddress,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'/allData?',
+				_elm_lang$elm_architecture_tutorial$Router$joinParameters(params)));
+	});
 var _elm_lang$elm_architecture_tutorial$Router$Comparison = F3(
 	function (a, b, c) {
 		return {toggleSelected: a, comparisonData: b, page: c};
@@ -8823,18 +8847,24 @@ var _elm_lang$elm_architecture_tutorial$Router$comparison = A3(
 				_elm_lang$elm_architecture_tutorial$Router$joinParameters(params)));
 	});
 var _elm_lang$elm_architecture_tutorial$Router$routes = A2(_elm_lang$elm_architecture_tutorial$Router$Addresses, _elm_lang$elm_architecture_tutorial$Router$home, _elm_lang$elm_architecture_tutorial$Router$comparison);
-var _elm_lang$elm_architecture_tutorial$Router$gogData = A2(
-	_evancz$elm_http$Http$get,
-	_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry),
-	_elm_lang$elm_architecture_tutorial$Router$routes.main.gogData);
-var _elm_lang$elm_architecture_tutorial$Router$steamData = A2(
-	_evancz$elm_http$Http$get,
-	_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry),
-	_elm_lang$elm_architecture_tutorial$Router$routes.main.steamData);
-var _elm_lang$elm_architecture_tutorial$Router$allData = A2(
-	_evancz$elm_http$Http$get,
-	_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry),
-	_elm_lang$elm_architecture_tutorial$Router$routes.main.allData);
+var _elm_lang$elm_architecture_tutorial$Router$gogData = function (params) {
+	return A2(
+		_evancz$elm_http$Http$get,
+		_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry),
+		_elm_lang$elm_architecture_tutorial$Router$routes.main.gogData(params));
+};
+var _elm_lang$elm_architecture_tutorial$Router$steamData = function (params) {
+	return A2(
+		_evancz$elm_http$Http$get,
+		_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry),
+		_elm_lang$elm_architecture_tutorial$Router$routes.main.steamData(params));
+};
+var _elm_lang$elm_architecture_tutorial$Router$allData = function (params) {
+	return A2(
+		_evancz$elm_http$Http$get,
+		_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry),
+		_elm_lang$elm_architecture_tutorial$Router$routes.main.allData(params));
+};
 var _elm_lang$elm_architecture_tutorial$Router$toggleSelected = function (params) {
 	return A3(
 		_evancz$elm_http$Http$post,
@@ -9001,15 +9031,20 @@ var _elm_lang$elm_architecture_tutorial$MainPage$update = F2(
 				};
 		}
 	});
-var _elm_lang$elm_architecture_tutorial$MainPage$initialModel = {
-	entries: _elm_lang$core$Native_List.fromArray(
-		[]),
-	message: 'Click to refresh'
-};
-var _elm_lang$elm_architecture_tutorial$MainPage$Model = F2(
-	function (a, b) {
-		return {entries: a, message: b};
+var _elm_lang$elm_architecture_tutorial$MainPage$Model = F3(
+	function (a, b, c) {
+		return {sources: a, entries: b, message: c};
 	});
+var _elm_lang$elm_architecture_tutorial$MainPage$Both = {ctor: 'Both'};
+var _elm_lang$elm_architecture_tutorial$MainPage$WishList = {ctor: 'WishList'};
+var _elm_lang$elm_architecture_tutorial$MainPage$Owned = {ctor: 'Owned'};
+var _elm_lang$elm_architecture_tutorial$MainPage$initialModel = A3(
+	_elm_lang$elm_architecture_tutorial$MainPage$Model,
+	_elm_lang$elm_architecture_tutorial$MainPage$Owned,
+	_elm_lang$core$Native_List.fromArray(
+		[]),
+	'Click to refresh');
+var _elm_lang$elm_architecture_tutorial$MainPage$None = {ctor: 'None'};
 var _elm_lang$elm_architecture_tutorial$MainPage$RefreshError = function (a) {
 	return {ctor: 'RefreshError', _0: a};
 };
@@ -9035,7 +9070,16 @@ var _elm_lang$elm_architecture_tutorial$MainPage$view = function (model) {
 					[
 						_elm_lang$html$Html_Events$onClick(
 						_elm_lang$elm_architecture_tutorial$MainPage$SendRefresh(
-							_elm_lang$elm_architecture_tutorial$MainPage$getResponse(_elm_lang$elm_architecture_tutorial$Router$gogData)))
+							_elm_lang$elm_architecture_tutorial$MainPage$getResponse(
+								_elm_lang$elm_architecture_tutorial$Router$gogData(
+									_elm_lang$core$Native_List.fromArray(
+										[
+											{
+											ctor: '_Tuple2',
+											_0: 'sources',
+											_1: _elm_lang$core$Basics$toString(model.sources)
+										}
+										])))))
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
@@ -9047,7 +9091,16 @@ var _elm_lang$elm_architecture_tutorial$MainPage$view = function (model) {
 					[
 						_elm_lang$html$Html_Events$onClick(
 						_elm_lang$elm_architecture_tutorial$MainPage$SendRefresh(
-							_elm_lang$elm_architecture_tutorial$MainPage$getResponse(_elm_lang$elm_architecture_tutorial$Router$steamData)))
+							_elm_lang$elm_architecture_tutorial$MainPage$getResponse(
+								_elm_lang$elm_architecture_tutorial$Router$steamData(
+									_elm_lang$core$Native_List.fromArray(
+										[
+											{
+											ctor: '_Tuple2',
+											_0: 'sources',
+											_1: _elm_lang$core$Basics$toString(model.sources)
+										}
+										])))))
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
@@ -9078,7 +9131,16 @@ var _elm_lang$elm_architecture_tutorial$MainPage$main = {
 			init: {
 				ctor: '_Tuple2',
 				_0: _elm_lang$elm_architecture_tutorial$MainPage$initialModel,
-				_1: _elm_lang$elm_architecture_tutorial$MainPage$getResponse(_elm_lang$elm_architecture_tutorial$Router$allData)
+				_1: _elm_lang$elm_architecture_tutorial$MainPage$getResponse(
+					_elm_lang$elm_architecture_tutorial$Router$allData(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								{
+								ctor: '_Tuple2',
+								_0: 'sources',
+								_1: _elm_lang$core$Basics$toString(_elm_lang$elm_architecture_tutorial$MainPage$initialModel.sources)
+							}
+							])))
 			},
 			view: _elm_lang$elm_architecture_tutorial$MainPage$view,
 			update: _elm_lang$elm_architecture_tutorial$MainPage$update,

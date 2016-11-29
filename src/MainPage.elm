@@ -10,13 +10,15 @@ import Router exposing (..)
 
 
 main =
-    App.program { init = ( initialModel, getResponse Router.allData ), view = view, update = update, subscriptions = \_ -> Sub.none }
+    App.program { init = ( initialModel, getResponse <| Router.allData [("sources", toString initialModel.sources)]), view = view, update = update, subscriptions = \_ -> Sub.none }
 
 -- MODEL
 
-type alias Model = {entries : List GameEntry, message : String}
+type GameSources = Owned | WishList | Both
 
-initialModel = {entries = [], message = "Click to refresh"}
+type alias Model = {sources : GameSources, entries : List GameEntry, message : String}
+
+initialModel = Model Owned [] "Click to refresh"
 
 -- UPDATE
 
@@ -37,8 +39,8 @@ update msg model =
 view : Model -> Html Msg
 view model =
   div [] <|
-    [ button [ onClick <| SendRefresh <| getResponse Router.gogData] [ text "Fetch from gog"   ]
-    , button [ onClick <| SendRefresh <| getResponse Router.steamData] [ text "Fetch from steam" ]
+    [ button [ onClick <| SendRefresh <| getResponse <| Router.gogData [("sources", toString model.sources)]] [ text "Fetch from gog"   ]
+    , button [ onClick <| SendRefresh <| getResponse <| Router.steamData [("sources", toString model.sources)]] [ text "Fetch from steam" ]
     , div [] [ text (toString model.message) ]
     , table[] <| gameTableTitle :: (List.map gameTableRow model.entries)
     ]
