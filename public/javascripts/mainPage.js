@@ -8809,17 +8809,35 @@ var _elm_lang$elm_architecture_tutorial$Router$prepareRequest = F2(
 			decoder,
 			A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:9000/', address));
 	});
-var _elm_lang$elm_architecture_tutorial$Router$gogData = A2(
+var _elm_lang$elm_architecture_tutorial$Router$comparisonData = function (params) {
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_evancz$elm_http$Http$get,
+			_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedComparisonEntry),
+			_elm_lang$elm_architecture_tutorial$Router$dataUrl(params)),
+		_1: _elm_lang$elm_architecture_tutorial$Router$pageUrl(params)
+	};
+};
+var _elm_lang$elm_architecture_tutorial$Router$toggleSelected = F2(
+	function (decoder, params) {
+		return A3(
+			_evancz$elm_http$Http$post,
+			decoder,
+			_elm_lang$elm_architecture_tutorial$Router$url(params),
+			_evancz$elm_http$Http$empty);
+	});
+var _elm_lang$elm_architecture_tutorial$Router$allData = A2(
 	_elm_lang$elm_architecture_tutorial$Router$prepareRequest,
-	'gogData',
+	'allData',
 	_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry));
 var _elm_lang$elm_architecture_tutorial$Router$steamData = A2(
 	_elm_lang$elm_architecture_tutorial$Router$prepareRequest,
 	'steamData',
 	_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry));
-var _elm_lang$elm_architecture_tutorial$Router$allData = A2(
+var _elm_lang$elm_architecture_tutorial$Router$gogData = A2(
 	_elm_lang$elm_architecture_tutorial$Router$prepareRequest,
-	'allData',
+	'gogData',
 	_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry));
 
 var _elm_lang$elm_architecture_tutorial$MainPage$toSpan = F2(

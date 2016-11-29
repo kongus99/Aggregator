@@ -9814,17 +9814,35 @@ var _elm_lang$elm_architecture_tutorial$Router$prepareRequest = F2(
 			decoder,
 			A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:9000/', address));
 	});
-var _elm_lang$elm_architecture_tutorial$Router$gogData = A2(
+var _elm_lang$elm_architecture_tutorial$Router$comparisonData = function (params) {
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_evancz$elm_http$Http$get,
+			_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedComparisonEntry),
+			_elm_lang$elm_architecture_tutorial$Router$dataUrl(params)),
+		_1: _elm_lang$elm_architecture_tutorial$Router$pageUrl(params)
+	};
+};
+var _elm_lang$elm_architecture_tutorial$Router$toggleSelected = F2(
+	function (decoder, params) {
+		return A3(
+			_evancz$elm_http$Http$post,
+			decoder,
+			_elm_lang$elm_architecture_tutorial$Router$url(params),
+			_evancz$elm_http$Http$empty);
+	});
+var _elm_lang$elm_architecture_tutorial$Router$allData = A2(
 	_elm_lang$elm_architecture_tutorial$Router$prepareRequest,
-	'gogData',
+	'allData',
 	_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry));
 var _elm_lang$elm_architecture_tutorial$Router$steamData = A2(
 	_elm_lang$elm_architecture_tutorial$Router$prepareRequest,
 	'steamData',
 	_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry));
-var _elm_lang$elm_architecture_tutorial$Router$allData = A2(
+var _elm_lang$elm_architecture_tutorial$Router$gogData = A2(
 	_elm_lang$elm_architecture_tutorial$Router$prepareRequest,
-	'allData',
+	'gogData',
 	_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedGameEntry));
 
 var _elm_lang$elm_architecture_tutorial$Comparison$onSelect = function (msg) {
@@ -10125,29 +10143,20 @@ var _elm_lang$elm_architecture_tutorial$Comparison$postUpdate = function (params
 		_elm_lang$core$Task$perform,
 		_elm_lang$elm_architecture_tutorial$Comparison$DataError,
 		_elm_lang$elm_architecture_tutorial$Comparison$ToggleStored,
-		A3(
-			_evancz$elm_http$Http$post,
-			_elm_lang$core$Json_Decode$string,
-			_elm_lang$elm_architecture_tutorial$Router$url(params),
-			_evancz$elm_http$Http$empty));
+		A2(_elm_lang$elm_architecture_tutorial$Router$toggleSelected, _elm_lang$core$Json_Decode$string, params));
 };
 var _elm_lang$elm_architecture_tutorial$Comparison$ReceiveData = function (a) {
 	return {ctor: 'ReceiveData', _0: a};
 };
 var _elm_lang$elm_architecture_tutorial$Comparison$getResponse = function (params) {
+	var _p1 = _elm_lang$elm_architecture_tutorial$Router$comparisonData(params);
+	var request = _p1._0;
+	var address = _p1._1;
 	return _elm_lang$core$Platform_Cmd$batch(
 		_elm_lang$core$Native_List.fromArray(
 			[
-				A3(
-				_elm_lang$core$Task$perform,
-				_elm_lang$elm_architecture_tutorial$Comparison$DataError,
-				_elm_lang$elm_architecture_tutorial$Comparison$ReceiveData,
-				A2(
-					_evancz$elm_http$Http$get,
-					_elm_lang$core$Json_Decode$list(_elm_lang$elm_architecture_tutorial$Router$decodedComparisonEntry),
-					_elm_lang$elm_architecture_tutorial$Router$dataUrl(params))),
-				_elm_lang$elm_architecture_tutorial$Comparison$elmAddressChange(
-				_elm_lang$elm_architecture_tutorial$Router$pageUrl(params))
+				A3(_elm_lang$core$Task$perform, _elm_lang$elm_architecture_tutorial$Comparison$DataError, _elm_lang$elm_architecture_tutorial$Comparison$ReceiveData, request),
+				_elm_lang$elm_architecture_tutorial$Comparison$elmAddressChange(address)
 			]));
 };
 var _elm_lang$elm_architecture_tutorial$Comparison$refresh = function (parameters) {
@@ -10209,14 +10218,14 @@ var _elm_lang$elm_architecture_tutorial$Comparison$initProgram = function (addre
 };
 var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 	function (msg, model) {
-		var _p1 = msg;
-		switch (_p1.ctor) {
+		var _p2 = msg;
+		switch (_p2.ctor) {
 			case 'ReceiveData':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{comparisons: _p1._0}),
+						{comparisons: _p2._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'DataError':
@@ -10225,12 +10234,12 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						_elm_lang$elm_architecture_tutorial$Comparison$initialModel,
 						{
-							message: _elm_lang$core$Basics$toString(_p1._0)
+							message: _elm_lang$core$Basics$toString(_p2._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'RefreshData':
-				var _p2 = _p1._0;
+				var _p3 = _p2._0;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -10238,15 +10247,15 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 						{
 							comparisons: _elm_lang$core$Native_List.fromArray(
 								[]),
-							parameters: _p2
+							parameters: _p3
 						}),
-					_1: _elm_lang$elm_architecture_tutorial$Comparison$refresh(_p2)
+					_1: _elm_lang$elm_architecture_tutorial$Comparison$refresh(_p3)
 				};
 			case 'Toggle':
-				var _p4 = _p1._1;
-				var _p3 = _p1._0;
+				var _p5 = _p2._1;
+				var _p4 = _p2._0;
 				var updateEntry = function (e) {
-					return (_elm_lang$core$Native_Utils.eq(e.left.id, _p3) && _elm_lang$core$Native_Utils.eq(e.right.id, _p4)) ? _elm_lang$core$Native_Utils.update(
+					return (_elm_lang$core$Native_Utils.eq(e.left.id, _p4) && _elm_lang$core$Native_Utils.eq(e.right.id, _p5)) ? _elm_lang$core$Native_Utils.update(
 						e,
 						{
 							matches: _elm_lang$core$Basics$not(e.matches)
@@ -10274,12 +10283,12 @@ var _elm_lang$elm_architecture_tutorial$Comparison$update = F2(
 								{
 								ctor: '_Tuple2',
 								_0: 'leftId',
-								_1: _elm_lang$core$Basics$toString(_p3)
+								_1: _elm_lang$core$Basics$toString(_p4)
 							},
 								{
 								ctor: '_Tuple2',
 								_0: 'rightId',
-								_1: _elm_lang$core$Basics$toString(_p4)
+								_1: _elm_lang$core$Basics$toString(_p5)
 							}
 							]))
 				};
@@ -10293,7 +10302,7 @@ var _elm_lang$elm_architecture_tutorial$Comparison$main = {
 			init: _elm_lang$elm_architecture_tutorial$Comparison$initProgram,
 			view: _elm_lang$elm_architecture_tutorial$Comparison$view,
 			update: _elm_lang$elm_architecture_tutorial$Comparison$update,
-			subscriptions: function (_p5) {
+			subscriptions: function (_p6) {
 				return _elm_lang$core$Platform_Sub$none;
 			}
 		}),

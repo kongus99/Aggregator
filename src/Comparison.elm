@@ -112,10 +112,13 @@ metricButtons parameters =
             , button [ onClick decrement ] [ text "-" ]
         ]
 
-postUpdate params = Task.perform DataError ToggleStored (Http.post string (Router.url params) Http.empty)
+postUpdate params = Task.perform DataError ToggleStored (Router.toggleSelected string params)
 
 getResponse params =
-    Cmd.batch [Task.perform DataError ReceiveData (Http.get (list decodedComparisonEntry) (Router.dataUrl params)), elmAddressChange (Router.pageUrl params)]
+    let
+        (request, address) = Router.comparisonData params
+    in
+        Cmd.batch [Task.perform DataError ReceiveData request, elmAddressChange address]
 
 onSelect : (String -> Msg) -> Html.Attribute Msg
 onSelect msg =

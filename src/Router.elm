@@ -1,15 +1,18 @@
-module Router exposing(gogData, steamData, allData, decodedComparisonEntry, decodedNamedEntry, dataUrl, pageUrl, url)
+module Router exposing(gogData, steamData, allData, toggleSelected, comparisonData)
 
 import Http
 import Json.Decode as Json exposing (..)
 import Model exposing (..)
 import String
-
-prepareRequest address decoder = Http.get decoder ("http://localhost:9000/" ++ address)
-
+--PUBLIC
 gogData = prepareRequest "gogData" <| list decodedGameEntry
 steamData = prepareRequest "steamData" <| list decodedGameEntry
 allData = prepareRequest "allData" <| list decodedGameEntry
+toggleSelected decoder params = Http.post decoder (url params) Http.empty
+comparisonData params = (Http.get (list decodedComparisonEntry) (dataUrl params), pageUrl params)
+--PRIVATE
+
+prepareRequest address decoder = Http.get decoder ("http://localhost:9000/" ++ address)
 
 decodedGogEntry = object2 GogEntry ("title" := string) ("gogId" := int)
 decodedSteamEntry = object2 SteamEntry ("name" := string) ("steamId" := int)
