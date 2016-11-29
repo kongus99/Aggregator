@@ -112,7 +112,7 @@ metricButtons parameters =
             , button [ onClick decrement ] [ text "-" ]
         ]
 
-postUpdate params = Task.perform DataError ToggleStored (Router.toggleSelected string params)
+postUpdate params = Task.perform DataError ToggleStored (Router.toggleSelected params)
 
 getResponse params =
     let

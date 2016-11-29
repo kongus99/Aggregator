@@ -28,7 +28,7 @@ type Msg
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    SendRefresh cmd -> (model, cmd)
+    SendRefresh cmd -> ({model | entries = []}, cmd)
     ReceiveRefresh entries -> ({model | entries = entries} , Cmd.none)
     RefreshError err -> ({model | entries = [], message = toString err} , Cmd.none)
 

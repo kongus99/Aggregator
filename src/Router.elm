@@ -4,28 +4,32 @@ import Http
 import Json.Decode as Json exposing (..)
 import Model exposing (..)
 import String
---PUBLIC
-gogData = prepareRequest "gogData" <| list decodedGameEntry
-steamData = prepareRequest "steamData" <| list decodedGameEntry
-allData = prepareRequest "allData" <| list decodedGameEntry
-toggleSelected decoder params = Http.post decoder (url params) Http.empty
-comparisonData params = (Http.get (list decodedComparisonEntry) (dataUrl params), pageUrl params)
---PRIVATE
+--METHODS
+gogData =   Http.get (list decodedGameEntry) routes.main.gogData
+steamData = Http.get (list decodedGameEntry) routes.main.steamData
+allData =   Http.get (list decodedGameEntry) routes.main.allData
+toggleSelected params = Http.post string (routes.comparison.toggleSelected params) Http.empty
+comparisonData params = (Http.get (list decodedComparisonEntry) (routes.comparison.comparisonData params), routes.comparison.page params)
+--ROUTES
+baseAddress : String
+baseAddress = "http://localhost:9000"
 
-prepareRequest address decoder = Http.get decoder ("http://localhost:9000/" ++ address)
+type alias Addresses = {main : Home, comparison : Comparison}
+type alias Home = {gogData : String, steamData : String, allData : String}
+type alias Comparison = {toggleSelected : List (String, String) -> String, comparisonData : List (String, String) -> String, page : List (String, String) -> String}
 
+home = Home (baseAddress ++ "/gogData") (baseAddress ++ "/steamData") (baseAddress ++ "/allData")
+comparison = Comparison (\params -> baseAddress ++ "/comparison/toggleMatch?" ++ (joinParameters params))
+                        (\params -> baseAddress ++ "/comparison/data?" ++ (joinParameters params))
+                        (\params -> baseAddress ++ "/comparison?" ++ (joinParameters params))
+routes = Addresses home comparison
+
+--DECODERS
 decodedGogEntry = object2 GogEntry ("title" := string) ("gogId" := int)
 decodedSteamEntry = object2 SteamEntry ("name" := string) ("steamId" := int)
 decodedGameEntry = object2 GameEntry ("gog" := (list decodedGogEntry)) ("steam" := (list decodedSteamEntry))
-
 decodedComparisonEntry = object4 ComparisonEntry ("left" := decodedNamedEntry) ("metricResult" := int) ("right" := decodedNamedEntry) ("matches" := bool)
 decodedNamedEntry = object2 NamedEntry ("id" := int) ("name" := string)
-
-
-dataUrl params = "http://localhost:9000/comparison/data" ++ "?" ++ (joinParameters params)
-pageUrl params = "http://localhost:9000/comparison" ++ "?" ++ (joinParameters params)
-url params = "http://localhost:9000/comparison/toggleMatch" ++ "?" ++ (joinParameters params)
-
-
+-- HELPERS
 joinParameters params =
     String.join "&&" (List.map (\((k, v)) -> k ++ "=" ++ v) params)
