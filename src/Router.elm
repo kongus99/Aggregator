@@ -14,9 +14,10 @@ comparisonData params = (Http.get (list decodedComparisonEntry) (routes.comparis
 baseAddress : String
 baseAddress = "http://localhost:9000"
 
+type alias UrlGenerator = List (String, String) -> String
 type alias Addresses = {main : Home, comparison : Comparison}
-type alias Home = {gogData : List (String, String) -> String, steamData : List (String, String) -> String, allData : List (String, String) -> String}
-type alias Comparison = {toggleSelected : List (String, String) -> String, comparisonData : List (String, String) -> String, page : List (String, String) -> String}
+type alias Home = {gogData : UrlGenerator, steamData : UrlGenerator, allData : UrlGenerator}
+type alias Comparison = {toggleSelected : UrlGenerator, comparisonData : UrlGenerator, page : UrlGenerator}
 
 home = Home (\params -> baseAddress ++ "/gogData?" ++ (joinParameters params))
             (\params -> baseAddress ++ "/steamData?" ++ (joinParameters params))

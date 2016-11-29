@@ -9044,7 +9044,6 @@ var _elm_lang$elm_architecture_tutorial$MainPage$initialModel = A3(
 	_elm_lang$core$Native_List.fromArray(
 		[]),
 	'Click to refresh');
-var _elm_lang$elm_architecture_tutorial$MainPage$None = {ctor: 'None'};
 var _elm_lang$elm_architecture_tutorial$MainPage$RefreshError = function (a) {
 	return {ctor: 'RefreshError', _0: a};
 };
