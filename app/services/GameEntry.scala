@@ -19,6 +19,17 @@ object GameOn extends Enumeration {
   val Gog, Steam = Value
 }
 
+object GameSources extends Enumeration {
+  type GameSources = Value
+  val Owned, WishList, Both = Value
+
+  def toOption(value: Value) : Option[Boolean] = {
+    if(value == Owned) Some(false)
+    else if(value == WishList) Some(true)
+    else None
+  }
+}
+
 object GameEntry {
 
   implicit val gameWrites: Writes[GameEntry] = (
@@ -30,13 +41,19 @@ object GameEntry {
     Some((e.gog, e.steam))
   }
 
-  def generateFromNames(tables: Tables)(implicit ec: ExecutionContext): Future[Seq[GameEntry]] = {
+  def generateFromNames(sources  : GameSources.GameSources, tables: Tables)(implicit ec: ExecutionContext): Future[Seq[GameEntry]] = {
     def simplify(p: ((GameOn, Long), (GameOn, Long))) = if (p._1._1 == GameOn.Gog || (p._1._1 == GameOn.Steam && p._2._1 == GameOn.Steam && p._1._2 < p._2._2)) p.swap else p
 
 
+    def toGameEntry(gogMap: Map[Long, GogEntry], steamMap: Map[Long, SteamEntry])(p: (Seq[(GameOn, Long)], Seq[(GameOn, Long)])): Option[GameEntry] = {
+      val steam = p._1.flatMap(e => steamMap.get(e._2))
+      val gog = p._2.flatMap(e => gogMap.get(e._2))
+      if(gog.isEmpty && steam.isEmpty) None else Some(GameEntry(gog, steam))
+    }
+
     for {
-      gog <- tables.getGogEntries
-      steam <- tables.getSteamEntries
+      gog <- tables.getGogEntries(GameSources.toOption(sources))
+      steam <- tables.getSteamEntries(GameSources.toOption(sources))
       matches <- tables.getAllMatches
     } yield {
       val gogMap = gog.map(e => (e.gogId, e)).toMap
@@ -44,7 +61,7 @@ object GameEntry {
 
       val simplified = matches.toSeq.flatMap(m => m._2.map(p => ((m._1._1, p._1), (m._1._2, p._2)))).map(simplify).distinct
       val mappedBySteamId = simplified.map(p => (p._1._2, p._2)).groupBy(_._1).mapValues(_.map(_._2))
-      val repeated = mappedBySteamId.toSeq.map(p => (GameOn.Steam, p._1) +: p._2).map(s => s.partition(_._1 == GameOn.Steam)).map(p => GameEntry(p._2.map(e => gogMap(e._2)), p._1.map(e => steamMap(e._2))))
+      val repeated = mappedBySteamId.toSeq.map(p => (GameOn.Steam, p._1) +: p._2).map(s => s.partition(_._1 == GameOn.Steam)).flatMap(toGameEntry(gogMap, steamMap)(_))
       val repeatingGogIds = matches.filter(p => p._1._1 == GameOn.Gog).flatMap(_._2).keys.toSet
       val repeatingSteamIds = matches.filter(p => p._1._1 == GameOn.Steam).flatMap(_._2).keys.toSet
       val onlyGog = gog.filter(g => !repeatingGogIds.contains(g.gogId)).map(g => GameEntry(Seq(g), Seq()))
@@ -56,4 +73,3 @@ object GameEntry {
 
 //TODO : column filters - high
 //TODO : DLC - eliminate entries, move to separate table? - low
-//TODO : case sensitivity - fix the entries by upper casing? - low

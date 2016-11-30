@@ -8,12 +8,12 @@ import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.GameEntry._
+import services.GameSources.GameSources
 import services.GogEntry.{getFromGog, getGogPageNumber}
 import services.SteamEntry.getFromSteam
-import services.{GogPageRetriever, GogWishListRetriever, SteamPageRetriever, SteamWishListRetriever}
+import services._
 
 import scala.concurrent.{ExecutionContext, Future}
-
 
 @Singleton
 class HomeController @Inject()(client: WSClient, configuration: Configuration, tables : Tables)(implicit exec: ExecutionContext) extends Controller {
@@ -28,8 +28,8 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
       Ok(views.html.main("Aggregator - summary", "javascripts/mainPage", "MainPage"))
     }
   }
-  def allData() = Action.async {
-    generateFromNames(tables).map(d => Ok(Json.toJson(d)))
+  def allData(sources: GameSources) = Action.async {
+    generateFromNames(sources, tables).map(d => Ok(Json.toJson(d)))
   }
 
 

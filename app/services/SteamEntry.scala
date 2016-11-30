@@ -5,6 +5,7 @@ import org.jsoup.Jsoup
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Json, Reads, Writes}
 import services.GameEntry._
+import services.GameSources.Both
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -21,7 +22,7 @@ object SteamEntry{
 
   def getFromSteam(tables : Tables)(owned: String, wishList : String)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
     val parsed = parseOwned(owned) ++ parseWishList(wishList)
-    tables.replaceSteamData(parsed).flatMap(_ => generateFromNames(tables))
+    tables.replaceSteamData(parsed).flatMap(_ => generateFromNames(Both, tables))
   }
 
   private def parseWishList(wishList: String) = {

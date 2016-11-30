@@ -19,7 +19,7 @@ type GameSources = Owned | WishList | Both
 
 type alias Model = {sources : GameSources, entries : List GameEntry, message : String}
 
-initialModel = Model Owned [] "Click to refresh"
+initialModel = Model WishList [] "Click to refresh"
 
 -- UPDATE
 

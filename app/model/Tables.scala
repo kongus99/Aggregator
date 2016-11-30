@@ -115,9 +115,15 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
   def replaceGogData(data : Seq[GogEntry]) =
     db.run(gogData.delete andThen (gogData ++= data))
 
-  def getGogEntries : Future[Seq[GogEntry]] = db.run(gogData.result)
+  def getGogEntries(sources : Option[Boolean]) : Future[Seq[GogEntry]] = {
+    val query = sources.map(s => gogData.filter(e => e.onWishList === s)).getOrElse(gogData)
+    db.run(query.result)
+  }
 
-  def getSteamEntries : Future[Seq[SteamEntry]] = db.run(steamData.result)
+  def getSteamEntries(sources : Option[Boolean]) : Future[Seq[SteamEntry]] = {
+    val query = sources.map(s => steamData.filter(e => e.onWishList === s)).getOrElse(steamData)
+    db.run(query.result)
+  }
 
   def replaceSteamData(data : Seq[SteamEntry]) =
     db.run(steamData.delete andThen (steamData ++= data))

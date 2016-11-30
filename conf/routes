@@ -6,7 +6,7 @@
 GET         /                              controllers.HomeController.main
 GET         /gogData                       controllers.HomeController.gogData
 GET         /steamData                     controllers.HomeController.steamData
-GET         /allData                       controllers.HomeController.allData
+GET         /allData                       controllers.HomeController.allData(sources : services.GameSources.GameSources)
 
 GET         /comparison                    controllers.ComparisonController.main
 GET         /comparison/data               controllers.ComparisonController.data(left : services.GameOn.GameOn, right : services.GameOn.GameOn, minimumMetric : Int)

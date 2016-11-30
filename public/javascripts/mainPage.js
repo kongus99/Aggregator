@@ -9046,13 +9046,13 @@ var _elm_lang$elm_architecture_tutorial$MainPage$Model = F3(
 	});
 var _elm_lang$elm_architecture_tutorial$MainPage$Both = {ctor: 'Both'};
 var _elm_lang$elm_architecture_tutorial$MainPage$WishList = {ctor: 'WishList'};
-var _elm_lang$elm_architecture_tutorial$MainPage$Owned = {ctor: 'Owned'};
 var _elm_lang$elm_architecture_tutorial$MainPage$initialModel = A3(
 	_elm_lang$elm_architecture_tutorial$MainPage$Model,
-	_elm_lang$elm_architecture_tutorial$MainPage$Owned,
+	_elm_lang$elm_architecture_tutorial$MainPage$WishList,
 	_elm_lang$core$Native_List.fromArray(
 		[]),
 	'Click to refresh');
+var _elm_lang$elm_architecture_tutorial$MainPage$Owned = {ctor: 'Owned'};
 var _elm_lang$elm_architecture_tutorial$MainPage$RefreshError = function (a) {
 	return {ctor: 'RefreshError', _0: a};
 };

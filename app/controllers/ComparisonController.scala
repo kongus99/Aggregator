@@ -84,8 +84,8 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
 
   def getEntries(on: GameOn): Future[(GameOn, Seq[NamedEntry])] = {
     on match {
-      case GameOn.Gog => tables.getGogEntries.map(s => (on, s.map(e => NamedEntry(e.gogId, e.title))))
-      case GameOn.Steam => tables.getSteamEntries.map(s => (on, s.map(e => NamedEntry(e.steamId, e.name))))
+      case GameOn.Gog => tables.getGogEntries(None).map(s => (on, s.map(e => NamedEntry(e.gogId, e.title))))
+      case GameOn.Steam => tables.getSteamEntries(None).map(s => (on, s.map(e => NamedEntry(e.steamId, e.name))))
     }
   }
 
