@@ -28,3 +28,7 @@ class GogPageRetriever(client: WSClient, configuration: Configuration) (implicit
 class SteamPageRetriever(client: WSClient) (implicit exec: ExecutionContext) extends PageRetriever(client){
   val address = UrlAddress("http://steamcommunity.com/id/kongus/games/?tab=all", None)
 }
+
+class SteamWishListRetriever(client: WSClient) (implicit exec: ExecutionContext) extends PageRetriever(client){
+  val address = UrlAddress("http://steamcommunity.com/id/kongus/wishlist/", None)
+}

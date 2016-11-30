@@ -29,7 +29,7 @@ routes = Addresses home comparison
 
 --DECODERS
 decodedGogEntry = object2 GogEntry ("title" := string) ("gogId" := int)
-decodedSteamEntry = object2 SteamEntry ("name" := string) ("steamId" := int)
+decodedSteamEntry = object3 SteamEntry ("name" := string) ("steamId" := int) ("onWishList" := bool)
 decodedGameEntry = object2 GameEntry ("gog" := (list decodedGogEntry)) ("steam" := (list decodedSteamEntry))
 decodedComparisonEntry = object4 ComparisonEntry ("left" := decodedNamedEntry) ("metricResult" := int) ("right" := decodedNamedEntry) ("matches" := bool)
 decodedNamedEntry = object2 NamedEntry ("id" := int) ("name" := string)

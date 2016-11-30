@@ -7,7 +7,7 @@ type alias GameEntry = {gog: List GogEntry, steam: List SteamEntry}
 
 type alias GogEntry = {title: String, gogId : Int}
 
-type alias SteamEntry = {name: String, steamId : Int }
+type alias SteamEntry = {name: String, steamId : Int, onWishList : Bool }
 
 type alias NamedEntry = {id : Int, name : String}
 

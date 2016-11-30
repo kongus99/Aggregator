@@ -9717,9 +9717,9 @@ var _elm_lang$elm_architecture_tutorial$Model$GogEntry = F2(
 	function (a, b) {
 		return {title: a, gogId: b};
 	});
-var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F2(
-	function (a, b) {
-		return {name: a, steamId: b};
+var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F3(
+	function (a, b, c) {
+		return {name: a, steamId: b, onWishList: c};
 	});
 var _elm_lang$elm_architecture_tutorial$Model$NamedEntry = F2(
 	function (a, b) {
@@ -9759,11 +9759,12 @@ var _elm_lang$elm_architecture_tutorial$Router$decodedComparisonEntry = A5(
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'metricResult', _elm_lang$core$Json_Decode$int),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'right', _elm_lang$elm_architecture_tutorial$Router$decodedNamedEntry),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'matches', _elm_lang$core$Json_Decode$bool));
-var _elm_lang$elm_architecture_tutorial$Router$decodedSteamEntry = A3(
-	_elm_lang$core$Json_Decode$object2,
+var _elm_lang$elm_architecture_tutorial$Router$decodedSteamEntry = A4(
+	_elm_lang$core$Json_Decode$object3,
 	_elm_lang$elm_architecture_tutorial$Model$SteamEntry,
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'steamId', _elm_lang$core$Json_Decode$int));
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'steamId', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'onWishList', _elm_lang$core$Json_Decode$bool));
 var _elm_lang$elm_architecture_tutorial$Router$decodedGogEntry = A3(
 	_elm_lang$core$Json_Decode$object2,
 	_elm_lang$elm_architecture_tutorial$Model$GogEntry,

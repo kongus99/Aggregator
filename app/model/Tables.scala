@@ -32,12 +32,14 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def gogId = column[Long]("GOG_DATA_GOG_ID", O.PrimaryKey)
 
+    def onWishList = column[Boolean]("GOG_DATA_WISH_LIST")
+
     def * : ProvenShape[GogEntry] = {
 
-      val apply: (String, Long) => GogEntry = (name, gogId) => new GogEntry(name, gogId)
+      val apply: (String, Long, Boolean) => GogEntry = (name, gogId, onWishList) => new GogEntry(name, gogId)
 
-      val unapply: (GogEntry) => Option[(String, Long)] = g => Some((g.title, g.gogId))
-      (title, gogId) <>(apply.tupled, unapply)
+      val unapply: (GogEntry) => Option[(String, Long, Boolean)] = g => Some((g.title, g.gogId, false))
+      (title, gogId, onWishList) <>(apply.tupled, unapply)
     }
   }
 
@@ -46,12 +48,14 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def steamId = column[Long]("STEAM_DATA_STEAM_ID", O.PrimaryKey)
 
+    def onWishList = column[Boolean]("STEAM_DATA_WISH_LIST")
+
     def * : ProvenShape[SteamEntry] = {
 
-      val apply: (String, Long) => SteamEntry = (name, steamId) => new SteamEntry(name, steamId)
+      val apply: (String, Long, Boolean) => SteamEntry = (name, steamId, onWishList) => new SteamEntry(name, steamId, onWishList)
 
-      val unapply: (SteamEntry) => Option[(String, Long)] = g => Some((g.name, g.steamId))
-      (name, steamId) <>(apply.tupled, unapply)
+      val unapply: (SteamEntry) => Option[(String, Long, Boolean)] = g => Some((g.name, g.steamId, g.onWishList))
+      (name, steamId, onWishList) <>(apply.tupled, unapply)
     }
   }
 

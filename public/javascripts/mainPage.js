@@ -8712,9 +8712,9 @@ var _elm_lang$elm_architecture_tutorial$Model$GogEntry = F2(
 	function (a, b) {
 		return {title: a, gogId: b};
 	});
-var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F2(
-	function (a, b) {
-		return {name: a, steamId: b};
+var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F3(
+	function (a, b, c) {
+		return {name: a, steamId: b, onWishList: c};
 	});
 var _elm_lang$elm_architecture_tutorial$Model$NamedEntry = F2(
 	function (a, b) {
@@ -8754,11 +8754,12 @@ var _elm_lang$elm_architecture_tutorial$Router$decodedComparisonEntry = A5(
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'metricResult', _elm_lang$core$Json_Decode$int),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'right', _elm_lang$elm_architecture_tutorial$Router$decodedNamedEntry),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'matches', _elm_lang$core$Json_Decode$bool));
-var _elm_lang$elm_architecture_tutorial$Router$decodedSteamEntry = A3(
-	_elm_lang$core$Json_Decode$object2,
+var _elm_lang$elm_architecture_tutorial$Router$decodedSteamEntry = A4(
+	_elm_lang$core$Json_Decode$object3,
 	_elm_lang$elm_architecture_tutorial$Model$SteamEntry,
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'steamId', _elm_lang$core$Json_Decode$int));
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'steamId', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'onWishList', _elm_lang$core$Json_Decode$bool));
 var _elm_lang$elm_architecture_tutorial$Router$decodedGogEntry = A3(
 	_elm_lang$core$Json_Decode$object2,
 	_elm_lang$elm_architecture_tutorial$Model$GogEntry,
@@ -8936,6 +8937,18 @@ var _elm_lang$elm_architecture_tutorial$MainPage$getName = function (gameEntry) 
 			},
 			_elm_lang$core$List$head(gameEntry.gog)));
 };
+var _elm_lang$elm_architecture_tutorial$MainPage$getWishlist = function (gameEntry) {
+	var steamOnWishlist = A2(
+		_elm_lang$core$Maybe$withDefault,
+		false,
+		A2(
+			_elm_lang$core$Maybe$map,
+			function (g) {
+				return g.onWishList;
+			},
+			_elm_lang$core$List$head(gameEntry.steam)));
+	return steamOnWishlist;
+};
 var _elm_lang$elm_architecture_tutorial$MainPage$toStyle = function (gameEntry) {
 	var onSteam = _elm_lang$core$Native_Utils.cmp(
 		_elm_lang$core$List$length(gameEntry.steam),
@@ -8970,6 +8983,16 @@ var _elm_lang$elm_architecture_tutorial$MainPage$gameTableRow = function (e) {
 				A2(
 				_elm_lang$html$Html$td,
 				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(
+						_elm_lang$core$Basics$toString(
+							_elm_lang$elm_architecture_tutorial$MainPage$getWishlist(e)))
+					])),
+				A2(
+				_elm_lang$html$Html$td,
+				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html_Attributes$class(
 						_elm_lang$elm_architecture_tutorial$MainPage$toStyle(e))
@@ -8990,6 +9013,14 @@ var _elm_lang$elm_architecture_tutorial$MainPage$gameTableTitle = A2(
 			_elm_lang$core$Native_List.fromArray(
 				[
 					_elm_lang$html$Html$text('Game')
+				])),
+			A2(
+			_elm_lang$html$Html$th,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('Wishlist')
 				])),
 			A2(
 			_elm_lang$html$Html$th,

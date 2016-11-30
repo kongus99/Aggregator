@@ -51,11 +51,13 @@ view model =
 
 gameTableTitle =
     tr [] [ th[][text "Game"]
+          , th[][text "Wishlist"]
           , th[][text "Gog/Steam/Both"]
           ]
 
 gameTableRow e =
     tr [] [ td[][text <| getName e]
+          , td[][text <| toString <| getWishlist e]
           , td[class <| toStyle e  ](toText e)
           ]
 
@@ -85,6 +87,12 @@ toStyle gameEntry =
         onSteam = List.length gameEntry.steam > 0
     in
         if onGog && onSteam then "cell_Both" else if onGog then "cell_Gog" else "cell_Steam"
+
+getWishlist gameEntry =
+    let
+        steamOnWishlist = List.head gameEntry.steam |> Maybe.map (\g -> g.onWishList) |> Maybe.withDefault False
+    in
+        steamOnWishlist
 
 getName gameEntry =
     let
