@@ -10,7 +10,7 @@ import play.api.mvc._
 import services.GameEntry._
 import services.GogEntry.{getFromGog, getGogPageNumber}
 import services.SteamEntry.getFromSteam
-import services.{GogPageRetriever, SteamPageRetriever, SteamWishListRetriever}
+import services.{GogPageRetriever, GogWishListRetriever, SteamPageRetriever, SteamWishListRetriever}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -21,6 +21,7 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
   val gogRetriever = new GogPageRetriever(client, configuration)
   val steamRetriever = new SteamPageRetriever(client)
   val steamWishListRetriever = new SteamWishListRetriever(client)
+  val gogWishListRetriever = new GogWishListRetriever(client, configuration)
 
   def main = Action.async {
     Future {
@@ -33,7 +34,13 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
 
 
   def gogData() = Action.async {
-    gogRetriever.retrieve().map(getGogPageNumber).flatMap(gogRetriever.retrievePages).flatMap(getFromGog(tables)).map(d => Ok(Json.toJson(d)))
+    for{
+      owned <- gogRetriever.retrieve().map(getGogPageNumber).flatMap(gogRetriever.retrievePages)
+      wishlist <- gogWishListRetriever.retrieve()
+      result <- getFromGog(tables)(owned, wishlist)
+    } yield {
+      Ok(Json.toJson(result))
+    }
   }
 
   def steamData() = Action.async {

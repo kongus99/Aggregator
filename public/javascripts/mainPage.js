@@ -8708,9 +8708,9 @@ var _elm_lang$elm_architecture_tutorial$Model$GameEntry = F2(
 	function (a, b) {
 		return {gog: a, steam: b};
 	});
-var _elm_lang$elm_architecture_tutorial$Model$GogEntry = F2(
-	function (a, b) {
-		return {title: a, gogId: b};
+var _elm_lang$elm_architecture_tutorial$Model$GogEntry = F3(
+	function (a, b, c) {
+		return {title: a, gogId: b, onWishList: c};
 	});
 var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F3(
 	function (a, b, c) {
@@ -8760,11 +8760,12 @@ var _elm_lang$elm_architecture_tutorial$Router$decodedSteamEntry = A4(
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'steamId', _elm_lang$core$Json_Decode$int),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'onWishList', _elm_lang$core$Json_Decode$bool));
-var _elm_lang$elm_architecture_tutorial$Router$decodedGogEntry = A3(
-	_elm_lang$core$Json_Decode$object2,
+var _elm_lang$elm_architecture_tutorial$Router$decodedGogEntry = A4(
+	_elm_lang$core$Json_Decode$object3,
 	_elm_lang$elm_architecture_tutorial$Model$GogEntry,
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'title', _elm_lang$core$Json_Decode$string),
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'gogId', _elm_lang$core$Json_Decode$int));
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'gogId', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'onWishList', _elm_lang$core$Json_Decode$bool));
 var _elm_lang$elm_architecture_tutorial$Router$decodedGameEntry = A3(
 	_elm_lang$core$Json_Decode$object2,
 	_elm_lang$elm_architecture_tutorial$Model$GameEntry,
@@ -8947,7 +8948,15 @@ var _elm_lang$elm_architecture_tutorial$MainPage$getWishlist = function (gameEnt
 				return g.onWishList;
 			},
 			_elm_lang$core$List$head(gameEntry.steam)));
-	return steamOnWishlist;
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		steamOnWishlist,
+		A2(
+			_elm_lang$core$Maybe$map,
+			function (g) {
+				return g.onWishList;
+			},
+			_elm_lang$core$List$head(gameEntry.gog)));
 };
 var _elm_lang$elm_architecture_tutorial$MainPage$toStyle = function (gameEntry) {
 	var onSteam = _elm_lang$core$Native_Utils.cmp(

@@ -92,7 +92,7 @@ getWishlist gameEntry =
     let
         steamOnWishlist = List.head gameEntry.steam |> Maybe.map (\g -> g.onWishList) |> Maybe.withDefault False
     in
-        steamOnWishlist
+        List.head gameEntry.gog |> Maybe.map (\g -> g.onWishList) |> Maybe.withDefault steamOnWishlist
 
 getName gameEntry =
     let

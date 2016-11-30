@@ -25,6 +25,12 @@ class GogPageRetriever(client: WSClient, configuration: Configuration) (implicit
     Some(configuration.underlying.getString("gog.cookies")))
 }
 
+class GogWishListRetriever(client: WSClient, configuration: Configuration) (implicit exec: ExecutionContext)extends PageRetriever(client){
+  val address = UrlAddress(
+    "https://www.gog.com/u/kongus99/wishlist",
+    Some(configuration.underlying.getString("gog.cookies")))
+}
+
 class SteamPageRetriever(client: WSClient) (implicit exec: ExecutionContext) extends PageRetriever(client){
   val address = UrlAddress("http://steamcommunity.com/id/kongus/games/?tab=all", None)
 }

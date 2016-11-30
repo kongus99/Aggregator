@@ -36,9 +36,9 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def * : ProvenShape[GogEntry] = {
 
-      val apply: (String, Long, Boolean) => GogEntry = (name, gogId, onWishList) => new GogEntry(name, gogId)
+      val apply: (String, Long, Boolean) => GogEntry = (name, gogId, onWishList) => new GogEntry(name, gogId, onWishList)
 
-      val unapply: (GogEntry) => Option[(String, Long, Boolean)] = g => Some((g.title, g.gogId, false))
+      val unapply: (GogEntry) => Option[(String, Long, Boolean)] = g => Some((g.title, g.gogId, g.onWishList))
       (title, gogId, onWishList) <>(apply.tupled, unapply)
     }
   }
@@ -112,14 +112,14 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
   }
 
-  def replaceGogData(data : List[GogEntry]) =
+  def replaceGogData(data : Seq[GogEntry]) =
     db.run(gogData.delete andThen (gogData ++= data))
 
   def getGogEntries : Future[Seq[GogEntry]] = db.run(gogData.result)
 
   def getSteamEntries : Future[Seq[SteamEntry]] = db.run(steamData.result)
 
-  def replaceSteamData(data : List[SteamEntry]) =
+  def replaceSteamData(data : Seq[SteamEntry]) =
     db.run(steamData.delete andThen (steamData ++= data))
 
   lazy val get = {
