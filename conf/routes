@@ -4,8 +4,8 @@
 
 # An example controller showing a sample home page
 GET         /                              controllers.HomeController.main
-GET         /gogData                       controllers.HomeController.gogData
-GET         /steamData                     controllers.HomeController.steamData
+GET         /gogData                       controllers.HomeController.gogData(sources : services.GameSources.GameSources)
+GET         /steamData                     controllers.HomeController.steamData(sources : services.GameSources.GameSources)
 GET         /allData                       controllers.HomeController.allData(sources : services.GameSources.GameSources)
 
 GET         /comparison                    controllers.ComparisonController.main

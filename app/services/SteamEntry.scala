@@ -5,7 +5,7 @@ import org.jsoup.Jsoup
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Json, Reads, Writes}
 import services.GameEntry._
-import services.GameSources.Both
+import services.GameSources.GameSources
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -20,9 +20,9 @@ object SteamEntry{
       (JsPath \ "steamId").write[Long] and
       (JsPath \ "onWishList").write[Boolean])((e) => (e.name, e.steamId, e.onWishList))
 
-  def getFromSteam(tables : Tables)(owned: String, wishList : String)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
+  def getFromSteam(tables : Tables)(owned: String, wishList : String, sources : GameSources)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
     val parsed = parseOwned(owned) ++ parseWishList(wishList)
-    tables.replaceSteamData(parsed).flatMap(_ => generateFromNames(Both, tables))
+    tables.replaceSteamData(parsed).flatMap(_ => generateFromNames(sources, tables))
   }
 
   private def parseWishList(wishList: String) = {

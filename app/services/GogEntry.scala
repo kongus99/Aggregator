@@ -4,7 +4,7 @@ import model.Tables
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Json, Reads, Writes}
 import services.GameEntry._
-import services.GameSources.Both
+import services.GameSources.GameSources
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -23,9 +23,9 @@ object GogEntry{
     parseGogEntries(regExp.findAllMatchIn(wishList).map(m => m.group(1)).next()).map(_.copy(onWishList = true))
   }
 
-  def getFromGog(tables : Tables)(owned: Seq[String], wishList : String)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
+  def getFromGog(tables : Tables)(owned: Seq[String], wishList : String, sources : GameSources)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
     val parsed = owned.flatMap(parseGogEntries) ++ parseWishList(wishList)
-    tables.replaceGogData(parsed).flatMap(_ => generateFromNames(Both, tables))
+    tables.replaceGogData(parsed).flatMap(_ => generateFromNames(sources, tables))
   }
 
   def getGogPageNumber(body : String) : Int = (Json.parse(body) \ "totalPages").as[Int]

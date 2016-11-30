@@ -33,21 +33,21 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
   }
 
 
-  def gogData() = Action.async {
+  def gogData(sources: GameSources) = Action.async {
     for{
       owned <- gogRetriever.retrieve().map(getGogPageNumber).flatMap(gogRetriever.retrievePages)
       wishlist <- gogWishListRetriever.retrieve()
-      result <- getFromGog(tables)(owned, wishlist)
+      result <- getFromGog(tables)(owned, wishlist, sources)
     } yield {
       Ok(Json.toJson(result))
     }
   }
 
-  def steamData() = Action.async {
+  def steamData(sources: GameSources) = Action.async {
     for{
       owned <- steamRetriever.retrieve()
       wishlist <- steamWishListRetriever.retrieve()
-      result <- getFromSteam(tables)(owned, wishlist)
+      result <- getFromSteam(tables)(owned, wishlist, sources)
     } yield {
       Ok(Json.toJson(result))
     }
