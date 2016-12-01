@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject._
 
-import model.Tables
+import model.{Rates, Tables}
 import play.api.Configuration
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
@@ -22,6 +22,7 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
   val steamRetriever = new SteamPageRetriever(client)
   val steamWishListRetriever = new SteamWishListRetriever(client)
   val gogWishListRetriever = new GogWishListRetriever(client, configuration)
+  val ratesRetriever = new ReferenceRatesRetriever(client)
 
   def main = Action.async {
     Future {
@@ -50,7 +51,8 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
     for{
       owned <- steamRetriever.retrieve()
       wishlist <- steamWishListRetriever.retrieve()
-      result <- getFromSteam(tables)(owned, wishlist, sources)
+      rates <- ratesRetriever.retrieve()
+      result <- getFromSteam(tables)(owned, wishlist, sources, Rates.parseFromXml(rates))
     } yield {
       Ok(Json.toJson(result))
     }

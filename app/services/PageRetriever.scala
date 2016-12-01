@@ -38,3 +38,7 @@ class SteamPageRetriever(client: WSClient) (implicit exec: ExecutionContext) ext
 class SteamWishListRetriever(client: WSClient) (implicit exec: ExecutionContext) extends PageRetriever(client){
   val address = UrlAddress("http://steamcommunity.com/id/kongus/wishlist/", None)
 }
+
+class ReferenceRatesRetriever(client: WSClient) (implicit exec: ExecutionContext) extends PageRetriever(client){
+  val address = UrlAddress("http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml", None)
+}
