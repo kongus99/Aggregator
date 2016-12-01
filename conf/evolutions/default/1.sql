@@ -1,0 +1,10 @@
+# Users schema
+
+# --- !Ups
+
+ALTER TABLE "GOG_DATA"
+ADD "GOG_DATA_PRICE" REAL;
+
+# --- !Downs
+ALTER TABLE "GOG_DATA"
+DROP COLUMN "GOG_DATA_PRICE"
