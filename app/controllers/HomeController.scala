@@ -7,7 +7,7 @@ import play.api.Configuration
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
-import services.GameEntry._
+import services.GameEntry.{generateFromNames, _}
 import services.GameSources.GameSources
 import services.GogEntry.{getFromGog, getGogPageNumber}
 import services.SteamEntry.getFromSteam
@@ -29,9 +29,12 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
     }
   }
   def allData(sources: GameSources) = Action.async {
-    generateFromNames(sources, tables).map(d => Ok(Json.toJson(d)))
+    for{
+      result <- generateFromNames(sources, tables)
+    } yield {
+      Ok(Json.toJson(result))
+    }
   }
-
 
   def gogData(sources: GameSources) = Action.async {
     for{

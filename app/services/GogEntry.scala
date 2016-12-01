@@ -8,7 +8,7 @@ import services.GameSources.GameSources
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class GogEntry(title: String, gogId : Long, onWishList : Boolean = false)
+case class GogEntry(title: String, gogId : Long, price : Option[Float] = None)
 
 object GogEntry{
   private val regExp = "var gogData = (.+);".r
@@ -17,10 +17,10 @@ object GogEntry{
   implicit val gogWrites: Writes[GogEntry] = (
       (JsPath \ "title").write[String] and
       (JsPath \ "gogId").write[Long] and
-      (JsPath \ "onWishList").write[Boolean])((e) => (e.title, e.gogId, e.onWishList))
+      (JsPath \ "price").write[Option[Float]])((e) => (e.title, e.gogId, e.price))
 
   private def parseWishList(wishList: String) = {
-    parseGogEntries(regExp.findAllMatchIn(wishList).map(m => m.group(1)).next()).map(_.copy(onWishList = true))
+    parseGogEntries(regExp.findAllMatchIn(wishList).map(m => m.group(1)).next()).map(_.copy(price = Some(1.0f)))
   }
 
   def getFromGog(tables : Tables)(owned: Seq[String], wishList : String, sources : GameSources)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {

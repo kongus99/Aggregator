@@ -32,14 +32,14 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def gogId = column[Long]("GOG_DATA_GOG_ID", O.PrimaryKey)
 
-    def onWishList = column[Boolean]("GOG_DATA_WISH_LIST")
+    def price = column[Option[Float]]("GOG_DATA_PRICE")
 
     def * : ProvenShape[GogEntry] = {
 
-      val apply: (String, Long, Boolean) => GogEntry = (name, gogId, onWishList) => new GogEntry(name, gogId, onWishList)
+      val apply: (String, Long, Option[Float]) => GogEntry = (name, gogId, price) => new GogEntry(name, gogId, price)
 
-      val unapply: (GogEntry) => Option[(String, Long, Boolean)] = g => Some((g.title, g.gogId, g.onWishList))
-      (title, gogId, onWishList) <>(apply.tupled, unapply)
+      val unapply: (GogEntry) => Option[(String, Long, Option[Float])] = g => Some((g.title, g.gogId, g.price))
+      (title, gogId, price) <>(apply.tupled, unapply)
     }
   }
 
@@ -48,14 +48,14 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def steamId = column[Long]("STEAM_DATA_STEAM_ID", O.PrimaryKey)
 
-    def onWishList = column[Boolean]("STEAM_DATA_WISH_LIST")
+    def price = column[Option[Float]]("STEAM_DATA_PRICE")
 
     def * : ProvenShape[SteamEntry] = {
 
-      val apply: (String, Long, Boolean) => SteamEntry = (name, steamId, onWishList) => new SteamEntry(name, steamId, onWishList)
+      val apply: (String, Long, Option[Float]) => SteamEntry = (name, steamId, price) => new SteamEntry(name, steamId, price)
 
-      val unapply: (SteamEntry) => Option[(String, Long, Boolean)] = g => Some((g.name, g.steamId, g.onWishList))
-      (name, steamId, onWishList) <>(apply.tupled, unapply)
+      val unapply: (SteamEntry) => Option[(String, Long, Option[Float])] = g => Some((g.name, g.steamId, g.price))
+      (name, steamId, price) <>(apply.tupled, unapply)
     }
   }
 
@@ -116,12 +116,12 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     db.run(gogData.delete andThen (gogData ++= data))
 
   def getGogEntries(sources : Option[Boolean]) : Future[Seq[GogEntry]] = {
-    val query = sources.map(s => gogData.filter(e => e.onWishList === s)).getOrElse(gogData)
+    val query = sources.map(s => gogData.filter(e => e.price.isDefined === s)).getOrElse(gogData)
     db.run(query.result)
   }
 
   def getSteamEntries(sources : Option[Boolean]) : Future[Seq[SteamEntry]] = {
-    val query = sources.map(s => steamData.filter(e => e.onWishList === s)).getOrElse(steamData)
+    val query = sources.map(s => steamData.filter(e => e.price.isDefined === s)).getOrElse(steamData)
     db.run(query.result)
   }
 

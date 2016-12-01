@@ -8710,11 +8710,11 @@ var _elm_lang$elm_architecture_tutorial$Model$GameEntry = F2(
 	});
 var _elm_lang$elm_architecture_tutorial$Model$GogEntry = F3(
 	function (a, b, c) {
-		return {title: a, gogId: b, onWishList: c};
+		return {title: a, gogId: b, price: c};
 	});
 var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F3(
 	function (a, b, c) {
-		return {name: a, steamId: b, onWishList: c};
+		return {name: a, steamId: b, price: c};
 	});
 var _elm_lang$elm_architecture_tutorial$Model$NamedEntry = F2(
 	function (a, b) {
@@ -8759,13 +8759,19 @@ var _elm_lang$elm_architecture_tutorial$Router$decodedSteamEntry = A4(
 	_elm_lang$elm_architecture_tutorial$Model$SteamEntry,
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'steamId', _elm_lang$core$Json_Decode$int),
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'onWishList', _elm_lang$core$Json_Decode$bool));
+	A2(
+		_elm_lang$core$Json_Decode_ops[':='],
+		'price',
+		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)));
 var _elm_lang$elm_architecture_tutorial$Router$decodedGogEntry = A4(
 	_elm_lang$core$Json_Decode$object3,
 	_elm_lang$elm_architecture_tutorial$Model$GogEntry,
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'title', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'gogId', _elm_lang$core$Json_Decode$int),
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'onWishList', _elm_lang$core$Json_Decode$bool));
+	A2(
+		_elm_lang$core$Json_Decode_ops[':='],
+		'price',
+		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)));
 var _elm_lang$elm_architecture_tutorial$Router$decodedGameEntry = A3(
 	_elm_lang$core$Json_Decode$object2,
 	_elm_lang$elm_architecture_tutorial$Model$GameEntry,
@@ -8938,23 +8944,23 @@ var _elm_lang$elm_architecture_tutorial$MainPage$getName = function (gameEntry) 
 			},
 			_elm_lang$core$List$head(gameEntry.gog)));
 };
-var _elm_lang$elm_architecture_tutorial$MainPage$getWishlist = function (gameEntry) {
-	var steamOnWishlist = A2(
+var _elm_lang$elm_architecture_tutorial$MainPage$getPrice = function (gameEntry) {
+	var steamPrice = A2(
 		_elm_lang$core$Maybe$withDefault,
-		false,
+		_elm_lang$core$Maybe$Nothing,
 		A2(
 			_elm_lang$core$Maybe$map,
 			function (g) {
-				return g.onWishList;
+				return g.price;
 			},
 			_elm_lang$core$List$head(gameEntry.steam)));
 	return A2(
 		_elm_lang$core$Maybe$withDefault,
-		steamOnWishlist,
+		steamPrice,
 		A2(
 			_elm_lang$core$Maybe$map,
 			function (g) {
-				return g.onWishList;
+				return g.price;
 			},
 			_elm_lang$core$List$head(gameEntry.gog)));
 };
@@ -8997,7 +9003,7 @@ var _elm_lang$elm_architecture_tutorial$MainPage$gameTableRow = function (e) {
 					[
 						_elm_lang$html$Html$text(
 						_elm_lang$core$Basics$toString(
-							_elm_lang$elm_architecture_tutorial$MainPage$getWishlist(e)))
+							_elm_lang$elm_architecture_tutorial$MainPage$getPrice(e)))
 					])),
 				A2(
 				_elm_lang$html$Html$td,

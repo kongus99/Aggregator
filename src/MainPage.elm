@@ -57,7 +57,7 @@ gameTableTitle =
 
 gameTableRow e =
     tr [] [ td[][text <| getName e]
-          , td[][text <| toString <| getWishlist e]
+          , td[][text <| toString <| getPrice e]
           , td[class <| toStyle e  ](toText e)
           ]
 
@@ -88,11 +88,11 @@ toStyle gameEntry =
     in
         if onGog && onSteam then "cell_Both" else if onGog then "cell_Gog" else "cell_Steam"
 
-getWishlist gameEntry =
+getPrice gameEntry =
     let
-        steamOnWishlist = List.head gameEntry.steam |> Maybe.map (\g -> g.onWishList) |> Maybe.withDefault False
+        steamPrice = List.head gameEntry.steam |> Maybe.map (\g -> g.price) |> Maybe.withDefault Nothing
     in
-        List.head gameEntry.gog |> Maybe.map (\g -> g.onWishList) |> Maybe.withDefault steamOnWishlist
+        List.head gameEntry.gog |> Maybe.map (\g -> g.price) |> Maybe.withDefault steamPrice
 
 getName gameEntry =
     let

@@ -9,7 +9,7 @@ import services.GameSources.GameSources
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class SteamEntry(name : String, steamId : Long, onWishList : Boolean = false)
+case class SteamEntry(name : String, steamId : Long, price : Option[Float] = None)
 
 object SteamEntry{
   private val regExp = "var rgGames = (.+);".r
@@ -18,7 +18,7 @@ object SteamEntry{
   implicit val steamWrites: Writes[SteamEntry] = (
       (JsPath \ "name").write[String] and
       (JsPath \ "steamId").write[Long] and
-      (JsPath \ "onWishList").write[Boolean])((e) => (e.name, e.steamId, e.onWishList))
+      (JsPath \ "price").write[Option[Float]])((e) => (e.name, e.steamId, e.price))
 
   def getFromSteam(tables : Tables)(owned: String, wishList : String, sources : GameSources)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
     val parsed = parseOwned(owned) ++ parseWishList(wishList)
@@ -31,11 +31,11 @@ object SteamEntry{
     items.map(e => {
       val id = e.attr("id").split("_")(1)
       val name = e.getElementsByAttributeValue("class", "ellipsis").text()
-      SteamEntry(name, id.toLong, onWishList = true)
+      SteamEntry(name, id.toLong, Some(1.0f))
     })
   }
 
   private def parseOwned(owned: String) = {
-    Json.parse(regExp.findAllMatchIn(owned).map(m => m.group(1)).next()).validate[List[SteamEntry]].get.map(_.copy(onWishList = false))
+    Json.parse(regExp.findAllMatchIn(owned).map(m => m.group(1)).next()).validate[List[SteamEntry]].get
   }
 }
