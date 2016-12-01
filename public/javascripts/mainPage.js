@@ -9002,8 +9002,13 @@ var _elm_lang$elm_architecture_tutorial$MainPage$gameTableRow = function (e) {
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html$text(
-						_elm_lang$core$Basics$toString(
-							_elm_lang$elm_architecture_tutorial$MainPage$getPrice(e)))
+						A2(
+							_elm_lang$core$Maybe$withDefault,
+							'',
+							A2(
+								_elm_lang$core$Maybe$map,
+								_elm_lang$core$Basics$toString,
+								_elm_lang$elm_architecture_tutorial$MainPage$getPrice(e))))
 					])),
 				A2(
 				_elm_lang$html$Html$td,
@@ -9035,7 +9040,7 @@ var _elm_lang$elm_architecture_tutorial$MainPage$gameTableTitle = A2(
 				[]),
 			_elm_lang$core$Native_List.fromArray(
 				[
-					_elm_lang$html$Html$text('Wishlist')
+					_elm_lang$html$Html$text('Price')
 				])),
 			A2(
 			_elm_lang$html$Html$th,

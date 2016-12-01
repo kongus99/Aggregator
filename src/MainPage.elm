@@ -51,13 +51,13 @@ view model =
 
 gameTableTitle =
     tr [] [ th[][text "Game"]
-          , th[][text "Wishlist"]
+          , th[][text "Price"]
           , th[][text "Gog/Steam/Both"]
           ]
 
 gameTableRow e =
     tr [] [ td[][text <| getName e]
-          , td[][text <| toString <| getPrice e]
+          , td[][text <| Maybe.withDefault "" <| Maybe.map toString (getPrice e)]
           , td[class <| toStyle e  ](toText e)
           ]
 
