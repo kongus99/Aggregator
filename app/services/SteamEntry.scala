@@ -31,7 +31,8 @@ object SteamEntry{
     items.map(e => {
       val id = e.attr("id").split("_")(1)
       val name = e.getElementsByAttributeValue("class", "ellipsis").text()
-      SteamEntry(name, id.toLong, Some(1.0f))
+      val price = e.getElementsByClass("price").text().split('€')(0).replace(",", ".").toFloat
+      SteamEntry(name, id.toLong, Some(price))
     })
   }
 
