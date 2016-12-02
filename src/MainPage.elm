@@ -51,13 +51,13 @@ view model =
 
 gameTableTitle =
     tr [] [ th[][text "Game"]
-          , th[][text "Price"]
+          , th[][text "Price(PLN)"]
           , th[][text "Gog/Steam/Both"]
           ]
 
 gameTableRow e =
     tr [] [ td[][text <| getName e]
-          , td[][text <| Maybe.withDefault "" <| Maybe.map toString (getPrice e)]
+          , td[][text <| pricesToString (getPrice e)]
           , td[class <| toStyle e  ](toText e)
           ]
 
@@ -87,12 +87,34 @@ toStyle gameEntry =
         onSteam = List.length gameEntry.steam > 0
     in
         if onGog && onSteam then "cell_Both" else if onGog then "cell_Gog" else "cell_Steam"
-
+getPrice : GameEntry -> Maybe (Maybe Float, Maybe Float)
 getPrice gameEntry =
     let
-        steamPrice = List.head gameEntry.steam |> Maybe.map (\g -> g.price) |> Maybe.withDefault Nothing
+        steamPrice = List.head gameEntry.steam |> Maybe.map (\s -> (s.price, s.discounted))
+        gogPrice = List.head gameEntry.gog |> Maybe.map (\g -> (g.price, g.discounted))
     in
-        List.head gameEntry.gog |> Maybe.map (\g -> g.price) |> Maybe.withDefault steamPrice
+        Maybe.oneOf [gogPrice, steamPrice]
+pricesToString : Maybe (Maybe Float, Maybe Float) -> String
+pricesToString prices =
+    let
+        calculatePercentage (price, discount) =
+            Maybe.withDefault 0 <| Maybe.map2 (\p -> \d -> round (((p - d) / p) * 100)) price discount
+        formatDiscount percentage price discount =
+            (toString <| roundTo 2 price) ++ " (-" ++ toString percentage ++ "%) " ++ (toString <| roundTo 2 discount)
+        formatPrice price =
+            toString <| roundTo 2 price
+        roundTo precision number =
+            (toFloat <| round <| number * (10 ^ precision)) / (10 ^ precision)
+        convertToText percentage (price, discount) =
+            if isNaN <| toFloat percentage then
+                "0"
+            else if percentage > 0 then
+                Maybe.withDefault "Error" <| Maybe.map2 (formatDiscount percentage) price discount
+            else
+                Maybe.withDefault "" <| Maybe.map formatPrice price
+        discountPercentage =  Maybe.map calculatePercentage prices
+    in
+        Maybe.withDefault "" <| Maybe.map2 convertToText discountPercentage prices
 
 getName gameEntry =
     let

@@ -8708,13 +8708,13 @@ var _elm_lang$elm_architecture_tutorial$Model$GameEntry = F2(
 	function (a, b) {
 		return {gog: a, steam: b};
 	});
-var _elm_lang$elm_architecture_tutorial$Model$GogEntry = F3(
-	function (a, b, c) {
-		return {title: a, gogId: b, price: c};
+var _elm_lang$elm_architecture_tutorial$Model$GogEntry = F4(
+	function (a, b, c, d) {
+		return {title: a, gogId: b, price: c, discounted: d};
 	});
-var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F3(
-	function (a, b, c) {
-		return {name: a, steamId: b, price: c};
+var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F4(
+	function (a, b, c, d) {
+		return {name: a, steamId: b, price: c, discounted: d};
 	});
 var _elm_lang$elm_architecture_tutorial$Model$NamedEntry = F2(
 	function (a, b) {
@@ -8754,23 +8754,31 @@ var _elm_lang$elm_architecture_tutorial$Router$decodedComparisonEntry = A5(
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'metricResult', _elm_lang$core$Json_Decode$int),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'right', _elm_lang$elm_architecture_tutorial$Router$decodedNamedEntry),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'matches', _elm_lang$core$Json_Decode$bool));
-var _elm_lang$elm_architecture_tutorial$Router$decodedSteamEntry = A4(
-	_elm_lang$core$Json_Decode$object3,
+var _elm_lang$elm_architecture_tutorial$Router$decodedSteamEntry = A5(
+	_elm_lang$core$Json_Decode$object4,
 	_elm_lang$elm_architecture_tutorial$Model$SteamEntry,
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'steamId', _elm_lang$core$Json_Decode$int),
 	A2(
 		_elm_lang$core$Json_Decode_ops[':='],
 		'price',
+		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)),
+	A2(
+		_elm_lang$core$Json_Decode_ops[':='],
+		'discounted',
 		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)));
-var _elm_lang$elm_architecture_tutorial$Router$decodedGogEntry = A4(
-	_elm_lang$core$Json_Decode$object3,
+var _elm_lang$elm_architecture_tutorial$Router$decodedGogEntry = A5(
+	_elm_lang$core$Json_Decode$object4,
 	_elm_lang$elm_architecture_tutorial$Model$GogEntry,
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'title', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'gogId', _elm_lang$core$Json_Decode$int),
 	A2(
 		_elm_lang$core$Json_Decode_ops[':='],
 		'price',
+		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)),
+	A2(
+		_elm_lang$core$Json_Decode_ops[':='],
+		'discounted',
 		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)));
 var _elm_lang$elm_architecture_tutorial$Router$decodedGameEntry = A3(
 	_elm_lang$core$Json_Decode$object2,
@@ -8944,25 +8952,88 @@ var _elm_lang$elm_architecture_tutorial$MainPage$getName = function (gameEntry) 
 			},
 			_elm_lang$core$List$head(gameEntry.gog)));
 };
-var _elm_lang$elm_architecture_tutorial$MainPage$getPrice = function (gameEntry) {
-	var steamPrice = A2(
-		_elm_lang$core$Maybe$withDefault,
-		_elm_lang$core$Maybe$Nothing,
-		A2(
-			_elm_lang$core$Maybe$map,
-			function (g) {
-				return g.price;
-			},
-			_elm_lang$core$List$head(gameEntry.steam)));
+var _elm_lang$elm_architecture_tutorial$MainPage$pricesToString = function (prices) {
+	var roundTo = F2(
+		function (precision, number) {
+			return _elm_lang$core$Basics$toFloat(
+				_elm_lang$core$Basics$round(
+					number * Math.pow(10, precision))) / Math.pow(10, precision);
+		});
+	var formatPrice = function (price) {
+		return _elm_lang$core$Basics$toString(
+			A2(roundTo, 2, price));
+	};
+	var formatDiscount = F3(
+		function (percentage, price, discount) {
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				_elm_lang$core$Basics$toString(
+					A2(roundTo, 2, price)),
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					' (-',
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						_elm_lang$core$Basics$toString(percentage),
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							'%) ',
+							_elm_lang$core$Basics$toString(
+								A2(roundTo, 2, discount))))));
+		});
+	var convertToText = F2(
+		function (percentage, _p0) {
+			var _p1 = _p0;
+			var _p2 = _p1._0;
+			return _elm_lang$core$Basics$isNaN(
+				_elm_lang$core$Basics$toFloat(percentage)) ? '0' : ((_elm_lang$core$Native_Utils.cmp(percentage, 0) > 0) ? A2(
+				_elm_lang$core$Maybe$withDefault,
+				'Error',
+				A3(
+					_elm_lang$core$Maybe$map2,
+					formatDiscount(percentage),
+					_p2,
+					_p1._1)) : A2(
+				_elm_lang$core$Maybe$withDefault,
+				'',
+				A2(_elm_lang$core$Maybe$map, formatPrice, _p2)));
+		});
+	var calculatePercentage = function (_p3) {
+		var _p4 = _p3;
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			0,
+			A3(
+				_elm_lang$core$Maybe$map2,
+				F2(
+					function (p, d) {
+						return _elm_lang$core$Basics$round(((p - d) / p) * 100);
+					}),
+				_p4._0,
+				_p4._1));
+	};
+	var discountPercentage = A2(_elm_lang$core$Maybe$map, calculatePercentage, prices);
 	return A2(
 		_elm_lang$core$Maybe$withDefault,
-		steamPrice,
-		A2(
-			_elm_lang$core$Maybe$map,
-			function (g) {
-				return g.price;
-			},
-			_elm_lang$core$List$head(gameEntry.gog)));
+		'',
+		A3(_elm_lang$core$Maybe$map2, convertToText, discountPercentage, prices));
+};
+var _elm_lang$elm_architecture_tutorial$MainPage$getPrice = function (gameEntry) {
+	var gogPrice = A2(
+		_elm_lang$core$Maybe$map,
+		function (g) {
+			return {ctor: '_Tuple2', _0: g.price, _1: g.discounted};
+		},
+		_elm_lang$core$List$head(gameEntry.gog));
+	var steamPrice = A2(
+		_elm_lang$core$Maybe$map,
+		function (s) {
+			return {ctor: '_Tuple2', _0: s.price, _1: s.discounted};
+		},
+		_elm_lang$core$List$head(gameEntry.steam));
+	return _elm_lang$core$Maybe$oneOf(
+		_elm_lang$core$Native_List.fromArray(
+			[gogPrice, steamPrice]));
 };
 var _elm_lang$elm_architecture_tutorial$MainPage$toStyle = function (gameEntry) {
 	var onSteam = _elm_lang$core$Native_Utils.cmp(
@@ -9002,13 +9073,8 @@ var _elm_lang$elm_architecture_tutorial$MainPage$gameTableRow = function (e) {
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html$text(
-						A2(
-							_elm_lang$core$Maybe$withDefault,
-							'',
-							A2(
-								_elm_lang$core$Maybe$map,
-								_elm_lang$core$Basics$toString,
-								_elm_lang$elm_architecture_tutorial$MainPage$getPrice(e))))
+						_elm_lang$elm_architecture_tutorial$MainPage$pricesToString(
+							_elm_lang$elm_architecture_tutorial$MainPage$getPrice(e)))
 					])),
 				A2(
 				_elm_lang$html$Html$td,
@@ -9040,7 +9106,7 @@ var _elm_lang$elm_architecture_tutorial$MainPage$gameTableTitle = A2(
 				[]),
 			_elm_lang$core$Native_List.fromArray(
 				[
-					_elm_lang$html$Html$text('Price')
+					_elm_lang$html$Html$text('Price(PLN)')
 				])),
 			A2(
 			_elm_lang$html$Html$th,
@@ -9075,10 +9141,10 @@ var _elm_lang$elm_architecture_tutorial$MainPage$getResponse = function (httpReq
 };
 var _elm_lang$elm_architecture_tutorial$MainPage$update = F2(
 	function (msg, model) {
-		var _p0 = msg;
-		switch (_p0.ctor) {
+		var _p5 = msg;
+		switch (_p5.ctor) {
 			case 'ChangeSources':
-				var _p1 = _p0._0;
+				var _p6 = _p5._0;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -9086,7 +9152,7 @@ var _elm_lang$elm_architecture_tutorial$MainPage$update = F2(
 						{
 							entries: _elm_lang$core$Native_List.fromArray(
 								[]),
-							sources: _p1
+							sources: _p6
 						}),
 					_1: _elm_lang$elm_architecture_tutorial$MainPage$getResponse(
 						_elm_lang$elm_architecture_tutorial$Router$allData(
@@ -9095,7 +9161,7 @@ var _elm_lang$elm_architecture_tutorial$MainPage$update = F2(
 									{
 									ctor: '_Tuple2',
 									_0: 'sources',
-									_1: _elm_lang$core$Basics$toString(_p1)
+									_1: _elm_lang$core$Basics$toString(_p6)
 								}
 								])))
 				};
@@ -9108,14 +9174,14 @@ var _elm_lang$elm_architecture_tutorial$MainPage$update = F2(
 							entries: _elm_lang$core$Native_List.fromArray(
 								[])
 						}),
-					_1: _p0._0
+					_1: _p5._0
 				};
 			case 'ReceiveRefresh':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{entries: _p0._0}),
+						{entries: _p5._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			default:
@@ -9126,7 +9192,7 @@ var _elm_lang$elm_architecture_tutorial$MainPage$update = F2(
 						{
 							entries: _elm_lang$core$Native_List.fromArray(
 								[]),
-							message: _elm_lang$core$Basics$toString(_p0._0)
+							message: _elm_lang$core$Basics$toString(_p5._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -9140,8 +9206,8 @@ var _elm_lang$elm_architecture_tutorial$MainPage$ChangeSources = function (a) {
 };
 var _elm_lang$elm_architecture_tutorial$MainPage$sourcesSelect = function (sources) {
 	var sourcesFromString = function (value) {
-		var _p2 = value;
-		switch (_p2) {
+		var _p7 = value;
+		switch (_p7) {
 			case 'Owned':
 				return _elm_lang$elm_architecture_tutorial$MainPage$Owned;
 			case 'WishList':
@@ -9301,7 +9367,7 @@ var _elm_lang$elm_architecture_tutorial$MainPage$main = {
 			},
 			view: _elm_lang$elm_architecture_tutorial$MainPage$view,
 			update: _elm_lang$elm_architecture_tutorial$MainPage$update,
-			subscriptions: function (_p3) {
+			subscriptions: function (_p8) {
 				return _elm_lang$core$Platform_Sub$none;
 			}
 		})

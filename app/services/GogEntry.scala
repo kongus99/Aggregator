@@ -22,7 +22,8 @@ object GogEntry {
   implicit val gogWrites: Writes[GogEntry] = (
     (JsPath \ "title").write[String] and
       (JsPath \ "gogId").write[Long] and
-      (JsPath \ "price").write[Option[Float]]) ((e) => (e.title, e.gogId, e.price))
+      (JsPath \ "price").write[Option[Float]] and
+      (JsPath \ "discounted").write[Option[Float]])((e) => (e.title, e.gogId, e.price, e.discounted))
 
   private def parseWishList(wishList: String) = {
     parseGogEntries(gogWishListReads)(regExp.findAllMatchIn(wishList).map(m => m.group(1)).next())

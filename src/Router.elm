@@ -28,8 +28,8 @@ comparison = Comparison (\params -> baseAddress ++ "/comparison/toggleMatch?" ++
 routes = Addresses home comparison
 
 --DECODERS
-decodedGogEntry = object3 GogEntry ("title" := string) ("gogId" := int) ("price" := maybe float)
-decodedSteamEntry = object3 SteamEntry ("name" := string) ("steamId" := int) ("price" := maybe float)
+decodedGogEntry = object4 GogEntry ("title" := string) ("gogId" := int) ("price" := maybe float) ("discounted" := maybe float)
+decodedSteamEntry = object4 SteamEntry ("name" := string) ("steamId" := int) ("price" := maybe float) ("discounted" := maybe float)
 decodedGameEntry = object2 GameEntry ("gog" := (list decodedGogEntry)) ("steam" := (list decodedSteamEntry))
 decodedComparisonEntry = object4 ComparisonEntry ("left" := decodedNamedEntry) ("metricResult" := int) ("right" := decodedNamedEntry) ("matches" := bool)
 decodedNamedEntry = object2 NamedEntry ("id" := int) ("name" := string)

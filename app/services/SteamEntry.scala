@@ -19,7 +19,8 @@ object SteamEntry {
   implicit val steamWrites: Writes[SteamEntry] = (
     (JsPath \ "name").write[String] and
       (JsPath \ "steamId").write[Long] and
-      (JsPath \ "price").write[Option[Float]]) ((e) => (e.name, e.steamId, e.price))
+      (JsPath \ "price").write[Option[Float]]and
+      (JsPath \ "discounted").write[Option[Float]]) ((e) => (e.name, e.steamId, e.price, e.discounted))
 
   def getFromSteam(tables : Tables)(owned: String, wishList : String, sources : GameSources, rates : Rates)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
     val parsed = parseOwned(owned) ++ parseWishList(wishList, rates)

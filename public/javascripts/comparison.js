@@ -9713,13 +9713,13 @@ var _elm_lang$elm_architecture_tutorial$Model$GameEntry = F2(
 	function (a, b) {
 		return {gog: a, steam: b};
 	});
-var _elm_lang$elm_architecture_tutorial$Model$GogEntry = F3(
-	function (a, b, c) {
-		return {title: a, gogId: b, price: c};
+var _elm_lang$elm_architecture_tutorial$Model$GogEntry = F4(
+	function (a, b, c, d) {
+		return {title: a, gogId: b, price: c, discounted: d};
 	});
-var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F3(
-	function (a, b, c) {
-		return {name: a, steamId: b, price: c};
+var _elm_lang$elm_architecture_tutorial$Model$SteamEntry = F4(
+	function (a, b, c, d) {
+		return {name: a, steamId: b, price: c, discounted: d};
 	});
 var _elm_lang$elm_architecture_tutorial$Model$NamedEntry = F2(
 	function (a, b) {
@@ -9759,23 +9759,31 @@ var _elm_lang$elm_architecture_tutorial$Router$decodedComparisonEntry = A5(
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'metricResult', _elm_lang$core$Json_Decode$int),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'right', _elm_lang$elm_architecture_tutorial$Router$decodedNamedEntry),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'matches', _elm_lang$core$Json_Decode$bool));
-var _elm_lang$elm_architecture_tutorial$Router$decodedSteamEntry = A4(
-	_elm_lang$core$Json_Decode$object3,
+var _elm_lang$elm_architecture_tutorial$Router$decodedSteamEntry = A5(
+	_elm_lang$core$Json_Decode$object4,
 	_elm_lang$elm_architecture_tutorial$Model$SteamEntry,
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'steamId', _elm_lang$core$Json_Decode$int),
 	A2(
 		_elm_lang$core$Json_Decode_ops[':='],
 		'price',
+		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)),
+	A2(
+		_elm_lang$core$Json_Decode_ops[':='],
+		'discounted',
 		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)));
-var _elm_lang$elm_architecture_tutorial$Router$decodedGogEntry = A4(
-	_elm_lang$core$Json_Decode$object3,
+var _elm_lang$elm_architecture_tutorial$Router$decodedGogEntry = A5(
+	_elm_lang$core$Json_Decode$object4,
 	_elm_lang$elm_architecture_tutorial$Model$GogEntry,
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'title', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'gogId', _elm_lang$core$Json_Decode$int),
 	A2(
 		_elm_lang$core$Json_Decode_ops[':='],
 		'price',
+		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)),
+	A2(
+		_elm_lang$core$Json_Decode_ops[':='],
+		'discounted',
 		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)));
 var _elm_lang$elm_architecture_tutorial$Router$decodedGameEntry = A3(
 	_elm_lang$core$Json_Decode$object2,
