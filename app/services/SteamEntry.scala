@@ -1,6 +1,6 @@
 package services
 
-import model.{PricedEntry, Rates, Tables}
+import model.{Rates, Tables}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import play.api.libs.functional.syntax._
@@ -10,7 +10,7 @@ import services.GameSources.GameSources
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class SteamEntry(name: String, steamId: Long, private val p: Option[Float] = None, private val d: Option[Float]= None) extends PricedEntry(p, d)
+case class SteamEntry(name: String, steamId: Long, price: Option[Float] = None, discounted: Option[Float]= None)
 
 object SteamEntry {
   private val regExp = "var rgGames = (.+);".r

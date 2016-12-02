@@ -1,6 +1,6 @@
 package services
 
-import model.{PricedEntry, Tables}
+import model.Tables
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import services.GameEntry._
@@ -8,7 +8,7 @@ import services.GameSources.GameSources
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class GogEntry(title: String, gogId: Long, private val p: Option[Float] = None, private val d: Option[Float] = None) extends PricedEntry(p, d)
+case class GogEntry(title: String, gogId: Long, price: Option[Float] = None, discounted: Option[Float] = None)
 
 object GogEntry {
   private val regExp = "var gogData = (.+);".r
