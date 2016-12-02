@@ -34,12 +34,14 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def price = column[Option[Float]]("GOG_DATA_PRICE")
 
+    def discountedPrice = column[Option[Float]]("GOG_DATA_PRICE_DISCOUNTED")
+
     def * : ProvenShape[GogEntry] = {
 
-      val apply: (String, Long, Option[Float]) => GogEntry = (name, gogId, price) => new GogEntry(name, gogId, price)
+      val apply: (String, Long, Option[Float], Option[Float]) => GogEntry = (name, gogId, price, discounted) => new GogEntry(name, gogId, price, discounted)
 
-      val unapply: (GogEntry) => Option[(String, Long, Option[Float])] = g => Some((g.title, g.gogId, g.price))
-      (title, gogId, price) <>(apply.tupled, unapply)
+      val unapply: (GogEntry) => Option[(String, Long, Option[Float], Option[Float])] = g => Some((g.title, g.gogId, g.price, g.discounted))
+      (title, gogId, price, discountedPrice) <>(apply.tupled, unapply)
     }
   }
 
@@ -50,12 +52,14 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def price = column[Option[Float]]("STEAM_DATA_PRICE")
 
+    def discountedPrice = column[Option[Float]]("STEAM_DATA_PRICE_DISCOUNTED")
+
     def * : ProvenShape[SteamEntry] = {
 
-      val apply: (String, Long, Option[Float]) => SteamEntry = (name, steamId, price) => new SteamEntry(name, steamId, price)
+      val apply: (String, Long, Option[Float], Option[Float]) => SteamEntry = (name, steamId, price, discounted) => new SteamEntry(name, steamId, price, discounted)
 
-      val unapply: (SteamEntry) => Option[(String, Long, Option[Float])] = g => Some((g.name, g.steamId, g.price))
-      (name, steamId, price) <>(apply.tupled, unapply)
+      val unapply: (SteamEntry) => Option[(String, Long, Option[Float], Option[Float])] = g => Some((g.name, g.steamId, g.price, g.discounted))
+      (name, steamId, price, discountedPrice) <>(apply.tupled, unapply)
     }
   }
 

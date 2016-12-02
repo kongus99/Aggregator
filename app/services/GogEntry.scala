@@ -8,19 +8,26 @@ import services.GameSources.GameSources
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class GogEntry(title: String, gogId : Long, price : Option[Float] = None)
+case class GogEntry(title: String, gogId: Long, price: Option[Float] = None, discounted: Option[Float] = None){
+  val percentage: Option[Float] = for{
+    d <- discounted
+    p <- price
+  } yield math.round(((p - d) / p) * 100)
+}
 
-object GogEntry{
+object GogEntry {
   private val regExp = "var gogData = (.+);".r
 
   private val coreGogRead = (JsPath \ "title").read[String] and (JsPath \ "id").read[Long]
-  val gogWishListReads: Reads[GogEntry] = (coreGogRead and (JsPath \ "price" \ "finalAmount").read[String])((t, i, p) => GogEntry(t, i, Some(p.toFloat)))
+  val gogWishListReads: Reads[GogEntry] = (coreGogRead
+    and (JsPath \ "price" \ "baseAmount").read[String]
+    and (JsPath \ "price" \ "finalAmount").read[String])((t, i, p, d) => GogEntry(t, i, Some(p.toFloat), Some(d.toFloat)))
   val gogReads: Reads[GogEntry] = coreGogRead((t, i) => GogEntry(t, i))
 
   implicit val gogWrites: Writes[GogEntry] = (
-      (JsPath \ "title").write[String] and
+    (JsPath \ "title").write[String] and
       (JsPath \ "gogId").write[Long] and
-      (JsPath \ "price").write[Option[Float]])((e) => (e.title, e.gogId, e.price))
+      (JsPath \ "price").write[Option[Float]]) ((e) => (e.title, e.gogId, e.price))
 
   private def parseWishList(wishList: String) = {
     parseGogEntries(gogWishListReads)(regExp.findAllMatchIn(wishList).map(m => m.group(1)).next())
@@ -31,9 +38,9 @@ object GogEntry{
     tables.replaceGogData(parsed).flatMap(_ => generateFromNames(sources, tables))
   }
 
-  def getGogPageNumber(body : String) : Int = (Json.parse(body) \ "totalPages").as[Int]
+  def getGogPageNumber(body: String): Int = (Json.parse(body) \ "totalPages").as[Int]
 
-  private def parseGogEntries(reads : Reads[GogEntry])(body: String) = {
+  private def parseGogEntries(reads: Reads[GogEntry])(body: String) = {
     val parse = Json.parse(body)
     (parse \ "products").as[List[JsValue]].map(_.as(reads))
   }

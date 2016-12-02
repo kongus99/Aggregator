@@ -3,7 +3,9 @@ package model
 import scala.xml.XML
 
 case class Rates(euroTo: Map[String, Float]) {
-  def recalculateFromEuro(valueInEuro: Float, currency: String): Option[Float] = euroTo.get(currency).map(_ * valueInEuro)
+  def recalculateFromEuro(valueInEuro: Float, currency: String): Option[Float] = {
+    euroTo.get(currency).map(_ * valueInEuro)
+  }
 }
 
 object Rates {
