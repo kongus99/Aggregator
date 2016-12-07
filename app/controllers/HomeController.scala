@@ -23,6 +23,7 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
   val steamWishListRetriever = new SteamWishListRetriever(client)
   val gogWishListRetriever = new GogWishListRetriever(client, configuration)
   val ratesRetriever = new ReferenceRatesRetriever(client)
+//  val muveRetriever = new MuveRetriever(client)
 
   def main = Action.async {
     Future {
@@ -32,6 +33,7 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
   def allData(sources: GameSources) = Action.async {
     for{
       result <- generateFromNames(sources, tables)
+//      muve <- MuveEntry.getFromMuve(tables)(muveRetriever.retrieve)
     } yield {
       Ok(Json.toJson(result))
     }

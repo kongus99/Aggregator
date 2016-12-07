@@ -12,6 +12,10 @@ abstract class PageRetriever(client: WSClient) (implicit exec: ExecutionContext)
     client.url(address.url).withHeaders(cookies : _*).get().map(_.body)
   }
 
+  def retrieve(query : String) : Future[(String, String)] = {
+    client.url(address.url + query).withHeaders(cookies : _*).get().map(r => (query, r.body))
+  }
+
   def retrievePages(number : Int) : Future[Seq[String]] = {
     val addresses = (1 to number).map(address.url + "&page=" + _)
     Future.sequence(addresses.map(client.url(_).withHeaders(cookies : _*).get().map(_.body)))
@@ -41,4 +45,9 @@ class SteamWishListRetriever(client: WSClient) (implicit exec: ExecutionContext)
 
 class ReferenceRatesRetriever(client: WSClient) (implicit exec: ExecutionContext) extends PageRetriever(client){
   val address = UrlAddress("http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml", None)
+}
+
+
+class MuveRetriever(client: WSClient) (implicit exec: ExecutionContext) extends PageRetriever(client){
+  val address = UrlAddress("http://www.bramka.proxy.net.pl/index.php?____pgfa=https%3A%2F%2Fmuve.pl%2Fszukaj&query=", None)
 }
