@@ -1,7 +1,6 @@
 module MainPage exposing (..)
 import Html exposing (Html, button, div, text, span, table, tr, th, td, select, option)
 import Html.Attributes exposing(class, selected, value)
-import Html.App as App
 import Html.Events exposing (onClick, on, targetValue)
 import Json.Decode as Json
 import Http
@@ -11,7 +10,7 @@ import Router exposing (..)
 
 
 main =
-    App.program { init = ( initialModel, getResponse <| Router.allData [("sources", toString initialModel.sources)]), view = view, update = update, subscriptions = \_ -> Sub.none }
+    Html.program { init = ( initialModel, getResponse <| Router.allData [("sources", toString initialModel.sources)]), view = view, update = update, subscriptions = \_ -> Sub.none }
 
 -- MODEL
 
@@ -73,9 +72,9 @@ sourcesSelect sources =
                                           , option [selected (sources == WishList), value <| toString WishList][text <| toString WishList]
                                           , option [selected (sources == Both), value <| toString Both][text <| toString Both]]
 
-getResponse : Platform.Task Http.Error (List GameEntry) -> Cmd Msg
+getResponse : Http.Request (List GameEntry) -> Cmd Msg
 getResponse httpRequest =
-    Task.perform RefreshError ReceiveRefresh httpRequest
+    Http.send (Router.resolveResponse ReceiveRefresh RefreshError) httpRequest
 
 gamesOn list = List.map mapSingle list
 
@@ -90,10 +89,12 @@ toStyle gameEntry =
 getPrice : GameEntry -> Maybe (Maybe Float, Maybe Float)
 getPrice gameEntry =
     let
-        steamPrice = List.head gameEntry.steam |> Maybe.map (\s -> (s.price, s.discounted))
-        gogPrice = List.head gameEntry.gog |> Maybe.map (\g -> (g.price, g.discounted))
+        steamPrice =  List.head gameEntry.steam |> Maybe.map (\s -> (s.price, s.discounted))
+        gogPrice =  List.head gameEntry.gog |> Maybe.map (\g -> (g.price, g.discounted))
     in
-        Maybe.oneOf [gogPrice, steamPrice]
+        case gogPrice of
+            Just x -> Just x
+            Nothing -> steamPrice
 pricesToString : Maybe (Maybe Float, Maybe Float) -> String
 pricesToString prices =
     let

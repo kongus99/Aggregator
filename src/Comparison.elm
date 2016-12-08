@@ -1,11 +1,10 @@
 port module Comparison exposing (..)
 import AllDict exposing (AllDict)
 import Html exposing (Html, button, div, text, span, table, tr, th, td, select, option, input)
-import Html.Attributes exposing(class, selected, value, type', checked)
-import Html.App as App
+import Html.Attributes exposing(class, selected, value, type_, checked)
 import Html.Events exposing (onClick, on, targetValue)
 import Http
-import Json.Decode as Json exposing (string, object3, (:=), decodeString)
+import Json.Decode as Json exposing (string, map3, field, decodeString)
 import Task
 import String
 import Router exposing (..)
@@ -15,12 +14,12 @@ initProgram : String -> ( Model, Cmd Msg )
 initProgram address =
     let
         parseInt value = String.toInt value |> Result.toMaybe |> Maybe.withDefault 0
-        decodeAddress = object3 ComparisonParameters ("left" := Json.map gameOnFromString string) ("right" := Json.map gameOnFromString string) ("minimumMetric" := Json.map parseInt string)
+        decodeAddress = map3 ComparisonParameters (field "left" <| Json.map gameOnFromString string) (field "right" <| Json.map gameOnFromString string) (field "minimumMetric" <| Json.map parseInt string)
         decodedParameters = Json.decodeString decodeAddress address |> Result.toMaybe |> Maybe.withDefault initialModel.parameters
     in
         ( {initialModel | parameters = decodedParameters}, refresh decodedParameters)
 
-main = App.programWithFlags { init = initProgram, view = view, update = update, subscriptions = \_ -> Sub.none }
+main = Html.programWithFlags { init = initProgram, view = view, update = update, subscriptions = \_ -> Sub.none }
 
 -- PORTS
 port elmAddressChange : String -> Cmd msg
@@ -87,7 +86,7 @@ tableRow model e =
             tr [] [ td[][text e.left.name]
                   , td[][text <| toString e.metricResult]
                   , td[][text e.right.name]
-                  , td[][input[onClick <| Toggle e.left.id e.right.id ,type' "checkbox", checked e.matches][]] ]
+                  , td[][input[onClick <| Toggle e.left.id e.right.id ,type_ "checkbox", checked e.matches][]] ]
 
 title model =
     let
@@ -112,13 +111,13 @@ metricButtons parameters =
             , button [ onClick decrement ] [ text "-" ]
         ]
 
-postUpdate params = Task.perform DataError ToggleStored (Router.toggleSelected params)
+postUpdate params = Http.send (Router.resolveResponse ToggleStored DataError) (Router.toggleSelected params)
 
 getResponse params =
     let
         (request, address) = Router.comparisonData params
     in
-        Cmd.batch [Task.perform DataError ReceiveData request, elmAddressChange address]
+        Cmd.batch [Http.send (Router.resolveResponse ReceiveData DataError) request, elmAddressChange address]
 
 onSelect : (String -> a) -> Html.Attribute a
 onSelect msg =

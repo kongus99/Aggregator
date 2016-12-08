@@ -1,15 +1,15 @@
-module Router exposing(gogData, steamData, allData, toggleSelected, comparisonData)
+module Router exposing(gogData, steamData, allData, toggleSelected, comparisonData, resolveResponse)
 
 import Http
 import Json.Decode as Json exposing (..)
 import Model exposing (..)
 import String
 --METHODS
-gogData params =   Http.get (list decodedGameEntry) (routes.main.gogData params)
-steamData params = Http.get (list decodedGameEntry) (routes.main.steamData params)
-allData params =   Http.get (list decodedGameEntry) (routes.main.allData params)
-toggleSelected params = Http.post string (routes.comparison.toggleSelected params) Http.empty
-comparisonData params = (Http.get (list decodedComparisonEntry) (routes.comparison.comparisonData params), routes.comparison.page params)
+gogData params =   Http.get (routes.main.gogData params) (list decodedGameEntry)
+steamData params = Http.get (routes.main.steamData params) (list decodedGameEntry)
+allData params =   Http.get (routes.main.allData params) (list decodedGameEntry)
+toggleSelected params = Http.post (routes.comparison.toggleSelected params) Http.emptyBody string
+comparisonData params = (Http.get (routes.comparison.comparisonData params) (list decodedComparisonEntry), routes.comparison.page params)
 --ROUTES
 baseAddress : String
 baseAddress = "http://localhost:9000"
@@ -28,11 +28,16 @@ comparison = Comparison (\params -> baseAddress ++ "/comparison/toggleMatch?" ++
 routes = Addresses home comparison
 
 --DECODERS
-decodedGogEntry = object4 GogEntry ("title" := string) ("gogId" := int) ("price" := maybe float) ("discounted" := maybe float)
-decodedSteamEntry = object4 SteamEntry ("name" := string) ("steamId" := int) ("price" := maybe float) ("discounted" := maybe float)
-decodedGameEntry = object2 GameEntry ("gog" := (list decodedGogEntry)) ("steam" := (list decodedSteamEntry))
-decodedComparisonEntry = object4 ComparisonEntry ("left" := decodedNamedEntry) ("metricResult" := int) ("right" := decodedNamedEntry) ("matches" := bool)
-decodedNamedEntry = object2 NamedEntry ("id" := int) ("name" := string)
+decodedGogEntry = map4 GogEntry (field "title" string) (field "gogId" int) (field "price" (maybe float)) (field "discounted" (maybe float))
+decodedSteamEntry = map4 SteamEntry (field "name" string) (field "steamId" int) (field "price" (maybe float)) (field "discounted" (maybe float))
+decodedGameEntry = map2 GameEntry (field "gog" (list decodedGogEntry)) (field "steam" (list decodedSteamEntry))
+decodedComparisonEntry = map4 ComparisonEntry (field "left" decodedNamedEntry) (field "metricResult" int) (field "right" decodedNamedEntry) (field "matches" bool)
+decodedNamedEntry = map2 NamedEntry (field "id" int) (field "name" string)
 -- HELPERS
 joinParameters params =
     String.join "&&" (List.map (\((k, v)) -> k ++ "=" ++ v) params)
+
+resolveResponse successResolver errorResolver response =
+    case response of
+        Ok x -> successResolver x
+        Err y -> errorResolver y
