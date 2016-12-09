@@ -16,31 +16,33 @@ import services._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class HomeController @Inject()(client: WSClient, configuration: Configuration, tables : Tables)(implicit exec: ExecutionContext) extends Controller {
+class HomeController @Inject()(client: WSClient, configuration: Configuration, tables: Tables)(implicit exec: ExecutionContext) extends Controller {
 
   val gogRetriever = new GogPageRetriever(client, configuration)
   val steamRetriever = new SteamPageRetriever(client)
   val steamWishListRetriever = new SteamWishListRetriever(client)
   val gogWishListRetriever = new GogWishListRetriever(client, configuration)
   val ratesRetriever = new ReferenceRatesRetriever(client)
-//  val muveRetriever = new MuveRetriever(client)
+  //  val muveRetriever = new MuveRetriever(client)
+  val golRetriever = new GolRetriever(client)
 
   def main = Action.async {
     Future {
       Ok(views.html.main("Aggregator - summary", "javascripts/mainPage", "MainPage"))
     }
   }
+
   def allData(sources: GameSources) = Action.async {
-    for{
+    for {
       result <- generateFromNames(sources, tables)
-//      muve <- MuveEntry.getFromMuve(tables)(muveRetriever.retrieve)
+      muve <- GolChoice.getFromMuve(tables)(golRetriever.retrieveSimple)
     } yield {
       Ok(Json.toJson(result))
     }
   }
 
   def gogData(sources: GameSources) = Action.async {
-    for{
+    for {
       owned <- gogRetriever.retrieve().map(getGogPageNumber).flatMap(gogRetriever.retrievePages)
       wishlist <- gogWishListRetriever.retrieve()
       result <- getFromGog(tables)(owned, wishlist, sources)
@@ -50,7 +52,7 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
   }
 
   def steamData(sources: GameSources) = Action.async {
-    for{
+    for {
       owned <- steamRetriever.retrieve()
       wishlist <- steamWishListRetriever.retrieve()
       rates <- ratesRetriever.retrieve()
