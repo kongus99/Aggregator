@@ -23,7 +23,6 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
   val steamWishListRetriever = new SteamWishListRetriever(client)
   val gogWishListRetriever = new GogWishListRetriever(client, configuration)
   val ratesRetriever = new ReferenceRatesRetriever(client)
-  //  val muveRetriever = new MuveRetriever(client)
   val golRetriever = new GolRetriever(client)
 
   def main = Action.async {
@@ -35,7 +34,7 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
   def allData(sources: GameSources) = Action.async {
     for {
       result <- generateFromNames(sources, tables)
-      muve <- GolChoice.getFromMuve(tables)(golRetriever.retrieveSimple)
+      gol <- GolChoice.getFromMuve(tables)(golRetriever.retrieve)
     } yield {
       Ok(Json.toJson(result))
     }
