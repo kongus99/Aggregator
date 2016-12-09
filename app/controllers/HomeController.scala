@@ -34,7 +34,7 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
   def allData(sources: GameSources) = Action.async {
     for {
       result <- generateFromNames(sources, tables)
-      gol <- GolEntry.getFromMuve(tables)(golRetriever.retrieve)
+      gol <- GolEntry.getPrices(tables)(golRetriever.retrieve)
     } yield {
       val golMap = gol.groupBy(_.steamEntry)
       Ok(Json.toJson(result.map(e => if (e.steam.isEmpty) e else e.copy(gol = golMap.getOrElse(e.steam.head, Seq())))))

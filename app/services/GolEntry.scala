@@ -25,7 +25,7 @@ object GolEntry {
 
   def allPricesSearchUrlPrefix(gamePriceId: String) = s"/ajax/porownywarka_lista.asp?ID=$gamePriceId&ORDER=1&BOX=0&DIGITAL=1"
 
-  def getFromMuve(tables: Tables)(golRetriever: String => Future[String])(implicit exec: ExecutionContext): Future[Seq[GolEntry]] = {
+  def getPrices(tables: Tables)(golRetriever: String => Future[String])(implicit exec: ExecutionContext): Future[Seq[GolEntry]] = {
 
     def addArgumentToFuture[A, B](t: (A, Future[B])): Future[(A, B)] = t._2.map(r => (t._1, r))
 
