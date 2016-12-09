@@ -3,14 +3,22 @@ package services
 import model.Tables
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
+import play.api.libs.json.{JsPath, Writes}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 case class GolEntry(steamEntry: SteamEntry, link: String, price: BigDecimal)
 
-object GolChoice {
+object GolEntry {
+
+  import play.api.libs.functional.syntax._
 
   import scala.collection.JavaConversions._
+
+  implicit val steamWrites: Writes[GolEntry] = (
+    (JsPath \ "steam").write[SteamEntry] and
+      (JsPath \ "link").write[String] and
+      (JsPath \ "price").write[BigDecimal]) ((e) => (e.steamEntry, e.link, e.price))
 
   val nameSearchUrlPrefix = "/ajax/quicksearch.asp?qs="
   val miniPricesSearchUrlPrefix = "/ajax/porownywarka.asp?ID="
@@ -41,7 +49,7 @@ object GolChoice {
     for {
       prices <- getPriceMiniatures.flatMap(queries => Future.sequence(queries.map(addArgumentToFuture)))
     } yield {
-      def getPrice(e: Element) = BigDecimal(e.getElementsByClass("gpcl-cen").text().split(" ")(0).replaceAll(",", "."))
+      def getPrice(e: Element) = BigDecimal(e.getElementsByClass("gpcl-cen").text().split(" ")(0).replaceAll(",", ".")).setScale(2)
       def getLink(e: Element) = e.attr("onclick").split("'")(1)
       prices.flatMap({case (s, p) => Jsoup.parse(p).getElementsByClass("gpc-lista-a").toList.map(e => GolEntry(s, getLink(e), getPrice(e)))})
     }

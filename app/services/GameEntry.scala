@@ -10,7 +10,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class UrlAddress(url: String, cookies: Option[String])
 
-case class GameEntry(gog: Seq[GogEntry], steam: Seq[SteamEntry]) {
+case class GameEntry(gog: Seq[GogEntry], steam: Seq[SteamEntry], gol : Seq[GolEntry] = Seq()) {
   val name: String = gog.headOption.map(_.title).getOrElse(steam.head.name)
 }
 
@@ -34,12 +34,9 @@ object GameEntry {
 
   implicit val gameWrites: Writes[GameEntry] = (
     (JsPath \ "gog").write[Seq[GogEntry]] and
-      (JsPath \ "steam").write[Seq[SteamEntry]]
-    ) (unlift(GameEntry.unpackToJson))
-
-  def unpackToJson(e: GameEntry): Option[(Seq[GogEntry], Seq[SteamEntry])] = {
-    Some((e.gog, e.steam))
-  }
+      (JsPath \ "steam").write[Seq[SteamEntry]] and
+      (JsPath \ "gol").write[Seq[GolEntry]]
+    ) ((e) => (e.gog, e.steam, e.gol))
 
   def generateFromNames(sources  : GameSources.GameSources, tables: Tables)(implicit ec: ExecutionContext): Future[Seq[GameEntry]] = {
     def simplify(p: ((GameOn, Long), (GameOn, Long))) = if (p._1._1 == GameOn.Gog || (p._1._1 == GameOn.Steam && p._2._1 == GameOn.Steam && p._1._2 < p._2._2)) p.swap else p
