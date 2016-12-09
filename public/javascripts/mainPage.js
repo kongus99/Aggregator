@@ -6165,6 +6165,143 @@ var _elm_lang$core$Time$subMap = F2(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Time'] = {pkg: 'elm-lang/core', init: _elm_lang$core$Time$init, onEffects: _elm_lang$core$Time$onEffects, onSelfMsg: _elm_lang$core$Time$onSelfMsg, tag: 'sub', subMap: _elm_lang$core$Time$subMap};
 
+//import Maybe, Native.List //
+
+var _elm_lang$core$Native_Regex = function() {
+
+function escape(str)
+{
+	return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+function caseInsensitive(re)
+{
+	return new RegExp(re.source, 'gi');
+}
+function regex(raw)
+{
+	return new RegExp(raw, 'g');
+}
+
+function contains(re, string)
+{
+	return string.match(re) !== null;
+}
+
+function find(n, re, str)
+{
+	n = n.ctor === 'All' ? Infinity : n._0;
+	var out = [];
+	var number = 0;
+	var string = str;
+	var lastIndex = re.lastIndex;
+	var prevLastIndex = -1;
+	var result;
+	while (number++ < n && (result = re.exec(string)))
+	{
+		if (prevLastIndex === re.lastIndex) break;
+		var i = result.length - 1;
+		var subs = new Array(i);
+		while (i > 0)
+		{
+			var submatch = result[i];
+			subs[--i] = submatch === undefined
+				? _elm_lang$core$Maybe$Nothing
+				: _elm_lang$core$Maybe$Just(submatch);
+		}
+		out.push({
+			match: result[0],
+			submatches: _elm_lang$core$Native_List.fromArray(subs),
+			index: result.index,
+			number: number
+		});
+		prevLastIndex = re.lastIndex;
+	}
+	re.lastIndex = lastIndex;
+	return _elm_lang$core$Native_List.fromArray(out);
+}
+
+function replace(n, re, replacer, string)
+{
+	n = n.ctor === 'All' ? Infinity : n._0;
+	var count = 0;
+	function jsReplacer(match)
+	{
+		if (count++ >= n)
+		{
+			return match;
+		}
+		var i = arguments.length - 3;
+		var submatches = new Array(i);
+		while (i > 0)
+		{
+			var submatch = arguments[i];
+			submatches[--i] = submatch === undefined
+				? _elm_lang$core$Maybe$Nothing
+				: _elm_lang$core$Maybe$Just(submatch);
+		}
+		return replacer({
+			match: match,
+			submatches: _elm_lang$core$Native_List.fromArray(submatches),
+			index: arguments[arguments.length - 2],
+			number: count
+		});
+	}
+	return string.replace(re, jsReplacer);
+}
+
+function split(n, re, str)
+{
+	n = n.ctor === 'All' ? Infinity : n._0;
+	if (n === Infinity)
+	{
+		return _elm_lang$core$Native_List.fromArray(str.split(re));
+	}
+	var string = str;
+	var result;
+	var out = [];
+	var start = re.lastIndex;
+	var restoreLastIndex = re.lastIndex;
+	while (n--)
+	{
+		if (!(result = re.exec(string))) break;
+		out.push(string.slice(start, result.index));
+		start = re.lastIndex;
+	}
+	out.push(string.slice(start));
+	re.lastIndex = restoreLastIndex;
+	return _elm_lang$core$Native_List.fromArray(out);
+}
+
+return {
+	regex: regex,
+	caseInsensitive: caseInsensitive,
+	escape: escape,
+
+	contains: F2(contains),
+	find: F3(find),
+	replace: F4(replace),
+	split: F3(split)
+};
+
+}();
+
+var _elm_lang$core$Regex$split = _elm_lang$core$Native_Regex.split;
+var _elm_lang$core$Regex$replace = _elm_lang$core$Native_Regex.replace;
+var _elm_lang$core$Regex$find = _elm_lang$core$Native_Regex.find;
+var _elm_lang$core$Regex$contains = _elm_lang$core$Native_Regex.contains;
+var _elm_lang$core$Regex$caseInsensitive = _elm_lang$core$Native_Regex.caseInsensitive;
+var _elm_lang$core$Regex$regex = _elm_lang$core$Native_Regex.regex;
+var _elm_lang$core$Regex$escape = _elm_lang$core$Native_Regex.escape;
+var _elm_lang$core$Regex$Match = F4(
+	function (a, b, c, d) {
+		return {match: a, submatches: b, index: c, number: d};
+	});
+var _elm_lang$core$Regex$Regex = {ctor: 'Regex'};
+var _elm_lang$core$Regex$AtMost = function (a) {
+	return {ctor: 'AtMost', _0: a};
+};
+var _elm_lang$core$Regex$All = {ctor: 'All'};
+
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrap;
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrapWithFlags;
 
@@ -9029,6 +9166,450 @@ var _elm_lang$http$Http$StringPart = F2(
 	});
 var _elm_lang$http$Http$stringPart = _elm_lang$http$Http$StringPart;
 
+var _sporto$erl$Erl$appendPathSegments = F2(
+	function (segments, url) {
+		var newPath = A2(_elm_lang$core$List$append, url.path, segments);
+		return _elm_lang$core$Native_Utils.update(
+			url,
+			{path: newPath});
+	});
+var _sporto$erl$Erl$removeQuery = F2(
+	function (key, url) {
+		var updated = A2(
+			_elm_lang$core$List$filter,
+			function (_p0) {
+				var _p1 = _p0;
+				return !_elm_lang$core$Native_Utils.eq(_p1._0, key);
+			},
+			url.query);
+		return _elm_lang$core$Native_Utils.update(
+			url,
+			{query: updated});
+	});
+var _sporto$erl$Erl$addQuery = F3(
+	function (key, val, url) {
+		var updated = _elm_lang$core$List$reverse(
+			A2(
+				F2(
+					function (x, y) {
+						return {ctor: '::', _0: x, _1: y};
+					}),
+				{ctor: '_Tuple2', _0: key, _1: val},
+				_elm_lang$core$List$reverse(url.query)));
+		return _elm_lang$core$Native_Utils.update(
+			url,
+			{query: updated});
+	});
+var _sporto$erl$Erl$setQuery = F3(
+	function (key, val, url) {
+		var without = A2(_sporto$erl$Erl$removeQuery, key, url);
+		return A3(_sporto$erl$Erl$addQuery, key, val, without);
+	});
+var _sporto$erl$Erl$clearQuery = function (url) {
+	return _elm_lang$core$Native_Utils.update(
+		url,
+		{
+			query: {ctor: '[]'}
+		});
+};
+var _sporto$erl$Erl$new = {
+	protocol: '',
+	username: '',
+	password: '',
+	host: {ctor: '[]'},
+	path: {ctor: '[]'},
+	hasLeadingSlash: false,
+	hasTrailingSlash: false,
+	port_: 0,
+	hash: '',
+	query: {ctor: '[]'}
+};
+var _sporto$erl$Erl$hashToString = function (url) {
+	return _elm_lang$core$String$isEmpty(url.hash) ? '' : A2(_elm_lang$core$Basics_ops['++'], '#', url.hash);
+};
+var _sporto$erl$Erl$trailingSlashComponent = function (url) {
+	return _elm_lang$core$Native_Utils.eq(url.hasTrailingSlash, true) ? '/' : '';
+};
+var _sporto$erl$Erl$portComponent = function (url) {
+	var _p2 = url.port_;
+	switch (_p2) {
+		case 0:
+			return '';
+		case 80:
+			return '';
+		default:
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				':',
+				_elm_lang$core$Basics$toString(url.port_));
+	}
+};
+var _sporto$erl$Erl$hostComponent = function (url) {
+	return _elm_lang$http$Http$encodeUri(
+		A2(_elm_lang$core$String$join, '.', url.host));
+};
+var _sporto$erl$Erl$pathComponent = function (url) {
+	var leadingSlash = ((!_elm_lang$core$Native_Utils.eq(
+		_sporto$erl$Erl$hostComponent(url),
+		'')) || url.hasLeadingSlash) ? '/' : '';
+	var encoded = A2(_elm_lang$core$List$map, _elm_lang$http$Http$encodeUri, url.path);
+	return _elm_lang$core$Native_Utils.eq(
+		_elm_lang$core$List$length(url.path),
+		0) ? '' : A2(
+		_elm_lang$core$Basics_ops['++'],
+		leadingSlash,
+		A2(_elm_lang$core$String$join, '/', encoded));
+};
+var _sporto$erl$Erl$protocolComponent = function (url) {
+	var _p3 = url.protocol;
+	if (_p3 === '') {
+		return '';
+	} else {
+		return A2(_elm_lang$core$Basics_ops['++'], url.protocol, '://');
+	}
+};
+var _sporto$erl$Erl$queryToString = function (url) {
+	var encodedTuples = A2(
+		_elm_lang$core$List$map,
+		function (_p4) {
+			var _p5 = _p4;
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$http$Http$encodeUri(_p5._0),
+				_1: _elm_lang$http$Http$encodeUri(_p5._1)
+			};
+		},
+		url.query);
+	var parts = A2(
+		_elm_lang$core$List$map,
+		function (_p6) {
+			var _p7 = _p6;
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				_p7._0,
+				A2(_elm_lang$core$Basics_ops['++'], '=', _p7._1));
+		},
+		encodedTuples);
+	return _elm_lang$core$List$isEmpty(url.query) ? '' : A2(
+		_elm_lang$core$Basics_ops['++'],
+		'?',
+		A2(_elm_lang$core$String$join, '&', parts));
+};
+var _sporto$erl$Erl$toString = function (url) {
+	var hash = _sporto$erl$Erl$hashToString(url);
+	var query_ = _sporto$erl$Erl$queryToString(url);
+	var trailingSlash_ = _sporto$erl$Erl$trailingSlashComponent(url);
+	var path_ = _sporto$erl$Erl$pathComponent(url);
+	var port_ = _sporto$erl$Erl$portComponent(url);
+	var host_ = _sporto$erl$Erl$hostComponent(url);
+	var protocol_ = _sporto$erl$Erl$protocolComponent(url);
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		protocol_,
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			host_,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				port_,
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					path_,
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						trailingSlash_,
+						A2(_elm_lang$core$Basics_ops['++'], query_, hash))))));
+};
+var _sporto$erl$Erl$queryStringElementToTuple = function (element) {
+	var splitted = A2(_elm_lang$core$String$split, '=', element);
+	var first = A2(
+		_elm_lang$core$Maybe$withDefault,
+		'',
+		_elm_lang$core$List$head(splitted));
+	var firstDecoded = A2(
+		_elm_lang$core$Maybe$withDefault,
+		'',
+		_elm_lang$http$Http$decodeUri(first));
+	var second = A2(
+		_elm_lang$core$Maybe$withDefault,
+		'',
+		_elm_lang$core$List$head(
+			A2(_elm_lang$core$List$drop, 1, splitted)));
+	var secondDecoded = A2(
+		_elm_lang$core$Maybe$withDefault,
+		'',
+		_elm_lang$http$Http$decodeUri(second));
+	return {ctor: '_Tuple2', _0: firstDecoded, _1: secondDecoded};
+};
+var _sporto$erl$Erl$parseQuery = function (queryString) {
+	var splitted = A2(_elm_lang$core$String$split, '&', queryString);
+	return _elm_lang$core$String$isEmpty(queryString) ? {ctor: '[]'} : A2(_elm_lang$core$List$map, _sporto$erl$Erl$queryStringElementToTuple, splitted);
+};
+var _sporto$erl$Erl$extractQuery = function (str) {
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		'',
+		_elm_lang$core$List$head(
+			A2(
+				_elm_lang$core$String$split,
+				'#',
+				A2(
+					_elm_lang$core$Maybe$withDefault,
+					'',
+					_elm_lang$core$List$head(
+						A2(
+							_elm_lang$core$List$drop,
+							1,
+							A2(_elm_lang$core$String$split, '?', str)))))));
+};
+var _sporto$erl$Erl$queryFromAll = function (all) {
+	return _sporto$erl$Erl$parseQuery(
+		_sporto$erl$Erl$extractQuery(all));
+};
+var _sporto$erl$Erl$extractHash = function (str) {
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		'',
+		_elm_lang$core$List$head(
+			A2(
+				_elm_lang$core$List$drop,
+				1,
+				A2(_elm_lang$core$String$split, '#', str))));
+};
+var _sporto$erl$Erl$hashFromAll = function (str) {
+	return _sporto$erl$Erl$extractHash(str);
+};
+var _sporto$erl$Erl$parseHost = function (str) {
+	return A2(_elm_lang$core$String$split, '.', str);
+};
+var _sporto$erl$Erl$extractProtocol = function (str) {
+	var parts = A2(_elm_lang$core$String$split, '://', str);
+	var _p8 = _elm_lang$core$List$length(parts);
+	if (_p8 === 1) {
+		return '';
+	} else {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			'',
+			_elm_lang$core$List$head(parts));
+	}
+};
+var _sporto$erl$Erl$extractPort = function (str) {
+	var rx = _elm_lang$core$Regex$regex(':\\d+');
+	var res = A3(
+		_elm_lang$core$Regex$find,
+		_elm_lang$core$Regex$AtMost(1),
+		rx,
+		str);
+	return function (result) {
+		var _p9 = result;
+		if (_p9.ctor === 'Ok') {
+			return _p9._0;
+		} else {
+			var _p10 = _sporto$erl$Erl$extractProtocol(str);
+			switch (_p10) {
+				case 'http':
+					return 80;
+				case 'https':
+					return 443;
+				case 'ftp':
+					return 21;
+				case 'sftp':
+					return 22;
+				default:
+					return 0;
+			}
+		}
+	}(
+		_elm_lang$core$String$toInt(
+			A2(
+				_elm_lang$core$String$dropLeft,
+				1,
+				A2(
+					_elm_lang$core$Maybe$withDefault,
+					'',
+					_elm_lang$core$List$head(
+						A2(
+							_elm_lang$core$List$map,
+							function (_) {
+								return _.match;
+							},
+							res))))));
+};
+var _sporto$erl$Erl$leftFrom = F2(
+	function (delimiter, str) {
+		var parts = A2(_elm_lang$core$String$split, delimiter, str);
+		var head = _elm_lang$core$List$head(parts);
+		var _p11 = _elm_lang$core$List$length(parts);
+		switch (_p11) {
+			case 0:
+				return '';
+			case 1:
+				return '';
+			default:
+				return A2(_elm_lang$core$Maybe$withDefault, '', head);
+		}
+	});
+var _sporto$erl$Erl$leftFromOrSame = F2(
+	function (delimiter, str) {
+		var parts = A2(_elm_lang$core$String$split, delimiter, str);
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			'',
+			_elm_lang$core$List$head(parts));
+	});
+var _sporto$erl$Erl$rightFromOrSame = F2(
+	function (delimiter, str) {
+		var parts = A2(_elm_lang$core$String$split, delimiter, str);
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			'',
+			_elm_lang$core$List$head(
+				_elm_lang$core$List$reverse(parts)));
+	});
+var _sporto$erl$Erl$extractHost = function (str) {
+	var localhostRx = 'localhost';
+	var dotsRx = '((\\w|-)+\\.)+(\\w|-)+';
+	var rx = A2(
+		_elm_lang$core$Basics_ops['++'],
+		'(',
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			dotsRx,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'|',
+				A2(_elm_lang$core$Basics_ops['++'], localhostRx, ')'))));
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		'',
+		_elm_lang$core$List$head(
+			A2(
+				_elm_lang$core$List$map,
+				function (_) {
+					return _.match;
+				},
+				A3(
+					_elm_lang$core$Regex$find,
+					_elm_lang$core$Regex$AtMost(1),
+					_elm_lang$core$Regex$regex(rx),
+					A2(
+						_sporto$erl$Erl$leftFromOrSame,
+						'/',
+						A2(_sporto$erl$Erl$rightFromOrSame, '//', str))))));
+};
+var _sporto$erl$Erl$host = function (str) {
+	return _sporto$erl$Erl$parseHost(
+		_sporto$erl$Erl$extractHost(str));
+};
+var _sporto$erl$Erl$extractPath = function (str) {
+	var host = _sporto$erl$Erl$extractHost(str);
+	return A4(
+		_elm_lang$core$Regex$replace,
+		_elm_lang$core$Regex$AtMost(1),
+		_elm_lang$core$Regex$regex(':\\d+'),
+		function (_p12) {
+			return '';
+		},
+		A4(
+			_elm_lang$core$Regex$replace,
+			_elm_lang$core$Regex$AtMost(1),
+			_elm_lang$core$Regex$regex(host),
+			function (_p13) {
+				return '';
+			},
+			A2(
+				_sporto$erl$Erl$leftFromOrSame,
+				'#',
+				A2(
+					_sporto$erl$Erl$leftFromOrSame,
+					'?',
+					A2(_sporto$erl$Erl$rightFromOrSame, '//', str)))));
+};
+var _sporto$erl$Erl$hasLeadingSlashFromAll = function (str) {
+	return A2(
+		_elm_lang$core$Regex$contains,
+		_elm_lang$core$Regex$regex('^/'),
+		_sporto$erl$Erl$extractPath(str));
+};
+var _sporto$erl$Erl$hasTrailingSlashFromAll = function (str) {
+	return A2(
+		_elm_lang$core$Regex$contains,
+		_elm_lang$core$Regex$regex('/$'),
+		_sporto$erl$Erl$extractPath(str));
+};
+var _sporto$erl$Erl$rightFrom = F2(
+	function (delimiter, str) {
+		var parts = A2(_elm_lang$core$String$split, delimiter, str);
+		var _p14 = _elm_lang$core$List$length(parts);
+		switch (_p14) {
+			case 0:
+				return '';
+			case 1:
+				return '';
+			default:
+				return A2(
+					_elm_lang$core$Maybe$withDefault,
+					'',
+					_elm_lang$core$List$head(
+						_elm_lang$core$List$reverse(parts)));
+		}
+	});
+var _sporto$erl$Erl$notEmpty = function (str) {
+	return !_elm_lang$core$String$isEmpty(str);
+};
+var _sporto$erl$Erl$parsePath = function (str) {
+	return A2(
+		_elm_lang$core$List$map,
+		_elm_lang$core$Maybe$withDefault(''),
+		A2(
+			_elm_lang$core$List$map,
+			_elm_lang$http$Http$decodeUri,
+			A2(
+				_elm_lang$core$List$filter,
+				_sporto$erl$Erl$notEmpty,
+				A2(_elm_lang$core$String$split, '/', str))));
+};
+var _sporto$erl$Erl$pathFromAll = function (str) {
+	return _sporto$erl$Erl$parsePath(
+		_sporto$erl$Erl$extractPath(str));
+};
+var _sporto$erl$Erl$parse = function (str) {
+	return {
+		host: _sporto$erl$Erl$host(str),
+		hash: _sporto$erl$Erl$hashFromAll(str),
+		password: '',
+		path: _sporto$erl$Erl$pathFromAll(str),
+		hasLeadingSlash: _sporto$erl$Erl$hasLeadingSlashFromAll(str),
+		hasTrailingSlash: _sporto$erl$Erl$hasTrailingSlashFromAll(str),
+		port_: _sporto$erl$Erl$extractPort(str),
+		protocol: _sporto$erl$Erl$extractProtocol(str),
+		query: _sporto$erl$Erl$queryFromAll(str),
+		username: ''
+	};
+};
+var _sporto$erl$Erl$Url = function (a) {
+	return function (b) {
+		return function (c) {
+			return function (d) {
+				return function (e) {
+					return function (f) {
+						return function (g) {
+							return function (h) {
+								return function (i) {
+									return function (j) {
+										return {protocol: a, username: b, password: c, host: d, port_: e, path: f, hasLeadingSlash: g, hasTrailingSlash: h, hash: i, query: j};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
+
 var _user$project$Model$GameEntry = F3(
 	function (a, b, c) {
 		return {gog: a, steam: b, gol: c};
@@ -9417,19 +9998,41 @@ var _user$project$MainPage$golPrices = function (golEntries) {
 			{
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$a,
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$href(g.link),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							A2(_user$project$MainPage$roundToString, 2, g.price)),
+						_0: A2(
+							_elm_lang$html$Html$a,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$href(g.link),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(
+									A2(
+										_elm_lang$core$String$join,
+										'.',
+										_sporto$erl$Erl$parse(g.link).host)),
+								_1: {ctor: '[]'}
+							}),
 						_1: {ctor: '[]'}
 					}),
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(
+								A2(_user$project$MainPage$roundToString, 2, g.price)),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}
 			});
 	};
 	return A2(_elm_lang$core$List$map, golPrice, golEntries);
@@ -9522,7 +10125,7 @@ var _user$project$MainPage$gameTableTitle = A2(
 					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html$text('Gol prices'),
+						_0: _elm_lang$html$Html$text('Gol prices(PLN)'),
 						_1: {ctor: '[]'}
 					}),
 				_1: {

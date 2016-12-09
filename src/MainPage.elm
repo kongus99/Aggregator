@@ -5,6 +5,7 @@ import Html.Events exposing (onClick, on, targetValue)
 import Json.Decode as Json
 import Http
 import Task
+import Erl
 import Model exposing (..)
 import Router exposing (..)
 
@@ -51,7 +52,7 @@ view model =
 gameTableTitle =
     tr [] [ th[][text "Game"]
           , th[][text "Price(PLN)"]
-          , th[][text "Gol prices"]
+          , th[][text "Gol prices(PLN)"]
           , th[][text "Gog/Steam/Both"]
           ]
 
@@ -82,7 +83,8 @@ gamesOn list = List.map (\e -> if e == "Gog" then Gog else Steam) list
 
 golPrices golEntries =
     let
-        golPrice g = div [][a[href g.link][text <| roundToString 2 g.price]]
+        golPrice g = div[][div [][a[href g.link][text <| String.join "." (Erl.parse g.link).host]]
+                     ,div [][text <| roundToString 2 g.price]]
     in
         List.map golPrice golEntries
 
