@@ -10057,9 +10057,9 @@ var _elm_lang$http$Http$StringPart = F2(
 	});
 var _elm_lang$http$Http$stringPart = _elm_lang$http$Http$StringPart;
 
-var _user$project$Model$GameEntry = F2(
-	function (a, b) {
-		return {gog: a, steam: b};
+var _user$project$Model$GameEntry = F3(
+	function (a, b, c) {
+		return {gog: a, steam: b, gol: c};
 	});
 var _user$project$Model$GogEntry = F4(
 	function (a, b, c, d) {
@@ -10068,6 +10068,10 @@ var _user$project$Model$GogEntry = F4(
 var _user$project$Model$SteamEntry = F4(
 	function (a, b, c, d) {
 		return {name: a, steamId: b, price: c, discounted: d};
+	});
+var _user$project$Model$GolEntry = F3(
+	function (a, b, c) {
+		return {steamId: a, link: b, price: c};
 	});
 var _user$project$Model$NamedEntry = F2(
 	function (a, b) {
@@ -10116,6 +10120,12 @@ var _user$project$Router$decodedComparisonEntry = A5(
 	A2(_elm_lang$core$Json_Decode$field, 'metricResult', _elm_lang$core$Json_Decode$int),
 	A2(_elm_lang$core$Json_Decode$field, 'right', _user$project$Router$decodedNamedEntry),
 	A2(_elm_lang$core$Json_Decode$field, 'matches', _elm_lang$core$Json_Decode$bool));
+var _user$project$Router$decodedGolEntry = A4(
+	_elm_lang$core$Json_Decode$map3,
+	_user$project$Model$GolEntry,
+	A2(_elm_lang$core$Json_Decode$field, 'steamId', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'link', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'price', _elm_lang$core$Json_Decode$float));
 var _user$project$Router$decodedSteamEntry = A5(
 	_elm_lang$core$Json_Decode$map4,
 	_user$project$Model$SteamEntry,
@@ -10142,8 +10152,8 @@ var _user$project$Router$decodedGogEntry = A5(
 		_elm_lang$core$Json_Decode$field,
 		'discounted',
 		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)));
-var _user$project$Router$decodedGameEntry = A3(
-	_elm_lang$core$Json_Decode$map2,
+var _user$project$Router$decodedGameEntry = A4(
+	_elm_lang$core$Json_Decode$map3,
 	_user$project$Model$GameEntry,
 	A2(
 		_elm_lang$core$Json_Decode$field,
@@ -10152,7 +10162,11 @@ var _user$project$Router$decodedGameEntry = A3(
 	A2(
 		_elm_lang$core$Json_Decode$field,
 		'steam',
-		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedSteamEntry)));
+		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedSteamEntry)),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'gol',
+		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGolEntry)));
 var _user$project$Router$baseAddress = 'http://localhost:9000';
 var _user$project$Router$Addresses = F2(
 	function (a, b) {

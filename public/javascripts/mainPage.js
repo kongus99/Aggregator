@@ -9029,9 +9029,9 @@ var _elm_lang$http$Http$StringPart = F2(
 	});
 var _elm_lang$http$Http$stringPart = _elm_lang$http$Http$StringPart;
 
-var _user$project$Model$GameEntry = F2(
-	function (a, b) {
-		return {gog: a, steam: b};
+var _user$project$Model$GameEntry = F3(
+	function (a, b, c) {
+		return {gog: a, steam: b, gol: c};
 	});
 var _user$project$Model$GogEntry = F4(
 	function (a, b, c, d) {
@@ -9040,6 +9040,10 @@ var _user$project$Model$GogEntry = F4(
 var _user$project$Model$SteamEntry = F4(
 	function (a, b, c, d) {
 		return {name: a, steamId: b, price: c, discounted: d};
+	});
+var _user$project$Model$GolEntry = F3(
+	function (a, b, c) {
+		return {steamId: a, link: b, price: c};
 	});
 var _user$project$Model$NamedEntry = F2(
 	function (a, b) {
@@ -9088,6 +9092,12 @@ var _user$project$Router$decodedComparisonEntry = A5(
 	A2(_elm_lang$core$Json_Decode$field, 'metricResult', _elm_lang$core$Json_Decode$int),
 	A2(_elm_lang$core$Json_Decode$field, 'right', _user$project$Router$decodedNamedEntry),
 	A2(_elm_lang$core$Json_Decode$field, 'matches', _elm_lang$core$Json_Decode$bool));
+var _user$project$Router$decodedGolEntry = A4(
+	_elm_lang$core$Json_Decode$map3,
+	_user$project$Model$GolEntry,
+	A2(_elm_lang$core$Json_Decode$field, 'steamId', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'link', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'price', _elm_lang$core$Json_Decode$float));
 var _user$project$Router$decodedSteamEntry = A5(
 	_elm_lang$core$Json_Decode$map4,
 	_user$project$Model$SteamEntry,
@@ -9114,8 +9124,8 @@ var _user$project$Router$decodedGogEntry = A5(
 		_elm_lang$core$Json_Decode$field,
 		'discounted',
 		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)));
-var _user$project$Router$decodedGameEntry = A3(
-	_elm_lang$core$Json_Decode$map2,
+var _user$project$Router$decodedGameEntry = A4(
+	_elm_lang$core$Json_Decode$map3,
 	_user$project$Model$GameEntry,
 	A2(
 		_elm_lang$core$Json_Decode$field,
@@ -9124,7 +9134,11 @@ var _user$project$Router$decodedGameEntry = A3(
 	A2(
 		_elm_lang$core$Json_Decode$field,
 		'steam',
-		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedSteamEntry)));
+		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedSteamEntry)),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'gol',
+		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGolEntry)));
 var _user$project$Router$baseAddress = 'http://localhost:9000';
 var _user$project$Router$Addresses = F2(
 	function (a, b) {
@@ -9293,23 +9307,31 @@ var _user$project$MainPage$getName = function (gameEntry) {
 			},
 			_elm_lang$core$List$head(gameEntry.gog)));
 };
+var _user$project$MainPage$roundToString = F2(
+	function (precision, number) {
+		var integerRepresentation = _elm_lang$core$Basics$toString(
+			_elm_lang$core$Basics$round(
+				number * _elm_lang$core$Basics$toFloat(
+					Math.pow(10, precision))));
+		var total = A2(_elm_lang$core$String$dropRight, 2, integerRepresentation);
+		var fraction = A2(
+			_elm_lang$core$String$dropLeft,
+			_elm_lang$core$String$length(total),
+			integerRepresentation);
+		return A2(
+			_elm_lang$core$Basics_ops['++'],
+			total,
+			A2(_elm_lang$core$Basics_ops['++'], '.', fraction));
+	});
 var _user$project$MainPage$pricesToString = function (prices) {
-	var roundTo = F2(
-		function (precision, number) {
-			return _elm_lang$core$Basics$toFloat(
-				_elm_lang$core$Basics$round(
-					number * Math.pow(10, precision))) / Math.pow(10, precision);
-		});
 	var formatPrice = function (price) {
-		return _elm_lang$core$Basics$toString(
-			A2(roundTo, 2, price));
+		return A2(_user$project$MainPage$roundToString, 2, price);
 	};
 	var formatDiscount = F3(
 		function (percentage, price, discount) {
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
-				_elm_lang$core$Basics$toString(
-					A2(roundTo, 2, price)),
+				A2(_user$project$MainPage$roundToString, 2, price),
 				A2(
 					_elm_lang$core$Basics_ops['++'],
 					' (-',
@@ -9319,8 +9341,7 @@ var _user$project$MainPage$pricesToString = function (prices) {
 						A2(
 							_elm_lang$core$Basics_ops['++'],
 							'%) ',
-							_elm_lang$core$Basics$toString(
-								A2(roundTo, 2, discount))))));
+							A2(_user$project$MainPage$roundToString, 2, discount)))));
 		});
 	var convertToText = F2(
 		function (percentage, _p0) {
@@ -9388,11 +9409,38 @@ var _user$project$MainPage$toStyle = function (gameEntry) {
 		0) > 0;
 	return (onGog && onSteam) ? 'cell_Both' : (onGog ? 'cell_Gog' : 'cell_Steam');
 };
-var _user$project$MainPage$mapSingle = function (e) {
-	return _elm_lang$core$Native_Utils.eq(e, 'Gog') ? _user$project$Model$Gog : _user$project$Model$Steam;
+var _user$project$MainPage$golPrices = function (golEntries) {
+	var golPrice = function (g) {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$a,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$href(g.link),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(
+							A2(_user$project$MainPage$roundToString, 2, g.price)),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			});
+	};
+	return A2(_elm_lang$core$List$map, golPrice, golEntries);
 };
 var _user$project$MainPage$gamesOn = function (list) {
-	return A2(_elm_lang$core$List$map, _user$project$MainPage$mapSingle, list);
+	return A2(
+		_elm_lang$core$List$map,
+		function (e) {
+			return _elm_lang$core$Native_Utils.eq(e, 'Gog') ? _user$project$Model$Gog : _user$project$Model$Steam;
+		},
+		list);
 };
 var _user$project$MainPage$gameTableRow = function (e) {
 	return A2(
@@ -9425,14 +9473,21 @@ var _user$project$MainPage$gameTableRow = function (e) {
 					ctor: '::',
 					_0: A2(
 						_elm_lang$html$Html$td,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class(
-								_user$project$MainPage$toStyle(e)),
-							_1: {ctor: '[]'}
-						},
-						_user$project$MainPage$toText(e)),
-					_1: {ctor: '[]'}
+						{ctor: '[]'},
+						_user$project$MainPage$golPrices(e.gol)),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$td,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class(
+									_user$project$MainPage$toStyle(e)),
+								_1: {ctor: '[]'}
+							},
+							_user$project$MainPage$toText(e)),
+						_1: {ctor: '[]'}
+					}
 				}
 			}
 		});
@@ -9467,10 +9522,21 @@ var _user$project$MainPage$gameTableTitle = A2(
 					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html$text('Gog/Steam/Both'),
+						_0: _elm_lang$html$Html$text('Gol prices'),
 						_1: {ctor: '[]'}
 					}),
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$th,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Gog/Steam/Both'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}
 			}
 		}
 	});

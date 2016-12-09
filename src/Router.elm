@@ -30,7 +30,8 @@ routes = Addresses home comparison
 --DECODERS
 decodedGogEntry = map4 GogEntry (field "title" string) (field "gogId" int) (field "price" (maybe float)) (field "discounted" (maybe float))
 decodedSteamEntry = map4 SteamEntry (field "name" string) (field "steamId" int) (field "price" (maybe float)) (field "discounted" (maybe float))
-decodedGameEntry = map2 GameEntry (field "gog" (list decodedGogEntry)) (field "steam" (list decodedSteamEntry))
+decodedGolEntry = map3 GolEntry (field "steamId" int) (field "link" string) (field "price" float)
+decodedGameEntry = map3 GameEntry (field "gog" (list decodedGogEntry)) (field "steam" (list decodedSteamEntry)) (field "gol" (list decodedGolEntry))
 decodedComparisonEntry = map4 ComparisonEntry (field "left" decodedNamedEntry) (field "metricResult" int) (field "right" decodedNamedEntry) (field "matches" bool)
 decodedNamedEntry = map2 NamedEntry (field "id" int) (field "name" string)
 -- HELPERS

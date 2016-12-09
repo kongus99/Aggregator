@@ -16,9 +16,9 @@ object GolEntry {
   import scala.collection.JavaConversions._
 
   implicit val steamWrites: Writes[GolEntry] = (
-    (JsPath \ "steam").write[SteamEntry] and
+    (JsPath \ "steamId").write[Long] and
       (JsPath \ "link").write[String] and
-      (JsPath \ "price").write[BigDecimal]) ((e) => (e.steamEntry, e.link, e.price))
+      (JsPath \ "price").write[BigDecimal]) ((e) => (e.steamEntry.steamId, e.link, e.price))
 
   val nameSearchUrlPrefix = "/ajax/quicksearch.asp?qs="
   val miniPricesSearchUrlPrefix = "/ajax/porownywarka.asp?ID="

@@ -1,6 +1,6 @@
 module MainPage exposing (..)
-import Html exposing (Html, button, div, text, span, table, tr, th, td, select, option)
-import Html.Attributes exposing(class, selected, value)
+import Html exposing (Html, button, div, text, span, table, tr, th, td, select, option, a)
+import Html.Attributes exposing(class, selected, value, href)
 import Html.Events exposing (onClick, on, targetValue)
 import Json.Decode as Json
 import Http
@@ -51,12 +51,14 @@ view model =
 gameTableTitle =
     tr [] [ th[][text "Game"]
           , th[][text "Price(PLN)"]
+          , th[][text "Gol prices"]
           , th[][text "Gog/Steam/Both"]
           ]
 
 gameTableRow e =
     tr [] [ td[][text <| getName e]
           , td[][text <| pricesToString (getPrice e)]
+          , td[] (golPrices e.gol)
           , td[class <| toStyle e  ](toText e)
           ]
 
@@ -76,9 +78,13 @@ getResponse : Http.Request (List GameEntry) -> Cmd Msg
 getResponse httpRequest =
     Http.send (Router.resolveResponse ReceiveRefresh RefreshError) httpRequest
 
-gamesOn list = List.map mapSingle list
+gamesOn list = List.map (\e -> if e == "Gog" then Gog else Steam) list
 
-mapSingle e = if e == "Gog" then Gog else Steam
+golPrices golEntries =
+    let
+        golPrice g = div [][a[href g.link][text <| roundToString 2 g.price]]
+    in
+        List.map golPrice golEntries
 
 toStyle gameEntry =
     let
@@ -95,17 +101,23 @@ getPrice gameEntry =
         case gogPrice of
             Just x -> Just x
             Nothing -> steamPrice
+roundToString : Int -> Float -> String
+roundToString precision number =
+    let
+        integerRepresentation = number * toFloat (10 ^ precision) |> round |> toString
+        total = String.dropRight 2 integerRepresentation
+        fraction = String.dropLeft (String.length total) integerRepresentation
+    in
+        total ++ "." ++ fraction
 pricesToString : Maybe (Maybe Float, Maybe Float) -> String
 pricesToString prices =
     let
         calculatePercentage (price, discount) =
             Maybe.withDefault 0 <| Maybe.map2 (\p -> \d -> round (((p - d) / p) * 100)) price discount
         formatDiscount percentage price discount =
-            (toString <| roundTo 2 price) ++ " (-" ++ toString percentage ++ "%) " ++ (toString <| roundTo 2 discount)
+            (roundToString 2 price) ++ " (-" ++ toString percentage ++ "%) " ++ (roundToString 2 discount)
         formatPrice price =
-            toString <| roundTo 2 price
-        roundTo precision number =
-            (toFloat <| round <| number * (10 ^ precision)) / (10 ^ precision)
+            roundToString 2 price
         convertToText percentage (price, discount) =
             if isNaN <| toFloat percentage then
                 "0"
