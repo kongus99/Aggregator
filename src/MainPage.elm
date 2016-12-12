@@ -83,7 +83,7 @@ gamesOn list = List.map (\e -> if e == "Gog" then Gog else Steam) list
 
 golPrices golEntries =
     let
-        golPrice g = div[][div [][a[href g.link][text <| String.join "." (Erl.parse g.link).host]]
+        golPrice g = div[][div [][a[href g.link][text g.host]]
                      ,div [][text <| roundToString 2 g.price]]
     in
         List.map golPrice golEntries

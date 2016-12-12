@@ -9622,9 +9622,9 @@ var _user$project$Model$SteamEntry = F4(
 	function (a, b, c, d) {
 		return {name: a, steamId: b, price: c, discounted: d};
 	});
-var _user$project$Model$GolEntry = F3(
-	function (a, b, c) {
-		return {steamId: a, link: b, price: c};
+var _user$project$Model$GolEntry = F4(
+	function (a, b, c, d) {
+		return {steamId: a, host: b, link: c, price: d};
 	});
 var _user$project$Model$NamedEntry = F2(
 	function (a, b) {
@@ -9673,10 +9673,11 @@ var _user$project$Router$decodedComparisonEntry = A5(
 	A2(_elm_lang$core$Json_Decode$field, 'metricResult', _elm_lang$core$Json_Decode$int),
 	A2(_elm_lang$core$Json_Decode$field, 'right', _user$project$Router$decodedNamedEntry),
 	A2(_elm_lang$core$Json_Decode$field, 'matches', _elm_lang$core$Json_Decode$bool));
-var _user$project$Router$decodedGolEntry = A4(
-	_elm_lang$core$Json_Decode$map3,
+var _user$project$Router$decodedGolEntry = A5(
+	_elm_lang$core$Json_Decode$map4,
 	_user$project$Model$GolEntry,
 	A2(_elm_lang$core$Json_Decode$field, 'steamId', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'host', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'link', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'price', _elm_lang$core$Json_Decode$float));
 var _user$project$Router$decodedSteamEntry = A5(
@@ -10011,11 +10012,7 @@ var _user$project$MainPage$golPrices = function (golEntries) {
 							},
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html$text(
-									A2(
-										_elm_lang$core$String$join,
-										'.',
-										_sporto$erl$Erl$parse(g.link).host)),
+								_0: _elm_lang$html$Html$text(g.host),
 								_1: {ctor: '[]'}
 							}),
 						_1: {ctor: '[]'}
