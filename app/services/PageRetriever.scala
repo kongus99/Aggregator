@@ -50,3 +50,7 @@ class ReferenceRatesRetriever(client: WSClient) (implicit exec: ExecutionContext
 class GolRetriever(client: WSClient) (implicit exec: ExecutionContext) extends PageRetriever(client){
   val address = UrlAddress("http://www.gry-online.pl", None)
 }
+//http://www.fabrykakluczy.pl/search/
+class FKRetriever(client: WSClient) (implicit exec: ExecutionContext) extends PageRetriever(client){
+  val address = UrlAddress("http://www.fabrykakluczy.pl", None)
+}

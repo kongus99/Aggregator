@@ -24,6 +24,7 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
   val gogWishListRetriever = new GogWishListRetriever(client, configuration)
   val ratesRetriever = new ReferenceRatesRetriever(client)
   val golRetriever = new GolRetriever(client)
+  val fkRetriever = new FKRetriever(client)
 
   def main = Action.async {
     Future {
@@ -34,10 +35,10 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
   def allData(sources: GameSources) = Action.async {
     for {
       result <- generateFromNames(sources, tables)
-      gol <- GolEntry.getPrices(tables)(golRetriever.retrieve)
+      prices <- PriceEntry.getPrices(tables)(golRetriever.retrieve)
     } yield {
-      val golMap = gol.groupBy(_.steamEntry)
-      Ok(Json.toJson(result.map(e => if (e.steam.isEmpty) e else e.copy(gol = golMap.getOrElse(e.steam.head, Seq())))))
+      val priceMap = prices.groupBy(_.steamEntry)
+      Ok(Json.toJson(result.map(e => if (e.steam.isEmpty) e else e.copy(prices = priceMap.getOrElse(e.steam.head, Seq())))))
     }
   }
 

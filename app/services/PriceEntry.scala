@@ -9,15 +9,15 @@ import play.api.libs.json.{JsPath, Writes}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class GolEntry(steamEntry: SteamEntry, host : String, link: String, price: BigDecimal)
+case class PriceEntry(steamEntry: SteamEntry, host : String, link: String, price: BigDecimal)
 
-object GolEntry {
+object PriceEntry {
 
   import play.api.libs.functional.syntax._
 
   import scala.collection.JavaConversions._
 
-  implicit val steamWrites: Writes[GolEntry] = (
+  implicit val steamWrites: Writes[PriceEntry] = (
     (JsPath \ "steamId").write[Long] and
       (JsPath \ "host").write[String] and
       (JsPath \ "link").write[String] and
@@ -28,16 +28,16 @@ object GolEntry {
 
   def allPricesSearchUrlPrefix(gamePriceId: String) = s"/ajax/porownywarka_lista.asp?ID=$gamePriceId&ORDER=1&BOX=0&DIGITAL=1"
 
-  def getPrices(tables: Tables)(golRetriever: String => Future[String])(implicit exec: ExecutionContext): Future[Seq[GolEntry]] = {
+  def getPrices(tables: Tables)(retriever: String => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
 
     def addArgumentToFuture[A, B](t: (A, Future[B])): Future[(A, B)] = t._2.map(r => (t._1, r))
 
     def getGolIds = {
       for {
         entries <- tables.getSteamEntries(Some(true))
-        games <- Future.sequence(entries.map(e => golRetriever(nameSearchUrlPrefix + e.name).map(s => (e, s))))
+        games <- Future.sequence(entries.map(e => retriever(nameSearchUrlPrefix + e.name).map(s => (e, s))))
       } yield {
-        games.filter((onlyFullFinds _).tupled).map({ case (e, p) => (e, golRetriever(miniPricesSearchUrlPrefix + parseGameId(p))) })
+        games.filter((onlyFullFinds _).tupled).map({ case (e, p) => (e, retriever(miniPricesSearchUrlPrefix + parseGameId(p))) })
       }
     }
 
@@ -45,7 +45,7 @@ object GolEntry {
       for {
         details <- getGolIds.flatMap(queries => Future.sequence(queries.map(addArgumentToFuture)))
       } yield {
-        details.filter((onlyContainingPrices _).tupled).map({ case (e, p) => (e, golRetriever(allPricesSearchUrlPrefix(parsePricesId(p)))) })
+        details.filter((onlyContainingPrices _).tupled).map({ case (e, p) => (e, retriever(allPricesSearchUrlPrefix(parsePricesId(p)))) })
       }
     }
 
@@ -54,7 +54,7 @@ object GolEntry {
     } yield {
       def getPrice(e: Element) = BigDecimal(e.getElementsByClass("gpcl-cen").text().split(" ")(0).replaceAll(",", ".")).setScale(2)
       def getLink(e: Element) = e.attr("onclick").split("'")(1)
-      prices.flatMap({case (s, p) => Jsoup.parse(p).getElementsByClass("gpc-lista-a").toList.map(e => GolEntry(s, new URL(getLink(e)).getHost, getLink(e), getPrice(e)))})
+      prices.flatMap({case (s, p) => Jsoup.parse(p).getElementsByClass("gpc-lista-a").toList.map(e => PriceEntry(s, new URL(getLink(e)).getHost, getLink(e), getPrice(e)))})
     }
   }
 
