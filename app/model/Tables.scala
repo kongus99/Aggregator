@@ -32,15 +32,15 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def gogId = column[Long]("GOG_DATA_GOG_ID", O.PrimaryKey)
 
-    def price = column[Option[Float]]("GOG_DATA_PRICE")
+    def price = column[Option[BigDecimal]]("GOG_DATA_PRICE", O.SqlType("DECIMAL(6,2)"))
 
-    def discountedPrice = column[Option[Float]]("GOG_DATA_PRICE_DISCOUNTED")
+    def discountedPrice = column[Option[BigDecimal]]("GOG_DATA_PRICE_DISCOUNTED", O.SqlType("DECIMAL(6,2)"))
 
     def * : ProvenShape[GogEntry] = {
 
-      val apply: (String, Long, Option[Float], Option[Float]) => GogEntry = (name, gogId, price, discounted) => new GogEntry(name, gogId, price, discounted)
+      val apply: (String, Long, Option[BigDecimal], Option[BigDecimal]) => GogEntry = (name, gogId, price, discounted) => new GogEntry(name, gogId, price, discounted)
 
-      val unapply: (GogEntry) => Option[(String, Long, Option[Float], Option[Float])] = g => Some((g.title, g.gogId, g.price, g.discounted))
+      val unapply: (GogEntry) => Option[(String, Long, Option[BigDecimal], Option[BigDecimal])] = g => Some((g.title, g.gogId, g.price, g.discounted))
       (title, gogId, price, discountedPrice) <>(apply.tupled, unapply)
     }
   }
@@ -50,15 +50,15 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def steamId = column[Long]("STEAM_DATA_STEAM_ID", O.PrimaryKey)
 
-    def price = column[Option[Float]]("STEAM_DATA_PRICE")
+    def price = column[Option[BigDecimal]]("STEAM_DATA_PRICE", O.SqlType("DECIMAL(6,2)"))
 
-    def discountedPrice = column[Option[Float]]("STEAM_DATA_PRICE_DISCOUNTED")
+    def discountedPrice = column[Option[BigDecimal]]("STEAM_DATA_PRICE_DISCOUNTED", O.SqlType("DECIMAL(6,2)"))
 
     def * : ProvenShape[SteamEntry] = {
 
-      val apply: (String, Long, Option[Float], Option[Float]) => SteamEntry = (name, steamId, price, discounted) => new SteamEntry(steamId, name, price, discounted)
+      val apply: (String, Long, Option[BigDecimal], Option[BigDecimal]) => SteamEntry = (name, steamId, price, discounted) => new SteamEntry(name, steamId, price, discounted)
 
-      val unapply: (SteamEntry) => Option[(String, Long, Option[Float], Option[Float])] = g => Some((g.name, g.steamId, g.price.map(_.toFloat), g.discounted.map(_.toFloat)))
+      val unapply: (SteamEntry) => Option[(String, Long, Option[BigDecimal], Option[BigDecimal])] = g => Some((g.name, g.steamId, g.price, g.discounted))
       (name, steamId, price, discountedPrice) <>(apply.tupled, unapply)
     }
   }

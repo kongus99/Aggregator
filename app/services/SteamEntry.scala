@@ -10,11 +10,7 @@ import services.GameSources.GameSources
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class SteamEntry(name: String, steamId: Long, price: Option[BigDecimal] = None, discounted: Option[BigDecimal]= None){
-  def this(id: Long, n: String, p: Option[Float], d: Option[Float])= {
-    this(n, id, p.map(v => BigDecimal(v)), d.map(v => BigDecimal(v)))
-  }
-}
+case class SteamEntry(name: String, steamId: Long, price: Option[BigDecimal] = None, discounted: Option[BigDecimal]= None)
 
 object SteamEntry {
   private val regExp = "var rgGames = (.+);".r

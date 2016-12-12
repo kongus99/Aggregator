@@ -8,7 +8,7 @@ import services.GameSources.GameSources
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class GogEntry(title: String, gogId: Long, price: Option[Float] = None, discounted: Option[Float] = None)
+case class GogEntry(title: String, gogId: Long, price: Option[BigDecimal] = None, discounted: Option[BigDecimal] = None)
 
 object GogEntry {
   private val regExp = "var gogData = (.+);".r
@@ -16,14 +16,14 @@ object GogEntry {
   private val coreGogRead = (JsPath \ "title").read[String] and (JsPath \ "id").read[Long]
   val gogWishListReads: Reads[GogEntry] = (coreGogRead
     and (JsPath \ "price" \ "baseAmount").read[String]
-    and (JsPath \ "price" \ "finalAmount").read[String])((t, i, p, d) => GogEntry(t, i, Some(p.toFloat), Some(d.toFloat)))
+    and (JsPath \ "price" \ "finalAmount").read[String])((t, i, p, d) => GogEntry(t, i, Some(BigDecimal(p)), Some(BigDecimal(d))))
   val gogReads: Reads[GogEntry] = coreGogRead((t, i) => GogEntry(t, i))
 
   implicit val gogWrites: Writes[GogEntry] = (
     (JsPath \ "title").write[String] and
       (JsPath \ "gogId").write[Long] and
-      (JsPath \ "price").write[Option[Float]] and
-      (JsPath \ "discounted").write[Option[Float]])((e) => (e.title, e.gogId, e.price, e.discounted))
+      (JsPath \ "price").write[Option[BigDecimal]] and
+      (JsPath \ "discounted").write[Option[BigDecimal]])((e) => (e.title, e.gogId, e.price, e.discounted))
 
   private def parseWishList(wishList: String) = {
     parseGogEntries(gogWishListReads)(regExp.findAllMatchIn(wishList).map(m => m.group(1)).next())
