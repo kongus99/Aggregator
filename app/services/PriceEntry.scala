@@ -13,7 +13,6 @@ case class PriceEntry(steamEntry: SteamEntry, host : String, link: String, price
 
 object PriceEntry {
 
-  def addArgumentToFuture[A, B](t: (A, Future[B]))(implicit exec: ExecutionContext): Future[(A, B)] = t._2.map(r => (t._1, r))
 
   import play.api.libs.functional.syntax._
 
@@ -34,11 +33,11 @@ object PriceEntry {
 }
 
 object GolPricesFetcher{
-  import services.PriceEntry.addArgumentToFuture
 
   import scala.collection.JavaConversions._
 
   def getGolPrices(entries : Seq[SteamEntry], tables: Tables, retriever: String => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
+    def addArgumentToFuture[A, B](t: (A, Future[B])): Future[(A, B)] = t._2.map(r => (t._1, r))
     def getPrice(e: Element) = BigDecimal(e.getElementsByClass("gpcl-cen").text().split(" ")(0).replaceAll(",", ".")).setScale(2)
     def getLink(e: Element) = e.attr("onclick").split("'")(1)
 
