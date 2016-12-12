@@ -118,15 +118,13 @@ pricesToString prices =
             Maybe.withDefault 0 <| Maybe.map2 (\p -> \d -> round (((p - d) / p) * 100)) price discount
         formatDiscount percentage price discount =
             (roundToString 2 price) ++ " (-" ++ toString percentage ++ "%) " ++ (roundToString 2 discount)
-        formatPrice price =
-            roundToString 2 price
         convertToText percentage (price, discount) =
             if isNaN <| toFloat percentage then
                 "0"
             else if percentage > 0 then
                 Maybe.withDefault "Error" <| Maybe.map2 (formatDiscount percentage) price discount
             else
-                Maybe.withDefault "" <| Maybe.map formatPrice price
+                Maybe.withDefault "" <| Maybe.map (roundToString 2) price
         discountPercentage =  Maybe.map calculatePercentage prices
     in
         Maybe.withDefault "" <| Maybe.map2 convertToText discountPercentage prices

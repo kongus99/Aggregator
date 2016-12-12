@@ -56,9 +56,9 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def * : ProvenShape[SteamEntry] = {
 
-      val apply: (String, Long, Option[Float], Option[Float]) => SteamEntry = (name, steamId, price, discounted) => new SteamEntry(name, steamId, price, discounted)
+      val apply: (String, Long, Option[Float], Option[Float]) => SteamEntry = (name, steamId, price, discounted) => new SteamEntry(steamId, name, price, discounted)
 
-      val unapply: (SteamEntry) => Option[(String, Long, Option[Float], Option[Float])] = g => Some((g.name, g.steamId, g.price, g.discounted))
+      val unapply: (SteamEntry) => Option[(String, Long, Option[Float], Option[Float])] = g => Some((g.name, g.steamId, g.price.map(_.toFloat), g.discounted.map(_.toFloat)))
       (name, steamId, price, discountedPrice) <>(apply.tupled, unapply)
     }
   }

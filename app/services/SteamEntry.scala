@@ -10,7 +10,11 @@ import services.GameSources.GameSources
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class SteamEntry(name: String, steamId: Long, price: Option[Float] = None, discounted: Option[Float]= None)
+case class SteamEntry(name: String, steamId: Long, price: Option[BigDecimal] = None, discounted: Option[BigDecimal]= None){
+  def this(id: Long, n: String, p: Option[Float], d: Option[Float])= {
+    this(n, id, p.map(v => BigDecimal(v)), d.map(v => BigDecimal(v)))
+  }
+}
 
 object SteamEntry {
   private val regExp = "var rgGames = (.+);".r
@@ -19,8 +23,8 @@ object SteamEntry {
   implicit val steamWrites: Writes[SteamEntry] = (
     (JsPath \ "name").write[String] and
       (JsPath \ "steamId").write[Long] and
-      (JsPath \ "price").write[Option[Float]]and
-      (JsPath \ "discounted").write[Option[Float]]) ((e) => (e.name, e.steamId, e.price, e.discounted))
+      (JsPath \ "price").write[Option[BigDecimal]]and
+      (JsPath \ "discounted").write[Option[BigDecimal]]) ((e) => (e.name, e.steamId, e.price, e.discounted))
 
   def getFromSteam(tables : Tables)(owned: String, wishList : String, sources : GameSources, rates : Rates)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
     val parsed = parseOwned(owned) ++ parseWishList(wishList, rates)
@@ -38,8 +42,8 @@ object SteamEntry {
     })
   }
 
-  private def convert(rates: Rates)(value: String): Float = {
-    rates.recalculateFromEuro(value.split('€')(0).replace(",", ".").toFloat, "PLN").getOrElse(-1.0f)
+  private def convert(rates: Rates)(value: String): BigDecimal = {
+    rates.recalculateFromEuro(BigDecimal(value.split('€')(0).replace(",", ".")), "PLN").getOrElse(BigDecimal(-1))
   }
 
   private def getPrices(e: Element): (Option[String], Option[String]) = {
