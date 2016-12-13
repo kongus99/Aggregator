@@ -64,14 +64,14 @@ object GolPricesFetcher{
       def parsePricesId(page: String) = Jsoup.parse(page).getElementsByAttribute("href").attr("href").split("=")(1)
       def onlyContainingPrices(entry: SteamEntry, page: String) = Jsoup.parse(page).getElementById("PC_MAIN_CNT") != null
       for {
-        details <- getGolIds(entries).flatMap(queries => Future.sequence(queries.map(addArgumentToFuture)))
+        details <- getGolIds(entries).flatMap(queries => Future.sequence(queries.map(q => addArgumentToFuture(q))))
       } yield {
         details.filter((onlyContainingPrices _).tupled).map({ case (e, p) => (e, retriever(allPricesSearchUrlPrefix(parsePricesId(p)))) })
       }
     }
 
     for {
-      prices <- getPriceMiniatures(entries).flatMap(queries => Future.sequence(queries.map(addArgumentToFuture)))
+      prices <- getPriceMiniatures(entries).flatMap(queries => Future.sequence(queries.map(q => addArgumentToFuture(q))))
     } yield {
       prices.flatMap({case (s, p) => Jsoup.parse(p).getElementsByClass("gpc-lista-a").toList.map(e => PriceEntry(s, new URL(getLink(e)).getHost, getLink(e), getPrice(e)))})
     }
