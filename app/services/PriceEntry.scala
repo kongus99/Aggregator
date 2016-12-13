@@ -22,14 +22,51 @@ object PriceEntry {
       (JsPath \ "link").write[String] and
       (JsPath \ "price").write[BigDecimal]) ((e) => (e.steamEntry.steamId, e.host, e.link, e.price))
 
-  def getPrices(tables: Tables)(retriever: String => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
+  def getPrices(tables: Tables, golRetriever: String => Future[String], fkRetriever : String => Future[String])(implicit exec: ExecutionContext): Future[Map[SteamEntry, Seq[PriceEntry]]] = {
     for {
       entries <- tables.getSteamEntries(Some(true))
-      golPrices <- GolPricesFetcher.getGolPrices(entries, tables, retriever)
+      golPrices <- GolPricesFetcher.getPrices(entries, tables, golRetriever)
+      fkPrices <- FKPricesFetcher.getPrices(entries, tables, fkRetriever)
     } yield {
-      golPrices
+      (fkPrices ++ golPrices).groupBy(_.steamEntry).map(e => (e._1, e._2.sortBy(_.price)))
     }
   }
+}
+
+object FKPricesFetcher {
+
+  import scala.collection.JavaConversions._
+  val host = "http://www.fabrykakluczy.pl"
+
+  def getPrices(entries: Seq[SteamEntry], tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
+    def getLinks = {
+      def autoCompleteUrl(query : String) = s"/search/?q=$query"
+      for {
+        complete <- Future.sequence(entries.map(e => retriever(autoCompleteUrl(e.name)).map(s => (e, s))))
+      } yield {
+        def parseUrl(name: String, html: String): Seq[String] = {
+          val candidates = Jsoup.parse(html).getElementsByTag("a").toList
+          val winner = candidates.map(a => (ThresholdLevenshtein.count(a.text(), name, 100), a)).sortBy(_._1).head._2
+          Seq(winner.attr("href").replace(host, ""))
+        }
+        complete.filter(p => !p._2.isEmpty).flatMap(p => parseUrl(p._1.name, p._2).map(s => (p._1, s)))
+      }
+    }
+
+    for {
+      links <- getLinks
+      details <- Future.sequence(links.map(e => retriever(e._2).map(s => (e._1, s))))
+    } yield{
+      def getPrice(e: SteamEntry, page : String) = {
+        val parsed = Jsoup.parse(page)
+        val price = parsed.getElementById("gameinfo").getElementsByClass("price").head.text().split(" ")(0)
+        val link = parsed.getElementById("content").getElementsByClass("active").head.getElementsByTag("a").head.attr("href")
+        PriceEntry(e, host, link, BigDecimal(price))
+      }
+      details.map((getPrice _).tupled)
+    }
+  }
+
 }
 
 object GolPricesFetcher{
@@ -38,7 +75,7 @@ object GolPricesFetcher{
 
   import scala.collection.JavaConversions._
 
-  def getGolPrices(entries : Seq[SteamEntry], tables: Tables, retriever: String => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
+  def getPrices(entries : Seq[SteamEntry], tables: Tables, retriever: String => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
     def getPrice(e: Element) = BigDecimal(e.getElementsByClass("gpcl-cen").text().split(" ")(0).replaceAll(",", ".")).setScale(2)
     def getLink(e: Element) = e.attr("onclick").split("'")(1)
 
