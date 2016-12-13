@@ -9,7 +9,7 @@ import play.api.libs.json.{JsPath, Writes}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class PriceEntry(steamEntry: SteamEntry, host : String, link: String, price: BigDecimal)
+case class PriceEntry(steamEntry: SteamEntry, name : String, host : String, link: String, price: BigDecimal)
 
 object PriceEntry {
   def addArgumentToFuture[A, B](t: (A, Future[B]))(implicit exec: ExecutionContext): Future[(A, B)] = t._2.map(r => (t._1, r))
@@ -18,9 +18,10 @@ object PriceEntry {
 
   implicit val steamWrites: Writes[PriceEntry] = (
     (JsPath \ "steamId").write[Long] and
+      (JsPath \ "name").write[String] and
       (JsPath \ "host").write[String] and
       (JsPath \ "link").write[String] and
-      (JsPath \ "price").write[BigDecimal]) ((e) => (e.steamEntry.steamId, e.host, e.link, e.price))
+      (JsPath \ "price").write[BigDecimal]) ((e) => (e.steamEntry.steamId, e.name, e.host, e.link, e.price))
 
   def getPrices(tables: Tables, golRetriever: String => Future[String], fkRetriever : String => Future[String])(implicit exec: ExecutionContext): Future[Map[SteamEntry, Seq[PriceEntry]]] = {
     for {
@@ -61,7 +62,7 @@ object FKPricesFetcher {
         val parsed = Jsoup.parse(page)
         val price = parsed.getElementById("gameinfo").getElementsByClass("price").head.text().split(" ")(0)
         val link = parsed.getElementById("content").getElementsByClass("active").head.getElementsByTag("a").head.attr("href")
-        PriceEntry(e, host, link, BigDecimal(price))
+        PriceEntry(e, "xxx", host, link, BigDecimal(price))
       }
       details.map((getPrice _).tupled)
     }
@@ -110,7 +111,7 @@ object GolPricesFetcher{
     for {
       prices <- getPriceMiniatures(entries).flatMap(queries => Future.sequence(queries.map(q => addArgumentToFuture(q))))
     } yield {
-      prices.flatMap({case (s, p) => Jsoup.parse(p).getElementsByClass("gpc-lista-a").toList.map(e => PriceEntry(s, new URL(getLink(e)).getHost, getLink(e), getPrice(e)))})
+      prices.flatMap({case (s, p) => Jsoup.parse(p).getElementsByClass("gpc-lista-a").toList.map(e => PriceEntry(s, "xxx", new URL(getLink(e)).getHost, getLink(e), getPrice(e)))})
     }
   }
 }

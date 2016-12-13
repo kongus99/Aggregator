@@ -9612,7 +9612,7 @@ var _sporto$erl$Erl$Url = function (a) {
 
 var _user$project$Model$GameEntry = F3(
 	function (a, b, c) {
-		return {gog: a, steam: b, gol: c};
+		return {gog: a, steam: b, prices: c};
 	});
 var _user$project$Model$GogEntry = F4(
 	function (a, b, c, d) {
@@ -9622,9 +9622,9 @@ var _user$project$Model$SteamEntry = F4(
 	function (a, b, c, d) {
 		return {name: a, steamId: b, price: c, discounted: d};
 	});
-var _user$project$Model$GolEntry = F4(
-	function (a, b, c, d) {
-		return {steamId: a, host: b, link: c, price: d};
+var _user$project$Model$PriceEntry = F5(
+	function (a, b, c, d, e) {
+		return {steamId: a, name: b, host: c, link: d, price: e};
 	});
 var _user$project$Model$NamedEntry = F2(
 	function (a, b) {
@@ -9673,10 +9673,11 @@ var _user$project$Router$decodedComparisonEntry = A5(
 	A2(_elm_lang$core$Json_Decode$field, 'metricResult', _elm_lang$core$Json_Decode$int),
 	A2(_elm_lang$core$Json_Decode$field, 'right', _user$project$Router$decodedNamedEntry),
 	A2(_elm_lang$core$Json_Decode$field, 'matches', _elm_lang$core$Json_Decode$bool));
-var _user$project$Router$decodedGolEntry = A5(
-	_elm_lang$core$Json_Decode$map4,
-	_user$project$Model$GolEntry,
+var _user$project$Router$decodedPriceEntry = A6(
+	_elm_lang$core$Json_Decode$map5,
+	_user$project$Model$PriceEntry,
 	A2(_elm_lang$core$Json_Decode$field, 'steamId', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'host', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'link', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'price', _elm_lang$core$Json_Decode$float));
@@ -9719,8 +9720,8 @@ var _user$project$Router$decodedGameEntry = A4(
 		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedSteamEntry)),
 	A2(
 		_elm_lang$core$Json_Decode$field,
-		'gol',
-		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGolEntry)));
+		'prices',
+		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedPriceEntry)));
 var _user$project$Router$baseAddress = 'http://localhost:9000';
 var _user$project$Router$Addresses = F2(
 	function (a, b) {
@@ -9906,9 +9907,6 @@ var _user$project$MainPage$roundToString = F2(
 			A2(_elm_lang$core$Basics_ops['++'], '.', fraction));
 	});
 var _user$project$MainPage$pricesToString = function (prices) {
-	var formatPrice = function (price) {
-		return A2(_user$project$MainPage$roundToString, 2, price);
-	};
 	var formatDiscount = F3(
 		function (percentage, price, discount) {
 			return A2(
@@ -9940,7 +9938,10 @@ var _user$project$MainPage$pricesToString = function (prices) {
 					_p1._1)) : A2(
 				_elm_lang$core$Maybe$withDefault,
 				'',
-				A2(_elm_lang$core$Maybe$map, formatPrice, _p2)));
+				A2(
+					_elm_lang$core$Maybe$map,
+					_user$project$MainPage$roundToString(2),
+					_p2)));
 		});
 	var calculatePercentage = function (_p3) {
 		var _p4 = _p3;
@@ -9991,8 +9992,8 @@ var _user$project$MainPage$toStyle = function (gameEntry) {
 		0) > 0;
 	return (onGog && onSteam) ? 'cell_Both' : (onGog ? 'cell_Gog' : 'cell_Steam');
 };
-var _user$project$MainPage$golPrices = function (golEntries) {
-	var golPrice = function (g) {
+var _user$project$MainPage$additionalPrices = function (priceEntries) {
+	var price = function (e) {
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
@@ -10003,18 +10004,7 @@ var _user$project$MainPage$golPrices = function (golEntries) {
 					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$a,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$href(g.link),
-								_1: {ctor: '[]'}
-							},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text(g.host),
-								_1: {ctor: '[]'}
-							}),
+						_0: _elm_lang$html$Html$text(e.name),
 						_1: {ctor: '[]'}
 					}),
 				_1: {
@@ -10024,15 +10014,37 @@ var _user$project$MainPage$golPrices = function (golEntries) {
 						{ctor: '[]'},
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html$text(
-								A2(_user$project$MainPage$roundToString, 2, g.price)),
+							_0: A2(
+								_elm_lang$html$Html$a,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$href(e.link),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(e.host),
+									_1: {ctor: '[]'}
+								}),
 							_1: {ctor: '[]'}
 						}),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(
+									A2(_user$project$MainPage$roundToString, 2, e.price)),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}
 				}
 			});
 	};
-	return A2(_elm_lang$core$List$map, golPrice, golEntries);
+	return A2(_elm_lang$core$List$map, price, priceEntries);
 };
 var _user$project$MainPage$gamesOn = function (list) {
 	return A2(
@@ -10074,7 +10086,7 @@ var _user$project$MainPage$gameTableRow = function (e) {
 					_0: A2(
 						_elm_lang$html$Html$td,
 						{ctor: '[]'},
-						_user$project$MainPage$golPrices(e.gol)),
+						_user$project$MainPage$additionalPrices(e.prices)),
 					_1: {
 						ctor: '::',
 						_0: A2(
@@ -10122,7 +10134,7 @@ var _user$project$MainPage$gameTableTitle = A2(
 					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html$text('Gol prices(PLN)'),
+						_0: _elm_lang$html$Html$text('Additional prices(PLN)'),
 						_1: {ctor: '[]'}
 					}),
 				_1: {

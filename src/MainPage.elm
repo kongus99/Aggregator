@@ -52,14 +52,14 @@ view model =
 gameTableTitle =
     tr [] [ th[][text "Game"]
           , th[][text "Price(PLN)"]
-          , th[][text "Gol prices(PLN)"]
+          , th[][text "Additional prices(PLN)"]
           , th[][text "Gog/Steam/Both"]
           ]
 
 gameTableRow e =
     tr [] [ td[][text <| getName e]
           , td[][text <| pricesToString (getPrice e)]
-          , td[] (golPrices e.gol)
+          , td[] (additionalPrices e.prices)
           , td[class <| toStyle e  ](toText e)
           ]
 
@@ -81,12 +81,13 @@ getResponse httpRequest =
 
 gamesOn list = List.map (\e -> if e == "Gog" then Gog else Steam) list
 
-golPrices golEntries =
+additionalPrices priceEntries =
     let
-        golPrice g = div[][div [][a[href g.link][text g.host]]
-                     ,div [][text <| roundToString 2 g.price]]
+        price e = div[][ div [][text e.name]
+                       , div [][a[href e.link][text e.host]]
+                       , div [][text <| roundToString 2 e.price]]
     in
-        List.map golPrice golEntries
+        List.map price priceEntries
 
 toStyle gameEntry =
     let

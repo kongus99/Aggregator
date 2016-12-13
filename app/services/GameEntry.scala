@@ -35,7 +35,7 @@ object GameEntry {
   implicit val gameWrites: Writes[GameEntry] = (
     (JsPath \ "gog").write[Seq[GogEntry]] and
       (JsPath \ "steam").write[Seq[SteamEntry]] and
-      (JsPath \ "gol").write[Seq[PriceEntry]]
+      (JsPath \ "prices").write[Seq[PriceEntry]]
     ) ((e) => (e.gog, e.steam, e.prices))
 
   def generateFromNames(sources  : GameSources.GameSources, tables: Tables)(implicit ec: ExecutionContext): Future[Seq[GameEntry]] = {
