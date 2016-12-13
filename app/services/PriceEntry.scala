@@ -29,7 +29,7 @@ object PriceEntry {
       golPrices <- GolPricesFetcher.getPrices(entries, tables, golRetriever)
       fkPrices <- FKPricesFetcher.getPrices(entries, tables, fkRetriever)
     } yield {
-      (fkPrices ++ golPrices).groupBy(_.steamEntry).map(e => (e._1, e._2.sortBy(_.price)))
+      (fkPrices ++ golPrices).groupBy(_.steamEntry).map(e => (e._1, e._2.sortBy(_.price).take(5)))
     }
   }
 }
@@ -61,8 +61,10 @@ object FKPricesFetcher {
       def getPrice(e: SteamEntry, page : String) = {
         val parsed = Jsoup.parse(page)
         val price = parsed.getElementById("gameinfo").getElementsByClass("price").head.text().split(" ")(0)
-        val link = parsed.getElementById("content").getElementsByClass("active").head.getElementsByTag("a").head.attr("href")
-        PriceEntry(e, "xxx", host, link, BigDecimal(price))
+        val activeContent = parsed.getElementById("content").getElementsByClass("active").head
+        val name = activeContent.text()
+        val link = activeContent.getElementsByTag("a").head.attr("href")
+        PriceEntry(e, name, host, link, BigDecimal(price))
       }
       details.map((getPrice _).tupled)
     }
@@ -77,8 +79,6 @@ object GolPricesFetcher{
   import scala.collection.JavaConversions._
 
   def getPrices(entries : Seq[SteamEntry], tables: Tables, retriever: String => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
-    def getPrice(e: Element) = BigDecimal(e.getElementsByClass("gpcl-cen").text().split(" ")(0).replaceAll(",", ".")).setScale(2)
-    def getLink(e: Element) = e.attr("onclick").split("'")(1)
 
     def getGolIds(entries : Seq[SteamEntry]): Future[Seq[(SteamEntry, Future[String])]] = {
       val nameSearchUrlPrefix = "/ajax/quicksearch.asp?qs="
@@ -111,7 +111,14 @@ object GolPricesFetcher{
     for {
       prices <- getPriceMiniatures(entries).flatMap(queries => Future.sequence(queries.map(q => addArgumentToFuture(q))))
     } yield {
-      prices.flatMap({case (s, p) => Jsoup.parse(p).getElementsByClass("gpc-lista-a").toList.map(e => PriceEntry(s, "xxx", new URL(getLink(e)).getHost, getLink(e), getPrice(e)))})
+      def getPrice(e: SteamEntry)(priceElement : Element) = {
+        val price = BigDecimal(priceElement.getElementsByClass("gpcl-cen").text().split(" ")(0).replaceAll(",", ".")).setScale(2)
+        val name = priceElement.getElementsByClass("gpcl-tit").head.getElementsByTag("p").head.text()
+        val host =  new URL(priceElement.attr("onclick").split("'")(1)).getHost
+        val link =  priceElement.attr("onclick").split("'")(1)
+        PriceEntry(e, name, host, link, price)
+      }
+      prices.flatMap({case (s, p) => Jsoup.parse(p).getElementsByClass("gpc-lista-a").toList.map(getPrice(s))})
     }
   }
 }
