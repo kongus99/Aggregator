@@ -43,7 +43,7 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
 
   def gogData(sources: GameSources) = Action.async {
     for {
-      owned <- gogRetriever.retrieve().map(getGogPageNumber).flatMap(gogRetriever.retrievePages)
+      owned <- gogRetriever.retrieve(getGogPageNumber)
       wishlist <- gogWishListRetriever.retrieveWithUser("kongus99")("/wishlist")
       rates <- ratesRetriever.retrieve("")
       result <- getFromGog(tables)(owned, wishlist, sources, CurrencyConverter.parseFromXml(rates))
