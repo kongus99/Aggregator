@@ -61,3 +61,7 @@ class FKRetriever(client: WSClient)(implicit exec: ExecutionContext) extends Pag
     client.url(address.url + query).withHeaders(header: _*).get().map(_.body)
   }
 }
+
+class KeyeRetriever(client: WSClient)(implicit exec: ExecutionContext) extends PageRetriever(client) {
+  val address = UrlAddress("https://www.keye.pl", None)
+}

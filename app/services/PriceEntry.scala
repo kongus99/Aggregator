@@ -5,7 +5,7 @@ import java.net.URL
 import model.Tables
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import play.api.libs.json.{JsPath, Writes}
+import play.api.libs.json._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -23,13 +23,40 @@ object PriceEntry {
       (JsPath \ "link").write[String] and
       (JsPath \ "price").write[BigDecimal]) ((e) => (e.steamEntry.steamId, e.name, e.host, e.link, e.price))
 
-  def getPrices(tables: Tables, golRetriever: String => Future[String], fkRetriever : String => Future[String])(implicit exec: ExecutionContext): Future[Map[SteamEntry, Seq[PriceEntry]]] = {
+  def getPrices(tables: Tables,
+                golRetriever: String => Future[String],
+                fkRetriever : String => Future[String],
+                keyeRetriever : String => Future[String])(implicit exec: ExecutionContext): Future[Map[SteamEntry, Seq[PriceEntry]]] = {
     for {
       entries <- tables.getSteamEntries(Some(true))
       golPrices <- GolPricesFetcher.getPrices(entries, tables, golRetriever)
       fkPrices <- FKPricesFetcher.getPrices(entries, tables, fkRetriever)
+      keyePrices <- KeyePricesFetcher.getPrices(entries, tables, keyeRetriever)
     } yield {
-      (fkPrices ++ golPrices).groupBy(_.steamEntry).map(e => (e._1, e._2.sortBy(_.price).take(5)))
+      (fkPrices ++ keyePrices ++ golPrices).groupBy(_.steamEntry).map(e => (e._1, e._2.sortBy(_.price).take(5)))
+    }
+  }
+}
+
+object KeyePricesFetcher {
+  import play.api.libs.functional.syntax._
+
+  private val keyePriceReads = ((JsPath \ "name").read[String] and (JsPath \ "price").read[String] and (JsPath \ "url").read[String])((n, p, u) => (n, p, u))
+
+  private val host = "www.keye.pl"
+  def getPrices(entries: Seq[SteamEntry], tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
+    def autoCompleteUrl(query: String) = s"/index/lists?term=$query"
+
+    for {
+      complete <- Future.sequence(entries.map(e => retriever(autoCompleteUrl(e.name)).map(s => (e, s))))
+    } yield {
+      def parsePrice(steamEntry: SteamEntry, json: String): PriceEntry = {
+        val parse = Json.parse(json)
+        val data = parse.as[List[JsValue]].map(_.as(keyePriceReads)).head
+        PriceEntry(steamEntry, data._1, host, host + data._3, BigDecimal(data._2).setScale(2))
+      }
+
+      complete.filter(p => p._2 != "[]").map((parsePrice _).tupled)
     }
   }
 }
@@ -37,7 +64,7 @@ object PriceEntry {
 object FKPricesFetcher {
 
   import scala.collection.JavaConversions._
-  val host = "http://www.fabrykakluczy.pl"
+  val host = "www.fabrykakluczy.pl"
 
   def getPrices(entries: Seq[SteamEntry], tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
     def getLinks = {
@@ -48,7 +75,7 @@ object FKPricesFetcher {
         def parseUrl(name: String, html: String): Seq[String] = {
           val candidates = Jsoup.parse(html).getElementsByTag("a").toList
           val winner = candidates.map(a => (ThresholdLevenshtein.count(a.text(), name, 100), a)).sortBy(_._1).head._2
-          Seq(winner.attr("href").replace(host, ""))
+          Seq(winner.attr("href").split(host)(1))
         }
         complete.filter(p => !p._2.isEmpty).flatMap(p => parseUrl(p._1.name, p._2).map(s => (p._1, s)))
       }

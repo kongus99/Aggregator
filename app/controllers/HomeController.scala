@@ -25,6 +25,7 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
   val ratesRetriever = new ReferenceRatesRetriever(client)
   val golRetriever = new GolRetriever(client)
   val fkRetriever = new FKRetriever(client)
+  val keyeRetriever = new KeyeRetriever(client)
 
   def main = Action.async {
     Future {
@@ -35,7 +36,7 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
   def allData(sources: GameSources) = Action.async {
     for {
       result <- generateFromNames(sources, tables)
-      prices <- PriceEntry.getPrices(tables, golRetriever.retrieve, fkRetriever.retrieve)
+      prices <- PriceEntry.getPrices(tables, golRetriever.retrieve, fkRetriever.retrieve, keyeRetriever.retrieve)
     } yield {
       Ok(Json.toJson(result.map(e => if (e.steam.isEmpty) e else e.copy(prices = prices.getOrElse(e.steam.head, Seq())))))
     }
