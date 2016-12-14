@@ -41,10 +41,10 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
     }
   }
 
-  def gogData(sources: GameSources) = Action.async {
+  def gogData(gogUserId : String, sources: GameSources) = Action.async {
     for {
       owned <- gogRetriever.retrieve(getGogPageNumber)
-      wishlist <- gogWishListRetriever.retrieveWithUser("kongus99")("/wishlist")
+      wishlist <- gogWishListRetriever.retrieveWithUser(gogUserId)("/wishlist")
       rates <- ratesRetriever.retrieve("")
       result <- getFromGog(tables)(owned, wishlist, sources, CurrencyConverter.parseFromXml(rates))
     } yield {
@@ -52,10 +52,10 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
     }
   }
 
-  def steamData(sources: GameSources) = Action.async {
+  def steamData(steamUserId : String, sources: GameSources) = Action.async {
     for {
-      owned <- steamRetriever.retrieveWithUser("kongus")("/games/?tab=all")
-      wishlist <- steamRetriever.retrieveWithUser("kongus")("/wishlist")
+      owned <- steamRetriever.retrieveWithUser(steamUserId)("/games/?tab=all")
+      wishlist <- steamRetriever.retrieveWithUser(steamUserId)("/wishlist")
       rates <- ratesRetriever.retrieve("")
       result <- getFromSteam(tables)(owned, wishlist, sources, CurrencyConverter.parseFromXml(rates))
     } yield {
