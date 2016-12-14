@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject._
 
-import model.{Rates, Tables}
+import model.{CurrencyConverter, Tables}
 import play.api.Configuration
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
@@ -45,7 +45,8 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
     for {
       owned <- gogRetriever.retrieve().map(getGogPageNumber).flatMap(gogRetriever.retrievePages)
       wishlist <- gogWishListRetriever.retrieve()
-      result <- getFromGog(tables)(owned, wishlist, sources)
+      rates <- ratesRetriever.retrieve()
+      result <- getFromGog(tables)(owned, wishlist, sources, CurrencyConverter.parseFromXml(rates))
     } yield {
       Ok(Json.toJson(result))
     }
@@ -56,7 +57,7 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
       owned <- steamRetriever.retrieve()
       wishlist <- steamWishListRetriever.retrieve()
       rates <- ratesRetriever.retrieve()
-      result <- getFromSteam(tables)(owned, wishlist, sources, Rates.parseFromXml(rates))
+      result <- getFromSteam(tables)(owned, wishlist, sources, CurrencyConverter.parseFromXml(rates))
     } yield {
       Ok(Json.toJson(result))
     }

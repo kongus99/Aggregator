@@ -1,6 +1,6 @@
 package services
 
-import model.Tables
+import model.{CurrencyConverter, Tables}
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import services.GameEntry._
@@ -14,9 +14,10 @@ object GogEntry {
   private val regExp = "var gogData = (.+);".r
 
   private val coreGogRead = (JsPath \ "title").read[String] and (JsPath \ "id").read[Long]
-  val gogWishListReads: Reads[GogEntry] = (coreGogRead
+  def gogWishListReads(converter: CurrencyConverter): Reads[GogEntry] = (coreGogRead
+    and (JsPath \ "price" \ "symbol").read[String]
     and (JsPath \ "price" \ "baseAmount").read[String]
-    and (JsPath \ "price" \ "finalAmount").read[String])((t, i, p, d) => GogEntry(t, i, Some(BigDecimal(p)), Some(BigDecimal(d))))
+    and (JsPath \ "price" \ "finalAmount").read[String])((t, i, s, p, d) => GogEntry(t, i, Some(converter.convert(p + s)), Some(converter.convert(d + s))))
   val gogReads: Reads[GogEntry] = coreGogRead((t, i) => GogEntry(t, i))
 
   implicit val gogWrites: Writes[GogEntry] = (
@@ -25,12 +26,12 @@ object GogEntry {
       (JsPath \ "price").write[Option[BigDecimal]] and
       (JsPath \ "discounted").write[Option[BigDecimal]])((e) => (e.title, e.gogId, e.price, e.discounted))
 
-  private def parseWishList(wishList: String) = {
-    parseGogEntries(gogWishListReads)(regExp.findAllMatchIn(wishList).map(m => m.group(1)).next())
+  private def parseWishList(wishList: String, converter : CurrencyConverter) = {
+    parseGogEntries(gogWishListReads(converter))(regExp.findAllMatchIn(wishList).map(m => m.group(1)).next())
   }
 
-  def getFromGog(tables : Tables)(owned: Seq[String], wishList : String, sources : GameSources)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
-    val parsed = owned.flatMap(parseGogEntries(gogReads)) ++ parseWishList(wishList)
+  def getFromGog(tables : Tables)(owned: Seq[String], wishList : String, sources : GameSources, converter: CurrencyConverter)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
+    val parsed = owned.flatMap(parseGogEntries(gogReads)) ++ parseWishList(wishList, converter)
     tables.replaceGogData(parsed).flatMap(_ => generateFromNames(sources, tables))
   }
 

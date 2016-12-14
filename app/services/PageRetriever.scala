@@ -31,9 +31,7 @@ class GogPageRetriever(client: WSClient, configuration: Configuration)(implicit 
 }
 
 class GogWishListRetriever(client: WSClient, configuration: Configuration)(implicit exec: ExecutionContext) extends PageRetriever(client) {
-  val address = UrlAddress(
-    "https://www.gog.com/u/kongus99/wishlist",
-    Some(configuration.underlying.getString("gog.cookies")))
+  val address = UrlAddress("https://www.gog.com/u/kongus99/wishlist", None)
 }
 
 class SteamPageRetriever(client: WSClient)(implicit exec: ExecutionContext) extends PageRetriever(client) {
@@ -54,7 +52,7 @@ class GolRetriever(client: WSClient)(implicit exec: ExecutionContext) extends Pa
 
 class FKRetriever(client: WSClient)(implicit exec: ExecutionContext) extends PageRetriever(client) {
   val address = UrlAddress("http://www.fabrykakluczy.pl", None)
-  val header = ("Host", "www.fabrykakluczy.pl") ::
+  private val header = ("Host", "www.fabrykakluczy.pl") ::
     ("X-Requested-With", "XMLHttpRequest") ::
     ("Referer", "http://www.fabrykakluczy.pl/") ::
     Nil

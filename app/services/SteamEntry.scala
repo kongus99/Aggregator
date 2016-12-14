@@ -1,6 +1,6 @@
 package services
 
-import model.{Rates, Tables}
+import model.{CurrencyConverter, Tables}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import play.api.libs.functional.syntax._
@@ -22,24 +22,20 @@ object SteamEntry {
       (JsPath \ "price").write[Option[BigDecimal]]and
       (JsPath \ "discounted").write[Option[BigDecimal]]) ((e) => (e.name, e.steamId, e.price, e.discounted))
 
-  def getFromSteam(tables : Tables)(owned: String, wishList : String, sources : GameSources, rates : Rates)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
-    val parsed = parseOwned(owned) ++ parseWishList(wishList, rates)
+  def getFromSteam(tables : Tables)(owned: String, wishList : String, sources : GameSources, converter : CurrencyConverter)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
+    val parsed = parseOwned(owned) ++ parseWishList(wishList, converter)
     tables.replaceSteamData(parsed).flatMap(_ => generateFromNames(sources, tables))
   }
 
-  private def parseWishList(wishList: String, rates: Rates) = {
+  private def parseWishList(wishList: String, converter: CurrencyConverter) = {
     import scala.collection.JavaConversions._
     val items = Jsoup.parse(wishList).getElementById("wishlist_items").getElementsByClass("wishlistRow").toList
     items.map(e => {
       val id = e.attr("id").split("_")(1)
       val name = e.getElementsByAttributeValue("class", "ellipsis").text()
       val (price, discounted) = getPrices(e)
-      SteamEntry(name, id.toLong, price.map(convert(rates)), discounted.map(convert(rates)))
+      SteamEntry(name, id.toLong, price.map(converter.convert), discounted.map(converter.convert))
     })
-  }
-
-  private def convert(rates: Rates)(value: String): BigDecimal = {
-    rates.recalculateFromEuro(BigDecimal(value.split('€')(0).replace(",", ".")), "PLN").getOrElse(BigDecimal(-1))
   }
 
   private def getPrices(e: Element): (Option[String], Option[String]) = {
