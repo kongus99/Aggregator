@@ -20,7 +20,6 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
 
   val gogRetriever = new GogPageRetriever(client, configuration)
   val steamRetriever = new SteamPageRetriever(client)
-  val steamWishListRetriever = new SteamWishListRetriever(client)
   val gogWishListRetriever = new GogWishListRetriever(client, configuration)
   val ratesRetriever = new ReferenceRatesRetriever(client)
   val golRetriever = new GolRetriever(client)
@@ -45,8 +44,8 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
   def gogData(sources: GameSources) = Action.async {
     for {
       owned <- gogRetriever.retrieve().map(getGogPageNumber).flatMap(gogRetriever.retrievePages)
-      wishlist <- gogWishListRetriever.retrieve()
-      rates <- ratesRetriever.retrieve()
+      wishlist <- gogWishListRetriever.retrieveWithUser("kongus99")("/wishlist")
+      rates <- ratesRetriever.retrieve("")
       result <- getFromGog(tables)(owned, wishlist, sources, CurrencyConverter.parseFromXml(rates))
     } yield {
       Ok(Json.toJson(result))
@@ -55,9 +54,9 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
 
   def steamData(sources: GameSources) = Action.async {
     for {
-      owned <- steamRetriever.retrieve()
-      wishlist <- steamWishListRetriever.retrieve()
-      rates <- ratesRetriever.retrieve()
+      owned <- steamRetriever.retrieveWithUser("kongus")("/games/?tab=all")
+      wishlist <- steamRetriever.retrieveWithUser("kongus")("/wishlist")
+      rates <- ratesRetriever.retrieve("")
       result <- getFromSteam(tables)(owned, wishlist, sources, CurrencyConverter.parseFromXml(rates))
     } yield {
       Ok(Json.toJson(result))

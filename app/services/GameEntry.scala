@@ -8,7 +8,7 @@ import services.GameOn.GameOn
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class UrlAddress(url: String, cookies: Option[String])
+case class UrlAddress(url: String, headers : Seq[(String, String)])
 
 case class GameEntry(gog: Seq[GogEntry], steam: Seq[SteamEntry], prices : Seq[PriceEntry] = Seq()) {
   val name: String = gog.headOption.map(_.title).getOrElse(steam.head.name)
