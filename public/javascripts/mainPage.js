@@ -10152,17 +10152,19 @@ var _user$project$MainPage$gameTableTitle = A2(
 			}
 		}
 	});
-var _user$project$MainPage$Model = F3(
-	function (a, b, c) {
-		return {sources: a, entries: b, message: c};
+var _user$project$MainPage$Model = F5(
+	function (a, b, c, d, e) {
+		return {sources: a, entries: b, message: c, steamUserId: d, gogUserId: e};
 	});
 var _user$project$MainPage$Both = {ctor: 'Both'};
 var _user$project$MainPage$WishList = {ctor: 'WishList'};
-var _user$project$MainPage$initialModel = A3(
+var _user$project$MainPage$initialModel = A5(
 	_user$project$MainPage$Model,
 	_user$project$MainPage$WishList,
 	{ctor: '[]'},
-	'Click to refresh');
+	'',
+	'kongus',
+	'kongus99');
 var _user$project$MainPage$Owned = {ctor: 'Owned'};
 var _user$project$MainPage$RefreshError = function (a) {
 	return {ctor: 'RefreshError', _0: a};
@@ -10351,7 +10353,11 @@ var _user$project$MainPage$view = function (model) {
 											_0: 'sources',
 											_1: _elm_lang$core$Basics$toString(model.sources)
 										},
-										_1: {ctor: '[]'}
+										_1: {
+											ctor: '::',
+											_0: {ctor: '_Tuple2', _0: 'gogUserId', _1: model.gogUserId},
+											_1: {ctor: '[]'}
+										}
 									})))),
 					_1: {ctor: '[]'}
 				},
@@ -10377,7 +10383,11 @@ var _user$project$MainPage$view = function (model) {
 												_0: 'sources',
 												_1: _elm_lang$core$Basics$toString(model.sources)
 											},
-											_1: {ctor: '[]'}
+											_1: {
+												ctor: '::',
+												_0: {ctor: '_Tuple2', _0: 'steamUserId', _1: model.steamUserId},
+												_1: {ctor: '[]'}
+											}
 										})))),
 						_1: {ctor: '[]'}
 					},

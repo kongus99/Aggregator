@@ -4,8 +4,8 @@
 
 # An example controller showing a sample home page
 GET         /                              controllers.HomeController.main
-GET         /gogData                       controllers.HomeController.gogData(gogUserId : String ?= "kongus99", sources : services.GameSources.GameSources)
-GET         /steamData                     controllers.HomeController.steamData(steamUserId : String ?= "kongus", sources : services.GameSources.GameSources)
+GET         /gogData                       controllers.HomeController.gogData(gogUserId : String, sources : services.GameSources.GameSources)
+GET         /steamData                     controllers.HomeController.steamData(steamUserId : String, sources : services.GameSources.GameSources)
 GET         /allData                       controllers.HomeController.allData(sources : services.GameSources.GameSources)
 
 GET         /comparison                    controllers.ComparisonController.main

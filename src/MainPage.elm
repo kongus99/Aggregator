@@ -17,9 +17,9 @@ main =
 
 type GameSources = Owned | WishList | Both
 
-type alias Model = {sources : GameSources, entries : List GameEntry, message : String}
+type alias Model = {sources : GameSources, entries : List GameEntry, message : String, steamUserId : String, gogUserId : String}
 
-initialModel = Model WishList [] "Click to refresh"
+initialModel = Model WishList [] "" "kongus" "kongus99"
 
 -- UPDATE
 
@@ -42,8 +42,8 @@ update msg model =
 view : Model -> Html Msg
 view model =
   div [] <|
-    [ button [ onClick <| SendRefresh <| getResponse <| Router.gogData [("sources", toString model.sources)]] [ text "Fetch from gog"   ]
-    , button [ onClick <| SendRefresh <| getResponse <| Router.steamData [("sources", toString model.sources)]] [ text "Fetch from steam" ]
+    [ button [ onClick <| SendRefresh <| getResponse <| Router.gogData [("sources", toString model.sources), ("gogUserId", model.gogUserId)]] [ text "Fetch from gog"   ]
+    , button [ onClick <| SendRefresh <| getResponse <| Router.steamData [("sources", toString model.sources), ("steamUserId", model.steamUserId)]] [ text "Fetch from steam" ]
     , div [] [sourcesSelect model.sources]
     , div [] [ text (toString model.message) ]
     , table[] <| gameTableTitle :: (List.map gameTableRow model.entries)
