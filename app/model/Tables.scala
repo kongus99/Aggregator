@@ -6,6 +6,7 @@ import controllers.MatchEntry
 import play.api.db.slick.DatabaseConfigProvider
 import services.GameOn._
 import services.{GameOn, GogEntry, SteamEntry}
+import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
 import slick.jdbc.meta.MTable
 import slick.lifted.ProvenShape
@@ -17,7 +18,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: ExecutionContext) {
 
 
-  val dbConfig = dbConfigProvider.get[JdbcProfile]
+  val dbConfig: DatabaseConfig[JdbcProfile] = dbConfigProvider.get[JdbcProfile]
 
   import dbConfig.driver.api._
 
@@ -26,6 +27,21 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
   val gogData = TableQuery[GogData]
   val steamData = TableQuery[SteamData]
   val matchData = TableQuery[MatchData]
+  val userData = TableQuery[UserData]
+
+  class UserData(tag: Tag) extends Table[User](tag, "USER_DATA") {
+    def id = column[Long]("USER_DATA_ID", O.PrimaryKey, O.AutoInc)
+
+    def gogLogin = column[Option[String]]("USER_DATA_GOG_LOGIN")
+
+    def steamLogin = column[Option[String]]("USER_DATA_STEAM_LOGIN")
+
+    def gogLoginUnique = index("USER_DATA_GOG_LOGIN_UNIQUE", gogLogin, unique = true)
+
+    def steamLoginUnique = index("USER_DATA_STEAM_LOGIN_UNIQUE", steamLogin, unique = true)
+
+    def * : ProvenShape[User] = (id.?, gogLogin, steamLogin) <> (User.tupled, User.unapply)
+  }
 
   class GogData(tag: Tag) extends Table[GogEntry](tag, "GOG_DATA") {
     def title = column[String]("GOG_DATA_TITLE")
@@ -116,7 +132,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
   }
 
-  def replaceGogData(data : Seq[GogEntry]) =
+  def replaceGogData(data : Seq[GogEntry]): Future[_] =
     db.run(gogData.delete andThen (gogData ++= data))
 
   def getGogEntries(sources : Option[Boolean]) : Future[Seq[GogEntry]] = {
@@ -129,14 +145,17 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     db.run(query.result)
   }
 
-  def replaceSteamData(data : Seq[SteamEntry]) =
+  def replaceSteamData(data : Seq[SteamEntry]): Future[_] =
     db.run(steamData.delete andThen (steamData ++= data))
 
-  lazy val get = {
+  lazy val get: AnyVal = {
     def start() = {
       val initialization = MTable.getTables.flatMap(tables => {
         val areCreated = tables.exists(t => t.name.name == "GOG_DATA")
-        if(areCreated) DBIO.successful(1) else (gogData.schema ++ steamData.schema ++ matchData.schema).create
+        if(areCreated)
+          DBIO.successful(1)
+        else
+          (gogData.schema ++ steamData.schema ++ matchData.schema ++ userData.schema).create.andThen(userData += User(None, Some("kongus"), Some("kongus99")))
       })
       Await.result(db.run(initialization), Duration.Inf)
     }
