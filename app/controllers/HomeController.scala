@@ -34,7 +34,8 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
 
   def allData(sources: GameSources) = Action.async {
     for {
-      result <- generateFromNames(sources, tables)
+      user <- tables.getUserBySteamLogin(Some("kongus"))
+      result <- generateFromNames(user, sources, tables)
       prices <- PriceEntry.getPrices(tables, golRetriever.retrieve, fkRetriever.retrieve, keyeRetriever.retrieve)
     } yield {
       Ok(Json.toJson(result.map(e => if (e.steam.isEmpty) e else e.copy(prices = prices.getOrElse(e.steam.head, Seq())))))
@@ -43,10 +44,11 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
 
   def gogData(gogUserId : String, sources: GameSources) = Action.async {
     for {
+      user <- tables.getUserBySteamLogin(Some("kongus"))
       owned <- gogRetriever.retrieve(getGogPageNumber)
       wishlist <- gogWishListRetriever.retrieveWithUser(gogUserId)("/wishlist")
       rates <- ratesRetriever.retrieve("")
-      result <- getFromGog(tables)(owned, wishlist, sources, CurrencyConverter.parseFromXml(rates))
+      result <- getFromGog(tables)(user, owned, wishlist, sources, CurrencyConverter.parseFromXml(rates))
     } yield {
       Ok(Json.toJson(result))
     }
@@ -54,10 +56,11 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
 
   def steamData(steamUserId : String, sources: GameSources) = Action.async {
     for {
+      user <- tables.getUserBySteamLogin(Some("kongus"))
       owned <- steamRetriever.retrieveWithUser(steamUserId)("/games/?tab=all")
       wishlist <- steamRetriever.retrieveWithUser(steamUserId)("/wishlist")
       rates <- ratesRetriever.retrieve("")
-      result <- getFromSteam(tables)(owned, wishlist, sources, CurrencyConverter.parseFromXml(rates))
+      result <- getFromSteam(tables)(user, owned, wishlist, sources, CurrencyConverter.parseFromXml(rates))
     } yield {
       Ok(Json.toJson(result))
     }

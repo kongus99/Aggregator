@@ -24,10 +24,11 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
   val db = dbConfig.db
 
-  val gogData = TableQuery[GogData]
   val steamData = TableQuery[SteamData]
   val matchData = TableQuery[MatchData]
   val userData = TableQuery[UserData]
+  val gogData = TableQuery[GogData]
+  val gogOwnershipData = TableQuery[GogOwnershipData]
 
   class UserData(tag: Tag) extends Table[User](tag, "USER_DATA") {
     def id = column[Long]("USER_DATA_ID", O.PrimaryKey, O.AutoInc)
@@ -40,24 +41,47 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def steamLoginUnique = index("USER_DATA_STEAM_LOGIN_UNIQUE", steamLogin, unique = true)
 
-    def * : ProvenShape[User] = (id.?, gogLogin, steamLogin) <> (User.tupled, User.unapply)
+    def * : ProvenShape[User] = (id.?, steamLogin, gogLogin) <> (User.tupled, User.unapply)
   }
 
-  class GogData(tag: Tag) extends Table[GogEntry](tag, "GOG_DATA") {
-    def title = column[String]("GOG_DATA_TITLE")
-
+  class GogData(tag: Tag) extends Table[(Long, String)](tag, "GOG_DATA") {
     def gogId = column[Long]("GOG_DATA_GOG_ID", O.PrimaryKey)
 
-    def price = column[Option[BigDecimal]]("GOG_DATA_PRICE", O.SqlType("DECIMAL(6,2)"))
+    def title = column[String]("GOG_DATA_TITLE")
 
-    def discountedPrice = column[Option[BigDecimal]]("GOG_DATA_PRICE_DISCOUNTED", O.SqlType("DECIMAL(6,2)"))
+    def * : ProvenShape[(Long, String)] = {
 
-    def * : ProvenShape[GogEntry] = {
+      val apply: (Long, String) => (Long, String) = (gogId, title) => (gogId, title)
 
-      val apply: (String, Long, Option[BigDecimal], Option[BigDecimal]) => GogEntry = (name, gogId, price, discounted) => new GogEntry(name, gogId, price, discounted)
+      val unapply: ((Long, String)) => Option[(Long, String)] = g => Some(g._1, g._2)
+      (gogId, title) <>(apply.tupled, unapply)
+    }
 
-      val unapply: (GogEntry) => Option[(String, Long, Option[BigDecimal], Option[BigDecimal])] = g => Some((g.title, g.gogId, g.price, g.discounted))
-      (title, gogId, price, discountedPrice) <>(apply.tupled, unapply)
+  }
+
+  class GogOwnershipData(tag: Tag) extends Table[(Long, Long, Option[BigDecimal], Option[BigDecimal])](tag, "GOG_OWNERSHIP_DATA") {
+    def gogId = column[Long]("GOG_OWNERSHIP_DATA_GOG_ID")
+
+    def userId = column[Long]("GOG_OWNERSHIP_DATA_USER_ID")
+
+    def price = column[Option[BigDecimal]]("GOG_OWNERSHIP_DATA_PRICE", O.SqlType("DECIMAL(6,2)"))
+
+    def discountedPrice = column[Option[BigDecimal]]("GOG_OWNERSHIP_DATA_PRICE_DISCOUNTED", O.SqlType("DECIMAL(6,2)"))
+
+    def comboUnique = primaryKey("GOG_OWNERSHIP_DATA_COMBO_UNIQUE", (gogId, userId))
+
+    def gogFk = foreignKey("GOG_DATA_FK", gogId, gogData)(_.gogId, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Cascade)
+
+    def userFk = foreignKey("USER_DATA_FK", userId, userData)(_.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Cascade)
+
+    def * : ProvenShape[(Long, Long, Option[BigDecimal], Option[BigDecimal])] = {
+
+      val apply: (Long, Long, Option[BigDecimal], Option[BigDecimal]) => (Long, Long, Option[BigDecimal], Option[BigDecimal]) =
+        (gogId, userId, price, discountedPrice) => (gogId, userId, price, discountedPrice)
+
+      val unapply: ((Long, Long, Option[BigDecimal], Option[BigDecimal])) => Option[(Long, Long, Option[BigDecimal], Option[BigDecimal])] =
+        g => Some(g._1, g._2, g._3, g._4)
+      (gogId, userId, price, discountedPrice) <>(apply.tupled, unapply)
     }
   }
 
@@ -132,12 +156,39 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
   }
 
-  def replaceGogData(data : Seq[GogEntry]): Future[_] =
-    db.run(gogData.delete andThen (gogData ++= data))
+  def getUserBySteamLogin(login : Option[String]) : Future[Option[User]] =
+    db.run(userData.filter(_.steamLogin === login).result.headOption)
 
-  def getGogEntries(sources : Option[Boolean]) : Future[Seq[GogEntry]] = {
-    val query = sources.map(s => gogData.filter(e => e.price.isDefined === s)).getOrElse(gogData)
-    db.run(query.result)
+  def replaceGogData(user : Option[User], data : Seq[GogEntry]): Future[_] =
+    user.map(u => {
+      val ids = data.map(_.gogId).toSet
+      val newOwnership = data.map(g => (g.gogId, u.id.get, g.price, g.discounted))
+      def oldDataIdsQuery =
+        gogData.filter(_.gogId.inSet(ids)).map(_.gogId)
+      def insertNewData(oldDataIds : Seq[Long]) = {
+        val newData = data.filter(d => !oldDataIds.contains(d.gogId)).map(d => (d.gogId, d.title))
+        gogData ++= newData
+      }
+      def deleteOldOwnership(x : Any) = gogOwnershipData.filter(_.userId === u.id.get).delete
+      def addNewOwnership(x : Any) = gogOwnershipData ++= newOwnership
+      val t = for{
+        xxx <- oldDataIdsQuery.result
+        yyy <- insertNewData(xxx)
+        zzz <- deleteOldOwnership(yyy)
+        tt <- addNewOwnership(zzz)
+      } yield tt
+      db.run(t)
+    }).getOrElse(Future{true})
+
+  def getGogEntries(user : Option[User], sources : Option[Boolean]) : Future[Seq[GogEntry]] = {
+    for {rows <- user.map(u => {
+      db.run(gogOwnershipData.filter(e => e.price.isDefined === sources && e.userId === u.id.get).join(gogData).on(_.gogId === _.gogId).result)
+    }).getOrElse(
+      db.run(gogOwnershipData.join(gogData).on(_.gogId === _.gogId).result)
+    )} yield {
+      rows.map(pair => GogEntry(pair._2._2, pair._2._1, pair._1._3, pair._1._4))
+    }
+
   }
 
   def getSteamEntries(sources : Option[Boolean]) : Future[Seq[SteamEntry]] = {
@@ -155,7 +206,12 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
         if(areCreated)
           DBIO.successful(1)
         else
-          (gogData.schema ++ steamData.schema ++ matchData.schema ++ userData.schema).create.andThen(userData += User(None, Some("kongus"), Some("kongus99")))
+          userData.schema.create andThen
+            gogData.schema.create andThen
+            steamData.schema.create andThen
+            matchData.schema.create andThen
+            gogOwnershipData.schema.create andThen
+            (userData += User(None, Some("kongus"), Some("kongus99")))
       })
       Await.result(db.run(initialization), Duration.Inf)
     }

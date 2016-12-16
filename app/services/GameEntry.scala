@@ -1,6 +1,6 @@
 package services
 
-import model.Tables
+import model.{Tables, User}
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Writes}
 import services.GameOn.GameOn
@@ -38,7 +38,7 @@ object GameEntry {
       (JsPath \ "prices").write[Seq[PriceEntry]]
     ) ((e) => (e.gog, e.steam, e.prices))
 
-  def generateFromNames(sources  : GameSources.GameSources, tables: Tables)(implicit ec: ExecutionContext): Future[Seq[GameEntry]] = {
+  def generateFromNames(user : Option[User], sources  : GameSources.GameSources, tables: Tables)(implicit ec: ExecutionContext): Future[Seq[GameEntry]] = {
     def simplify(p: ((GameOn, Long), (GameOn, Long))) = if (p._1._1 == GameOn.Gog || (p._1._1 == GameOn.Steam && p._2._1 == GameOn.Steam && p._1._2 < p._2._2)) p.swap else p
 
 
@@ -49,7 +49,7 @@ object GameEntry {
     }
 
     for {
-      gog <- tables.getGogEntries(GameSources.toOption(sources))
+      gog <- tables.getGogEntries(user, GameSources.toOption(sources))
       steam <- tables.getSteamEntries(GameSources.toOption(sources))
       matches <- tables.getAllMatches
     } yield {

@@ -1,6 +1,6 @@
 package services
 
-import model.{CurrencyConverter, Tables}
+import model.{CurrencyConverter, Tables, User}
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import services.GameEntry._
@@ -30,9 +30,9 @@ object GogEntry {
     parseGogEntries(gogWishListReads(converter))(regExp.findAllMatchIn(wishList).map(m => m.group(1)).next())
   }
 
-  def getFromGog(tables : Tables)(owned: Seq[String], wishList : String, sources : GameSources, converter: CurrencyConverter)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
+  def getFromGog(tables : Tables)(user : Option[User], owned: Seq[String], wishList : String, sources : GameSources, converter: CurrencyConverter)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
     val parsed = owned.flatMap(parseGogEntries(gogReads)) ++ parseWishList(wishList, converter)
-    tables.replaceGogData(parsed).flatMap(_ => generateFromNames(sources, tables))
+    tables.replaceGogData(user, parsed).flatMap(_ => generateFromNames(user, sources, tables))
   }
 
   def getGogPageNumber(body: String): Int = (Json.parse(body) \ "totalPages").as[Int]
