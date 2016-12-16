@@ -169,15 +169,9 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
         val newData = data.filter(d => !oldDataIds.contains(d.gogId)).map(d => (d.gogId, d.title))
         gogData ++= newData
       }
-      def deleteOldOwnership(x : Any) = gogOwnershipData.filter(_.userId === u.id.get).delete
-      def addNewOwnership(x : Any) = gogOwnershipData ++= newOwnership
-      val t = for{
-        xxx <- oldDataIdsQuery.result
-        yyy <- insertNewData(xxx)
-        zzz <- deleteOldOwnership(yyy)
-        tt <- addNewOwnership(zzz)
-      } yield tt
-      db.run(t)
+      lazy val  deleteOldOwnership = gogOwnershipData.filter(_.userId === u.id.get).delete
+      lazy val  addNewOwnership = gogOwnershipData ++= newOwnership
+      db.run((oldDataIdsQuery.result.flatMap(insertNewData) >> deleteOldOwnership >> addNewOwnership).transactionally)
     }).getOrElse(Future{true})
 
   def getGogEntries(user : Option[User], sources : Option[Boolean]) : Future[Seq[GogEntry]] = {
@@ -188,7 +182,6 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     )} yield {
       rows.map(pair => GogEntry(pair._2._2, pair._2._1, pair._1._3, pair._1._4))
     }
-
   }
 
   def getSteamEntries(sources : Option[Boolean]) : Future[Seq[SteamEntry]] = {
