@@ -32,9 +32,9 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
     }
   }
 
-  def allData(sources: GameSources) = Action.async {
+  def allData(userId : Long, sources: GameSources) = Action.async {
     for {
-      user <- tables.getUserBySteamLogin(Some("kongus"))
+      user <- tables.getUserById(userId)
       result <- generateFromNames(user, sources, tables)
       prices <- PriceEntry.getPrices(tables, user, golRetriever.retrieve, fkRetriever.retrieve, keyeRetriever.retrieve)
     } yield {
@@ -42,11 +42,11 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
     }
   }
 
-  def gogData(gogUserId : String, sources: GameSources) = Action.async {
+  def gogData(userId : Long, sources: GameSources) = Action.async {
     for {
-      user <- tables.getUserBySteamLogin(Some("kongus"))
+      user <- tables.getUserById(userId)
       owned <- gogRetriever.retrieve(getGogPageNumber)
-      wishlist <- gogWishListRetriever.retrieveWithUser(gogUserId)("/wishlist")
+      wishlist <- user.map(u => u.gogLogin.map(l => gogWishListRetriever.retrieveWithUser(l)("/wishlist")).getOrElse(Future{""})).getOrElse(Future{""})
       rates <- ratesRetriever.retrieve("")
       result <- getFromGog(tables)(user, owned, wishlist, sources, CurrencyConverter.parseFromXml(rates))
     } yield {
@@ -54,11 +54,11 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
     }
   }
 
-  def steamData(steamUserId : String, sources: GameSources) = Action.async {
+  def steamData(userId : Long, sources: GameSources) = Action.async {
     for {
-      user <- tables.getUserBySteamLogin(Some("kongus"))
-      owned <- steamRetriever.retrieveWithUser(steamUserId)("/games/?tab=all")
-      wishlist <- steamRetriever.retrieveWithUser(steamUserId)("/wishlist")
+      user <- tables.getUserById(userId)
+      owned <- user.map(u => u.steamLogin.map(l => steamRetriever.retrieveWithUser(l)("/games/?tab=all")).getOrElse(Future{""})).getOrElse(Future{""})
+      wishlist <- user.map(u => u.steamLogin.map(l => steamRetriever.retrieveWithUser(l)("/wishlist")).getOrElse(Future{""})).getOrElse(Future{""})
       rates <- ratesRetriever.retrieve("")
       result <- getFromSteam(tables)(user, owned, wishlist, sources, CurrencyConverter.parseFromXml(rates))
     } yield {

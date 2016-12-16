@@ -180,8 +180,8 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
   }
 
-  def getUserBySteamLogin(login : Option[String]) : Future[Option[User]] =
-    db.run(userData.filter(_.steamLogin === login).result.headOption)
+  def getUserById(id : Long) : Future[Option[User]] =
+    db.run(userData.filter(_.id === id).result.headOption)
 
   def replaceGogData(user : Option[User], data : Seq[GogEntry]): Future[_] =
     user.map(u => {
