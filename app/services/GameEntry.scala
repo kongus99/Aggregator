@@ -50,7 +50,7 @@ object GameEntry {
 
     for {
       gog <- tables.getGogEntries(user, GameSources.toOption(sources))
-      steam <- tables.getSteamEntries(GameSources.toOption(sources))
+      steam <- tables.getSteamEntries(user, GameSources.toOption(sources))
       matches <- tables.getAllMatches
     } yield {
       val gogMap = gog.map(e => (e.gogId, e)).toMap

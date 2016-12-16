@@ -24,11 +24,12 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
   val db = dbConfig.db
 
-  val steamData = TableQuery[SteamData]
   val matchData = TableQuery[MatchData]
   val userData = TableQuery[UserData]
   val gogData = TableQuery[GogData]
   val gogOwnershipData = TableQuery[GogOwnershipData]
+  val steamData = TableQuery[SteamData]
+  val steamOwnershipData = TableQuery[SteamOwnershipData]
 
   class UserData(tag: Tag) extends Table[User](tag, "USER_DATA") {
     def id = column[Long]("USER_DATA_ID", O.PrimaryKey, O.AutoInc)
@@ -85,21 +86,44 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     }
   }
 
-  class SteamData(tag: Tag) extends Table[SteamEntry](tag, "STEAM_DATA") {
-    def name = column[String]("STEAM_DATA_NAME")
-
+  class SteamData(tag: Tag) extends Table[(Long, String)](tag, "STEAM_DATA") {
     def steamId = column[Long]("STEAM_DATA_STEAM_ID", O.PrimaryKey)
 
-    def price = column[Option[BigDecimal]]("STEAM_DATA_PRICE", O.SqlType("DECIMAL(6,2)"))
+    def name = column[String]("STEAM_DATA_NAME")
 
-    def discountedPrice = column[Option[BigDecimal]]("STEAM_DATA_PRICE_DISCOUNTED", O.SqlType("DECIMAL(6,2)"))
+    def * : ProvenShape[(Long, String)] = {
 
-    def * : ProvenShape[SteamEntry] = {
+      val apply: (Long, String) => (Long, String) = (steamId, name) => (steamId, name)
 
-      val apply: (String, Long, Option[BigDecimal], Option[BigDecimal]) => SteamEntry = (name, steamId, price, discounted) => new SteamEntry(name, steamId, price, discounted)
+      val unapply: ((Long, String)) => Option[(Long, String)] = s => Some((s._1, s._2))
+      (steamId, name) <>(apply.tupled, unapply)
+    }
+  }
 
-      val unapply: (SteamEntry) => Option[(String, Long, Option[BigDecimal], Option[BigDecimal])] = g => Some((g.name, g.steamId, g.price, g.discounted))
-      (name, steamId, price, discountedPrice) <>(apply.tupled, unapply)
+  class SteamOwnershipData(tag: Tag) extends Table[(Long, Long, Option[BigDecimal], Option[BigDecimal])](tag, "STEAM_OWNERSHIP_DATA") {
+
+    def steamId = column[Long]("STEAM_OWNERSHIP_DATA_STEAM_ID")
+
+    def userId = column[Long]("STEAM_OWNERSHIP_DATA_USER_ID")
+
+    def price = column[Option[BigDecimal]]("STEAM_OWNERSHIP_DATA_PRICE", O.SqlType("DECIMAL(6,2)"))
+
+    def discountedPrice = column[Option[BigDecimal]]("STEAM_OWNERSHIP_DATA_PRICE_DISCOUNTED", O.SqlType("DECIMAL(6,2)"))
+
+    def comboUnique = primaryKey("STEAM_OWNERSHIP_DATA_COMBO_UNIQUE", (steamId, userId))
+
+    def steamFk = foreignKey("STEAM_DATA_FK", steamId, steamData)(_.steamId, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Cascade)
+
+    def userFk = foreignKey("USER_DATA_FK", userId, userData)(_.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Cascade)
+
+    def * : ProvenShape[(Long, Long, Option[BigDecimal], Option[BigDecimal])] = {
+
+      val apply: (Long, Long, Option[BigDecimal], Option[BigDecimal]) => (Long, Long, Option[BigDecimal], Option[BigDecimal]) =
+        (steamId, userId, price, discountedPrice) => (steamId, userId, price, discountedPrice)
+
+      val unapply: ((Long, Long, Option[BigDecimal], Option[BigDecimal])) => Option[(Long, Long, Option[BigDecimal], Option[BigDecimal])] =
+        s => Some(s._1, s._2, s._3, s._4)
+      (steamId, userId, price, discountedPrice) <>(apply.tupled, unapply)
     }
   }
 
@@ -163,8 +187,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     user.map(u => {
       val ids = data.map(_.gogId).toSet
       val newOwnership = data.map(g => (g.gogId, u.id.get, g.price, g.discounted))
-      def oldDataIdsQuery =
-        gogData.filter(_.gogId.inSet(ids)).map(_.gogId)
+      val oldDataIdsQuery = gogData.filter(_.gogId.inSet(ids)).map(_.gogId)
       def insertNewData(oldDataIds : Seq[Long]) = {
         val newData = data.filter(d => !oldDataIds.contains(d.gogId)).map(d => (d.gogId, d.title))
         gogData ++= newData
@@ -184,13 +207,29 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     }
   }
 
-  def getSteamEntries(sources : Option[Boolean]) : Future[Seq[SteamEntry]] = {
-    val query = sources.map(s => steamData.filter(e => e.price.isDefined === s)).getOrElse(steamData)
-    db.run(query.result)
+  def getSteamEntries(user : Option[User], sources : Option[Boolean]) : Future[Seq[SteamEntry]] = {
+    for {rows <- user.map(u => {
+      db.run(steamOwnershipData.filter(e => e.price.isDefined === sources && e.userId === u.id.get).join(steamData).on(_.steamId === _.steamId).result)
+    }).getOrElse(
+      db.run(steamOwnershipData.join(steamData).on(_.steamId === _.steamId).result)
+    )} yield {
+      rows.map(pair => SteamEntry(pair._2._2, pair._2._1, pair._1._3, pair._1._4))
+    }
   }
 
-  def replaceSteamData(data : Seq[SteamEntry]): Future[_] =
-    db.run(steamData.delete andThen (steamData ++= data))
+  def replaceSteamData(user : Option[User], data : Seq[SteamEntry]): Future[_] =
+    user.map(u => {
+      val ids = data.map(_.steamId).toSet
+      val newOwnership = data.map(g => (g.steamId, u.id.get, g.price, g.discounted))
+      val oldDataIdsQuery = steamData.filter(_.steamId.inSet(ids)).map(_.steamId)
+      def insertNewData(oldDataIds : Seq[Long]) = {
+        val newData = data.filter(d => !oldDataIds.contains(d.steamId)).map(d => (d.steamId, d.name))
+        steamData ++= newData
+      }
+      lazy val  deleteOldOwnership = steamOwnershipData.filter(_.userId === u.id.get).delete
+      lazy val  addNewOwnership = steamOwnershipData ++= newOwnership
+      db.run((oldDataIdsQuery.result.flatMap(insertNewData) >> deleteOldOwnership >> addNewOwnership).transactionally)
+    }).getOrElse(Future{true})
 
   lazy val get: AnyVal = {
     def start() = {
@@ -204,6 +243,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
             steamData.schema.create andThen
             matchData.schema.create andThen
             gogOwnershipData.schema.create andThen
+            steamOwnershipData.schema.create andThen
             (userData += User(None, Some("kongus"), Some("kongus99")))
       })
       Await.result(db.run(initialization), Duration.Inf)

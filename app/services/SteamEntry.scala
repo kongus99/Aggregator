@@ -24,7 +24,7 @@ object SteamEntry {
 
   def getFromSteam(tables : Tables)(user : Option[User], owned: String, wishList : String, sources : GameSources, converter : CurrencyConverter)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
     val parsed = parseOwned(owned) ++ parseWishList(wishList, converter)
-    tables.replaceSteamData(parsed).flatMap(_ => generateFromNames(user, sources, tables))
+    tables.replaceSteamData(user, parsed).flatMap(_ => generateFromNames(user, sources, tables))
   }
 
   private def parseWishList(wishList: String, converter: CurrencyConverter) = {
