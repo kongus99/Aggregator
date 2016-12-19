@@ -10152,19 +10152,18 @@ var _user$project$MainPage$gameTableTitle = A2(
 			}
 		}
 	});
-var _user$project$MainPage$Model = F5(
-	function (a, b, c, d, e) {
-		return {sources: a, entries: b, message: c, steamUserId: d, gogUserId: e};
+var _user$project$MainPage$Model = F4(
+	function (a, b, c, d) {
+		return {sources: a, entries: b, message: c, userId: d};
 	});
 var _user$project$MainPage$Both = {ctor: 'Both'};
 var _user$project$MainPage$WishList = {ctor: 'WishList'};
-var _user$project$MainPage$initialModel = A5(
+var _user$project$MainPage$initialModel = A4(
 	_user$project$MainPage$Model,
 	_user$project$MainPage$WishList,
 	{ctor: '[]'},
 	'',
-	'kongus',
-	'kongus99');
+	1);
 var _user$project$MainPage$Owned = {ctor: 'Owned'};
 var _user$project$MainPage$RefreshError = function (a) {
 	return {ctor: 'RefreshError', _0: a};
@@ -10355,7 +10354,11 @@ var _user$project$MainPage$view = function (model) {
 										},
 										_1: {
 											ctor: '::',
-											_0: {ctor: '_Tuple2', _0: 'gogUserId', _1: model.gogUserId},
+											_0: {
+												ctor: '_Tuple2',
+												_0: 'userId',
+												_1: _elm_lang$core$Basics$toString(model.userId)
+											},
 											_1: {ctor: '[]'}
 										}
 									})))),
@@ -10385,7 +10388,11 @@ var _user$project$MainPage$view = function (model) {
 											},
 											_1: {
 												ctor: '::',
-												_0: {ctor: '_Tuple2', _0: 'steamUserId', _1: model.steamUserId},
+												_0: {
+													ctor: '_Tuple2',
+													_0: 'userId',
+													_1: _elm_lang$core$Basics$toString(model.userId)
+												},
 												_1: {ctor: '[]'}
 											}
 										})))),
@@ -10448,7 +10455,15 @@ var _user$project$MainPage$main = _elm_lang$html$Html$program(
 							_0: 'sources',
 							_1: _elm_lang$core$Basics$toString(_user$project$MainPage$initialModel.sources)
 						},
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'userId',
+								_1: _elm_lang$core$Basics$toString(_user$project$MainPage$initialModel.userId)
+							},
+							_1: {ctor: '[]'}
+						}
 					}))
 		},
 		view: _user$project$MainPage$view,

@@ -11,15 +11,15 @@ import Router exposing (..)
 
 
 main =
-    Html.program { init = ( initialModel, getResponse <| Router.allData [("sources", toString initialModel.sources)]), view = view, update = update, subscriptions = \_ -> Sub.none }
+    Html.program { init = ( initialModel, getResponse <| Router.allData [("sources", toString initialModel.sources), ("userId", toString initialModel.userId)]), view = view, update = update, subscriptions = \_ -> Sub.none }
 
 -- MODEL
 
 type GameSources = Owned | WishList | Both
 
-type alias Model = {sources : GameSources, entries : List GameEntry, message : String, steamUserId : String, gogUserId : String}
+type alias Model = {sources : GameSources, entries : List GameEntry, message : String, userId : Int}
 
-initialModel = Model WishList [] "" "kongus" "kongus99"
+initialModel = Model WishList [] "" 1
 
 -- UPDATE
 
@@ -42,8 +42,8 @@ update msg model =
 view : Model -> Html Msg
 view model =
   div [] <|
-    [ button [ onClick <| SendRefresh <| getResponse <| Router.gogData [("sources", toString model.sources), ("gogUserId", model.gogUserId)]] [ text "Fetch from gog"   ]
-    , button [ onClick <| SendRefresh <| getResponse <| Router.steamData [("sources", toString model.sources), ("steamUserId", model.steamUserId)]] [ text "Fetch from steam" ]
+    [ button [ onClick <| SendRefresh <| getResponse <| Router.gogData [("sources", toString model.sources), ("userId", toString model.userId)]] [ text "Fetch from gog"   ]
+    , button [ onClick <| SendRefresh <| getResponse <| Router.steamData [("sources", toString model.sources), ("userId", toString model.userId)]] [ text "Fetch from steam" ]
     , div [] [sourcesSelect model.sources]
     , div [] [ text (toString model.message) ]
     , table[] <| gameTableTitle :: (List.map gameTableRow model.entries)

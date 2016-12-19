@@ -4,9 +4,9 @@
 
 # An example controller showing a sample home page
 GET         /                              controllers.HomeController.main
-GET         /gogData                       controllers.HomeController.gogData(userId : Long ?= 1L, sources : services.GameSources.GameSources)
-GET         /steamData                     controllers.HomeController.steamData(userId : Long ?= 1L, sources : services.GameSources.GameSources)
-GET         /allData                       controllers.HomeController.allData(userId : Long ?= 1L, sources : services.GameSources.GameSources)
+GET         /gogData                       controllers.HomeController.gogData(userId : Long, sources : services.GameSources.GameSources)
+GET         /steamData                     controllers.HomeController.steamData(userId : Long, sources : services.GameSources.GameSources)
+GET         /allData                       controllers.HomeController.allData(userId : Long, sources : services.GameSources.GameSources)
 
 GET         /comparison                    controllers.ComparisonController.main
 GET         /comparison/data               controllers.ComparisonController.data(left : services.GameOn.GameOn, right : services.GameOn.GameOn, minimumMetric : Int)
