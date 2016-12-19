@@ -9646,21 +9646,6 @@ var _user$project$Router$resolveResponse = F3(
 			return errorResolver(_p0._0);
 		}
 	});
-var _user$project$Router$joinParameters = function (params) {
-	return A2(
-		_elm_lang$core$String$join,
-		'&&',
-		A2(
-			_elm_lang$core$List$map,
-			function (_p1) {
-				var _p2 = _p1;
-				return A2(
-					_elm_lang$core$Basics_ops['++'],
-					_p2._0,
-					A2(_elm_lang$core$Basics_ops['++'], '=', _p2._1));
-			},
-			params));
-};
 var _user$project$Router$decodedNamedEntry = A3(
 	_elm_lang$core$Json_Decode$map2,
 	_user$project$Model$NamedEntry,
@@ -9723,94 +9708,90 @@ var _user$project$Router$decodedGameEntry = A4(
 		'prices',
 		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedPriceEntry)));
 var _user$project$Router$baseAddress = 'http://localhost:9000';
+var _user$project$Router$generateAddress = F2(
+	function (resourceName, params) {
+		var joinParameters = function (params) {
+			return A2(
+				_elm_lang$core$String$join,
+				'&&',
+				A2(
+					_elm_lang$core$List$map,
+					function (_p1) {
+						var _p2 = _p1;
+						return A2(
+							_elm_lang$core$Basics_ops['++'],
+							_p2._0,
+							A2(_elm_lang$core$Basics_ops['++'], '=', _p2._1));
+					},
+					params));
+		};
+		return A2(
+			_elm_lang$core$Basics_ops['++'],
+			_user$project$Router$baseAddress,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'/',
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					resourceName,
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						'?',
+						joinParameters(params)))));
+	});
 var _user$project$Router$Addresses = F2(
 	function (a, b) {
-		return {main: a, comparison: b};
+		return {home: a, comparison: b};
 	});
-var _user$project$Router$Home = F3(
-	function (a, b, c) {
-		return {gogData: a, steamData: b, allData: c};
+var _user$project$Router$Home = F4(
+	function (a, b, c, d) {
+		return {gogData: a, steamData: b, allData: c, page: d};
 	});
-var _user$project$Router$home = A3(
+var _user$project$Router$home = A4(
 	_user$project$Router$Home,
-	function (params) {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			_user$project$Router$baseAddress,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'/gogData?',
-				_user$project$Router$joinParameters(params)));
-	},
-	function (params) {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			_user$project$Router$baseAddress,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'/steamData?',
-				_user$project$Router$joinParameters(params)));
-	},
-	function (params) {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			_user$project$Router$baseAddress,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'/allData?',
-				_user$project$Router$joinParameters(params)));
-	});
+	_user$project$Router$generateAddress('gogData'),
+	_user$project$Router$generateAddress('steamData'),
+	_user$project$Router$generateAddress('allData'),
+	_user$project$Router$generateAddress(''));
 var _user$project$Router$Comparison = F3(
 	function (a, b, c) {
 		return {toggleSelected: a, comparisonData: b, page: c};
 	});
 var _user$project$Router$comparison = A3(
 	_user$project$Router$Comparison,
-	function (params) {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			_user$project$Router$baseAddress,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'/comparison/toggleMatch?',
-				_user$project$Router$joinParameters(params)));
-	},
-	function (params) {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			_user$project$Router$baseAddress,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'/comparison/data?',
-				_user$project$Router$joinParameters(params)));
-	},
-	function (params) {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			_user$project$Router$baseAddress,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'/comparison?',
-				_user$project$Router$joinParameters(params)));
-	});
+	_user$project$Router$generateAddress('comparison/toggleMatch'),
+	_user$project$Router$generateAddress('comparison/data'),
+	_user$project$Router$generateAddress('comparison'));
 var _user$project$Router$routes = A2(_user$project$Router$Addresses, _user$project$Router$home, _user$project$Router$comparison);
 var _user$project$Router$gogData = function (params) {
-	return A2(
-		_elm_lang$http$Http$get,
-		_user$project$Router$routes.main.gogData(params),
-		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry));
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.gogData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$routes.home.page(params)
+	};
 };
 var _user$project$Router$steamData = function (params) {
-	return A2(
-		_elm_lang$http$Http$get,
-		_user$project$Router$routes.main.steamData(params),
-		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry));
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.steamData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$routes.home.page(params)
+	};
 };
 var _user$project$Router$allData = function (params) {
-	return A2(
-		_elm_lang$http$Http$get,
-		_user$project$Router$routes.main.allData(params),
-		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry));
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.allData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$routes.home.page(params)
+	};
 };
 var _user$project$Router$toggleSelected = function (params) {
 	return A3(
@@ -10152,6 +10133,11 @@ var _user$project$MainPage$gameTableTitle = A2(
 			}
 		}
 	});
+var _user$project$MainPage$elmAddressChange = _elm_lang$core$Native_Platform.outgoingPort(
+	'elmAddressChange',
+	function (v) {
+		return v;
+	});
 var _user$project$MainPage$Model = F4(
 	function (a, b, c, d) {
 		return {sources: a, entries: b, message: c, userId: d};
@@ -10165,31 +10151,107 @@ var _user$project$MainPage$initialModel = A4(
 	'',
 	1);
 var _user$project$MainPage$Owned = {ctor: 'Owned'};
+var _user$project$MainPage$sourcesFromString = function (value) {
+	var _p6 = value;
+	switch (_p6) {
+		case 'Owned':
+			return _user$project$MainPage$Owned;
+		case 'WishList':
+			return _user$project$MainPage$WishList;
+		default:
+			return _user$project$MainPage$Both;
+	}
+};
 var _user$project$MainPage$RefreshError = function (a) {
 	return {ctor: 'RefreshError', _0: a};
 };
 var _user$project$MainPage$ReceiveRefresh = function (a) {
 	return {ctor: 'ReceiveRefresh', _0: a};
 };
-var _user$project$MainPage$getResponse = function (httpRequest) {
-	return A2(
-		_elm_lang$http$Http$send,
-		A2(_user$project$Router$resolveResponse, _user$project$MainPage$ReceiveRefresh, _user$project$MainPage$RefreshError),
-		httpRequest);
+var _user$project$MainPage$getResponse = function (_p7) {
+	var _p8 = _p7;
+	return _elm_lang$core$Platform_Cmd$batch(
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$http$Http$send,
+				A2(_user$project$Router$resolveResponse, _user$project$MainPage$ReceiveRefresh, _user$project$MainPage$RefreshError),
+				_p8._0),
+			_1: {
+				ctor: '::',
+				_0: _user$project$MainPage$elmAddressChange(_p8._1),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _user$project$MainPage$initProgram = function (address) {
+	var parseInt = function (value) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			0,
+			_elm_lang$core$Result$toMaybe(
+				_elm_lang$core$String$toInt(value)));
+	};
+	var decodeAddress = A3(
+		_elm_lang$core$Json_Decode$map2,
+		F2(
+			function (v0, v1) {
+				return {ctor: '_Tuple2', _0: v0, _1: v1};
+			}),
+		A2(
+			_elm_lang$core$Json_Decode$field,
+			'userId',
+			A2(_elm_lang$core$Json_Decode$map, parseInt, _elm_lang$core$Json_Decode$string)),
+		A2(
+			_elm_lang$core$Json_Decode$field,
+			'sources',
+			A2(_elm_lang$core$Json_Decode$map, _user$project$MainPage$sourcesFromString, _elm_lang$core$Json_Decode$string)));
+	var _p9 = A2(
+		_elm_lang$core$Maybe$withDefault,
+		{ctor: '_Tuple2', _0: _user$project$MainPage$initialModel.userId, _1: _user$project$MainPage$initialModel.sources},
+		_elm_lang$core$Result$toMaybe(
+			A2(_elm_lang$core$Json_Decode$decodeString, decodeAddress, address)));
+	var userId = _p9._0;
+	var sources = _p9._1;
+	return {
+		ctor: '_Tuple2',
+		_0: _elm_lang$core$Native_Utils.update(
+			_user$project$MainPage$initialModel,
+			{sources: sources, userId: userId}),
+		_1: _user$project$MainPage$getResponse(
+			_user$project$Router$allData(
+				{
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'sources',
+						_1: _elm_lang$core$Basics$toString(_user$project$MainPage$initialModel.sources)
+					},
+					_1: {
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'userId',
+							_1: _elm_lang$core$Basics$toString(_user$project$MainPage$initialModel.userId)
+						},
+						_1: {ctor: '[]'}
+					}
+				}))
+	};
 };
 var _user$project$MainPage$update = F2(
 	function (msg, model) {
-		var _p6 = msg;
-		switch (_p6.ctor) {
+		var _p10 = msg;
+		switch (_p10.ctor) {
 			case 'ChangeSources':
-				var _p7 = _p6._0;
+				var _p11 = _p10._0;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
 							entries: {ctor: '[]'},
-							sources: _p7
+							sources: _p11
 						}),
 					_1: _user$project$MainPage$getResponse(
 						_user$project$Router$allData(
@@ -10198,9 +10260,17 @@ var _user$project$MainPage$update = F2(
 								_0: {
 									ctor: '_Tuple2',
 									_0: 'sources',
-									_1: _elm_lang$core$Basics$toString(_p7)
+									_1: _elm_lang$core$Basics$toString(_p11)
 								},
-								_1: {ctor: '[]'}
+								_1: {
+									ctor: '::',
+									_0: {
+										ctor: '_Tuple2',
+										_0: 'userId',
+										_1: _elm_lang$core$Basics$toString(model.userId)
+									},
+									_1: {ctor: '[]'}
+								}
 							}))
 				};
 			case 'SendRefresh':
@@ -10211,14 +10281,14 @@ var _user$project$MainPage$update = F2(
 						{
 							entries: {ctor: '[]'}
 						}),
-					_1: _p6._0
+					_1: _p10._0
 				};
 			case 'ReceiveRefresh':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{entries: _p6._0}),
+						{entries: _p10._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			default:
@@ -10228,7 +10298,7 @@ var _user$project$MainPage$update = F2(
 						model,
 						{
 							entries: {ctor: '[]'},
-							message: _elm_lang$core$Basics$toString(_p6._0)
+							message: _elm_lang$core$Basics$toString(_p10._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10241,20 +10311,9 @@ var _user$project$MainPage$ChangeSources = function (a) {
 	return {ctor: 'ChangeSources', _0: a};
 };
 var _user$project$MainPage$sourcesSelect = function (sources) {
-	var sourcesFromString = function (value) {
-		var _p8 = value;
-		switch (_p8) {
-			case 'Owned':
-				return _user$project$MainPage$Owned;
-			case 'WishList':
-				return _user$project$MainPage$WishList;
-			default:
-				return _user$project$MainPage$Both;
-		}
-	};
 	var change = function (s) {
 		return _user$project$MainPage$ChangeSources(
-			sourcesFromString(s));
+			_user$project$MainPage$sourcesFromString(s));
 	};
 	return A2(
 		_elm_lang$html$Html$select,
@@ -10441,37 +10500,15 @@ var _user$project$MainPage$view = function (model) {
 			}
 		});
 };
-var _user$project$MainPage$main = _elm_lang$html$Html$program(
+var _user$project$MainPage$main = _elm_lang$html$Html$programWithFlags(
 	{
-		init: {
-			ctor: '_Tuple2',
-			_0: _user$project$MainPage$initialModel,
-			_1: _user$project$MainPage$getResponse(
-				_user$project$Router$allData(
-					{
-						ctor: '::',
-						_0: {
-							ctor: '_Tuple2',
-							_0: 'sources',
-							_1: _elm_lang$core$Basics$toString(_user$project$MainPage$initialModel.sources)
-						},
-						_1: {
-							ctor: '::',
-							_0: {
-								ctor: '_Tuple2',
-								_0: 'userId',
-								_1: _elm_lang$core$Basics$toString(_user$project$MainPage$initialModel.userId)
-							},
-							_1: {ctor: '[]'}
-						}
-					}))
-		},
+		init: _user$project$MainPage$initProgram,
 		view: _user$project$MainPage$view,
 		update: _user$project$MainPage$update,
-		subscriptions: function (_p9) {
+		subscriptions: function (_p12) {
 			return _elm_lang$core$Platform_Sub$none;
 		}
-	})();
+	})(_elm_lang$core$Json_Decode$string);
 
 var Elm = {};
 Elm['MainPage'] = Elm['MainPage'] || {};

@@ -1,4 +1,4 @@
-module MainPage exposing (..)
+port module MainPage exposing (..)
 import Html exposing (Html, button, div, text, span, table, tr, th, td, select, option, a)
 import Html.Attributes exposing(class, selected, value, href)
 import Html.Events exposing (onClick, on, targetValue)
@@ -9,9 +9,19 @@ import Erl
 import Model exposing (..)
 import Router exposing (..)
 
+initProgram : String -> ( Model, Cmd Msg )
+initProgram address =
+    let
+        parseInt value = String.toInt value |> Result.toMaybe |> Maybe.withDefault 0
+        decodeAddress = Json.map2 (,) (Json.field "userId" <| Json.map parseInt Json.string) (Json.field "sources" <| Json.map sourcesFromString Json.string)
+        (userId, sources) = Json.decodeString decodeAddress address |> Result.toMaybe |> Maybe.withDefault (initialModel.userId, initialModel.sources)
+    in
+        ( {initialModel | sources = sources, userId = userId}, getResponse <| Router.allData [("sources", toString initialModel.sources), ("userId", toString initialModel.userId)])
 
-main =
-    Html.program { init = ( initialModel, getResponse <| Router.allData [("sources", toString initialModel.sources), ("userId", toString initialModel.userId)]), view = view, update = update, subscriptions = \_ -> Sub.none }
+main = Html.programWithFlags { init = initProgram, view = view, update = update, subscriptions = \_ -> Sub.none }
+
+-- PORTS
+port elmAddressChange : String -> Cmd msg
 
 -- MODEL
 
@@ -32,7 +42,7 @@ type Msg
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    ChangeSources s -> ({model | entries = [], sources = s}, getResponse <| Router.allData [("sources", toString s)])
+    ChangeSources s -> ({model | entries = [], sources = s}, getResponse <| Router.allData [("sources", toString s), ("userId", toString model.userId)])
     SendRefresh cmd -> ({model | entries = []}, cmd)
     ReceiveRefresh entries -> ({model | entries = entries} , Cmd.none)
     RefreshError err -> ({model | entries = [], message = toString err} , Cmd.none)
@@ -63,21 +73,22 @@ gameTableRow e =
           , td[class <| toStyle e  ](toText e)
           ]
 
+sourcesFromString value = case value of
+                                "Owned" -> Owned
+                                "WishList" -> WishList
+                                _ -> Both
+
 sourcesSelect sources =
     let
-        sourcesFromString value = case value of
-                                        "Owned" -> Owned
-                                        "WishList" -> WishList
-                                        _ -> Both
         change s = ChangeSources <| sourcesFromString s
     in
         select [onSelect change] [ option [selected (sources == Owned), value <| toString Owned][text <| toString Owned]
                                           , option [selected (sources == WishList), value <| toString WishList][text <| toString WishList]
                                           , option [selected (sources == Both), value <| toString Both][text <| toString Both]]
 
-getResponse : Http.Request (List GameEntry) -> Cmd Msg
-getResponse httpRequest =
-    Http.send (Router.resolveResponse ReceiveRefresh RefreshError) httpRequest
+getResponse : (Http.Request (List GameEntry), String) -> Cmd Msg
+getResponse (request, address) =
+    Cmd.batch [Http.send (Router.resolveResponse ReceiveRefresh RefreshError) request, elmAddressChange address]
 
 gamesOn list = List.map (\e -> if e == "Gog" then Gog else Steam) list
 

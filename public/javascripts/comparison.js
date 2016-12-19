@@ -10093,21 +10093,6 @@ var _user$project$Router$resolveResponse = F3(
 			return errorResolver(_p0._0);
 		}
 	});
-var _user$project$Router$joinParameters = function (params) {
-	return A2(
-		_elm_lang$core$String$join,
-		'&&',
-		A2(
-			_elm_lang$core$List$map,
-			function (_p1) {
-				var _p2 = _p1;
-				return A2(
-					_elm_lang$core$Basics_ops['++'],
-					_p2._0,
-					A2(_elm_lang$core$Basics_ops['++'], '=', _p2._1));
-			},
-			params));
-};
 var _user$project$Router$decodedNamedEntry = A3(
 	_elm_lang$core$Json_Decode$map2,
 	_user$project$Model$NamedEntry,
@@ -10170,94 +10155,90 @@ var _user$project$Router$decodedGameEntry = A4(
 		'prices',
 		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedPriceEntry)));
 var _user$project$Router$baseAddress = 'http://localhost:9000';
+var _user$project$Router$generateAddress = F2(
+	function (resourceName, params) {
+		var joinParameters = function (params) {
+			return A2(
+				_elm_lang$core$String$join,
+				'&&',
+				A2(
+					_elm_lang$core$List$map,
+					function (_p1) {
+						var _p2 = _p1;
+						return A2(
+							_elm_lang$core$Basics_ops['++'],
+							_p2._0,
+							A2(_elm_lang$core$Basics_ops['++'], '=', _p2._1));
+					},
+					params));
+		};
+		return A2(
+			_elm_lang$core$Basics_ops['++'],
+			_user$project$Router$baseAddress,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'/',
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					resourceName,
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						'?',
+						joinParameters(params)))));
+	});
 var _user$project$Router$Addresses = F2(
 	function (a, b) {
-		return {main: a, comparison: b};
+		return {home: a, comparison: b};
 	});
-var _user$project$Router$Home = F3(
-	function (a, b, c) {
-		return {gogData: a, steamData: b, allData: c};
+var _user$project$Router$Home = F4(
+	function (a, b, c, d) {
+		return {gogData: a, steamData: b, allData: c, page: d};
 	});
-var _user$project$Router$home = A3(
+var _user$project$Router$home = A4(
 	_user$project$Router$Home,
-	function (params) {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			_user$project$Router$baseAddress,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'/gogData?',
-				_user$project$Router$joinParameters(params)));
-	},
-	function (params) {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			_user$project$Router$baseAddress,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'/steamData?',
-				_user$project$Router$joinParameters(params)));
-	},
-	function (params) {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			_user$project$Router$baseAddress,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'/allData?',
-				_user$project$Router$joinParameters(params)));
-	});
+	_user$project$Router$generateAddress('gogData'),
+	_user$project$Router$generateAddress('steamData'),
+	_user$project$Router$generateAddress('allData'),
+	_user$project$Router$generateAddress(''));
 var _user$project$Router$Comparison = F3(
 	function (a, b, c) {
 		return {toggleSelected: a, comparisonData: b, page: c};
 	});
 var _user$project$Router$comparison = A3(
 	_user$project$Router$Comparison,
-	function (params) {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			_user$project$Router$baseAddress,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'/comparison/toggleMatch?',
-				_user$project$Router$joinParameters(params)));
-	},
-	function (params) {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			_user$project$Router$baseAddress,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'/comparison/data?',
-				_user$project$Router$joinParameters(params)));
-	},
-	function (params) {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			_user$project$Router$baseAddress,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'/comparison?',
-				_user$project$Router$joinParameters(params)));
-	});
+	_user$project$Router$generateAddress('comparison/toggleMatch'),
+	_user$project$Router$generateAddress('comparison/data'),
+	_user$project$Router$generateAddress('comparison'));
 var _user$project$Router$routes = A2(_user$project$Router$Addresses, _user$project$Router$home, _user$project$Router$comparison);
 var _user$project$Router$gogData = function (params) {
-	return A2(
-		_elm_lang$http$Http$get,
-		_user$project$Router$routes.main.gogData(params),
-		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry));
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.gogData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$routes.home.page(params)
+	};
 };
 var _user$project$Router$steamData = function (params) {
-	return A2(
-		_elm_lang$http$Http$get,
-		_user$project$Router$routes.main.steamData(params),
-		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry));
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.steamData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$routes.home.page(params)
+	};
 };
 var _user$project$Router$allData = function (params) {
-	return A2(
-		_elm_lang$http$Http$get,
-		_user$project$Router$routes.main.allData(params),
-		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry));
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.allData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$routes.home.page(params)
+	};
 };
 var _user$project$Router$toggleSelected = function (params) {
 	return A3(
