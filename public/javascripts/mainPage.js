@@ -10168,11 +10168,21 @@ var _user$project$MainPage$RefreshError = function (a) {
 var _user$project$MainPage$ReceiveRefresh = function (a) {
 	return {ctor: 'ReceiveRefresh', _0: a};
 };
-var _user$project$MainPage$sendRequest = function (request) {
-	return A2(
-		_elm_lang$http$Http$send,
-		A2(_user$project$Router$resolveResponse, _user$project$MainPage$ReceiveRefresh, _user$project$MainPage$RefreshError),
-		request);
+var _user$project$MainPage$getResponse = function (_p7) {
+	var _p8 = _p7;
+	return _elm_lang$core$Platform_Cmd$batch(
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$http$Http$send,
+				A2(_user$project$Router$resolveResponse, _user$project$MainPage$ReceiveRefresh, _user$project$MainPage$RefreshError),
+				_p8._0),
+			_1: {
+				ctor: '::',
+				_0: _user$project$MainPage$elmAddressChange(_p8._1),
+				_1: {ctor: '[]'}
+			}
+		});
 };
 var _user$project$MainPage$initProgram = function (address) {
 	var parseInt = function (value) {
@@ -10196,52 +10206,39 @@ var _user$project$MainPage$initProgram = function (address) {
 			_elm_lang$core$Json_Decode$field,
 			'sources',
 			A2(_elm_lang$core$Json_Decode$map, _user$project$MainPage$sourcesFromString, _elm_lang$core$Json_Decode$string)));
-	var _p7 = A2(
+	var _p9 = A2(
 		_elm_lang$core$Maybe$withDefault,
 		{ctor: '_Tuple2', _0: _user$project$MainPage$initialModel.userId, _1: _user$project$MainPage$initialModel.sources},
 		_elm_lang$core$Result$toMaybe(
 			A2(_elm_lang$core$Json_Decode$decodeString, decodeAddress, address)));
-	var userId = _p7._0;
-	var sources = _p7._1;
+	var userId = _p9._0;
+	var sources = _p9._1;
+	var model = _elm_lang$core$Native_Utils.update(
+		_user$project$MainPage$initialModel,
+		{sources: sources, userId: userId});
 	return {
 		ctor: '_Tuple2',
-		_0: _elm_lang$core$Native_Utils.update(
-			_user$project$MainPage$initialModel,
-			{sources: sources, userId: userId}),
-		_1: _user$project$MainPage$sendRequest(
-			_elm_lang$core$Tuple$first(
-				_user$project$Router$allData(
-					{
+		_0: model,
+		_1: _user$project$MainPage$getResponse(
+			_user$project$Router$allData(
+				{
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'sources',
+						_1: _elm_lang$core$Basics$toString(model.sources)
+					},
+					_1: {
 						ctor: '::',
 						_0: {
 							ctor: '_Tuple2',
-							_0: 'sources',
-							_1: _elm_lang$core$Basics$toString(_user$project$MainPage$initialModel.sources)
+							_0: 'userId',
+							_1: _elm_lang$core$Basics$toString(model.userId)
 						},
-						_1: {
-							ctor: '::',
-							_0: {
-								ctor: '_Tuple2',
-								_0: 'userId',
-								_1: _elm_lang$core$Basics$toString(_user$project$MainPage$initialModel.userId)
-							},
-							_1: {ctor: '[]'}
-						}
-					})))
+						_1: {ctor: '[]'}
+					}
+				}))
 	};
-};
-var _user$project$MainPage$getResponse = function (_p8) {
-	var _p9 = _p8;
-	return _elm_lang$core$Platform_Cmd$batch(
-		{
-			ctor: '::',
-			_0: _user$project$MainPage$sendRequest(_p9._0),
-			_1: {
-				ctor: '::',
-				_0: _user$project$MainPage$elmAddressChange(_p9._1),
-				_1: {ctor: '[]'}
-			}
-		});
 };
 var _user$project$MainPage$update = F2(
 	function (msg, model) {

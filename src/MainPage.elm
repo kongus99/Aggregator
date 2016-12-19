@@ -15,8 +15,9 @@ initProgram address =
         parseInt value = String.toInt value |> Result.toMaybe |> Maybe.withDefault 0
         decodeAddress = Json.map2 (,) (Json.field "userId" <| Json.map parseInt Json.string) (Json.field "sources" <| Json.map sourcesFromString Json.string)
         (userId, sources) = Json.decodeString decodeAddress address |> Result.toMaybe |> Maybe.withDefault (initialModel.userId, initialModel.sources)
+        model = {initialModel | sources = sources, userId = userId}
     in
-        ( {initialModel | sources = sources, userId = userId}, Router.allData [("sources", toString initialModel.sources), ("userId", toString initialModel.userId)] |> Tuple.first |> sendRequest)
+        ( model , getResponse <| Router.allData [("sources", toString model.sources), ("userId", toString model.userId)])
 
 main = Html.programWithFlags { init = initProgram, view = view, update = update, subscriptions = \_ -> Sub.none }
 
@@ -85,12 +86,10 @@ sourcesSelect sources =
         select [onSelect change] [ option [selected (sources == Owned), value <| toString Owned][text <| toString Owned]
                                           , option [selected (sources == WishList), value <| toString WishList][text <| toString WishList]
                                           , option [selected (sources == Both), value <| toString Both][text <| toString Both]]
-sendRequest request =
-    Http.send (Router.resolveResponse ReceiveRefresh RefreshError) request
 
 getResponse : (Http.Request (List GameEntry), String) -> Cmd Msg
 getResponse (request, address) =
-    Cmd.batch [sendRequest request, elmAddressChange address]
+    Cmd.batch [Http.send (Router.resolveResponse ReceiveRefresh RefreshError) request, elmAddressChange address]
 
 gamesOn list = List.map (\e -> if e == "Gog" then Gog else Steam) list
 
