@@ -197,22 +197,30 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
       db.run((oldDataIdsQuery.result.flatMap(insertNewData) >> deleteOldOwnership >> addNewOwnership).transactionally)
     }).getOrElse(Future{true})
 
-  def getGogEntries(user : Option[User], sources : Option[Boolean]) : Future[Seq[GogEntry]] = {
-    for {rows <- user.map(u => {
-      db.run(gogOwnershipData.filter(e => e.price.isDefined === sources && e.userId === u.id.get).join(gogData).on(_.gogId === _.gogId).result)
-    }).getOrElse(
-      db.run(gogOwnershipData.join(gogData).on(_.gogId === _.gogId).result)
-    )} yield {
+  def getGogEntries(user: Option[User], sources: Option[Boolean]): Future[Seq[GogEntry]] = {
+    def condition(e: GogOwnershipData): Rep[Boolean] = {
+      if (user.isEmpty) true
+      else if (user.isDefined && sources.isEmpty) e.userId === user.get.id.get
+      else e.price.isDefined === sources.get && e.userId === user.get.id.get
+    }
+
+    for {
+      rows <- db.run(gogOwnershipData.filter(condition).join(gogData).on(_.gogId === _.gogId).result)
+    } yield {
       rows.map(pair => GogEntry(pair._2._2, pair._2._1, pair._1._3, pair._1._4))
     }
   }
 
-  def getSteamEntries(user : Option[User], sources : Option[Boolean]) : Future[Seq[SteamEntry]] = {
-    for {rows <- user.map(u => {
-      db.run(steamOwnershipData.filter(e => e.price.isDefined === sources && e.userId === u.id.get).join(steamData).on(_.steamId === _.steamId).result)
-    }).getOrElse(
-      db.run(steamOwnershipData.join(steamData).on(_.steamId === _.steamId).result)
-    )} yield {
+  def getSteamEntries(user: Option[User], sources: Option[Boolean]): Future[Seq[SteamEntry]] = {
+    def condition(e: SteamOwnershipData): Rep[Boolean] = {
+      if (user.isEmpty) true
+      else if (user.isDefined && sources.isEmpty) e.userId === user.get.id.get
+      else e.price.isDefined === sources.get && e.userId === user.get.id.get
+    }
+
+    for {
+      rows <- db.run(steamOwnershipData.filter(condition).join(steamData).on(_.steamId === _.steamId).result)
+    } yield {
       rows.map(pair => SteamEntry(pair._2._2, pair._2._1, pair._1._3, pair._1._4))
     }
   }
