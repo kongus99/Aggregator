@@ -1,4 +1,4 @@
-name := """Aggregator"""
+name := "aggro"
 
 version := "1.0-SNAPSHOT"
 
