@@ -12,7 +12,7 @@ toggleSelected params = Http.post (routes.comparison.toggleSelected params) Http
 comparisonData params = (Http.get (routes.comparison.comparisonData params) (list decodedComparisonEntry), routes.comparison.page params)
 --ROUTES
 baseAddress : String
-baseAddress = "http://localhost:9000"
+baseAddress = ""
 
 type alias UrlGenerator = List (String, String) -> String
 type alias Addresses = {home : Home, comparison : Comparison}

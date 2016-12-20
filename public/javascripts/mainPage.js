@@ -9707,7 +9707,7 @@ var _user$project$Router$decodedGameEntry = A4(
 		_elm_lang$core$Json_Decode$field,
 		'prices',
 		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedPriceEntry)));
-var _user$project$Router$baseAddress = 'http://localhost:9000';
+var _user$project$Router$baseAddress = '';
 var _user$project$Router$generateAddress = F2(
 	function (resourceName, params) {
 		var joinParameters = function (params) {
