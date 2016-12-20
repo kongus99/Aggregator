@@ -1,8 +1,13 @@
 package model
 
+import org.slf4j.LoggerFactory
+
 import scala.xml.XML
 
 case class CurrencyConverter(euroTo: Map[String, BigDecimal]) {
+  val logger = LoggerFactory.getLogger("chapters.introduction.HelloWorld1")
+
+
 
   def convert(value : String) : BigDecimal= {
     if(value.contains('€'))
@@ -14,6 +19,7 @@ case class CurrencyConverter(euroTo: Map[String, BigDecimal]) {
   }
 
   private def toBigDecimal(value: String, currencySeparator: String): BigDecimal = {
+    logger.error("blabla" + value)
     BigDecimal(value.split(currencySeparator)(0).trim.replace(",", "."))
   }
 
