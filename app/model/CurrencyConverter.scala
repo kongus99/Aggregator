@@ -19,7 +19,7 @@ case class CurrencyConverter(euroTo: Map[String, BigDecimal]) {
   }
 
   private def toBigDecimal(value: String, currencySeparator: String): BigDecimal = {
-    logger.error("blabla1 " + value.split(currencySeparator))
+    logger.error("blabla1 " + value.split(currencySeparator).toList)
     logger.error("blabla2 " + currencySeparator)
     BigDecimal(value.split(currencySeparator)(0).trim.replace(",", "."))
   }
