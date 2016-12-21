@@ -1,5 +1,6 @@
 package services
 
+import com.fasterxml.jackson.core.JsonParseException
 import model.{CurrencyConverter, Tables, User}
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
@@ -35,7 +36,13 @@ object GogEntry {
     tables.replaceGogData(user, parsed).flatMap(_ => generateFromNames(user, sources, tables))
   }
 
-  def getGogPageNumber(body: String): Int = (Json.parse(body) \ "totalPages").as[Int]
+  def getGogPageNumber(body: String): Int = {
+    try{
+      (Json.parse(body) \ "totalPages").as[Int]
+    } catch{
+      case _ : JsonParseException => 0
+    }
+  }
 
   private def parseGogEntries(reads: Reads[GogEntry])(body: String) = {
     val parse = Json.parse(body)
