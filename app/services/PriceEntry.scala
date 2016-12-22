@@ -57,7 +57,7 @@ object KeyePricesFetcher {
         PriceEntry(steamEntry, data._1, host, host + data._3, BigDecimal(data._2).setScale(2))
       }
 
-      complete.filter(p => p._2 != "[]").map((parsePrice _).tupled)
+      complete.filter(p => !p._2.isEmpty && p._2 != "[]").map((parsePrice _).tupled)
     }
   }
 }
