@@ -9610,6 +9610,10 @@ var _sporto$erl$Erl$Url = function (a) {
 	};
 };
 
+var _user$project$Model$User = F3(
+	function (a, b, c) {
+		return {id: a, username1: b, username2: c};
+	});
 var _user$project$Model$GameEntry = F3(
 	function (a, b, c) {
 		return {gog: a, steam: b, prices: c};
@@ -9645,6 +9649,34 @@ var _user$project$Router$resolveResponse = F3(
 		} else {
 			return errorResolver(_p0._0);
 		}
+	});
+var _user$project$Router$generateAddress = F2(
+	function (resourceName, params) {
+		var joinParameters = function (params) {
+			return A2(
+				_elm_lang$core$String$join,
+				'&&',
+				A2(
+					_elm_lang$core$List$map,
+					function (_p1) {
+						var _p2 = _p1;
+						return A2(
+							_elm_lang$core$Basics_ops['++'],
+							_p2._0,
+							A2(_elm_lang$core$Basics_ops['++'], '=', _p2._1));
+					},
+					params));
+		};
+		return A2(
+			_elm_lang$core$Basics_ops['++'],
+			'/',
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				resourceName,
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'?',
+					joinParameters(params))));
 	});
 var _user$project$Router$decodedNamedEntry = A3(
 	_elm_lang$core$Json_Decode$map2,
@@ -9707,42 +9739,33 @@ var _user$project$Router$decodedGameEntry = A4(
 		_elm_lang$core$Json_Decode$field,
 		'prices',
 		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedPriceEntry)));
-var _user$project$Router$baseAddress = '';
-var _user$project$Router$generateAddress = F2(
-	function (resourceName, params) {
-		var joinParameters = function (params) {
-			return A2(
-				_elm_lang$core$String$join,
-				'&&',
-				A2(
-					_elm_lang$core$List$map,
-					function (_p1) {
-						var _p2 = _p1;
-						return A2(
-							_elm_lang$core$Basics_ops['++'],
-							_p2._0,
-							A2(_elm_lang$core$Basics_ops['++'], '=', _p2._1));
-					},
-					params));
-		};
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			_user$project$Router$baseAddress,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'/',
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					resourceName,
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						'?',
-						joinParameters(params)))));
+var _user$project$Router$decodedUserEntry = A4(
+	_elm_lang$core$Json_Decode$map3,
+	_user$project$Model$User,
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'id',
+		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$int)),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'steamLogin',
+		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$string)),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'gogLogin',
+		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$string)));
+var _user$project$Router$Addresses = F3(
+	function (a, b, c) {
+		return {login: a, home: b, comparison: c};
 	});
-var _user$project$Router$Addresses = F2(
+var _user$project$Router$Login = F2(
 	function (a, b) {
-		return {home: a, comparison: b};
+		return {fetch: a, createUpdate: b};
 	});
+var _user$project$Router$login = A2(
+	_user$project$Router$Login,
+	_user$project$Router$generateAddress('login/fetch'),
+	_user$project$Router$generateAddress('login/createUpdate'));
 var _user$project$Router$Home = F4(
 	function (a, b, c, d) {
 		return {gogData: a, steamData: b, allData: c, page: d};
@@ -9762,7 +9785,20 @@ var _user$project$Router$comparison = A3(
 	_user$project$Router$generateAddress('comparison/toggleMatch'),
 	_user$project$Router$generateAddress('comparison/data'),
 	_user$project$Router$generateAddress('comparison'));
-var _user$project$Router$routes = A2(_user$project$Router$Addresses, _user$project$Router$home, _user$project$Router$comparison);
+var _user$project$Router$routes = A3(_user$project$Router$Addresses, _user$project$Router$login, _user$project$Router$home, _user$project$Router$comparison);
+var _user$project$Router$fetchUser = function (params) {
+	return A2(
+		_elm_lang$http$Http$get,
+		_user$project$Router$routes.login.fetch(params),
+		_user$project$Router$decodedUserEntry);
+};
+var _user$project$Router$createUpdateUser = function (params) {
+	return A3(
+		_elm_lang$http$Http$post,
+		_user$project$Router$routes.login.createUpdate(params),
+		_elm_lang$http$Http$emptyBody,
+		_user$project$Router$decodedUserEntry);
+};
 var _user$project$Router$gogData = function (params) {
 	return {
 		ctor: '_Tuple2',

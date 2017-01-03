@@ -6,6 +6,8 @@
 GET         /                              controllers.HomeController.main
 
 GET         /login                         controllers.LoginController.init
+GET         /login/fetch                   controllers.LoginController.fetch(steamUsername : Option[String], gogUsername : Option[String])
+POST        /login/createUpdate            controllers.LoginController.createUpdate(steamUsername : Option[String], gogUsername : Option[String])
 GET         /gogData                       controllers.HomeController.gogData(userId : Long, sources : services.GameSources.GameSources)
 GET         /steamData                     controllers.HomeController.steamData(userId : Long, sources : services.GameSources.GameSources)
 GET         /allData                       controllers.HomeController.allData(userId : Long, sources : services.GameSources.GameSources)

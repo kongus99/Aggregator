@@ -3,6 +3,12 @@ module Model exposing (..)
 
 type GameOn = Gog | Steam
 
+type alias SteamUsername = String
+
+type alias GogUserName = String
+
+type alias User = {id : Maybe Int, username1 : Maybe SteamUsername, username2 : Maybe GogUserName}
+
 type alias GameEntry = {gog: List GogEntry, steam: List SteamEntry, prices : List PriceEntry}
 
 type alias GogEntry = {title: String, gogId : Int, price : Maybe Float, discounted : Maybe Float}

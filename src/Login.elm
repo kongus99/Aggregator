@@ -2,6 +2,9 @@ module Login exposing (..)
 import Html exposing (Html, button, div, text, form, br, input)
 import Html.Attributes exposing (action, type_, name, style, method)
 import Html.Events exposing (onClick, onSubmit, onInput)
+import Model exposing(..)
+import Router exposing(fetchUser, createUpdateUser)
+import Http
 
 main =
   Html.program
@@ -12,12 +15,6 @@ main =
     }
 
 -- MODEL
-
-type alias SteamUsername = String
-
-type alias GogUserName = String
-
-type alias User = {username1 : SteamUsername, username2 : GogUserName, id : Int}
 
 type alias Model = {user : Maybe User, u1 : SteamUsername, u2 : GogUserName}
 
@@ -31,17 +28,13 @@ type Msg
     CreateUpdate |
     UserFetched User |
     SteamUsernameChange SteamUsername |
-    GogUsernameChange GogUserName
+    GogUsernameChange GogUserName |
+    ResponseError Http.Error
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    FetchUser ->
-        let
-            x = Debug.log "su" model.u1
-            y = Debug.log "gu" model.u2
-        in
-            (model, Cmd.none)
+    FetchUser -> (model, getResponse <| fetchUser [("steamUsername", model.u1), ("gogUsername", model.u2)])
     CreateUpdate ->
       (model, Cmd.none)
     UserFetched u ->
@@ -50,7 +43,13 @@ update msg model =
       ({model | u1 = u}, Cmd.none)
     GogUsernameChange u ->
       ({model | u2 = u}, Cmd.none)
+    ResponseError err ->
+        ({model | user = Nothing} , Cmd.none)
 
+
+getResponse : Http.Request User -> Cmd Msg
+getResponse request =
+    Http.send (Router.resolveResponse UserFetched ResponseError) request
 
 -- VIEW
 

@@ -18,4 +18,11 @@ class LoginController @Inject()(client: WSClient, configuration: Configuration, 
     }
   }
 
+  def fetch(steamUsername: Option[String], gogUsername: Option[String]) = {
+    play.mvc.Results.TODO
+  }
+
+  def createUpdate(steamUsername: Option[String], gogUsername: Option[String]) = {
+    play.mvc.Results.TODO
+  }
 }
