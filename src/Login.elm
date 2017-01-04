@@ -40,9 +40,10 @@ type Msg
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    FetchUser -> (model, getResponse <| fetchUser [("steamUsername", model.u1), ("gogUsername", model.u2)])
+    FetchUser ->
+      (model, getResponse <| fetchUser [("steamUsername", model.u1), ("gogUsername", model.u2)])
     CreateUpdate ->
-      (model, Cmd.none)
+      (model, getResponse <| createUpdateUser [("steamUsername", model.u1), ("gogUsername", model.u2)])
     UserFetched u ->
       ({model | user = Just u, u1 = getSteamUserName model u, u2 = getGogUserName model u}, Cmd.none)
     SteamUsernameChange u ->

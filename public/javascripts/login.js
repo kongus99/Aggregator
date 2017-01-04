@@ -9359,7 +9359,21 @@ var _user$project$Login$update = F2(
 							}))
 				};
 			case 'CreateUpdate':
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Login$getResponse(
+						_user$project$Router$createUpdateUser(
+							{
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'steamUsername', _1: model.u1},
+								_1: {
+									ctor: '::',
+									_0: {ctor: '_Tuple2', _0: 'gogUsername', _1: model.u2},
+									_1: {ctor: '[]'}
+								}
+							}))
+				};
 			case 'UserFetched':
 				var _p2 = _p1._0;
 				return {
