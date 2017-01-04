@@ -9307,6 +9307,14 @@ var _user$project$Login$mainPage = function (model) {
 			},
 			model.user));
 };
+var _user$project$Login$getGogUserName = F2(
+	function (model, user) {
+		return A2(_elm_lang$core$Maybe$withDefault, model.u2, user.username2);
+	});
+var _user$project$Login$getSteamUserName = F2(
+	function (model, user) {
+		return A2(_elm_lang$core$Maybe$withDefault, model.u1, user.username1);
+	});
 var _user$project$Login$Model = F3(
 	function (a, b, c) {
 		return {user: a, u1: b, u2: c};
@@ -9353,7 +9361,18 @@ var _user$project$Login$update = F2(
 			case 'CreateUpdate':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'UserFetched':
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				var _p2 = _p1._0;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							user: _elm_lang$core$Maybe$Just(_p2),
+							u1: A2(_user$project$Login$getSteamUserName, model, _p2),
+							u2: A2(_user$project$Login$getGogUserName, model, _p2)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 			case 'SteamUsernameChange':
 				return {
 					ctor: '_Tuple2',
@@ -9412,7 +9431,11 @@ var _user$project$Login$usernameForm = function (model) {
 								_1: {
 									ctor: '::',
 									_0: _elm_lang$html$Html_Events$onInput(_user$project$Login$SteamUsernameChange),
-									_1: {ctor: '[]'}
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$value(model.u1),
+										_1: {ctor: '[]'}
+									}
 								}
 							}
 						},
@@ -9445,7 +9468,11 @@ var _user$project$Login$usernameForm = function (model) {
 												_1: {
 													ctor: '::',
 													_0: _elm_lang$html$Html_Events$onInput(_user$project$Login$GogUsernameChange),
-													_1: {ctor: '[]'}
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$value(model.u2),
+														_1: {ctor: '[]'}
+													}
 												}
 											}
 										},
@@ -9536,7 +9563,7 @@ var _user$project$Login$main = _elm_lang$html$Html$program(
 	{
 		init: {ctor: '_Tuple2', _0: _user$project$Login$initialModel, _1: _elm_lang$core$Platform_Cmd$none},
 		update: _user$project$Login$update,
-		subscriptions: function (_p2) {
+		subscriptions: function (_p3) {
 			return _elm_lang$core$Platform_Sub$none;
 		},
 		view: _user$project$Login$view

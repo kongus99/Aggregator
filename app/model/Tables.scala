@@ -42,7 +42,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def steamLoginUnique = index("USER_DATA_STEAM_LOGIN_UNIQUE", steamLogin, unique = true)
 
-    def * : ProvenShape[User] = (id.?, steamLogin, gogLogin) <> (User.tupled, User.unapply)
+    override def * : ProvenShape[User] = (id.?, steamLogin, gogLogin) <> ((User.apply _).tupled, User.unapply)
   }
 
   class GogData(tag: Tag) extends Table[(Long, String)](tag, "GOG_DATA") {
@@ -182,6 +182,12 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
   def getUserById(id : Long) : Future[Option[User]] =
     db.run(userData.filter(_.id === id).result.headOption)
+
+  def getUserByLogin(u : User) : Future[Option[User]] = {
+    def getBySteamLogin(l : String) = db.run(userData.filter(_.steamLogin.like(l)).result.headOption)
+    def getByGogLogin(l : String) = db.run(userData.filter(_.gogLogin.like(l)).result.headOption)
+    u.steamLogin.map(getBySteamLogin).getOrElse(u.gogLogin.map(getByGogLogin).getOrElse(Future{None}))
+  }
 
   def replaceGogData(user : Option[User], data : Seq[GogEntry]): Future[_] =
     user.map(u => {
