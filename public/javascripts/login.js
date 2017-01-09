@@ -9176,6 +9176,7 @@ var _user$project$Router$decodedUserEntry = A4(
 		_elm_lang$core$Json_Decode$field,
 		'gogLogin',
 		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$string)));
+var _user$project$Router$homePageUrl = '/';
 var _user$project$Router$Addresses = F3(
 	function (a, b, c) {
 		return {login: a, home: b, comparison: c};
@@ -9221,6 +9222,36 @@ var _user$project$Router$createUpdateUser = function (params) {
 		_elm_lang$http$Http$emptyBody,
 		_user$project$Router$decodedUserEntry);
 };
+var _user$project$Router$gogData = function (params) {
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.gogData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$routes.home.page(params)
+	};
+};
+var _user$project$Router$steamData = function (params) {
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.steamData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$routes.home.page(params)
+	};
+};
+var _user$project$Router$allData = function (params) {
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.allData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$routes.home.page(params)
+	};
+};
 var _user$project$Router$toggleSelected = function (params) {
 	return A3(
 		_elm_lang$http$Http$post,
@@ -9238,39 +9269,6 @@ var _user$project$Router$comparisonData = function (params) {
 		_1: _user$project$Router$routes.comparison.page(params)
 	};
 };
-var _user$project$Router$homePageUrl = function (params) {
-	return _user$project$Router$routes.home.page(params);
-};
-var _user$project$Router$gogData = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.home.gogData(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$homePageUrl(params)
-	};
-};
-var _user$project$Router$steamData = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.home.steamData(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$homePageUrl(params)
-	};
-};
-var _user$project$Router$allData = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.home.allData(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$homePageUrl(params)
-	};
-};
 
 var _user$project$Login$mainPageLink = function (model) {
 	var userId = A2(
@@ -9282,24 +9280,6 @@ var _user$project$Login$mainPageLink = function (model) {
 				return u.id;
 			},
 			model.user));
-	var mainPageAddress = _user$project$Router$homePageUrl(
-		{
-			ctor: '::',
-			_0: {
-				ctor: '_Tuple2',
-				_0: 'sources',
-				_1: _elm_lang$core$Basics$toString(_user$project$Model$WishList)
-			},
-			_1: {
-				ctor: '::',
-				_0: {
-					ctor: '_Tuple2',
-					_0: 'userId',
-					_1: _elm_lang$core$Basics$toString(userId)
-				},
-				_1: {ctor: '[]'}
-			}
-		});
 	return A2(
 		_elm_lang$core$Maybe$withDefault,
 		{ctor: '[]'},
@@ -9315,25 +9295,65 @@ var _user$project$Login$mainPageLink = function (model) {
 							_0: _elm_lang$html$Html_Attributes$method('get'),
 							_1: {
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$action(mainPageAddress),
+								_0: _elm_lang$html$Html_Attributes$action(_user$project$Router$homePageUrl),
 								_1: {ctor: '[]'}
 							}
 						},
 						{
 							ctor: '::',
 							_0: A2(
-								_elm_lang$html$Html$button,
+								_elm_lang$html$Html$input,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$type_('submit'),
-									_1: {ctor: '[]'}
+									_0: _elm_lang$html$Html_Attributes$type_('hidden'),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$name('sources'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$value(
+												_elm_lang$core$Basics$toString(_user$project$Model$WishList)),
+											_1: {ctor: '[]'}
+										}
+									}
 								},
-								{
+								{ctor: '[]'}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$input,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$type_('hidden'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$name('userId'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$value(
+													_elm_lang$core$Basics$toString(userId)),
+												_1: {ctor: '[]'}
+											}
+										}
+									},
+									{ctor: '[]'}),
+								_1: {
 									ctor: '::',
-									_0: _elm_lang$html$Html$text('Continue'),
+									_0: A2(
+										_elm_lang$html$Html$button,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$type_('submit'),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('Continue'),
+											_1: {ctor: '[]'}
+										}),
 									_1: {ctor: '[]'}
-								}),
-							_1: {ctor: '[]'}
+								}
+							}
 						}),
 					_1: {ctor: '[]'}
 				};

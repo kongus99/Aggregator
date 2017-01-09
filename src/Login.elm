@@ -87,6 +87,9 @@ usernameForm model =
 mainPageLink model =
     let
         userId = Maybe.withDefault 1 <| Maybe.andThen (\u -> u.id) model.user
-        mainPageAddress = Router.homePageUrl [("sources", toString WishList), ("userId", toString userId)]
     in
-        Maybe.withDefault [] (Maybe.map (\_ -> [form [method "get", action mainPageAddress][button[type_ "submit"][text "Continue"]]]) model.user)
+        Maybe.withDefault [] (Maybe.map (\_ ->
+        [form [method "get", action Router.homePageUrl]
+        [ input [type_ "hidden", name "sources", value <| toString WishList][]
+        , input [type_ "hidden", name "userId",  value <| toString userId][]
+        , button[type_ "submit"][text "Continue"]]]) model.user)

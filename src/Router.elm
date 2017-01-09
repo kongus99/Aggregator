@@ -7,9 +7,9 @@ import String
 --METHODS
 fetchUser params =   Http.get (routes.login.fetch params) decodedUserEntry
 createUpdateUser params =  Http.post (routes.login.createUpdate params) Http.emptyBody decodedUserEntry
-gogData params =   (Http.get (routes.home.gogData params) (list decodedGameEntry), homePageUrl params)
-steamData params = (Http.get (routes.home.steamData params) (list decodedGameEntry), homePageUrl params)
-allData params =   (Http.get (routes.home.allData params) (list decodedGameEntry), homePageUrl params)
+gogData params =   (Http.get (routes.home.gogData params) (list decodedGameEntry), routes.home.page params)
+steamData params = (Http.get (routes.home.steamData params) (list decodedGameEntry), routes.home.page params)
+allData params =   (Http.get (routes.home.allData params) (list decodedGameEntry), routes.home.page params)
 toggleSelected params = Http.post (routes.comparison.toggleSelected params) Http.emptyBody string
 comparisonData params = (Http.get (routes.comparison.comparisonData params) (list decodedComparisonEntry), routes.comparison.page params)
 --ROUTES
@@ -26,7 +26,7 @@ comparison = Comparison (generateAddress "comparison/toggleMatch") (generateAddr
 
 routes = Addresses login home comparison
 --URLS
-homePageUrl params = routes.home.page params
+homePageUrl = "/"
 --DECODERS
 decodedUserEntry = map3 User (field "id" (maybe int)) (field "steamLogin" (maybe string)) (field "gogLogin" (maybe string))
 decodedGogEntry = map4 GogEntry (field "title" string) (field "gogId" int) (field "price" (maybe float)) (field "discounted" (maybe float))
