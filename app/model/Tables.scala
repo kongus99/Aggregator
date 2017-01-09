@@ -44,29 +44,29 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     override def * : ProvenShape[User] = (id.?, steamLogin, gogLogin) <> ((User.apply _).tupled, User.unapply)
   }
 
-  class GogData(tag: Tag) extends Table[(Long, String)](tag, "GOG_DATA") {
+  class GogData(tag: Tag) extends Table[(Long, String, Option[BigDecimal], Option[BigDecimal])](tag, "GOG_DATA") {
     def gogId = column[Long]("GOG_DATA_GOG_ID", O.PrimaryKey)
 
     def title = column[String]("GOG_DATA_TITLE")
 
-    def * : ProvenShape[(Long, String)] = {
+    def price = column[Option[BigDecimal]]("GOG_DATA_PRICE", O.SqlType("DECIMAL(6,2)"))
 
-      val apply: (Long, String) => (Long, String) = (gogId, title) => (gogId, title)
+    def discountedPrice = column[Option[BigDecimal]]("GOG_DATA_PRICE_DISCOUNTED", O.SqlType("DECIMAL(6,2)"))
 
-      val unapply: ((Long, String)) => Option[(Long, String)] = g => Some(g._1, g._2)
-      (gogId, title) <>(apply.tupled, unapply)
+    def * : ProvenShape[(Long, String, Option[BigDecimal], Option[BigDecimal])] = {
+
+      val apply: (Long, String, Option[BigDecimal], Option[BigDecimal]) => (Long, String, Option[BigDecimal], Option[BigDecimal]) = (gogId, title, price, discountedPrice) => (gogId, title, price, discountedPrice)
+
+      val unapply: ((Long, String, Option[BigDecimal], Option[BigDecimal])) => Option[(Long, String, Option[BigDecimal], Option[BigDecimal])] = g => Some(g._1, g._2, g._3, g._4)
+      (gogId, title, price, discountedPrice) <>(apply.tupled, unapply)
     }
 
   }
 
-  class GogOwnershipData(tag: Tag) extends Table[(Long, Long, Option[BigDecimal], Option[BigDecimal])](tag, "GOG_OWNERSHIP_DATA") {
+  class GogOwnershipData(tag: Tag) extends Table[(Long, Long)](tag, "GOG_OWNERSHIP_DATA") {
     def gogId = column[Long]("GOG_OWNERSHIP_DATA_GOG_ID")
 
     def userId = column[Long]("GOG_OWNERSHIP_DATA_USER_ID")
-
-    def price = column[Option[BigDecimal]]("GOG_OWNERSHIP_DATA_PRICE", O.SqlType("DECIMAL(6,2)"))
-
-    def discountedPrice = column[Option[BigDecimal]]("GOG_OWNERSHIP_DATA_PRICE_DISCOUNTED", O.SqlType("DECIMAL(6,2)"))
 
     def comboUnique = primaryKey("GOG_OWNERSHIP_DATA_COMBO_UNIQUE", (gogId, userId))
 
@@ -74,14 +74,12 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def userFk = foreignKey("USER_DATA_FK", userId, userData)(_.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Cascade)
 
-    def * : ProvenShape[(Long, Long, Option[BigDecimal], Option[BigDecimal])] = {
+    def * : ProvenShape[(Long, Long)] = {
 
-      val apply: (Long, Long, Option[BigDecimal], Option[BigDecimal]) => (Long, Long, Option[BigDecimal], Option[BigDecimal]) =
-        (gogId, userId, price, discountedPrice) => (gogId, userId, price, discountedPrice)
+      val apply: (Long, Long) => (Long, Long) = (gogId, userId) => (gogId, userId)
 
-      val unapply: ((Long, Long, Option[BigDecimal], Option[BigDecimal])) => Option[(Long, Long, Option[BigDecimal], Option[BigDecimal])] =
-        g => Some(g._1, g._2, g._3, g._4)
-      (gogId, userId, price, discountedPrice) <>(apply.tupled, unapply)
+      val unapply: ((Long, Long)) => Option[(Long, Long)] = g => Some(g._1, g._2)
+      (gogId, userId) <>(apply.tupled, unapply)
     }
   }
 
@@ -200,10 +198,10 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
   def replaceGogData(user : Option[User], data : Seq[GogEntry]): Future[_] =
     user.map(u => {
       val ids = data.map(_.gogId).toSet
-      val newOwnership = data.map(g => (g.gogId, u.id.get, g.price, g.discounted))
+      val newOwnership = data.map(g => (g.gogId, u.id.get))
       val oldDataIdsQuery = gogData.filter(_.gogId.inSet(ids)).map(_.gogId)
       def insertNewData(oldDataIds : Seq[Long]) = {
-        val newData = data.filter(d => !oldDataIds.contains(d.gogId)).map(d => (d.gogId, d.title))
+        val newData = data.filter(d => !oldDataIds.contains(d.gogId)).map(d => (d.gogId, d.title, d.price, d.discounted))
         gogData ++= newData
       }
       lazy val  deleteOldOwnership = gogOwnershipData.filter(_.userId === u.id.get).delete
@@ -212,16 +210,16 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     }).getOrElse(Future{true})
 
   def getGogEntries(user: Option[User], sources: Option[Boolean]): Future[Seq[GogEntry]] = {
-    def condition(e: GogOwnershipData): Rep[Boolean] = {
+    def condition(e: GogOwnershipData, g : GogData): Rep[Boolean] = {
       if (user.isEmpty) true
       else if (user.isDefined && sources.isEmpty) e.userId === user.get.id.get
-      else e.price.isDefined === sources.get && e.userId === user.get.id.get
+      else g.price.isDefined === sources.get && e.userId === user.get.id.get
     }
 
     for {
-      rows <- db.run(gogOwnershipData.filter(condition).join(gogData).on(_.gogId === _.gogId).result)
+      rows <- db.run(gogOwnershipData.join(gogData).on(_.gogId === _.gogId).filter((condition _).tupled).result)
     } yield {
-      rows.map(pair => GogEntry(pair._2._2, pair._2._1, pair._1._3, pair._1._4))
+      rows.map(pair => GogEntry(pair._2._2, pair._2._1, pair._2._3, pair._2._4))
     }
   }
 
