@@ -44,7 +44,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     override def * : ProvenShape[User] = (id.?, steamLogin, gogLogin) <> ((User.apply _).tupled, User.unapply)
   }
 
-  class GogData(tag: Tag) extends Table[(Long, String, Option[BigDecimal], Option[BigDecimal])](tag, "GOG_DATA") {
+  class GogData(tag: Tag) extends Table[GogEntry](tag, "GOG_DATA") {
     def gogId = column[Long]("GOG_DATA_GOG_ID", O.PrimaryKey)
 
     def title = column[String]("GOG_DATA_TITLE")
@@ -53,11 +53,11 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def discountedPrice = column[Option[BigDecimal]]("GOG_DATA_PRICE_DISCOUNTED", O.SqlType("DECIMAL(6,2)"))
 
-    def * : ProvenShape[(Long, String, Option[BigDecimal], Option[BigDecimal])] = {
+    def * : ProvenShape[GogEntry] = {
 
-      val apply: (Long, String, Option[BigDecimal], Option[BigDecimal]) => (Long, String, Option[BigDecimal], Option[BigDecimal]) = (gogId, title, price, discountedPrice) => (gogId, title, price, discountedPrice)
+      val apply: (Long, String, Option[BigDecimal], Option[BigDecimal]) => GogEntry = (gogId, title, price, discountedPrice) => GogEntry(title, gogId, price, discountedPrice)
 
-      val unapply: ((Long, String, Option[BigDecimal], Option[BigDecimal])) => Option[(Long, String, Option[BigDecimal], Option[BigDecimal])] = g => Some(g._1, g._2, g._3, g._4)
+      val unapply: GogEntry => Option[(Long, String, Option[BigDecimal], Option[BigDecimal])] = g => Some(g.gogId, g.title, g.price, g.discounted)
       (gogId, title, price, discountedPrice) <>(apply.tupled, unapply)
     }
 
@@ -83,7 +83,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     }
   }
 
-  class SteamData(tag: Tag) extends Table[(Long, String, Option[BigDecimal], Option[BigDecimal])](tag, "STEAM_DATA") {
+  class SteamData(tag: Tag) extends Table[SteamEntry](tag, "STEAM_DATA") {
     def steamId = column[Long]("STEAM_DATA_STEAM_ID", O.PrimaryKey)
 
     def name = column[String]("STEAM_DATA_NAME")
@@ -92,11 +92,11 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def discountedPrice = column[Option[BigDecimal]]("STEAM_DATA_PRICE_DISCOUNTED", O.SqlType("DECIMAL(6,2)"))
 
-    def * : ProvenShape[(Long, String, Option[BigDecimal], Option[BigDecimal])] = {
+    def * : ProvenShape[SteamEntry] = {
 
-      val apply: (Long, String, Option[BigDecimal], Option[BigDecimal]) => (Long, String, Option[BigDecimal], Option[BigDecimal]) = (steamId, name, price, discountedPrice) => (steamId, name, price, discountedPrice)
+      val apply: (Long, String, Option[BigDecimal], Option[BigDecimal]) => SteamEntry = (steamId, name, price, discountedPrice) => SteamEntry(name, steamId, price, discountedPrice)
 
-      val unapply: ((Long, String, Option[BigDecimal], Option[BigDecimal])) => Option[(Long, String, Option[BigDecimal], Option[BigDecimal])] = s => Some((s._1, s._2, s._3, s._4))
+      val unapply: (SteamEntry) => Option[(Long, String, Option[BigDecimal], Option[BigDecimal])] = s => Some((s.steamId, s.name, s.price, s.discounted))
       (steamId, name, price, discountedPrice) <>(apply.tupled, unapply)
     }
   }
@@ -199,7 +199,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
       val newOwnership = data.map(g => (g.gogId, u.id.get))
       val oldDataIdsQuery = gogData.filter(_.gogId.inSet(ids)).map(_.gogId)
       def insertNewData(oldDataIds : Seq[Long]) = {
-        val newData = data.filter(d => !oldDataIds.contains(d.gogId)).map(d => (d.gogId, d.title, d.price, d.discounted))
+        val newData = data.filter(d => !oldDataIds.contains(d.gogId))
         gogData ++= newData
       }
       //TODO update prices where applicable
@@ -215,12 +215,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
       else if (user.isDefined && sources.isEmpty) e.userId === user.get.id.get
       else g.price.isDefined === sources.get && e.userId === user.get.id.get
     }
-
-    for {
-      rows <- db.run(gogOwnershipData.join(gogData).on(_.gogId === _.gogId).filter((condition _).tupled).result)
-    } yield {
-      rows.map(pair => GogEntry(pair._2._2, pair._2._1, pair._2._3, pair._2._4))
-    }
+    db.run(gogOwnershipData.join(gogData).on(_.gogId === _.gogId).filter((condition _).tupled).map(_._2).result)
   }
 
   def getSteamEntries(user: Option[User], sources: Option[Boolean]): Future[Seq[SteamEntry]] = {
@@ -229,12 +224,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
       else if (user.isDefined && sources.isEmpty) e.userId === user.get.id.get
       else s.price.isDefined === sources.get && e.userId === user.get.id.get
     }
-
-    for {
-      rows <- db.run(steamOwnershipData.join(steamData).on(_.steamId === _.steamId).filter((condition _).tupled).result)
-    } yield {
-      rows.map(pair => SteamEntry(pair._2._2, pair._2._1, pair._2._3, pair._2._4))
-    }
+    db.run(steamOwnershipData.join(steamData).on(_.steamId === _.steamId).filter((condition _).tupled).map(_._2).result)
   }
 
   def replaceSteamData(user : Option[User], data : Seq[SteamEntry]): Future[_] =
@@ -243,7 +233,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
       val newOwnership = data.map(g => (g.steamId, u.id.get))
       val oldDataIdsQuery = steamData.filter(_.steamId.inSet(ids)).map(_.steamId)
       def insertNewData(oldDataIds : Seq[Long]) = {
-        val newData = data.filter(d => !oldDataIds.contains(d.steamId)).map(d => (d.steamId, d.name, d.price, d.discounted))
+        val newData = data.filter(d => !oldDataIds.contains(d.steamId))
         steamData ++= newData
       }
       //TODO update prices where applicable
