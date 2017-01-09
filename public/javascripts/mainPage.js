@@ -9857,40 +9857,6 @@ var _user$project$MainPage$onSelect = function (msg) {
 		'change',
 		A2(_elm_lang$core$Json_Decode$map, msg, _elm_lang$html$Html_Events$targetValue));
 };
-var _user$project$MainPage$toSpan = F2(
-	function (n, styleClass) {
-		return (_elm_lang$core$Native_Utils.cmp(n, 1) > 0) ? A2(
-			_elm_lang$html$Html$span,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class(styleClass),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html$text(
-					_elm_lang$core$Basics$toString(n)),
-				_1: {ctor: '[]'}
-			}) : A2(
-			_elm_lang$html$Html$span,
-			{ctor: '[]'},
-			{ctor: '[]'});
-	});
-var _user$project$MainPage$toText = function (gameEntry) {
-	var onSteamNumber = _elm_lang$core$List$length(gameEntry.steam);
-	var onSteamSpan = A2(_user$project$MainPage$toSpan, onSteamNumber, 'steam_number');
-	var onGogNumber = _elm_lang$core$List$length(gameEntry.gog);
-	var onGogSpan = A2(_user$project$MainPage$toSpan, onGogNumber, 'gog_number');
-	return {
-		ctor: '::',
-		_0: onGogSpan,
-		_1: {
-			ctor: '::',
-			_0: onSteamSpan,
-			_1: {ctor: '[]'}
-		}
-	};
-};
 var _user$project$MainPage$getName = function (gameEntry) {
 	var steamName = A2(
 		_elm_lang$core$Maybe$withDefault,
@@ -10094,7 +10060,12 @@ var _user$project$MainPage$gameTableRow = function (e) {
 			ctor: '::',
 			_0: A2(
 				_elm_lang$html$Html$td,
-				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class(
+						_user$project$MainPage$toStyle(e)),
+					_1: {ctor: '[]'}
+				},
 				{
 					ctor: '::',
 					_0: _elm_lang$html$Html$text(
@@ -10119,19 +10090,7 @@ var _user$project$MainPage$gameTableRow = function (e) {
 						_elm_lang$html$Html$td,
 						{ctor: '[]'},
 						_user$project$MainPage$additionalPrices(e.prices)),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$td,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class(
-									_user$project$MainPage$toStyle(e)),
-								_1: {ctor: '[]'}
-							},
-							_user$project$MainPage$toText(e)),
-						_1: {ctor: '[]'}
-					}
+					_1: {ctor: '[]'}
 				}
 			}
 		});
@@ -10146,8 +10105,53 @@ var _user$project$MainPage$gameTableTitle = A2(
 			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html$text('Game'),
-				_1: {ctor: '[]'}
+				_0: _elm_lang$html$Html$text('Game - '),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$span,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('cell_Steam'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(' Steam'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$span,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('cell_Gog'),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(' Gog'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$span,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('cell_Both'),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(' Both'),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}
+					}
+				}
 			}),
 		_1: {
 			ctor: '::',
@@ -10169,18 +10173,7 @@ var _user$project$MainPage$gameTableTitle = A2(
 						_0: _elm_lang$html$Html$text('Additional prices(PLN)'),
 						_1: {ctor: '[]'}
 					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$th,
-						{ctor: '[]'},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text('Gog/Steam/Both'),
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				}
+				_1: {ctor: '[]'}
 			}
 		}
 	});

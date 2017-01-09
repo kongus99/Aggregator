@@ -25,16 +25,15 @@ tr:nth-child(even) {
 }
 
 table .cell_Gog {
-    background-color: blue;
+    color: blue;
 }
 
 table .cell_Both {
-    border: 1px solid black;
-    background: linear-gradient(90deg, blue 50%, red 50%);
+    color: green;
 }
 
 table .cell_Steam {
-    background-color: red;
+    color: red;
 }
 
 td span:last-child {

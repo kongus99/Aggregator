@@ -59,17 +59,15 @@ view model =
     ]
 
 gameTableTitle =
-    tr [] [ th[][text "Game"]
+    tr [] [ th[][text "Game - ", span[class "cell_Steam"][text " Steam"], span[class "cell_Gog"][text " Gog"], span[class "cell_Both"][text " Both"]]
           , th[][text "Price(PLN)"]
           , th[][text "Additional prices(PLN)"]
-          , th[][text "Gog/Steam/Both"]
           ]
-
+--"cell_Both" else if onGog then "cell_Gog" else "cell_Steam"
 gameTableRow e =
-    tr [] [ td[][text <| getName e]
+    tr [] [ td[class <| toStyle e ][text <| getName e]
           , td[][text <| pricesToString (getPrice e)]
           , td[] (additionalPrices e.prices)
-          , td[class <| toStyle e  ](toText e)
           ]
 
 sourcesFromString value = case value of
@@ -145,17 +143,6 @@ getName gameEntry =
         steamName = List.head gameEntry.steam |> Maybe.map (\g -> g.name) |> Maybe.withDefault ""
     in
         List.head gameEntry.gog |> Maybe.map (\g -> g.title) |> Maybe.withDefault steamName
-
-toText gameEntry =
-    let
-        onGogNumber = List.length gameEntry.gog
-        onSteamNumber = List.length gameEntry.steam
-        onGogSpan = toSpan onGogNumber "gog_number"
-        onSteamSpan = toSpan onSteamNumber "steam_number"
-    in
-        [onGogSpan, onSteamSpan]
-toSpan n styleClass =
-    if n > 1 then span[class styleClass ][text <| toString n] else span[][]
 
 onSelect : (String -> a) -> Html.Attribute a
 onSelect msg =
