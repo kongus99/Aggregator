@@ -1,9 +1,9 @@
 module Login exposing (..)
-import Html exposing (Html, button, div, text, form, br, input)
+import Html exposing (Html, button, div, text, form, br, input, span)
 import Html.Attributes exposing (action, type_, name, style, method, value)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing(..)
-import Router exposing(fetchUser, createUpdateUser)
+import Router exposing(fetchUser, createUpdateUser, homePageUrl)
 import Http
 
 main =
@@ -16,7 +16,7 @@ main =
 
 -- MODEL
 
-type alias Model = {user : Maybe User, u1 : SteamUsername, u2 : GogUserName}
+type alias Model = {user : Maybe User, u1 : SteamUsername, u2 : GogUserName, message : String}
 
 getSteamUserName : Model -> User -> String
 getSteamUserName model user = Maybe.withDefault model.u1 user.username1
@@ -25,7 +25,7 @@ getGogUserName : Model -> User -> String
 getGogUserName model user = Maybe.withDefault model.u2 user.username2
 
 initialModel : Model
-initialModel = Model Nothing "" ""
+initialModel = Model Nothing "" "" ""
 
 -- UPDATE
 
@@ -41,17 +41,16 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     FetchUser ->
-      (model, getResponse <| fetchUser [("steamUsername", model.u1), ("gogUsername", model.u2)])
+      ({model | message = ""}, getResponse <| fetchUser [("steamUsername", model.u1), ("gogUsername", model.u2)])
     CreateUpdate ->
-      (model, getResponse <| createUpdateUser [("steamUsername", model.u1), ("gogUsername", model.u2)])
+      ({model | message = ""}, getResponse <| createUpdateUser [("steamUsername", model.u1), ("gogUsername", model.u2)])
     UserFetched u ->
-      ({model | user = Just u, u1 = getSteamUserName model u, u2 = getGogUserName model u}, Cmd.none)
+      ({model | user = Just u, u1 = getSteamUserName model u, u2 = getGogUserName model u, message = ""}, Cmd.none)
     SteamUsernameChange u ->
-      ({model | u1 = u}, Cmd.none)
+      ({model | u1 = u, message = ""}, Cmd.none)
     GogUsernameChange u ->
-      ({model | u2 = u}, Cmd.none)
-    ResponseError err ->
-        ({model | user = Nothing} , Cmd.none)
+      ({model | u2 = u, message = ""}, Cmd.none)
+    ResponseError err -> ({model | user = Nothing, message = toString err} , Cmd.none)
 
 
 getResponse : Http.Request User -> Cmd Msg
@@ -67,12 +66,14 @@ view model =
        , br[][]
        , button[type_ "button", onClick CreateUpdate][text "Create/Update"]
        , br[][]
-       ] (mainPage model)
+       ] (mainPageLink model)
 
 
 usernameForm model =
     form [onSubmit FetchUser]
-        [ text "Steam username"
+        [ span[][text model.message]
+        , br[][]
+        , text "Steam username"
         , br[][]
         , input[type_ "text", name "username1", onInput SteamUsernameChange, value model.u1][]
         , br[][]
@@ -83,5 +84,9 @@ usernameForm model =
         , br[][]
         ]
 
-mainPage model =
-    Maybe.withDefault [] (Maybe.map (\_ -> [form [method "get", action"/"][button[type_ "submit"][text "Continue"]]]) model.user)
+mainPageLink model =
+    let
+        userId = Maybe.withDefault 1 <| Maybe.andThen (\u -> u.id) model.user
+        mainPageAddress = Router.homePageUrl [("sources", toString WishList), ("userId", toString userId)]
+    in
+        Maybe.withDefault [] (Maybe.map (\_ -> [form [method "get", action mainPageAddress][button[type_ "submit"][text "Continue"]]]) model.user)

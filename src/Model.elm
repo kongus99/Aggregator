@@ -3,6 +3,8 @@ module Model exposing (..)
 
 type GameOn = Gog | Steam
 
+type GameSources = Owned | WishList | Both
+
 type alias SteamUsername = String
 
 type alias GogUserName = String

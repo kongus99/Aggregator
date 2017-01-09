@@ -26,8 +26,6 @@ port elmAddressChange : String -> Cmd msg
 
 -- MODEL
 
-type GameSources = Owned | WishList | Both
-
 type alias Model = {sources : GameSources, entries : List GameEntry, message : String, userId : Int}
 
 initialModel = Model WishList [] "" 1

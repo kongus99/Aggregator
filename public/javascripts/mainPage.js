@@ -9640,6 +9640,9 @@ var _user$project$Model$ComparisonEntry = F4(
 	});
 var _user$project$Model$Steam = {ctor: 'Steam'};
 var _user$project$Model$Gog = {ctor: 'Gog'};
+var _user$project$Model$Both = {ctor: 'Both'};
+var _user$project$Model$WishList = {ctor: 'WishList'};
+var _user$project$Model$Owned = {ctor: 'Owned'};
 
 var _user$project$Router$resolveResponse = F3(
 	function (successResolver, errorResolver, response) {
@@ -9799,36 +9802,6 @@ var _user$project$Router$createUpdateUser = function (params) {
 		_elm_lang$http$Http$emptyBody,
 		_user$project$Router$decodedUserEntry);
 };
-var _user$project$Router$gogData = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.home.gogData(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$routes.home.page(params)
-	};
-};
-var _user$project$Router$steamData = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.home.steamData(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$routes.home.page(params)
-	};
-};
-var _user$project$Router$allData = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.home.allData(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$routes.home.page(params)
-	};
-};
 var _user$project$Router$toggleSelected = function (params) {
 	return A3(
 		_elm_lang$http$Http$post,
@@ -9844,6 +9817,39 @@ var _user$project$Router$comparisonData = function (params) {
 			_user$project$Router$routes.comparison.comparisonData(params),
 			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedComparisonEntry)),
 		_1: _user$project$Router$routes.comparison.page(params)
+	};
+};
+var _user$project$Router$homePageUrl = function (params) {
+	return _user$project$Router$routes.home.page(params);
+};
+var _user$project$Router$gogData = function (params) {
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.gogData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$homePageUrl(params)
+	};
+};
+var _user$project$Router$steamData = function (params) {
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.steamData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$homePageUrl(params)
+	};
+};
+var _user$project$Router$allData = function (params) {
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.allData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$homePageUrl(params)
 	};
 };
 
@@ -10071,6 +10077,17 @@ var _user$project$MainPage$gamesOn = function (list) {
 		},
 		list);
 };
+var _user$project$MainPage$sourcesFromString = function (value) {
+	var _p6 = value;
+	switch (_p6) {
+		case 'Owned':
+			return _user$project$Model$Owned;
+		case 'WishList':
+			return _user$project$Model$WishList;
+		default:
+			return _user$project$Model$Both;
+	}
+};
 var _user$project$MainPage$gameTableRow = function (e) {
 	return A2(
 		_elm_lang$html$Html$tr,
@@ -10178,26 +10195,12 @@ var _user$project$MainPage$Model = F4(
 	function (a, b, c, d) {
 		return {sources: a, entries: b, message: c, userId: d};
 	});
-var _user$project$MainPage$Both = {ctor: 'Both'};
-var _user$project$MainPage$WishList = {ctor: 'WishList'};
 var _user$project$MainPage$initialModel = A4(
 	_user$project$MainPage$Model,
-	_user$project$MainPage$WishList,
+	_user$project$Model$WishList,
 	{ctor: '[]'},
 	'',
 	1);
-var _user$project$MainPage$Owned = {ctor: 'Owned'};
-var _user$project$MainPage$sourcesFromString = function (value) {
-	var _p6 = value;
-	switch (_p6) {
-		case 'Owned':
-			return _user$project$MainPage$Owned;
-		case 'WishList':
-			return _user$project$MainPage$WishList;
-		default:
-			return _user$project$MainPage$Both;
-	}
-};
 var _user$project$MainPage$RefreshError = function (a) {
 	return {ctor: 'RefreshError', _0: a};
 };
@@ -10366,18 +10369,18 @@ var _user$project$MainPage$sourcesSelect = function (sources) {
 				{
 					ctor: '::',
 					_0: _elm_lang$html$Html_Attributes$selected(
-						_elm_lang$core$Native_Utils.eq(sources, _user$project$MainPage$Owned)),
+						_elm_lang$core$Native_Utils.eq(sources, _user$project$Model$Owned)),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$html$Html_Attributes$value(
-							_elm_lang$core$Basics$toString(_user$project$MainPage$Owned)),
+							_elm_lang$core$Basics$toString(_user$project$Model$Owned)),
 						_1: {ctor: '[]'}
 					}
 				},
 				{
 					ctor: '::',
 					_0: _elm_lang$html$Html$text(
-						_elm_lang$core$Basics$toString(_user$project$MainPage$Owned)),
+						_elm_lang$core$Basics$toString(_user$project$Model$Owned)),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
@@ -10387,18 +10390,18 @@ var _user$project$MainPage$sourcesSelect = function (sources) {
 					{
 						ctor: '::',
 						_0: _elm_lang$html$Html_Attributes$selected(
-							_elm_lang$core$Native_Utils.eq(sources, _user$project$MainPage$WishList)),
+							_elm_lang$core$Native_Utils.eq(sources, _user$project$Model$WishList)),
 						_1: {
 							ctor: '::',
 							_0: _elm_lang$html$Html_Attributes$value(
-								_elm_lang$core$Basics$toString(_user$project$MainPage$WishList)),
+								_elm_lang$core$Basics$toString(_user$project$Model$WishList)),
 							_1: {ctor: '[]'}
 						}
 					},
 					{
 						ctor: '::',
 						_0: _elm_lang$html$Html$text(
-							_elm_lang$core$Basics$toString(_user$project$MainPage$WishList)),
+							_elm_lang$core$Basics$toString(_user$project$Model$WishList)),
 						_1: {ctor: '[]'}
 					}),
 				_1: {
@@ -10408,18 +10411,18 @@ var _user$project$MainPage$sourcesSelect = function (sources) {
 						{
 							ctor: '::',
 							_0: _elm_lang$html$Html_Attributes$selected(
-								_elm_lang$core$Native_Utils.eq(sources, _user$project$MainPage$Both)),
+								_elm_lang$core$Native_Utils.eq(sources, _user$project$Model$Both)),
 							_1: {
 								ctor: '::',
 								_0: _elm_lang$html$Html_Attributes$value(
-									_elm_lang$core$Basics$toString(_user$project$MainPage$Both)),
+									_elm_lang$core$Basics$toString(_user$project$Model$Both)),
 								_1: {ctor: '[]'}
 							}
 						},
 						{
 							ctor: '::',
 							_0: _elm_lang$html$Html$text(
-								_elm_lang$core$Basics$toString(_user$project$MainPage$Both)),
+								_elm_lang$core$Basics$toString(_user$project$Model$Both)),
 							_1: {ctor: '[]'}
 						}),
 					_1: {ctor: '[]'}

@@ -10087,6 +10087,9 @@ var _user$project$Model$ComparisonEntry = F4(
 	});
 var _user$project$Model$Steam = {ctor: 'Steam'};
 var _user$project$Model$Gog = {ctor: 'Gog'};
+var _user$project$Model$Both = {ctor: 'Both'};
+var _user$project$Model$WishList = {ctor: 'WishList'};
+var _user$project$Model$Owned = {ctor: 'Owned'};
 
 var _user$project$Router$resolveResponse = F3(
 	function (successResolver, errorResolver, response) {
@@ -10246,36 +10249,6 @@ var _user$project$Router$createUpdateUser = function (params) {
 		_elm_lang$http$Http$emptyBody,
 		_user$project$Router$decodedUserEntry);
 };
-var _user$project$Router$gogData = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.home.gogData(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$routes.home.page(params)
-	};
-};
-var _user$project$Router$steamData = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.home.steamData(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$routes.home.page(params)
-	};
-};
-var _user$project$Router$allData = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.home.allData(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$routes.home.page(params)
-	};
-};
 var _user$project$Router$toggleSelected = function (params) {
 	return A3(
 		_elm_lang$http$Http$post,
@@ -10291,6 +10264,39 @@ var _user$project$Router$comparisonData = function (params) {
 			_user$project$Router$routes.comparison.comparisonData(params),
 			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedComparisonEntry)),
 		_1: _user$project$Router$routes.comparison.page(params)
+	};
+};
+var _user$project$Router$homePageUrl = function (params) {
+	return _user$project$Router$routes.home.page(params);
+};
+var _user$project$Router$gogData = function (params) {
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.gogData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$homePageUrl(params)
+	};
+};
+var _user$project$Router$steamData = function (params) {
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.steamData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$homePageUrl(params)
+	};
+};
+var _user$project$Router$allData = function (params) {
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.allData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$homePageUrl(params)
 	};
 };
 

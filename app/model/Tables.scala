@@ -17,7 +17,6 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 @Singleton
 class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: ExecutionContext) {
 
-
   val dbConfig: DatabaseConfig[JdbcProfile] = dbConfigProvider.get[JdbcProfile]
 
   import dbConfig.driver.api._
@@ -187,6 +186,15 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     def getBySteamLogin(l : String) = db.run(userData.filter(_.steamLogin.like("%" + l + "%")).result.headOption)
     def getByGogLogin(l : String) = db.run(userData.filter(_.gogLogin.like("%" + l + "%")).result.headOption)
     u.steamLogin.map(getBySteamLogin).getOrElse(u.gogLogin.map(getByGogLogin).getOrElse(Future{None}))
+  }
+
+  def getSteamUser(username: String) : Future[Option[User]] = db.run(userData.filter(_.steamLogin.like(username)).result.headOption)
+
+  def getGogUser(username: String) : Future[Option[User]] = db.run(userData.filter(_.gogLogin.like(username)).result.headOption)
+
+  def addUser(u: User) : Future[Option[User]] = {
+    val userWithId  = (userData returning userData.map(_.id) into ((user,id) => user.copy(id=Some(id)))) += u
+    db.run(userWithId.map(Some(_)))
   }
 
   def replaceGogData(user : Option[User], data : Seq[GogEntry]): Future[_] =

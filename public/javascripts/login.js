@@ -9059,6 +9059,9 @@ var _user$project$Model$ComparisonEntry = F4(
 	});
 var _user$project$Model$Steam = {ctor: 'Steam'};
 var _user$project$Model$Gog = {ctor: 'Gog'};
+var _user$project$Model$Both = {ctor: 'Both'};
+var _user$project$Model$WishList = {ctor: 'WishList'};
+var _user$project$Model$Owned = {ctor: 'Owned'};
 
 var _user$project$Router$resolveResponse = F3(
 	function (successResolver, errorResolver, response) {
@@ -9218,36 +9221,6 @@ var _user$project$Router$createUpdateUser = function (params) {
 		_elm_lang$http$Http$emptyBody,
 		_user$project$Router$decodedUserEntry);
 };
-var _user$project$Router$gogData = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.home.gogData(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$routes.home.page(params)
-	};
-};
-var _user$project$Router$steamData = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.home.steamData(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$routes.home.page(params)
-	};
-};
-var _user$project$Router$allData = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.home.allData(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$routes.home.page(params)
-	};
-};
 var _user$project$Router$toggleSelected = function (params) {
 	return A3(
 		_elm_lang$http$Http$post,
@@ -9265,8 +9238,68 @@ var _user$project$Router$comparisonData = function (params) {
 		_1: _user$project$Router$routes.comparison.page(params)
 	};
 };
+var _user$project$Router$homePageUrl = function (params) {
+	return _user$project$Router$routes.home.page(params);
+};
+var _user$project$Router$gogData = function (params) {
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.gogData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$homePageUrl(params)
+	};
+};
+var _user$project$Router$steamData = function (params) {
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.steamData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$homePageUrl(params)
+	};
+};
+var _user$project$Router$allData = function (params) {
+	return {
+		ctor: '_Tuple2',
+		_0: A2(
+			_elm_lang$http$Http$get,
+			_user$project$Router$routes.home.allData(params),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		_1: _user$project$Router$homePageUrl(params)
+	};
+};
 
-var _user$project$Login$mainPage = function (model) {
+var _user$project$Login$mainPageLink = function (model) {
+	var userId = A2(
+		_elm_lang$core$Maybe$withDefault,
+		1,
+		A2(
+			_elm_lang$core$Maybe$andThen,
+			function (u) {
+				return u.id;
+			},
+			model.user));
+	var mainPageAddress = _user$project$Router$homePageUrl(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'sources',
+				_1: _elm_lang$core$Basics$toString(_user$project$Model$WishList)
+			},
+			_1: {
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'userId',
+					_1: _elm_lang$core$Basics$toString(userId)
+				},
+				_1: {ctor: '[]'}
+			}
+		});
 	return A2(
 		_elm_lang$core$Maybe$withDefault,
 		{ctor: '[]'},
@@ -9282,7 +9315,7 @@ var _user$project$Login$mainPage = function (model) {
 							_0: _elm_lang$html$Html_Attributes$method('get'),
 							_1: {
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$action('/'),
+								_0: _elm_lang$html$Html_Attributes$action(mainPageAddress),
 								_1: {ctor: '[]'}
 							}
 						},
@@ -9315,11 +9348,11 @@ var _user$project$Login$getSteamUserName = F2(
 	function (model, user) {
 		return A2(_elm_lang$core$Maybe$withDefault, model.u1, user.username1);
 	});
-var _user$project$Login$Model = F3(
-	function (a, b, c) {
-		return {user: a, u1: b, u2: c};
+var _user$project$Login$Model = F4(
+	function (a, b, c, d) {
+		return {user: a, u1: b, u2: c, message: d};
 	});
-var _user$project$Login$initialModel = A3(_user$project$Login$Model, _elm_lang$core$Maybe$Nothing, '', '');
+var _user$project$Login$initialModel = A4(_user$project$Login$Model, _elm_lang$core$Maybe$Nothing, '', '', '');
 var _user$project$Login$ResponseError = function (a) {
 	return {ctor: 'ResponseError', _0: a};
 };
@@ -9345,7 +9378,9 @@ var _user$project$Login$update = F2(
 			case 'FetchUser':
 				return {
 					ctor: '_Tuple2',
-					_0: model,
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{message: ''}),
 					_1: _user$project$Login$getResponse(
 						_user$project$Router$fetchUser(
 							{
@@ -9361,7 +9396,9 @@ var _user$project$Login$update = F2(
 			case 'CreateUpdate':
 				return {
 					ctor: '_Tuple2',
-					_0: model,
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{message: ''}),
 					_1: _user$project$Login$getResponse(
 						_user$project$Router$createUpdateUser(
 							{
@@ -9383,7 +9420,8 @@ var _user$project$Login$update = F2(
 						{
 							user: _elm_lang$core$Maybe$Just(_p2),
 							u1: A2(_user$project$Login$getSteamUserName, model, _p2),
-							u2: A2(_user$project$Login$getGogUserName, model, _p2)
+							u2: A2(_user$project$Login$getGogUserName, model, _p2),
+							message: ''
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -9392,7 +9430,7 @@ var _user$project$Login$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{u1: _p1._0}),
+						{u1: _p1._0, message: ''}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'GogUsernameChange':
@@ -9400,7 +9438,7 @@ var _user$project$Login$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{u2: _p1._0}),
+						{u2: _p1._0, message: ''}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			default:
@@ -9408,7 +9446,10 @@ var _user$project$Login$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{user: _elm_lang$core$Maybe$Nothing}),
+						{
+							user: _elm_lang$core$Maybe$Nothing,
+							message: _elm_lang$core$Basics$toString(_p1._0)
+						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 		}
@@ -9425,7 +9466,14 @@ var _user$project$Login$usernameForm = function (model) {
 		},
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html$text('Steam username'),
+			_0: A2(
+				_elm_lang$html$Html$span,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(model.message),
+					_1: {ctor: '[]'}
+				}),
 			_1: {
 				ctor: '::',
 				_0: A2(
@@ -9434,26 +9482,7 @@ var _user$project$Login$usernameForm = function (model) {
 					{ctor: '[]'}),
 				_1: {
 					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$input,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$type_('text'),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$name('username1'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Events$onInput(_user$project$Login$SteamUsernameChange),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$value(model.u1),
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						},
-						{ctor: '[]'}),
+					_0: _elm_lang$html$Html$text('Steam username'),
 					_1: {
 						ctor: '::',
 						_0: A2(
@@ -9462,7 +9491,26 @@ var _user$project$Login$usernameForm = function (model) {
 							{ctor: '[]'}),
 						_1: {
 							ctor: '::',
-							_0: _elm_lang$html$Html$text('Gog username'),
+							_0: A2(
+								_elm_lang$html$Html$input,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$type_('text'),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$name('username1'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Events$onInput(_user$project$Login$SteamUsernameChange),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$value(model.u1),
+												_1: {ctor: '[]'}
+											}
+										}
+									}
+								},
+								{ctor: '[]'}),
 							_1: {
 								ctor: '::',
 								_0: A2(
@@ -9471,52 +9519,63 @@ var _user$project$Login$usernameForm = function (model) {
 									{ctor: '[]'}),
 								_1: {
 									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$input,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$type_('text'),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$name('username2'),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$html$Html_Events$onInput(_user$project$Login$GogUsernameChange),
-													_1: {
-														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$value(model.u2),
-														_1: {ctor: '[]'}
-													}
-												}
-											}
-										},
-										{ctor: '[]'}),
+									_0: _elm_lang$html$Html$text('Gog username'),
 									_1: {
 										ctor: '::',
 										_0: A2(
-											_elm_lang$html$Html$input,
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$type_('submit'),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$style(
-														{
-															ctor: '::',
-															_0: {ctor: '_Tuple2', _0: 'display', _1: 'none'},
-															_1: {ctor: '[]'}
-														}),
-													_1: {ctor: '[]'}
-												}
-											},
+											_elm_lang$html$Html$br,
+											{ctor: '[]'},
 											{ctor: '[]'}),
 										_1: {
 											ctor: '::',
 											_0: A2(
-												_elm_lang$html$Html$br,
-												{ctor: '[]'},
+												_elm_lang$html$Html$input,
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$type_('text'),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$name('username2'),
+														_1: {
+															ctor: '::',
+															_0: _elm_lang$html$Html_Events$onInput(_user$project$Login$GogUsernameChange),
+															_1: {
+																ctor: '::',
+																_0: _elm_lang$html$Html_Attributes$value(model.u2),
+																_1: {ctor: '[]'}
+															}
+														}
+													}
+												},
 												{ctor: '[]'}),
-											_1: {ctor: '[]'}
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$input,
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$type_('submit'),
+														_1: {
+															ctor: '::',
+															_0: _elm_lang$html$Html_Attributes$style(
+																{
+																	ctor: '::',
+																	_0: {ctor: '_Tuple2', _0: 'display', _1: 'none'},
+																	_1: {ctor: '[]'}
+																}),
+															_1: {ctor: '[]'}
+														}
+													},
+													{ctor: '[]'}),
+												_1: {
+													ctor: '::',
+													_0: A2(
+														_elm_lang$html$Html$br,
+														{ctor: '[]'},
+														{ctor: '[]'}),
+													_1: {ctor: '[]'}
+												}
+											}
 										}
 									}
 								}
@@ -9571,7 +9630,7 @@ var _user$project$Login$view = function (model) {
 					}
 				}
 			},
-			_user$project$Login$mainPage(model)));
+			_user$project$Login$mainPageLink(model)));
 };
 var _user$project$Login$main = _elm_lang$html$Html$program(
 	{
