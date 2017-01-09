@@ -9176,10 +9176,10 @@ var _user$project$Router$decodedUserEntry = A4(
 		_elm_lang$core$Json_Decode$field,
 		'gogLogin',
 		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$string)));
-var _user$project$Router$homePageUrl = '/main';
+var _user$project$Router$mainPageUrl = '/main';
 var _user$project$Router$Addresses = F3(
 	function (a, b, c) {
-		return {login: a, home: b, comparison: c};
+		return {login: a, main: b, comparison: c};
 	});
 var _user$project$Router$Login = F2(
 	function (a, b) {
@@ -9189,12 +9189,12 @@ var _user$project$Router$login = A2(
 	_user$project$Router$Login,
 	_user$project$Router$generateAddress('login/fetch'),
 	_user$project$Router$generateAddress('login/createUpdate'));
-var _user$project$Router$Home = F4(
+var _user$project$Router$Main = F4(
 	function (a, b, c, d) {
 		return {gogData: a, steamData: b, allData: c, page: d};
 	});
-var _user$project$Router$home = A4(
-	_user$project$Router$Home,
+var _user$project$Router$main_ = A4(
+	_user$project$Router$Main,
 	_user$project$Router$generateAddress('main/gogData'),
 	_user$project$Router$generateAddress('main/steamData'),
 	_user$project$Router$generateAddress('main/allData'),
@@ -9208,7 +9208,7 @@ var _user$project$Router$comparison = A3(
 	_user$project$Router$generateAddress('comparison/toggleMatch'),
 	_user$project$Router$generateAddress('comparison/data'),
 	_user$project$Router$generateAddress('comparison'));
-var _user$project$Router$routes = A3(_user$project$Router$Addresses, _user$project$Router$login, _user$project$Router$home, _user$project$Router$comparison);
+var _user$project$Router$routes = A3(_user$project$Router$Addresses, _user$project$Router$login, _user$project$Router$main_, _user$project$Router$comparison);
 var _user$project$Router$fetchUser = function (params) {
 	return A2(
 		_elm_lang$http$Http$get,
@@ -9227,9 +9227,9 @@ var _user$project$Router$gogData = function (params) {
 		ctor: '_Tuple2',
 		_0: A2(
 			_elm_lang$http$Http$get,
-			_user$project$Router$routes.home.gogData(params),
+			_user$project$Router$routes.main.gogData(params),
 			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$routes.home.page(params)
+		_1: _user$project$Router$routes.main.page(params)
 	};
 };
 var _user$project$Router$steamData = function (params) {
@@ -9237,9 +9237,9 @@ var _user$project$Router$steamData = function (params) {
 		ctor: '_Tuple2',
 		_0: A2(
 			_elm_lang$http$Http$get,
-			_user$project$Router$routes.home.steamData(params),
+			_user$project$Router$routes.main.steamData(params),
 			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$routes.home.page(params)
+		_1: _user$project$Router$routes.main.page(params)
 	};
 };
 var _user$project$Router$allData = function (params) {
@@ -9247,9 +9247,9 @@ var _user$project$Router$allData = function (params) {
 		ctor: '_Tuple2',
 		_0: A2(
 			_elm_lang$http$Http$get,
-			_user$project$Router$routes.home.allData(params),
+			_user$project$Router$routes.main.allData(params),
 			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$routes.home.page(params)
+		_1: _user$project$Router$routes.main.page(params)
 	};
 };
 var _user$project$Router$toggleSelected = function (params) {
@@ -9295,7 +9295,7 @@ var _user$project$Login$mainPageLink = function (model) {
 							_0: _elm_lang$html$Html_Attributes$method('get'),
 							_1: {
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$action(_user$project$Router$homePageUrl),
+								_0: _elm_lang$html$Html_Attributes$action(_user$project$Router$mainPageUrl),
 								_1: {ctor: '[]'}
 							}
 						},

@@ -3,7 +3,7 @@ import Html exposing (Html, button, div, text, form, br, input, span)
 import Html.Attributes exposing (action, type_, name, style, method, value)
 import Html.Events exposing (onClick, onSubmit, onInput)
 import Model exposing(..)
-import Router exposing(fetchUser, createUpdateUser, homePageUrl)
+import Router exposing(fetchUser, createUpdateUser, mainPageUrl)
 import Http
 
 main =
@@ -89,7 +89,7 @@ mainPageLink model =
         userId = Maybe.withDefault 1 <| Maybe.andThen (\u -> u.id) model.user
     in
         Maybe.withDefault [] (Maybe.map (\_ ->
-        [form [method "get", action Router.homePageUrl]
+        [form [method "get", action Router.mainPageUrl]
         [ input [type_ "hidden", name "sources", value <| toString WishList][]
         , input [type_ "hidden", name "userId",  value <| toString userId][]
         , button[type_ "submit"][text "Continue"]]]) model.user)

@@ -6,10 +6,10 @@ GET         /                              controllers.LoginController.init
 GET         /login                         controllers.LoginController.init
 GET         /login/fetch                   controllers.LoginController.fetch(steamUsername : Option[String], gogUsername : Option[String])
 POST        /login/createUpdate            controllers.LoginController.createUpdate(steamUsername : Option[String], gogUsername : Option[String])
-GET         /main                          controllers.HomeController.main
-GET         /main/gogData                  controllers.HomeController.gogData(userId : Long, sources : services.GameSources.GameSources)
-GET         /main/steamData                controllers.HomeController.steamData(userId : Long, sources : services.GameSources.GameSources)
-GET         /main/allData                  controllers.HomeController.allData(userId : Long, sources : services.GameSources.GameSources)
+GET         /main                          controllers.MainController.main
+GET         /main/gogData                  controllers.MainController.gogData(userId : Long, sources : services.GameSources.GameSources)
+GET         /main/steamData                controllers.MainController.steamData(userId : Long, sources : services.GameSources.GameSources)
+GET         /main/allData                  controllers.MainController.allData(userId : Long, sources : services.GameSources.GameSources)
 
 GET         /comparison                    controllers.ComparisonController.main
 GET         /comparison/data               controllers.ComparisonController.data(left : services.GameOn.GameOn, right : services.GameOn.GameOn, minimumMetric : Int)
