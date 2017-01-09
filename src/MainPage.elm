@@ -63,7 +63,7 @@ gameTableTitle =
           , th[][text "Price(PLN)"]
           , th[][text "Additional prices(PLN)"]
           ]
---"cell_Both" else if onGog then "cell_Gog" else "cell_Steam"
+
 gameTableRow e =
     tr [] [ td[class <| toStyle e ][text <| getName e]
           , td[][text <| pricesToString (getPrice e)]
