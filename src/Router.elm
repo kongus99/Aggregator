@@ -21,12 +21,12 @@ type alias Home = {gogData : UrlGenerator, steamData : UrlGenerator, allData : U
 type alias Comparison = {toggleSelected : UrlGenerator, comparisonData : UrlGenerator, page : UrlGenerator}
 
 login = Login (generateAddress "login/fetch") (generateAddress "login/createUpdate")
-home = Home (generateAddress "gogData") (generateAddress "steamData") (generateAddress "allData") (generateAddress "")
+home = Home (generateAddress "main/gogData") (generateAddress "main/steamData") (generateAddress "main/allData") (generateAddress "main")
 comparison = Comparison (generateAddress "comparison/toggleMatch") (generateAddress "comparison/data") (generateAddress "comparison")
 
 routes = Addresses login home comparison
 --URLS
-homePageUrl = "/"
+homePageUrl = "/main"
 --DECODERS
 decodedUserEntry = map3 User (field "id" (maybe int)) (field "steamLogin" (maybe string)) (field "gogLogin" (maybe string))
 decodedGogEntry = map4 GogEntry (field "title" string) (field "gogId" int) (field "price" (maybe float)) (field "discounted" (maybe float))

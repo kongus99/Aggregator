@@ -10204,7 +10204,7 @@ var _user$project$Router$decodedUserEntry = A4(
 		_elm_lang$core$Json_Decode$field,
 		'gogLogin',
 		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$string)));
-var _user$project$Router$homePageUrl = '/';
+var _user$project$Router$homePageUrl = '/main';
 var _user$project$Router$Addresses = F3(
 	function (a, b, c) {
 		return {login: a, home: b, comparison: c};
@@ -10223,10 +10223,10 @@ var _user$project$Router$Home = F4(
 	});
 var _user$project$Router$home = A4(
 	_user$project$Router$Home,
-	_user$project$Router$generateAddress('gogData'),
-	_user$project$Router$generateAddress('steamData'),
-	_user$project$Router$generateAddress('allData'),
-	_user$project$Router$generateAddress(''));
+	_user$project$Router$generateAddress('main/gogData'),
+	_user$project$Router$generateAddress('main/steamData'),
+	_user$project$Router$generateAddress('main/allData'),
+	_user$project$Router$generateAddress('main'));
 var _user$project$Router$Comparison = F3(
 	function (a, b, c) {
 		return {toggleSelected: a, comparisonData: b, page: c};

@@ -2,15 +2,14 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# An example controller showing a sample home page
-GET         /                              controllers.HomeController.main
-
+GET         /                              controllers.LoginController.init
 GET         /login                         controllers.LoginController.init
 GET         /login/fetch                   controllers.LoginController.fetch(steamUsername : Option[String], gogUsername : Option[String])
 POST        /login/createUpdate            controllers.LoginController.createUpdate(steamUsername : Option[String], gogUsername : Option[String])
-GET         /gogData                       controllers.HomeController.gogData(userId : Long, sources : services.GameSources.GameSources)
-GET         /steamData                     controllers.HomeController.steamData(userId : Long, sources : services.GameSources.GameSources)
-GET         /allData                       controllers.HomeController.allData(userId : Long, sources : services.GameSources.GameSources)
+GET         /main                          controllers.HomeController.main
+GET         /main/gogData                  controllers.HomeController.gogData(userId : Long, sources : services.GameSources.GameSources)
+GET         /main/steamData                controllers.HomeController.steamData(userId : Long, sources : services.GameSources.GameSources)
+GET         /main/allData                  controllers.HomeController.allData(userId : Long, sources : services.GameSources.GameSources)
 
 GET         /comparison                    controllers.ComparisonController.main
 GET         /comparison/data               controllers.ComparisonController.data(left : services.GameOn.GameOn, right : services.GameOn.GameOn, minimumMetric : Int)
