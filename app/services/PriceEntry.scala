@@ -44,7 +44,7 @@ object KeyePricesFetcher {
 
   private val keyePriceReads = ((JsPath \ "name").read[String] and (JsPath \ "price").read[String] and (JsPath \ "url").read[String])((n, p, u) => (n, p, u))
 
-  private val host = "www.keye.pl"
+  private val host = "https://www.keye.pl"
   def getPrices(entries: Seq[SteamEntry], tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
     def autoCompleteUrl(query: String) = s"/index/lists?term=$query"
 

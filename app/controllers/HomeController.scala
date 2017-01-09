@@ -26,7 +26,7 @@ class HomeController @Inject()(client: WSClient, configuration: Configuration, t
   val fkRetriever = new FKRetriever(client)
   val keyeRetriever = new KeyeRetriever(client)
 
-  def main = Action.async { implicit request =>
+  def main = Action.async {
     Future {
       Ok(views.html.main("Aggregator - summary", "javascripts/mainPage", "MainPage"))
     }
