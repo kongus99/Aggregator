@@ -9770,14 +9770,13 @@ var _user$project$Router$login = A2(
 	_user$project$Router$Login,
 	_user$project$Router$generateAddress('login/fetch'),
 	_user$project$Router$generateAddress('login/createUpdate'));
-var _user$project$Router$Main = F3(
-	function (a, b, c) {
-		return {refreshGames: a, allData: b, page: c};
+var _user$project$Router$Main = F2(
+	function (a, b) {
+		return {refreshGames: a, page: b};
 	});
-var _user$project$Router$main_ = A3(
+var _user$project$Router$main_ = A2(
 	_user$project$Router$Main,
-	_user$project$Router$generateAddress('main/refreshGames'),
-	_user$project$Router$generateAddress('main/allData'),
+	_user$project$Router$generateAddress('main/refresh'),
 	_user$project$Router$generateAddress('main'));
 var _user$project$Router$Comparison = F3(
 	function (a, b, c) {
@@ -9808,16 +9807,6 @@ var _user$project$Router$refreshUserGames = function (params) {
 		_0: A2(
 			_elm_lang$http$Http$get,
 			_user$project$Router$routes.main.refreshGames(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$routes.main.page(params)
-	};
-};
-var _user$project$Router$allData = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.main.allData(params),
 			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
 		_1: _user$project$Router$routes.main.page(params)
 	};
@@ -10239,7 +10228,7 @@ var _user$project$MainPage$initProgram = function (address) {
 		ctor: '_Tuple2',
 		_0: model,
 		_1: _user$project$MainPage$getResponse(
-			_user$project$Router$allData(
+			_user$project$Router$refreshUserGames(
 				{
 					ctor: '::',
 					_0: {
@@ -10274,7 +10263,7 @@ var _user$project$MainPage$update = F2(
 							sources: _p11
 						}),
 					_1: _user$project$MainPage$getResponse(
-						_user$project$Router$allData(
+						_user$project$Router$refreshUserGames(
 							{
 								ctor: '::',
 								_0: {
@@ -10445,41 +10434,17 @@ var _user$project$MainPage$view = function (model) {
 				},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text('Refresh steam and gog'),
+					_0: _elm_lang$html$Html$text('Refresh game data'),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$button,
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onClick(
-							_user$project$MainPage$SendRefresh(
-								_user$project$MainPage$getResponse(
-									_user$project$Router$refreshUserGames(
-										{
-											ctor: '::',
-											_0: {
-												ctor: '_Tuple2',
-												_0: 'sources',
-												_1: _elm_lang$core$Basics$toString(model.sources)
-											},
-											_1: {
-												ctor: '::',
-												_0: {
-													ctor: '_Tuple2',
-													_0: 'userId',
-													_1: _elm_lang$core$Basics$toString(model.userId)
-												},
-												_1: {ctor: '[]'}
-											}
-										})))),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text('Fetch from steam'),
+						_0: _user$project$MainPage$sourcesSelect(model.sources),
 						_1: {ctor: '[]'}
 					}),
 				_1: {
@@ -10489,32 +10454,21 @@ var _user$project$MainPage$view = function (model) {
 						{ctor: '[]'},
 						{
 							ctor: '::',
-							_0: _user$project$MainPage$sourcesSelect(model.sources),
+							_0: _elm_lang$html$Html$text(
+								_elm_lang$core$Basics$toString(model.message)),
 							_1: {ctor: '[]'}
 						}),
 					_1: {
 						ctor: '::',
 						_0: A2(
-							_elm_lang$html$Html$div,
+							_elm_lang$html$Html$table,
 							{ctor: '[]'},
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html$text(
-									_elm_lang$core$Basics$toString(model.message)),
-								_1: {ctor: '[]'}
+								_0: _user$project$MainPage$gameTableTitle,
+								_1: A2(_elm_lang$core$List$map, _user$project$MainPage$gameTableRow, model.entries)
 							}),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$table,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: _user$project$MainPage$gameTableTitle,
-									_1: A2(_elm_lang$core$List$map, _user$project$MainPage$gameTableRow, model.entries)
-								}),
-							_1: {ctor: '[]'}
-						}
+						_1: {ctor: '[]'}
 					}
 				}
 			}

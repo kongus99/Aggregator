@@ -17,7 +17,7 @@ initProgram address =
         (userId, sources) = Json.decodeString decodeAddress address |> Result.toMaybe |> Maybe.withDefault (initialModel.userId, initialModel.sources)
         model = {initialModel | sources = sources, userId = userId}
     in
-        ( model , getResponse <| Router.allData [("sources", toString model.sources), ("userId", toString model.userId)])
+        ( model , getResponse <| Router.refreshUserGames [("sources", toString model.sources), ("userId", toString model.userId)])
 
 main = Html.programWithFlags { init = initProgram, view = view, update = update, subscriptions = \_ -> Sub.none }
 
@@ -41,7 +41,7 @@ type Msg
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    ChangeSources s -> ({model | entries = [], sources = s}, getResponse <| Router.allData [("sources", toString s), ("userId", toString model.userId)])
+    ChangeSources s -> ({model | entries = [], sources = s}, getResponse <| Router.refreshUserGames [("sources", toString s), ("userId", toString model.userId)])
     SendRefresh cmd -> ({model | entries = []}, cmd)
     ReceiveRefresh entries -> ({model | entries = entries} , Cmd.none)
     RefreshError err -> ({model | entries = [], message = toString err} , Cmd.none)
@@ -51,8 +51,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
   div [] <|
-    [ button [ onClick <| SendRefresh <| getResponse <| Router.refreshUserGames [("sources", toString model.sources), ("userId", toString model.userId)]] [ text "Refresh steam and gog"   ]
-    , button [ onClick <| SendRefresh <| getResponse <| Router.refreshUserGames [("sources", toString model.sources), ("userId", toString model.userId)]] [ text "Fetch from steam" ]
+    [ button [ onClick <| SendRefresh <| getResponse <| Router.refreshUserGames [("sources", toString model.sources), ("userId", toString model.userId)]] [ text "Refresh game data"   ]
     , div [] [sourcesSelect model.sources]
     , div [] [ text (toString model.message) ]
     , table[] <| gameTableTitle :: (List.map gameTableRow model.entries)

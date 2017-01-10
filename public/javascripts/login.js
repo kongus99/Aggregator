@@ -9189,14 +9189,13 @@ var _user$project$Router$login = A2(
 	_user$project$Router$Login,
 	_user$project$Router$generateAddress('login/fetch'),
 	_user$project$Router$generateAddress('login/createUpdate'));
-var _user$project$Router$Main = F3(
-	function (a, b, c) {
-		return {refreshGames: a, allData: b, page: c};
+var _user$project$Router$Main = F2(
+	function (a, b) {
+		return {refreshGames: a, page: b};
 	});
-var _user$project$Router$main_ = A3(
+var _user$project$Router$main_ = A2(
 	_user$project$Router$Main,
-	_user$project$Router$generateAddress('main/refreshGames'),
-	_user$project$Router$generateAddress('main/allData'),
+	_user$project$Router$generateAddress('main/refresh'),
 	_user$project$Router$generateAddress('main'));
 var _user$project$Router$Comparison = F3(
 	function (a, b, c) {
@@ -9227,16 +9226,6 @@ var _user$project$Router$refreshUserGames = function (params) {
 		_0: A2(
 			_elm_lang$http$Http$get,
 			_user$project$Router$routes.main.refreshGames(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$routes.main.page(params)
-	};
-};
-var _user$project$Router$allData = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.main.allData(params),
 			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
 		_1: _user$project$Router$routes.main.page(params)
 	};

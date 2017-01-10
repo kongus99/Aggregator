@@ -31,16 +31,6 @@ class MainController @Inject()(client: WSClient, configuration: Configuration, t
     }
   }
 
-  def allData(userId : Long, sources: GameSources) = Action.async {
-    for {
-      user <- tables.getUserById(userId)
-      result <- generateFromNames(user, sources, tables)
-      prices <- PriceEntry.getPrices(tables, user, golRetriever.retrieve, fkRetriever.retrieve, keyeRetriever.retrieve)
-    } yield {
-      Ok(Json.toJson(result.map(e => if (e.steam.isEmpty) e else e.copy(prices = prices.getOrElse(e.steam.head, Seq())))))
-    }
-  }
-
   def getGogGames(user : Option[User]) = {
     for{
       owned <- gogRetriever.retrieve(getGogPageNumber)
@@ -68,8 +58,9 @@ class MainController @Inject()(client: WSClient, configuration: Configuration, t
       _ <- tables.replaceGogData(user, GogEntry.parse(gogOwned, gogWishlist, rates))
       _ <- tables.replaceSteamData(user, SteamEntry.parse(steamOwned, steamWishlist, rates))
       result <- generateFromNames(user, sources, tables)
+      prices <- PriceEntry.getPrices(tables, user, golRetriever.retrieve, fkRetriever.retrieve, keyeRetriever.retrieve)
     } yield {
-      Ok(Json.toJson(result))
+      Ok(Json.toJson(result.map(e => if (e.steam.isEmpty) e else e.copy(prices = prices.getOrElse(e.steam.head, Seq())))))
     }
   }
 
