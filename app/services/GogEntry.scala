@@ -24,7 +24,8 @@ object GogEntry {
       (JsPath \ "discounted").write[Option[BigDecimal]])((e) => (e.title, e.gogId, e.price, e.discounted))
 
   private def parseWishList(wishList: String, converter : CurrencyConverter) = {
-    parseGogEntries(gogWishListReads(converter))(regExp.findAllMatchIn(wishList).map(m => m.group(1)).next())
+    val body = regExp.findAllMatchIn(wishList).map(m => m.group(1)).toSeq.headOption
+    body.map(parseGogEntries(gogWishListReads(converter))).getOrElse(Seq())
   }
 
   def parse(owned: Seq[String], wishList : String, converter: CurrencyConverter): Seq[GogEntry] =

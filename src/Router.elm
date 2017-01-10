@@ -1,4 +1,4 @@
-module Router exposing(refreshUserGames, toggleSelected, comparisonData, resolveResponse, fetchUser, createUpdateUser, mainPageUrl)
+module Router exposing(refreshUserGames, getUserGames, toggleSelected, comparisonData, resolveResponse, fetchUser, createUpdateUser, mainPageUrl)
 
 import Http
 import Json.Decode as Json exposing (..)
@@ -8,6 +8,7 @@ import String
 fetchUser params =   Http.get (routes.login.fetch params) decodedUserEntry
 createUpdateUser params =  Http.post (routes.login.createUpdate params) Http.emptyBody decodedUserEntry
 refreshUserGames params =   (Http.get (routes.main.refreshGames params) (list decodedGameEntry), routes.main.page params)
+getUserGames params =   (Http.get (routes.main.fetch params) (list decodedGameEntry), routes.main.page params)
 toggleSelected params = Http.post (routes.comparison.toggleSelected params) Http.emptyBody string
 comparisonData params = (Http.get (routes.comparison.comparisonData params) (list decodedComparisonEntry), routes.comparison.page params)
 --ROUTES
@@ -15,11 +16,11 @@ comparisonData params = (Http.get (routes.comparison.comparisonData params) (lis
 type alias UrlGenerator = List (String, String) -> String
 type alias Addresses = {login : Login, main : Main, comparison : Comparison}
 type alias Login = {fetch : UrlGenerator, createUpdate : UrlGenerator}
-type alias Main = {refreshGames : UrlGenerator, page : UrlGenerator}
+type alias Main = {refreshGames : UrlGenerator, fetch : UrlGenerator, page : UrlGenerator}
 type alias Comparison = {toggleSelected : UrlGenerator, comparisonData : UrlGenerator, page : UrlGenerator}
 
 login = Login (generateAddress "login/fetch") (generateAddress "login/createUpdate")
-main_ = Main (generateAddress "main/refresh") (generateAddress "main")
+main_ = Main (generateAddress "main/refresh") (generateAddress "main/fetch") (generateAddress "main")
 comparison = Comparison (generateAddress "comparison/toggleMatch") (generateAddress "comparison/data") (generateAddress "comparison")
 
 routes = Addresses login main_ comparison

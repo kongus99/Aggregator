@@ -166,6 +166,17 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
   }
 
+  def replacePrices(prices: Seq[PriceEntry]): Future[_] = {
+    val deleteOldPrices = priceData.filter(_.steamId.inSet(prices.map(_.steamId))).delete
+    val addNewPrices = priceData ++= prices
+    db.run((deleteOldPrices >> addNewPrices).transactionally)
+  }
+
+  def getPrices(steamEntries: Seq[SteamEntry]): Future[Seq[PriceEntry]] = {
+    val steamIds = steamEntries.map(_.steamId)
+    db.run(priceData.filter(_.steamId.inSet(steamIds)).result)
+  }
+
   def getAllMatches : Future[Map[(GameOn, GameOn), Set[(Long, Long)]]] = {
     for{
       matches <- db.run(matchData.result)
