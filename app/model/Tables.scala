@@ -5,7 +5,7 @@ import javax.inject._
 import controllers.MatchEntry
 import play.api.db.slick.DatabaseConfigProvider
 import services.GameOn._
-import services.{GameOn, GogEntry, SteamEntry}
+import services.{GameOn, GogEntry, PriceEntry, SteamEntry}
 import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
 import slick.jdbc.meta.MTable
@@ -29,6 +29,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
   val gogOwnershipData = TableQuery[GogOwnershipData]
   val steamData = TableQuery[SteamData]
   val steamOwnershipData = TableQuery[SteamOwnershipData]
+  val priceData = TableQuery[PriceData]
 
   class UserData(tag: Tag) extends Table[User](tag, "USER_DATA") {
     def id = column[Long]("USER_DATA_ID", O.PrimaryKey, O.AutoInc)
@@ -145,6 +146,26 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     }
   }
 
+  class PriceData(tag: Tag) extends Table[PriceEntry](tag, "PRICE_DATA") {
+
+    def steamId = column[Long]("PRICE_DATA_STEAM_ID")
+
+    def name = column[String]("PRICE_DATA_NAME")
+
+    def host = column[String]("PRICE_DATA_HOST")
+
+    def link = column[String]("PRICE_DATA_LINK")
+
+    def price = column[BigDecimal]("PRICE_DATA_PRICE", O.SqlType("DECIMAL(6,2)"))
+
+    def steamFk = foreignKey("PRICE_DATA_STEAM_FK", steamId, steamData)(_.steamId, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Cascade)
+
+    def steamLinkUnique = primaryKey("PRICE_DATA_STEAM_LINK_UNIQUE", (steamId, link))
+
+    override def * : ProvenShape[PriceEntry] = (steamId, name, host, link, price) <> ((PriceEntry.apply _).tupled, PriceEntry.unapply)
+
+  }
+
   def getAllMatches : Future[Map[(GameOn, GameOn), Set[(Long, Long)]]] = {
     for{
       matches <- db.run(matchData.result)
@@ -258,6 +279,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
             matchData.schema.create andThen
             gogOwnershipData.schema.create andThen
             steamOwnershipData.schema.create andThen
+            priceData.schema.create andThen
             (userData += User(None, Some("kongus"), Some("kongus99")))
       })
       Await.result(db.run(initialization), Duration.Inf)

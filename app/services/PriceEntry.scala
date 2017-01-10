@@ -9,7 +9,7 @@ import play.api.libs.json._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class PriceEntry(steamEntry: SteamEntry, name : String, host : String, link: String, price: BigDecimal)
+case class PriceEntry(steamId: Long, name : String, host : String, link: String, price: BigDecimal)
 
 object PriceEntry {
   def addArgumentToFuture[A, B](t: (A, Future[B]))(implicit exec: ExecutionContext): Future[(A, B)] = t._2.map(r => (t._1, r))
@@ -21,20 +21,20 @@ object PriceEntry {
       (JsPath \ "name").write[String] and
       (JsPath \ "host").write[String] and
       (JsPath \ "link").write[String] and
-      (JsPath \ "price").write[BigDecimal]) ((e) => (e.steamEntry.steamId, e.name, e.host, e.link, e.price))
+      (JsPath \ "price").write[BigDecimal]) ((e) => (e.steamId, e.name, e.host, e.link, e.price))
 
   def getPrices(tables: Tables,
                 user : Option[User],
                 golRetriever: String => Future[String],
                 fkRetriever : String => Future[String],
-                keyeRetriever : String => Future[String])(implicit exec: ExecutionContext): Future[Map[SteamEntry, Seq[PriceEntry]]] = {
+                keyeRetriever : String => Future[String])(implicit exec: ExecutionContext): Future[Map[Long, Seq[PriceEntry]]] = {
     for {
       entries <- tables.getSteamEntries(user, Some(true))
       golPrices <- GolPricesFetcher.getPrices(entries, tables, golRetriever)
       fkPrices <- FKPricesFetcher.getPrices(entries, tables, fkRetriever)
       keyePrices <- KeyePricesFetcher.getPrices(entries, tables, keyeRetriever)
     } yield {
-      (fkPrices ++ keyePrices ++ golPrices).groupBy(_.steamEntry).map(e => (e._1, e._2.sortBy(_.price).take(5)))
+      (fkPrices ++ keyePrices ++ golPrices).groupBy(_.steamId).map(e => (e._1, e._2.sortBy(_.price).take(5)))
     }
   }
 }
@@ -54,7 +54,7 @@ object KeyePricesFetcher {
       def parsePrice(steamEntry: SteamEntry, json: String): PriceEntry = {
         val parse = Json.parse(json)
         val data = parse.as[List[JsValue]].map(_.as(keyePriceReads)).head
-        PriceEntry(steamEntry, data._1, host, host + data._3, BigDecimal(data._2).setScale(2))
+        PriceEntry(steamEntry.steamId, data._1, host, host + data._3, BigDecimal(data._2).setScale(2))
       }
 
       complete.filter(p => !p._2.isEmpty && p._2 != "[]").map((parsePrice _).tupled)
@@ -92,7 +92,7 @@ object FKPricesFetcher {
         val activeContent = parsed.getElementById("content").getElementsByClass("active").head
         val name = activeContent.text()
         val link = activeContent.getElementsByTag("a").head.attr("href")
-        PriceEntry(e, name, host, link, BigDecimal(price))
+        PriceEntry(e.steamId, name, host, link, BigDecimal(price))
       }
       details.map((getPrice _).tupled)
     }
@@ -144,7 +144,7 @@ object GolPricesFetcher{
         val name = priceElement.getElementsByClass("gpcl-tit").head.getElementsByTag("p").head.text()
         val host =  new URL(priceElement.attr("onclick").split("'")(1)).getHost
         val link =  priceElement.attr("onclick").split("'")(1)
-        PriceEntry(e, name, host, link, price)
+        PriceEntry(e.steamId, name, host, link, price)
       }
       prices.flatMap({case (s, p) => Jsoup.parse(p).getElementsByClass("gpc-lista-a").toList.map(getPrice(s))})
     }
