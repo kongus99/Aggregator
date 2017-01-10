@@ -9770,14 +9770,13 @@ var _user$project$Router$login = A2(
 	_user$project$Router$Login,
 	_user$project$Router$generateAddress('login/fetch'),
 	_user$project$Router$generateAddress('login/createUpdate'));
-var _user$project$Router$Main = F4(
-	function (a, b, c, d) {
-		return {gogData: a, steamData: b, allData: c, page: d};
+var _user$project$Router$Main = F3(
+	function (a, b, c) {
+		return {refreshGames: a, allData: b, page: c};
 	});
-var _user$project$Router$main_ = A4(
+var _user$project$Router$main_ = A3(
 	_user$project$Router$Main,
-	_user$project$Router$generateAddress('main/gogData'),
-	_user$project$Router$generateAddress('main/steamData'),
+	_user$project$Router$generateAddress('main/refreshGames'),
 	_user$project$Router$generateAddress('main/allData'),
 	_user$project$Router$generateAddress('main'));
 var _user$project$Router$Comparison = F3(
@@ -9803,22 +9802,12 @@ var _user$project$Router$createUpdateUser = function (params) {
 		_elm_lang$http$Http$emptyBody,
 		_user$project$Router$decodedUserEntry);
 };
-var _user$project$Router$gogData = function (params) {
+var _user$project$Router$refreshUserGames = function (params) {
 	return {
 		ctor: '_Tuple2',
 		_0: A2(
 			_elm_lang$http$Http$get,
-			_user$project$Router$routes.main.gogData(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$routes.main.page(params)
-	};
-};
-var _user$project$Router$steamData = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.main.steamData(params),
+			_user$project$Router$routes.main.refreshGames(params),
 			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
 		_1: _user$project$Router$routes.main.page(params)
 	};
@@ -10434,7 +10423,7 @@ var _user$project$MainPage$view = function (model) {
 					_0: _elm_lang$html$Html_Events$onClick(
 						_user$project$MainPage$SendRefresh(
 							_user$project$MainPage$getResponse(
-								_user$project$Router$gogData(
+								_user$project$Router$refreshUserGames(
 									{
 										ctor: '::',
 										_0: {
@@ -10456,7 +10445,7 @@ var _user$project$MainPage$view = function (model) {
 				},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text('Fetch from gog'),
+					_0: _elm_lang$html$Html$text('Refresh steam and gog'),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
@@ -10468,7 +10457,7 @@ var _user$project$MainPage$view = function (model) {
 						_0: _elm_lang$html$Html_Events$onClick(
 							_user$project$MainPage$SendRefresh(
 								_user$project$MainPage$getResponse(
-									_user$project$Router$steamData(
+									_user$project$Router$refreshUserGames(
 										{
 											ctor: '::',
 											_0: {

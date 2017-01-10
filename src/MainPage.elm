@@ -51,8 +51,8 @@ update msg model =
 view : Model -> Html Msg
 view model =
   div [] <|
-    [ button [ onClick <| SendRefresh <| getResponse <| Router.gogData [("sources", toString model.sources), ("userId", toString model.userId)]] [ text "Fetch from gog"   ]
-    , button [ onClick <| SendRefresh <| getResponse <| Router.steamData [("sources", toString model.sources), ("userId", toString model.userId)]] [ text "Fetch from steam" ]
+    [ button [ onClick <| SendRefresh <| getResponse <| Router.refreshUserGames [("sources", toString model.sources), ("userId", toString model.userId)]] [ text "Refresh steam and gog"   ]
+    , button [ onClick <| SendRefresh <| getResponse <| Router.refreshUserGames [("sources", toString model.sources), ("userId", toString model.userId)]] [ text "Fetch from steam" ]
     , div [] [sourcesSelect model.sources]
     , div [] [ text (toString model.message) ]
     , table[] <| gameTableTitle :: (List.map gameTableRow model.entries)

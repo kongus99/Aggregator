@@ -1,14 +1,10 @@
 package services
 
-import model.{CurrencyConverter, Tables, User}
+import model.CurrencyConverter
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Json, Reads, Writes}
-import services.GameEntry._
-import services.GameSources.GameSources
-
-import scala.concurrent.{ExecutionContext, Future}
 
 case class SteamEntry(name: String, steamId: Long, price: Option[BigDecimal] = None, discounted: Option[BigDecimal]= None)
 
@@ -22,10 +18,8 @@ object SteamEntry {
       (JsPath \ "price").write[Option[BigDecimal]]and
       (JsPath \ "discounted").write[Option[BigDecimal]]) ((e) => (e.name, e.steamId, e.price, e.discounted))
 
-  def getFromSteam(tables : Tables)(user : Option[User], owned: String, wishList : String, sources : GameSources, converter : CurrencyConverter)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
-    val parsed = parseOwned(owned) ++ parseWishList(wishList, converter)
-    tables.replaceSteamData(user, parsed).flatMap(_ => generateFromNames(user, sources, tables))
-  }
+  def parse(owned: String, wishList : String, converter : CurrencyConverter): Seq[SteamEntry] =
+    parseOwned(owned) ++ parseWishList(wishList, converter)
 
   private def parseWishList(wishList: String, converter: CurrencyConverter) = {
     import scala.collection.JavaConversions._

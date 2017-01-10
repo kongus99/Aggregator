@@ -2,15 +2,14 @@ package controllers
 
 import javax.inject._
 
-import model.{CurrencyConverter, Tables}
+import model.{CurrencyConverter, Tables, User}
 import play.api.Configuration
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import services.GameEntry.{generateFromNames, _}
 import services.GameSources.GameSources
-import services.GogEntry.{getFromGog, getGogPageNumber}
-import services.SteamEntry.getFromSteam
+import services.GogEntry.getGogPageNumber
 import services._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -42,27 +41,36 @@ class MainController @Inject()(client: WSClient, configuration: Configuration, t
     }
   }
 
-  def gogData(userId : Long, sources: GameSources) = Action.async {
-    for {
-      user <- tables.getUserById(userId)
+  def getGogGames(user : Option[User]) = {
+    for{
       owned <- gogRetriever.retrieve(getGogPageNumber)
       wishlist <- user.map(u => u.gogLogin.map(l => gogWishListRetriever.retrieveWithUser(l)("/wishlist")).getOrElse(Future{""})).getOrElse(Future{""})
-      rates <- ratesRetriever.retrieve("")
-      result <- getFromGog(tables)(user, owned, wishlist, sources, CurrencyConverter.parseFromXml(rates))
+    } yield{
+      (owned, wishlist)
+    }
+  }
+
+  def getSteamGames(user: Option[User]) = {
+    for{
+      owned <- user.map(u => u.steamLogin.map(l => steamRetriever.retrieveWithUser(l)("/games/?tab=all")).getOrElse(Future{""})).getOrElse(Future{""})
+      wishlist <- user.map(u => u.steamLogin.map(l => steamRetriever.retrieveWithUser(l)("/wishlist")).getOrElse(Future{""})).getOrElse(Future{""})
+    } yield{
+      (owned, wishlist)
+    }
+  }
+
+  def refreshUserGames(userId : Long, sources: GameSources) = Action.async {
+    for {
+      user <- tables.getUserById(userId)
+      rates <- ratesRetriever.retrieve("").map(CurrencyConverter.parseFromXml)
+      (gogOwned, gogWishlist) <- getGogGames(user)
+      (steamOwned, steamWishlist) <- getSteamGames(user)
+      _ <- tables.replaceGogData(user, GogEntry.parse(gogOwned, gogWishlist, rates))
+      _ <- tables.replaceSteamData(user, SteamEntry.parse(steamOwned, steamWishlist, rates))
+      result <- generateFromNames(user, sources, tables)
     } yield {
       Ok(Json.toJson(result))
     }
   }
 
-  def steamData(userId : Long, sources: GameSources) = Action.async {
-    for {
-      user <- tables.getUserById(userId)
-      owned <- user.map(u => u.steamLogin.map(l => steamRetriever.retrieveWithUser(l)("/games/?tab=all")).getOrElse(Future{""})).getOrElse(Future{""})
-      wishlist <- user.map(u => u.steamLogin.map(l => steamRetriever.retrieveWithUser(l)("/wishlist")).getOrElse(Future{""})).getOrElse(Future{""})
-      rates <- ratesRetriever.retrieve("")
-      result <- getFromSteam(tables)(user, owned, wishlist, sources, CurrencyConverter.parseFromXml(rates))
-    } yield {
-      Ok(Json.toJson(result))
-    }
-  }
 }

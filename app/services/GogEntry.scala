@@ -1,13 +1,9 @@
 package services
 
 import com.fasterxml.jackson.core.JsonParseException
-import model.{CurrencyConverter, Tables, User}
+import model.CurrencyConverter
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
-import services.GameEntry._
-import services.GameSources.GameSources
-
-import scala.concurrent.{ExecutionContext, Future}
 
 case class GogEntry(title: String, gogId: Long, price: Option[BigDecimal] = None, discounted: Option[BigDecimal] = None)
 
@@ -31,10 +27,8 @@ object GogEntry {
     parseGogEntries(gogWishListReads(converter))(regExp.findAllMatchIn(wishList).map(m => m.group(1)).next())
   }
 
-  def getFromGog(tables : Tables)(user : Option[User], owned: Seq[String], wishList : String, sources : GameSources, converter: CurrencyConverter)(implicit exec: ExecutionContext): Future[Seq[GameEntry]] = {
-    val parsed = owned.flatMap(parseGogEntries(gogReads)) ++ parseWishList(wishList, converter)
-    tables.replaceGogData(user, parsed).flatMap(_ => generateFromNames(user, sources, tables))
-  }
+  def parse(owned: Seq[String], wishList : String, converter: CurrencyConverter): Seq[GogEntry] =
+    owned.flatMap(parseGogEntries(gogReads)) ++ parseWishList(wishList, converter)
 
   def getGogPageNumber(body: String): Int = {
     try{

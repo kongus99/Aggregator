@@ -1,4 +1,4 @@
-module Router exposing(gogData, steamData, allData, toggleSelected, comparisonData, resolveResponse, fetchUser, createUpdateUser, mainPageUrl)
+module Router exposing(refreshUserGames, allData, toggleSelected, comparisonData, resolveResponse, fetchUser, createUpdateUser, mainPageUrl)
 
 import Http
 import Json.Decode as Json exposing (..)
@@ -7,8 +7,7 @@ import String
 --METHODS
 fetchUser params =   Http.get (routes.login.fetch params) decodedUserEntry
 createUpdateUser params =  Http.post (routes.login.createUpdate params) Http.emptyBody decodedUserEntry
-gogData params =   (Http.get (routes.main.gogData params) (list decodedGameEntry), routes.main.page params)
-steamData params = (Http.get (routes.main.steamData params) (list decodedGameEntry), routes.main.page params)
+refreshUserGames params =   (Http.get (routes.main.refreshGames params) (list decodedGameEntry), routes.main.page params)
 allData params =   (Http.get (routes.main.allData params) (list decodedGameEntry), routes.main.page params)
 toggleSelected params = Http.post (routes.comparison.toggleSelected params) Http.emptyBody string
 comparisonData params = (Http.get (routes.comparison.comparisonData params) (list decodedComparisonEntry), routes.comparison.page params)
@@ -17,11 +16,11 @@ comparisonData params = (Http.get (routes.comparison.comparisonData params) (lis
 type alias UrlGenerator = List (String, String) -> String
 type alias Addresses = {login : Login, main : Main, comparison : Comparison}
 type alias Login = {fetch : UrlGenerator, createUpdate : UrlGenerator}
-type alias Main = {gogData : UrlGenerator, steamData : UrlGenerator, allData : UrlGenerator, page : UrlGenerator}
+type alias Main = {refreshGames : UrlGenerator, allData : UrlGenerator, page : UrlGenerator}
 type alias Comparison = {toggleSelected : UrlGenerator, comparisonData : UrlGenerator, page : UrlGenerator}
 
 login = Login (generateAddress "login/fetch") (generateAddress "login/createUpdate")
-main_ = Main (generateAddress "main/gogData") (generateAddress "main/steamData") (generateAddress "main/allData") (generateAddress "main")
+main_ = Main (generateAddress "main/refreshGames") (generateAddress "main/allData") (generateAddress "main")
 comparison = Comparison (generateAddress "comparison/toggleMatch") (generateAddress "comparison/data") (generateAddress "comparison")
 
 routes = Addresses login main_ comparison

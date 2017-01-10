@@ -200,9 +200,10 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
       val oldDataIdsQuery = gogData.filter(_.gogId.inSet(ids)).map(_.gogId)
       def insertNewData(oldDataIds : Seq[Long]) = {
         val newData = data.filter(d => !oldDataIds.contains(d.gogId))
-        gogData ++= newData
+        def updates(gogE : GogEntry) = (for { g <- gogData if g.gogId === gogE.gogId} yield (g.price, g.discountedPrice)).update((gogE.price, gogE.discounted))
+        val priceUpdates = DBIO.sequence(data.filter(_.price.isDefined).map(updates))
+        (gogData ++= newData).andThen(priceUpdates)
       }
-      //TODO update prices where applicable
 
       lazy val  deleteOldOwnership = gogOwnershipData.filter(_.userId === u.id.get).delete
       lazy val  addNewOwnership = gogOwnershipData ++= newOwnership
@@ -234,9 +235,10 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
       val oldDataIdsQuery = steamData.filter(_.steamId.inSet(ids)).map(_.steamId)
       def insertNewData(oldDataIds : Seq[Long]) = {
         val newData = data.filter(d => !oldDataIds.contains(d.steamId))
-        steamData ++= newData
+        def updates(steamE : SteamEntry) = (for { s <- steamData if s.steamId === steamE.steamId} yield (s.price, s.discountedPrice)).update((steamE.price, steamE.discounted))
+        val priceUpdates = DBIO.sequence(data.filter(_.price.isDefined).map(updates))
+        (steamData ++= newData).andThen(priceUpdates)
       }
-      //TODO update prices where applicable
 
       lazy val  deleteOldOwnership = steamOwnershipData.filter(_.userId === u.id.get).delete
       lazy val  addNewOwnership = steamOwnershipData ++= newOwnership
