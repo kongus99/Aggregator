@@ -27,9 +27,9 @@ port elmAddressChange : String -> Cmd msg
 
 -- MODEL
 
-type alias Model = {sources : GameSources, entries : List GameEntry, message : String, userId : Int, filters : Filters}
+type alias Model = {sources : GameSources, message : String, userId : Int, filters : Filters}
 
-initialModel = Model WishList [] "" 1 emptyFilters
+initialModel = Model WishList "" 1 emptyFilters
 
 -- UPDATE
 
@@ -43,11 +43,11 @@ type Msg
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    ChangeSources s -> ({model | entries = [], filters = resetFilterResults model.filters, sources = s, message = ""}, getResponse <| Router.getUserGames [("sources", toString s), ("userId", toString model.userId)])
-    SendRefresh cmd -> ({model | entries = [], filters = resetFilterResults model.filters, message = ""}, cmd)
-    ReceiveRefresh entries -> ({model | entries = entries, filters = filterByName model.filters.name entries model.filters, message = ""} , Cmd.none)
-    RefreshError err -> ({model | entries = [], filters = resetFilterResults model.filters, message = toString err} , Cmd.none)
-    FilterChange filter -> ({model | filters = filterByName filter model.entries model.filters, message = ""} , Cmd.none)
+    ChangeSources s -> ({model | filters = resetFilterLists model.filters, sources = s, message = ""}, getResponse <| Router.getUserGames [("sources", toString s), ("userId", toString model.userId)])
+    SendRefresh cmd -> ({model | filters = resetFilterLists model.filters, message = ""}, cmd)
+    ReceiveRefresh entries -> ({model | filters = setNewFilterLists entries model.filters, message = ""} , Cmd.none)
+    RefreshError err -> ({model | filters = resetFilterLists model.filters, message = toString err} , Cmd.none)
+    FilterChange name -> ({model | filters = filterByName name model.filters, message = ""} , Cmd.none)
 
 -- VIEW
 

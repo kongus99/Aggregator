@@ -10087,11 +10087,12 @@ var _user$project$Model$Both = {ctor: 'Both'};
 var _user$project$Model$WishList = {ctor: 'WishList'};
 var _user$project$Model$Owned = {ctor: 'Owned'};
 
-var _user$project$GameEntry$resetFilterResults = function (filters) {
+var _user$project$GameEntry$resetFilterLists = function (filters) {
 	return _elm_lang$core$Native_Utils.update(
 		filters,
 		{
-			result: {ctor: '[]'}
+			result: {ctor: '[]'},
+			original: {ctor: '[]'}
 		});
 };
 var _user$project$GameEntry$roundToString = F2(
@@ -10207,39 +10208,50 @@ var _user$project$GameEntry$getName = function (gameEntry) {
 			},
 			_elm_lang$core$List$head(gameEntry.gog)));
 };
-var _user$project$GameEntry$filterByName = F3(
-	function (name, entries, filters) {
-		var applyNameFilter = F2(
-			function (name, list) {
+var _user$project$GameEntry$applyNameFilter = F2(
+	function (name, entries) {
+		return _elm_lang$core$String$isEmpty(name) ? entries : A2(
+			_elm_lang$core$List$filter,
+			function (e) {
 				return A2(
-					_elm_lang$core$List$filter,
-					function (e) {
-						return A2(
-							_elm_lang$core$String$contains,
-							_elm_lang$core$String$toLower(name),
-							_elm_lang$core$String$toLower(
-								_user$project$GameEntry$getName(e)));
-					},
-					list);
+					_elm_lang$core$String$contains,
+					_elm_lang$core$String$toLower(name),
+					_elm_lang$core$String$toLower(
+						_user$project$GameEntry$getName(e)));
+			},
+			entries);
+	});
+var _user$project$GameEntry$setNewFilterLists = F2(
+	function (list, filters) {
+		return _elm_lang$core$Native_Utils.update(
+			filters,
+			{
+				result: A2(_user$project$GameEntry$applyNameFilter, filters.name, list),
+				original: list
 			});
+	});
+var _user$project$GameEntry$filterByName = F2(
+	function (name, filters) {
 		return _elm_lang$core$Native_Utils.update(
 			filters,
 			{
 				name: name,
-				result: A2(applyNameFilter, name, entries)
+				result: A2(_user$project$GameEntry$applyNameFilter, name, filters.original)
 			});
 	});
 var _user$project$GameEntry$GameEntry = F3(
 	function (a, b, c) {
 		return {gog: a, steam: b, prices: c};
 	});
-var _user$project$GameEntry$Filters = F2(
-	function (a, b) {
-		return {name: a, result: b};
+var _user$project$GameEntry$Filters = F4(
+	function (a, b, c, d) {
+		return {name: a, prices: b, original: c, result: d};
 	});
-var _user$project$GameEntry$emptyFilters = A2(
+var _user$project$GameEntry$emptyFilters = A4(
 	_user$project$GameEntry$Filters,
 	'',
+	{ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
+	{ctor: '[]'},
 	{ctor: '[]'});
 
 var _user$project$Router$resolveResponse = F3(

@@ -1,10 +1,10 @@
-module GameEntry exposing (GameEntry, Filters, getPrice, resetFilterResults, filterByName, getName, pricesToString, roundToString, emptyFilters)
+module GameEntry exposing (GameEntry, Filters, getPrice, resetFilterLists, setNewFilterLists, getName, pricesToString, roundToString, emptyFilters, filterByName)
 import Model exposing (..)
 
 type alias GameEntry = {gog: List GogEntry, steam: List SteamEntry, prices : List PriceEntry}
-type alias Filters = {name : String, result : List GameEntry}
+type alias Filters = {name : String, prices : (Maybe Float, Maybe Float), original : List GameEntry, result : List GameEntry}
 
-emptyFilters = Filters "" []
+emptyFilters = Filters "" (Nothing, Nothing) [] []
 
 getName : GameEntry -> String
 getName gameEntry =
@@ -50,14 +50,27 @@ roundToString precision number =
     in
         total ++ "." ++ fraction
 
-resetFilterResults : Filters -> Filters
-resetFilterResults filters =
-    {filters | result = [] }
+resetFilterLists : Filters -> Filters
+resetFilterLists filters =
+    {filters | result = [], original = [] }
 
-filterByName : String -> List GameEntry -> Filters -> Filters
-filterByName name entries filters =
-    let
-        applyNameFilter name list =
-            List.filter (\e -> getName e |> String.toLower |> String.contains (String.toLower name)) list
-    in
-        {filters | name = name, result = applyNameFilter name entries}
+setNewFilterLists : List GameEntry -> Filters -> Filters
+setNewFilterLists list filters =
+    {filters | result = applyNameFilter filters.name list, original = list }
+
+applyNameFilter name entries =
+    if String.isEmpty name then entries
+    else List.filter (\e -> getName e |> String.toLower |> String.contains (String.toLower name)) entries
+
+filterByName : String -> Filters -> Filters
+filterByName name filters = {filters | name = name, result = applyNameFilter name filters.original}
+
+--filterByLowerPrice : Maybe Float -> List GameEntry -> Filters -> Filters
+--filterByLowerPrice price entries filters =
+--    let
+--        applyPriceFilter =
+--            if price == Nothing then entries
+--            else List.filter (\e -> getName e |> String.toLower |> String.contains (String.toLower name)) list
+--        updatedPrices (lower, upper) = (price, upper)
+--    in
+--        {filters | prices = updatedPrices filters.prices, result = applyPriceFilter entries}
