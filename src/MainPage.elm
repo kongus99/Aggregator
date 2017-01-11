@@ -3,6 +3,7 @@ import Html exposing (Html, button, br, input, div, text, span, table, tr, th, t
 import Html.Attributes exposing(class, selected, value, href, type_, name)
 import Html.Events exposing (onClick, on, targetValue, onInput)
 import Json.Decode as Json
+import GameEntry exposing(..)
 import Http
 import Task
 import Erl
@@ -26,9 +27,9 @@ port elmAddressChange : String -> Cmd msg
 
 -- MODEL
 
-type alias Model = {sources : GameSources, entries : List GameEntry, shownEntries : List GameEntry, message : String, userId : Int, nameFilter : String}
+type alias Model = {sources : GameSources, entries : List GameEntry, message : String, userId : Int, filters : Filters}
 
-initialModel = Model WishList [] [] "" 1 ""
+initialModel = Model WishList [] "" 1 emptyFilters
 
 -- UPDATE
 
@@ -42,15 +43,11 @@ type Msg
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    ChangeSources s -> ({model | entries = [], shownEntries = [], sources = s, message = ""}, getResponse <| Router.getUserGames [("sources", toString s), ("userId", toString model.userId)])
-    SendRefresh cmd -> ({model | entries = [], shownEntries = [], message = ""}, cmd)
-    ReceiveRefresh entries -> ({model | entries = entries, shownEntries = applyFilters model.nameFilter entries, message = ""} , Cmd.none)
-    RefreshError err -> ({model | entries = [], shownEntries = [], message = toString err} , Cmd.none)
-    FilterChange filter -> ({model | nameFilter = filter, shownEntries = applyFilters filter model.entries, message = ""} , Cmd.none)
-
-applyFilters : String -> List GameEntry -> List GameEntry
-applyFilters filters list =
-    List.filter (\e -> getName e |> String.toLower |> String.contains (String.toLower filters)) list
+    ChangeSources s -> ({model | entries = [], filters = resetFilterResults model.filters, sources = s, message = ""}, getResponse <| Router.getUserGames [("sources", toString s), ("userId", toString model.userId)])
+    SendRefresh cmd -> ({model | entries = [], filters = resetFilterResults model.filters, message = ""}, cmd)
+    ReceiveRefresh entries -> ({model | entries = entries, filters = filterByName model.filters.name entries model.filters, message = ""} , Cmd.none)
+    RefreshError err -> ({model | entries = [], filters = resetFilterResults model.filters, message = toString err} , Cmd.none)
+    FilterChange filter -> ({model | filters = filterByName filter model.entries model.filters, message = ""} , Cmd.none)
 
 -- VIEW
 
@@ -59,11 +56,11 @@ view model =
   div [] <|
     [ button [ onClick <| SendRefresh <| getResponse <| Router.refreshUserGames [("sources", toString model.sources), ("userId", toString model.userId)]] [ text "Refresh game data"   ]
     , br[][]
-    , label[][text "Name:", input[type_ "text", name "username1", onInput FilterChange, value model.nameFilter][]]
+    , label[][text "Name:", input[type_ "text", name "username1", onInput FilterChange, value model.filters.name][]]
     , br[][]
     , div [] [sourcesSelect model.sources]
     , div [] [ text (toString model.message) ]
-    , table[] <| gameTableTitle :: (List.map gameTableRow model.shownEntries)
+    , table[] <| gameTableTitle :: (List.map gameTableRow model.filters.result)
     ]
 
 gameTableTitle =
@@ -111,46 +108,6 @@ toStyle gameEntry =
         onSteam = List.length gameEntry.steam > 0
     in
         if onGog && onSteam then "cell_Both" else if onGog then "cell_Gog" else "cell_Steam"
-getPrice : GameEntry -> Maybe (Maybe Float, Maybe Float)
-getPrice gameEntry =
-    let
-        steamPrice =  List.head gameEntry.steam |> Maybe.map (\s -> (s.price, s.discounted))
-        gogPrice =  List.head gameEntry.gog |> Maybe.map (\g -> (g.price, g.discounted))
-    in
-        case gogPrice of
-            Just x -> Just x
-            Nothing -> steamPrice
-roundToString : Int -> Float -> String
-roundToString precision number =
-    let
-        integerRepresentation = number * toFloat (10 ^ precision) |> round |> toString
-        total = String.dropRight 2 integerRepresentation
-        fraction = String.dropLeft (String.length total) integerRepresentation
-    in
-        total ++ "." ++ fraction
-pricesToString : Maybe (Maybe Float, Maybe Float) -> String
-pricesToString prices =
-    let
-        calculatePercentage (price, discount) =
-            Maybe.withDefault 0 <| Maybe.map2 (\p -> \d -> round (((p - d) / p) * 100)) price discount
-        formatDiscount percentage price discount =
-            (roundToString 2 price) ++ " (-" ++ toString percentage ++ "%) " ++ (roundToString 2 discount)
-        convertToText percentage (price, discount) =
-            if isNaN <| toFloat percentage then
-                "0"
-            else if percentage > 0 then
-                Maybe.withDefault "Error" <| Maybe.map2 (formatDiscount percentage) price discount
-            else
-                Maybe.withDefault "" <| Maybe.map (roundToString 2) price
-        discountPercentage =  Maybe.map calculatePercentage prices
-    in
-        Maybe.withDefault "" <| Maybe.map2 convertToText discountPercentage prices
-
-getName gameEntry =
-    let
-        steamName = List.head gameEntry.steam |> Maybe.map (\g -> g.name) |> Maybe.withDefault ""
-    in
-        List.head gameEntry.gog |> Maybe.map (\g -> g.title) |> Maybe.withDefault steamName
 
 onSelect : (String -> a) -> Html.Attribute a
 onSelect msg =

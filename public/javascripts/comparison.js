@@ -10061,10 +10061,6 @@ var _user$project$Model$User = F3(
 	function (a, b, c) {
 		return {id: a, username1: b, username2: c};
 	});
-var _user$project$Model$GameEntry = F3(
-	function (a, b, c) {
-		return {gog: a, steam: b, prices: c};
-	});
 var _user$project$Model$GogEntry = F4(
 	function (a, b, c, d) {
 		return {title: a, gogId: b, price: c, discounted: d};
@@ -10090,6 +10086,161 @@ var _user$project$Model$Gog = {ctor: 'Gog'};
 var _user$project$Model$Both = {ctor: 'Both'};
 var _user$project$Model$WishList = {ctor: 'WishList'};
 var _user$project$Model$Owned = {ctor: 'Owned'};
+
+var _user$project$GameEntry$resetFilterResults = function (filters) {
+	return _elm_lang$core$Native_Utils.update(
+		filters,
+		{
+			result: {ctor: '[]'}
+		});
+};
+var _user$project$GameEntry$roundToString = F2(
+	function (precision, number) {
+		var integerRepresentation = _elm_lang$core$Basics$toString(
+			_elm_lang$core$Basics$round(
+				number * _elm_lang$core$Basics$toFloat(
+					Math.pow(10, precision))));
+		var total = A2(_elm_lang$core$String$dropRight, 2, integerRepresentation);
+		var fraction = A2(
+			_elm_lang$core$String$dropLeft,
+			_elm_lang$core$String$length(total),
+			integerRepresentation);
+		return A2(
+			_elm_lang$core$Basics_ops['++'],
+			total,
+			A2(_elm_lang$core$Basics_ops['++'], '.', fraction));
+	});
+var _user$project$GameEntry$pricesToString = function (prices) {
+	var formatDiscount = F3(
+		function (percentage, price, discount) {
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				A2(_user$project$GameEntry$roundToString, 2, price),
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					' (-',
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						_elm_lang$core$Basics$toString(percentage),
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							'%) ',
+							A2(_user$project$GameEntry$roundToString, 2, discount)))));
+		});
+	var convertToText = F2(
+		function (percentage, _p0) {
+			var _p1 = _p0;
+			var _p2 = _p1._0;
+			return _elm_lang$core$Basics$isNaN(
+				_elm_lang$core$Basics$toFloat(percentage)) ? '0' : ((_elm_lang$core$Native_Utils.cmp(percentage, 0) > 0) ? A2(
+				_elm_lang$core$Maybe$withDefault,
+				'Error',
+				A3(
+					_elm_lang$core$Maybe$map2,
+					formatDiscount(percentage),
+					_p2,
+					_p1._1)) : A2(
+				_elm_lang$core$Maybe$withDefault,
+				'',
+				A2(
+					_elm_lang$core$Maybe$map,
+					_user$project$GameEntry$roundToString(2),
+					_p2)));
+		});
+	var calculatePercentage = function (_p3) {
+		var _p4 = _p3;
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			0,
+			A3(
+				_elm_lang$core$Maybe$map2,
+				F2(
+					function (p, d) {
+						return _elm_lang$core$Basics$round(((p - d) / p) * 100);
+					}),
+				_p4._0,
+				_p4._1));
+	};
+	var discountPercentage = A2(_elm_lang$core$Maybe$map, calculatePercentage, prices);
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		'',
+		A3(_elm_lang$core$Maybe$map2, convertToText, discountPercentage, prices));
+};
+var _user$project$GameEntry$getPrice = function (gameEntry) {
+	var gogPrice = A2(
+		_elm_lang$core$Maybe$map,
+		function (g) {
+			return {ctor: '_Tuple2', _0: g.price, _1: g.discounted};
+		},
+		_elm_lang$core$List$head(gameEntry.gog));
+	var steamPrice = A2(
+		_elm_lang$core$Maybe$map,
+		function (s) {
+			return {ctor: '_Tuple2', _0: s.price, _1: s.discounted};
+		},
+		_elm_lang$core$List$head(gameEntry.steam));
+	var _p5 = gogPrice;
+	if (_p5.ctor === 'Just') {
+		return _elm_lang$core$Maybe$Just(_p5._0);
+	} else {
+		return steamPrice;
+	}
+};
+var _user$project$GameEntry$getName = function (gameEntry) {
+	var steamName = A2(
+		_elm_lang$core$Maybe$withDefault,
+		'',
+		A2(
+			_elm_lang$core$Maybe$map,
+			function (g) {
+				return g.name;
+			},
+			_elm_lang$core$List$head(gameEntry.steam)));
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		steamName,
+		A2(
+			_elm_lang$core$Maybe$map,
+			function (g) {
+				return g.title;
+			},
+			_elm_lang$core$List$head(gameEntry.gog)));
+};
+var _user$project$GameEntry$filterByName = F3(
+	function (name, entries, filters) {
+		var applyNameFilter = F2(
+			function (name, list) {
+				return A2(
+					_elm_lang$core$List$filter,
+					function (e) {
+						return A2(
+							_elm_lang$core$String$contains,
+							_elm_lang$core$String$toLower(name),
+							_elm_lang$core$String$toLower(
+								_user$project$GameEntry$getName(e)));
+					},
+					list);
+			});
+		return _elm_lang$core$Native_Utils.update(
+			filters,
+			{
+				name: name,
+				result: A2(applyNameFilter, name, entries)
+			});
+	});
+var _user$project$GameEntry$GameEntry = F3(
+	function (a, b, c) {
+		return {gog: a, steam: b, prices: c};
+	});
+var _user$project$GameEntry$Filters = F2(
+	function (a, b) {
+		return {name: a, result: b};
+	});
+var _user$project$GameEntry$emptyFilters = A2(
+	_user$project$GameEntry$Filters,
+	'',
+	{ctor: '[]'});
 
 var _user$project$Router$resolveResponse = F3(
 	function (successResolver, errorResolver, response) {
@@ -10176,7 +10327,7 @@ var _user$project$Router$decodedGogEntry = A5(
 		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)));
 var _user$project$Router$decodedGameEntry = A4(
 	_elm_lang$core$Json_Decode$map3,
-	_user$project$Model$GameEntry,
+	_user$project$GameEntry$GameEntry,
 	A2(
 		_elm_lang$core$Json_Decode$field,
 		'gog',

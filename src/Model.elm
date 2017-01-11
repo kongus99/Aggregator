@@ -11,8 +11,6 @@ type alias GogUserName = String
 
 type alias User = {id : Maybe Int, username1 : Maybe SteamUsername, username2 : Maybe GogUserName}
 
-type alias GameEntry = {gog: List GogEntry, steam: List SteamEntry, prices : List PriceEntry}
-
 type alias GogEntry = {title: String, gogId : Int, price : Maybe Float, discounted : Maybe Float}
 
 type alias SteamEntry = {name: String, steamId : Int, price : Maybe Float, discounted : Maybe Float }

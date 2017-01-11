@@ -3,6 +3,7 @@ module Router exposing(refreshUserGames, getUserGames, toggleSelected, compariso
 import Http
 import Json.Decode as Json exposing (..)
 import Model exposing (..)
+import GameEntry exposing(GameEntry)
 import String
 --METHODS
 fetchUser params =   Http.get (routes.login.fetch params) decodedUserEntry
