@@ -10166,21 +10166,39 @@ var _user$project$MainPage$gameTableTitle = A2(
 			}
 		}
 	});
+var _user$project$MainPage$applyFilters = F2(
+	function (filters, list) {
+		return A2(
+			_elm_lang$core$List$filter,
+			function (e) {
+				return A2(
+					_elm_lang$core$String$contains,
+					_elm_lang$core$String$toLower(filters),
+					_elm_lang$core$String$toLower(
+						_user$project$MainPage$getName(e)));
+			},
+			list);
+	});
 var _user$project$MainPage$elmAddressChange = _elm_lang$core$Native_Platform.outgoingPort(
 	'elmAddressChange',
 	function (v) {
 		return v;
 	});
-var _user$project$MainPage$Model = F4(
-	function (a, b, c, d) {
-		return {sources: a, entries: b, message: c, userId: d};
+var _user$project$MainPage$Model = F6(
+	function (a, b, c, d, e, f) {
+		return {sources: a, entries: b, shownEntries: c, message: d, userId: e, nameFilter: f};
 	});
-var _user$project$MainPage$initialModel = A4(
+var _user$project$MainPage$initialModel = A6(
 	_user$project$MainPage$Model,
 	_user$project$Model$WishList,
 	{ctor: '[]'},
+	{ctor: '[]'},
 	'',
-	1);
+	1,
+	'');
+var _user$project$MainPage$FilterChange = function (a) {
+	return {ctor: 'FilterChange', _0: a};
+};
 var _user$project$MainPage$RefreshError = function (a) {
 	return {ctor: 'RefreshError', _0: a};
 };
@@ -10271,7 +10289,9 @@ var _user$project$MainPage$update = F2(
 						model,
 						{
 							entries: {ctor: '[]'},
-							sources: _p11
+							shownEntries: {ctor: '[]'},
+							sources: _p11,
+							message: ''
 						}),
 					_1: _user$project$MainPage$getResponse(
 						_user$project$Router$getUserGames(
@@ -10299,26 +10319,47 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							entries: {ctor: '[]'}
+							entries: {ctor: '[]'},
+							shownEntries: {ctor: '[]'},
+							message: ''
 						}),
 					_1: _p10._0
 				};
 			case 'ReceiveRefresh':
+				var _p12 = _p10._0;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{entries: _p10._0}),
+						{
+							entries: _p12,
+							shownEntries: A2(_user$project$MainPage$applyFilters, model.nameFilter, _p12),
+							message: ''
+						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			default:
+			case 'RefreshError':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
 							entries: {ctor: '[]'},
+							shownEntries: {ctor: '[]'},
 							message: _elm_lang$core$Basics$toString(_p10._0)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				var _p13 = _p10._0;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							nameFilter: _p13,
+							shownEntries: A2(_user$project$MainPage$applyFilters, _p13, model.entries),
+							message: ''
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10451,35 +10492,83 @@ var _user$project$MainPage$view = function (model) {
 			_1: {
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$div,
+					_elm_lang$html$Html$br,
 					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: _user$project$MainPage$sourcesSelect(model.sources),
-						_1: {ctor: '[]'}
-					}),
+					{ctor: '[]'}),
 				_1: {
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$div,
+						_elm_lang$html$Html$label,
 						{ctor: '[]'},
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html$text(
-								_elm_lang$core$Basics$toString(model.message)),
-							_1: {ctor: '[]'}
+							_0: _elm_lang$html$Html$text('Name:'),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$input,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$type_('text'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$name('username1'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onInput(_user$project$MainPage$FilterChange),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$value(model.nameFilter),
+													_1: {ctor: '[]'}
+												}
+											}
+										}
+									},
+									{ctor: '[]'}),
+								_1: {ctor: '[]'}
+							}
 						}),
 					_1: {
 						ctor: '::',
 						_0: A2(
-							_elm_lang$html$Html$table,
+							_elm_lang$html$Html$br,
 							{ctor: '[]'},
-							{
+							{ctor: '[]'}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _user$project$MainPage$sourcesSelect(model.sources),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
 								ctor: '::',
-								_0: _user$project$MainPage$gameTableTitle,
-								_1: A2(_elm_lang$core$List$map, _user$project$MainPage$gameTableRow, model.entries)
-							}),
-						_1: {ctor: '[]'}
+								_0: A2(
+									_elm_lang$html$Html$div,
+									{ctor: '[]'},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text(
+											_elm_lang$core$Basics$toString(model.message)),
+										_1: {ctor: '[]'}
+									}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$table,
+										{ctor: '[]'},
+										{
+											ctor: '::',
+											_0: _user$project$MainPage$gameTableTitle,
+											_1: A2(_elm_lang$core$List$map, _user$project$MainPage$gameTableRow, model.shownEntries)
+										}),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
 					}
 				}
 			}
@@ -10490,7 +10579,7 @@ var _user$project$MainPage$main = _elm_lang$html$Html$programWithFlags(
 		init: _user$project$MainPage$initProgram,
 		view: _user$project$MainPage$view,
 		update: _user$project$MainPage$update,
-		subscriptions: function (_p12) {
+		subscriptions: function (_p14) {
 			return _elm_lang$core$Platform_Sub$none;
 		}
 	})(_elm_lang$core$Json_Decode$string);

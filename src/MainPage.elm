@@ -1,7 +1,7 @@
 port module MainPage exposing (..)
-import Html exposing (Html, button, div, text, span, table, tr, th, td, select, option, a)
-import Html.Attributes exposing(class, selected, value, href)
-import Html.Events exposing (onClick, on, targetValue)
+import Html exposing (Html, button, br, input, div, text, span, table, tr, th, td, select, option, a, label)
+import Html.Attributes exposing(class, selected, value, href, type_, name)
+import Html.Events exposing (onClick, on, targetValue, onInput)
 import Json.Decode as Json
 import Http
 import Task
@@ -26,9 +26,9 @@ port elmAddressChange : String -> Cmd msg
 
 -- MODEL
 
-type alias Model = {sources : GameSources, entries : List GameEntry, message : String, userId : Int}
+type alias Model = {sources : GameSources, entries : List GameEntry, shownEntries : List GameEntry, message : String, userId : Int, nameFilter : String}
 
-initialModel = Model WishList [] "" 1
+initialModel = Model WishList [] [] "" 1 ""
 
 -- UPDATE
 
@@ -37,14 +37,20 @@ type Msg
   | SendRefresh (Cmd Msg)
   | ReceiveRefresh (List GameEntry)
   | RefreshError Http.Error
+  | FilterChange String
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    ChangeSources s -> ({model | entries = [], sources = s}, getResponse <| Router.getUserGames [("sources", toString s), ("userId", toString model.userId)])
-    SendRefresh cmd -> ({model | entries = []}, cmd)
-    ReceiveRefresh entries -> ({model | entries = entries} , Cmd.none)
-    RefreshError err -> ({model | entries = [], message = toString err} , Cmd.none)
+    ChangeSources s -> ({model | entries = [], shownEntries = [], sources = s, message = ""}, getResponse <| Router.getUserGames [("sources", toString s), ("userId", toString model.userId)])
+    SendRefresh cmd -> ({model | entries = [], shownEntries = [], message = ""}, cmd)
+    ReceiveRefresh entries -> ({model | entries = entries, shownEntries = applyFilters model.nameFilter entries, message = ""} , Cmd.none)
+    RefreshError err -> ({model | entries = [], shownEntries = [], message = toString err} , Cmd.none)
+    FilterChange filter -> ({model | nameFilter = filter, shownEntries = applyFilters filter model.entries, message = ""} , Cmd.none)
+
+applyFilters : String -> List GameEntry -> List GameEntry
+applyFilters filters list =
+    List.filter (\e -> getName e |> String.toLower |> String.contains (String.toLower filters)) list
 
 -- VIEW
 
@@ -52,9 +58,12 @@ view : Model -> Html Msg
 view model =
   div [] <|
     [ button [ onClick <| SendRefresh <| getResponse <| Router.refreshUserGames [("sources", toString model.sources), ("userId", toString model.userId)]] [ text "Refresh game data"   ]
+    , br[][]
+    , label[][text "Name:", input[type_ "text", name "username1", onInput FilterChange, value model.nameFilter][]]
+    , br[][]
     , div [] [sourcesSelect model.sources]
     , div [] [ text (toString model.message) ]
-    , table[] <| gameTableTitle :: (List.map gameTableRow model.entries)
+    , table[] <| gameTableTitle :: (List.map gameTableRow model.shownEntries)
     ]
 
 gameTableTitle =
