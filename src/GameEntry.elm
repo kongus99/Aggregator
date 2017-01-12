@@ -1,10 +1,12 @@
-module GameEntry exposing (GameEntry, Filters, getPrice, resetFilterLists, updateFilterLists, getName, pricesToString, roundToString, emptyFilters, updateNameFilter, updateLowFilter, updateHighFilter)
+module GameEntry exposing (GameEntry, Filters, getPrice, resetFilterLists,
+                           updateFilterLists, getName, pricesToString, roundToString,
+                           emptyFilters, updateNameFilter, updateLowFilter, updateHighFilter, updateGameOnFilter)
 import Model exposing (..)
 
 type alias GameEntry = {gog: List GogEntry, steam: List SteamEntry, prices : List PriceEntry}
-type alias Filters = {name : String, prices : (Maybe Float, Maybe Float), original : List GameEntry, result : List GameEntry}
+type alias Filters = {gameOn: Maybe GameOn, name : String, prices : (Maybe Float, Maybe Float), original : List GameEntry, result : List GameEntry}
 
-emptyFilters = Filters "" (Nothing, Nothing) [] []
+emptyFilters = Filters Nothing "" (Nothing, Nothing) [] []
 
 getName : GameEntry -> String
 getName gameEntry =
@@ -66,13 +68,26 @@ updateLowFilter low filters = applyFilters {filters | prices = (low, Tuple.secon
 updateHighFilter : Maybe Float -> Filters -> Filters
 updateHighFilter high filters = applyFilters {filters | prices = (Tuple.first filters.prices, high)}
 
+updateGameOnFilter : Maybe GameOn -> Filters -> Filters
+updateGameOnFilter on filters = applyFilters {filters | gameOn = on}
+
 applyFilters : Filters -> Filters
 applyFilters filters =
     let
-        filteredByName = applyNameFilter filters.name filters.original
+        filteredByGameOn = applyGameOnFilter filters.gameOn filters.original
+        filteredByName = applyNameFilter filters.name filteredByGameOn
         filteredByPrices = applyPriceFilter filters.prices filteredByName
     in
         {filters | result = filteredByPrices}
+
+applyGameOnFilter : Maybe GameOn -> List GameEntry -> List GameEntry
+applyGameOnFilter gameOn entries =
+    let
+        isOn on entry =
+            if on == Steam && List.isEmpty entry.steam || on == Gog && List.isEmpty entry.gog then False else True
+    in
+        Maybe.map (\g -> List.filter (isOn g) entries) gameOn |> Maybe.withDefault entries
+
 
 applyNameFilter : String -> List GameEntry -> List GameEntry
 applyNameFilter name entries =

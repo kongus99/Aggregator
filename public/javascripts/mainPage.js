@@ -9648,6 +9648,25 @@ var _user$project$GameEntry$discountedIfAvailable = function (prices) {
 	};
 	return A2(_elm_lang$core$Maybe$andThen, selectFromPair, prices);
 };
+var _user$project$GameEntry$applyGameOnFilter = F2(
+	function (gameOn, entries) {
+		var isOn = F2(
+			function (on, entry) {
+				return ((_elm_lang$core$Native_Utils.eq(on, _user$project$Model$Steam) && _elm_lang$core$List$isEmpty(entry.steam)) || (_elm_lang$core$Native_Utils.eq(on, _user$project$Model$Gog) && _elm_lang$core$List$isEmpty(entry.gog))) ? false : true;
+			});
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			entries,
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (g) {
+					return A2(
+						_elm_lang$core$List$filter,
+						isOn(g),
+						entries);
+				},
+				gameOn));
+	});
 var _user$project$GameEntry$resetFilterLists = function (filters) {
 	return _elm_lang$core$Native_Utils.update(
 		filters,
@@ -9837,7 +9856,8 @@ var _user$project$GameEntry$applyNameFilter = F2(
 			entries);
 	});
 var _user$project$GameEntry$applyFilters = function (filters) {
-	var filteredByName = A2(_user$project$GameEntry$applyNameFilter, filters.name, filters.original);
+	var filteredByGameOn = A2(_user$project$GameEntry$applyGameOnFilter, filters.gameOn, filters.original);
+	var filteredByName = A2(_user$project$GameEntry$applyNameFilter, filters.name, filteredByGameOn);
 	var filteredByPrices = A2(_user$project$GameEntry$applyPriceFilter, filters.prices, filteredByName);
 	return _elm_lang$core$Native_Utils.update(
 		filters,
@@ -9883,16 +9903,24 @@ var _user$project$GameEntry$updateHighFilter = F2(
 					}
 				}));
 	});
+var _user$project$GameEntry$updateGameOnFilter = F2(
+	function (on, filters) {
+		return _user$project$GameEntry$applyFilters(
+			_elm_lang$core$Native_Utils.update(
+				filters,
+				{gameOn: on}));
+	});
 var _user$project$GameEntry$GameEntry = F3(
 	function (a, b, c) {
 		return {gog: a, steam: b, prices: c};
 	});
-var _user$project$GameEntry$Filters = F4(
-	function (a, b, c, d) {
-		return {name: a, prices: b, original: c, result: d};
+var _user$project$GameEntry$Filters = F5(
+	function (a, b, c, d, e) {
+		return {gameOn: a, name: b, prices: c, original: d, result: e};
 	});
-var _user$project$GameEntry$emptyFilters = A4(
+var _user$project$GameEntry$emptyFilters = A5(
 	_user$project$GameEntry$Filters,
+	_elm_lang$core$Maybe$Nothing,
 	'',
 	{ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
 	{ctor: '[]'},
@@ -10171,9 +10199,20 @@ var _user$project$MainPage$gamesOn = function (list) {
 		},
 		list);
 };
-var _user$project$MainPage$sourcesFromString = function (value) {
+var _user$project$MainPage$gameOnFromString = function (value) {
 	var _p0 = value;
 	switch (_p0) {
+		case 'Gog':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Gog);
+		case 'Steam':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Steam);
+		default:
+			return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _user$project$MainPage$sourcesFromString = function (value) {
+	var _p1 = value;
+	switch (_p1) {
 		case 'Owned':
 			return _user$project$Model$Owned;
 		case 'WishList':
@@ -10317,6 +10356,91 @@ var _user$project$MainPage$Model = F4(
 		return {sources: a, message: b, userId: c, filters: d};
 	});
 var _user$project$MainPage$initialModel = A4(_user$project$MainPage$Model, _user$project$Model$WishList, '', 1, _user$project$GameEntry$emptyFilters);
+var _user$project$MainPage$GameOnFilterChange = function (a) {
+	return {ctor: 'GameOnFilterChange', _0: a};
+};
+var _user$project$MainPage$gameOnSelect = function (maybeGameOn) {
+	var change = function (s) {
+		return _user$project$MainPage$GameOnFilterChange(
+			_user$project$MainPage$gameOnFromString(s));
+	};
+	return A2(
+		_elm_lang$html$Html$select,
+		{
+			ctor: '::',
+			_0: _user$project$MainPage$onSelect(change),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$option,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$selected(
+						_elm_lang$core$Native_Utils.eq(maybeGameOn, _elm_lang$core$Maybe$Nothing)),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$value(''),
+						_1: {ctor: '[]'}
+					}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(''),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$option,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$selected(
+							_elm_lang$core$Native_Utils.eq(
+								maybeGameOn,
+								_elm_lang$core$Maybe$Just(_user$project$Model$Steam))),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$value(
+								_elm_lang$core$Basics$toString(_user$project$Model$Steam)),
+							_1: {ctor: '[]'}
+						}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(
+							_elm_lang$core$Basics$toString(_user$project$Model$Steam)),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$option,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$selected(
+								_elm_lang$core$Native_Utils.eq(
+									maybeGameOn,
+									_elm_lang$core$Maybe$Just(_user$project$Model$Gog))),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$value(
+									_elm_lang$core$Basics$toString(_user$project$Model$Gog)),
+								_1: {ctor: '[]'}
+							}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(
+								_elm_lang$core$Basics$toString(_user$project$Model$Gog)),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}
+			}
+		});
+};
 var _user$project$MainPage$HighPriceFilterChange = function (a) {
 	return {ctor: 'HighPriceFilterChange', _0: a};
 };
@@ -10332,18 +10456,18 @@ var _user$project$MainPage$RefreshError = function (a) {
 var _user$project$MainPage$ReceiveRefresh = function (a) {
 	return {ctor: 'ReceiveRefresh', _0: a};
 };
-var _user$project$MainPage$getResponse = function (_p1) {
-	var _p2 = _p1;
+var _user$project$MainPage$getResponse = function (_p2) {
+	var _p3 = _p2;
 	return _elm_lang$core$Platform_Cmd$batch(
 		{
 			ctor: '::',
 			_0: A2(
 				_elm_lang$http$Http$send,
 				A2(_user$project$Router$resolveResponse, _user$project$MainPage$ReceiveRefresh, _user$project$MainPage$RefreshError),
-				_p2._0),
+				_p3._0),
 			_1: {
 				ctor: '::',
-				_0: _user$project$MainPage$elmAddressChange(_p2._1),
+				_0: _user$project$MainPage$elmAddressChange(_p3._1),
 				_1: {ctor: '[]'}
 			}
 		});
@@ -10370,13 +10494,13 @@ var _user$project$MainPage$initProgram = function (address) {
 			_elm_lang$core$Json_Decode$field,
 			'sources',
 			A2(_elm_lang$core$Json_Decode$map, _user$project$MainPage$sourcesFromString, _elm_lang$core$Json_Decode$string)));
-	var _p3 = A2(
+	var _p4 = A2(
 		_elm_lang$core$Maybe$withDefault,
 		{ctor: '_Tuple2', _0: _user$project$MainPage$initialModel.userId, _1: _user$project$MainPage$initialModel.sources},
 		_elm_lang$core$Result$toMaybe(
 			A2(_elm_lang$core$Json_Decode$decodeString, decodeAddress, address)));
-	var userId = _p3._0;
-	var sources = _p3._1;
+	var userId = _p4._0;
+	var sources = _p4._1;
 	var model = _elm_lang$core$Native_Utils.update(
 		_user$project$MainPage$initialModel,
 		{sources: sources, userId: userId});
@@ -10406,17 +10530,17 @@ var _user$project$MainPage$initProgram = function (address) {
 };
 var _user$project$MainPage$update = F2(
 	function (msg, model) {
-		var _p4 = msg;
-		switch (_p4.ctor) {
+		var _p5 = msg;
+		switch (_p5.ctor) {
 			case 'ChangeSources':
-				var _p5 = _p4._0;
+				var _p6 = _p5._0;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
 							filters: _user$project$GameEntry$resetFilterLists(model.filters),
-							sources: _p5,
+							sources: _p6,
 							message: ''
 						}),
 					_1: _user$project$MainPage$getResponse(
@@ -10426,7 +10550,7 @@ var _user$project$MainPage$update = F2(
 								_0: {
 									ctor: '_Tuple2',
 									_0: 'sources',
-									_1: _elm_lang$core$Basics$toString(_p5)
+									_1: _elm_lang$core$Basics$toString(_p6)
 								},
 								_1: {
 									ctor: '::',
@@ -10448,7 +10572,7 @@ var _user$project$MainPage$update = F2(
 							filters: _user$project$GameEntry$resetFilterLists(model.filters),
 							message: ''
 						}),
-					_1: _p4._0
+					_1: _p5._0
 				};
 			case 'ReceiveRefresh':
 				return {
@@ -10456,7 +10580,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							filters: A2(_user$project$GameEntry$updateFilterLists, _p4._0, model.filters),
+							filters: A2(_user$project$GameEntry$updateFilterLists, _p5._0, model.filters),
 							message: ''
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
@@ -10468,7 +10592,7 @@ var _user$project$MainPage$update = F2(
 						model,
 						{
 							filters: _user$project$GameEntry$resetFilterLists(model.filters),
-							message: _elm_lang$core$Basics$toString(_p4._0)
+							message: _elm_lang$core$Basics$toString(_p5._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10478,7 +10602,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							filters: A2(_user$project$GameEntry$updateNameFilter, _p4._0, model.filters),
+							filters: A2(_user$project$GameEntry$updateNameFilter, _p5._0, model.filters),
 							message: ''
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
@@ -10492,7 +10616,22 @@ var _user$project$MainPage$update = F2(
 							filters: A2(
 								_user$project$GameEntry$updateLowFilter,
 								_elm_lang$core$Result$toMaybe(
-									_elm_lang$core$String$toFloat(_p4._0)),
+									_elm_lang$core$String$toFloat(_p5._0)),
+								model.filters),
+							message: ''
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'HighPriceFilterChange':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							filters: A2(
+								_user$project$GameEntry$updateHighFilter,
+								_elm_lang$core$Result$toMaybe(
+									_elm_lang$core$String$toFloat(_p5._0)),
 								model.filters),
 							message: ''
 						}),
@@ -10504,11 +10643,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							filters: A2(
-								_user$project$GameEntry$updateHighFilter,
-								_elm_lang$core$Result$toMaybe(
-									_elm_lang$core$String$toFloat(_p4._0)),
-								model.filters),
+							filters: A2(_user$project$GameEntry$updateGameOnFilter, _p5._0, model.filters),
 							message: ''
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
@@ -10760,7 +10895,11 @@ var _user$project$MainPage$view = function (model) {
 										{
 											ctor: '::',
 											_0: _user$project$MainPage$sourcesSelect(model.sources),
-											_1: {ctor: '[]'}
+											_1: {
+												ctor: '::',
+												_0: _user$project$MainPage$gameOnSelect(model.filters.gameOn),
+												_1: {ctor: '[]'}
+											}
 										}),
 									_1: {
 										ctor: '::',
@@ -10799,7 +10938,7 @@ var _user$project$MainPage$main = _elm_lang$html$Html$programWithFlags(
 		init: _user$project$MainPage$initProgram,
 		view: _user$project$MainPage$view,
 		update: _user$project$MainPage$update,
-		subscriptions: function (_p6) {
+		subscriptions: function (_p7) {
 			return _elm_lang$core$Platform_Sub$none;
 		}
 	})(_elm_lang$core$Json_Decode$string);

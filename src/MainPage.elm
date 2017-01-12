@@ -41,6 +41,7 @@ type Msg
   | NameFilterChange String
   | LowPriceFilterChange String
   | HighPriceFilterChange String
+  | GameOnFilterChange (Maybe GameOn)
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -52,6 +53,7 @@ update msg model =
     NameFilterChange name -> ({model | filters = updateNameFilter name model.filters, message = ""} , Cmd.none)
     LowPriceFilterChange priceString -> ({model | filters = updateLowFilter (String.toFloat priceString |> Result.toMaybe) model.filters, message = ""} , Cmd.none)
     HighPriceFilterChange priceString -> ({model | filters = updateHighFilter (String.toFloat priceString |> Result.toMaybe) model.filters, message = ""} , Cmd.none)
+    GameOnFilterChange gameOn -> ({model | filters = updateGameOnFilter gameOn model.filters, message = ""} , Cmd.none)
 
 -- VIEW
 
@@ -64,7 +66,7 @@ view model =
     , label[][text "Lowest price:", input[type_ "text", onInput LowPriceFilterChange, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.first model.filters.prices][]]
     , label[][text "Highest price:", input[type_ "text", onInput HighPriceFilterChange, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.second model.filters.prices][]]
     , br[][]
-    , div [] [sourcesSelect model.sources]
+    , div [] [sourcesSelect model.sources, gameOnSelect  model.filters.gameOn]
     , div [] [ text (toString model.message) ]
     , table[] <| gameTableTitle :: (List.map gameTableRow model.filters.result)
     ]
@@ -91,8 +93,21 @@ sourcesSelect sources =
         change s = ChangeSources <| sourcesFromString s
     in
         select [onSelect change] [ option [selected (sources == Owned), value <| toString Owned][text <| toString Owned]
-                                          , option [selected (sources == WishList), value <| toString WishList][text <| toString WishList]
-                                          , option [selected (sources == Both), value <| toString Both][text <| toString Both]]
+                                 , option [selected (sources == WishList), value <| toString WishList][text <| toString WishList]
+                                 , option [selected (sources == Both), value <| toString Both][text <| toString Both]]
+
+gameOnFromString value = case value of
+                                "Gog" -> Just Gog
+                                "Steam" -> Just Steam
+                                _ -> Nothing
+
+gameOnSelect maybeGameOn =
+    let
+        change s = GameOnFilterChange <| gameOnFromString s
+    in
+        select [onSelect change] [ option [selected (maybeGameOn == Nothing), value ""][text ""]
+                                 , option [selected (maybeGameOn == Just Steam), value <| toString Steam][text <| toString Steam]
+                                 , option [selected (maybeGameOn == Just Gog), value <| toString Gog][text <| toString Gog]]
 
 getResponse : (Http.Request (List GameEntry), String) -> Cmd Msg
 getResponse (request, address) =

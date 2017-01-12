@@ -9067,6 +9067,25 @@ var _user$project$GameEntry$discountedIfAvailable = function (prices) {
 	};
 	return A2(_elm_lang$core$Maybe$andThen, selectFromPair, prices);
 };
+var _user$project$GameEntry$applyGameOnFilter = F2(
+	function (gameOn, entries) {
+		var isOn = F2(
+			function (on, entry) {
+				return ((_elm_lang$core$Native_Utils.eq(on, _user$project$Model$Steam) && _elm_lang$core$List$isEmpty(entry.steam)) || (_elm_lang$core$Native_Utils.eq(on, _user$project$Model$Gog) && _elm_lang$core$List$isEmpty(entry.gog))) ? false : true;
+			});
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			entries,
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (g) {
+					return A2(
+						_elm_lang$core$List$filter,
+						isOn(g),
+						entries);
+				},
+				gameOn));
+	});
 var _user$project$GameEntry$resetFilterLists = function (filters) {
 	return _elm_lang$core$Native_Utils.update(
 		filters,
@@ -9256,7 +9275,8 @@ var _user$project$GameEntry$applyNameFilter = F2(
 			entries);
 	});
 var _user$project$GameEntry$applyFilters = function (filters) {
-	var filteredByName = A2(_user$project$GameEntry$applyNameFilter, filters.name, filters.original);
+	var filteredByGameOn = A2(_user$project$GameEntry$applyGameOnFilter, filters.gameOn, filters.original);
+	var filteredByName = A2(_user$project$GameEntry$applyNameFilter, filters.name, filteredByGameOn);
 	var filteredByPrices = A2(_user$project$GameEntry$applyPriceFilter, filters.prices, filteredByName);
 	return _elm_lang$core$Native_Utils.update(
 		filters,
@@ -9302,16 +9322,24 @@ var _user$project$GameEntry$updateHighFilter = F2(
 					}
 				}));
 	});
+var _user$project$GameEntry$updateGameOnFilter = F2(
+	function (on, filters) {
+		return _user$project$GameEntry$applyFilters(
+			_elm_lang$core$Native_Utils.update(
+				filters,
+				{gameOn: on}));
+	});
 var _user$project$GameEntry$GameEntry = F3(
 	function (a, b, c) {
 		return {gog: a, steam: b, prices: c};
 	});
-var _user$project$GameEntry$Filters = F4(
-	function (a, b, c, d) {
-		return {name: a, prices: b, original: c, result: d};
+var _user$project$GameEntry$Filters = F5(
+	function (a, b, c, d, e) {
+		return {gameOn: a, name: b, prices: c, original: d, result: e};
 	});
-var _user$project$GameEntry$emptyFilters = A4(
+var _user$project$GameEntry$emptyFilters = A5(
 	_user$project$GameEntry$Filters,
+	_elm_lang$core$Maybe$Nothing,
 	'',
 	{ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
 	{ctor: '[]'},
