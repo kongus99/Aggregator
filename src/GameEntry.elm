@@ -1,4 +1,4 @@
-module GameEntry exposing (GameEntry, Filters, getPrice, resetFilterLists, updateFilterLists, getName, pricesToString, roundToString, emptyFilters, updateNameFilter)
+module GameEntry exposing (GameEntry, Filters, getPrice, resetFilterLists, updateFilterLists, getName, pricesToString, roundToString, emptyFilters, updateNameFilter, updateLowFilter, updateHighFilter)
 import Model exposing (..)
 
 type alias GameEntry = {gog: List GogEntry, steam: List SteamEntry, prices : List PriceEntry}

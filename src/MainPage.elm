@@ -38,7 +38,9 @@ type Msg
   | SendRefresh (Cmd Msg)
   | ReceiveRefresh (List GameEntry)
   | RefreshError Http.Error
-  | FilterChange String
+  | NameFilterChange String
+  | LowPriceFilterChange String
+  | HighPriceFilterChange String
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -47,7 +49,9 @@ update msg model =
     SendRefresh cmd -> ({model | filters = resetFilterLists model.filters, message = ""}, cmd)
     ReceiveRefresh entries -> ({model | filters = updateFilterLists entries model.filters, message = ""} , Cmd.none)
     RefreshError err -> ({model | filters = resetFilterLists model.filters, message = toString err} , Cmd.none)
-    FilterChange name -> ({model | filters = updateNameFilter name model.filters, message = ""} , Cmd.none)
+    NameFilterChange name -> ({model | filters = updateNameFilter name model.filters, message = ""} , Cmd.none)
+    LowPriceFilterChange priceString -> ({model | filters = updateLowFilter (String.toFloat priceString |> Result.toMaybe) model.filters, message = ""} , Cmd.none)
+    HighPriceFilterChange priceString -> ({model | filters = updateHighFilter (String.toFloat priceString |> Result.toMaybe) model.filters, message = ""} , Cmd.none)
 
 -- VIEW
 
@@ -56,7 +60,9 @@ view model =
   div [] <|
     [ button [ onClick <| SendRefresh <| getResponse <| Router.refreshUserGames [("sources", toString model.sources), ("userId", toString model.userId)]] [ text "Refresh game data"   ]
     , br[][]
-    , label[][text "Name:", input[type_ "text", name "username1", onInput FilterChange, value model.filters.name][]]
+    , label[][text "Name:", input[type_ "text", onInput NameFilterChange, value model.filters.name][]]
+    , label[][text "Lowest price:", input[type_ "text", onInput LowPriceFilterChange, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.first model.filters.prices][]]
+    , label[][text "Highest price:", input[type_ "text", onInput HighPriceFilterChange, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.second model.filters.prices][]]
     , br[][]
     , div [] [sourcesSelect model.sources]
     , div [] [ text (toString model.message) ]

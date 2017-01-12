@@ -10317,8 +10317,14 @@ var _user$project$MainPage$Model = F4(
 		return {sources: a, message: b, userId: c, filters: d};
 	});
 var _user$project$MainPage$initialModel = A4(_user$project$MainPage$Model, _user$project$Model$WishList, '', 1, _user$project$GameEntry$emptyFilters);
-var _user$project$MainPage$FilterChange = function (a) {
-	return {ctor: 'FilterChange', _0: a};
+var _user$project$MainPage$HighPriceFilterChange = function (a) {
+	return {ctor: 'HighPriceFilterChange', _0: a};
+};
+var _user$project$MainPage$LowPriceFilterChange = function (a) {
+	return {ctor: 'LowPriceFilterChange', _0: a};
+};
+var _user$project$MainPage$NameFilterChange = function (a) {
+	return {ctor: 'NameFilterChange', _0: a};
 };
 var _user$project$MainPage$RefreshError = function (a) {
 	return {ctor: 'RefreshError', _0: a};
@@ -10466,13 +10472,43 @@ var _user$project$MainPage$update = F2(
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			default:
+			case 'NameFilterChange':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
 							filters: A2(_user$project$GameEntry$updateNameFilter, _p4._0, model.filters),
+							message: ''
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'LowPriceFilterChange':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							filters: A2(
+								_user$project$GameEntry$updateLowFilter,
+								_elm_lang$core$Result$toMaybe(
+									_elm_lang$core$String$toFloat(_p4._0)),
+								model.filters),
+							message: ''
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							filters: A2(
+								_user$project$GameEntry$updateHighFilter,
+								_elm_lang$core$Result$toMaybe(
+									_elm_lang$core$String$toFloat(_p4._0)),
+								model.filters),
 							message: ''
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
@@ -10626,15 +10662,11 @@ var _user$project$MainPage$view = function (model) {
 										_0: _elm_lang$html$Html_Attributes$type_('text'),
 										_1: {
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$name('username1'),
+											_0: _elm_lang$html$Html_Events$onInput(_user$project$MainPage$NameFilterChange),
 											_1: {
 												ctor: '::',
-												_0: _elm_lang$html$Html_Events$onInput(_user$project$MainPage$FilterChange),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$value(model.filters.name),
-													_1: {ctor: '[]'}
-												}
+												_0: _elm_lang$html$Html_Attributes$value(model.filters.name),
+												_1: {ctor: '[]'}
 											}
 										}
 									},
@@ -10645,41 +10677,115 @@ var _user$project$MainPage$view = function (model) {
 					_1: {
 						ctor: '::',
 						_0: A2(
-							_elm_lang$html$Html$br,
+							_elm_lang$html$Html$label,
 							{ctor: '[]'},
-							{ctor: '[]'}),
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Lowest price:'),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$input,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$type_('text'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onInput(_user$project$MainPage$LowPriceFilterChange),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$value(
+														A2(
+															_elm_lang$core$Maybe$withDefault,
+															'',
+															A2(
+																_elm_lang$core$Maybe$map,
+																_elm_lang$core$Basics$toString,
+																_elm_lang$core$Tuple$first(model.filters.prices)))),
+													_1: {ctor: '[]'}
+												}
+											}
+										},
+										{ctor: '[]'}),
+									_1: {ctor: '[]'}
+								}
+							}),
 						_1: {
 							ctor: '::',
 							_0: A2(
-								_elm_lang$html$Html$div,
+								_elm_lang$html$Html$label,
 								{ctor: '[]'},
 								{
 									ctor: '::',
-									_0: _user$project$MainPage$sourcesSelect(model.sources),
-									_1: {ctor: '[]'}
+									_0: _elm_lang$html$Html$text('Highest price:'),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$input,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$type_('text'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onInput(_user$project$MainPage$HighPriceFilterChange),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$value(
+															A2(
+																_elm_lang$core$Maybe$withDefault,
+																'',
+																A2(
+																	_elm_lang$core$Maybe$map,
+																	_elm_lang$core$Basics$toString,
+																	_elm_lang$core$Tuple$second(model.filters.prices)))),
+														_1: {ctor: '[]'}
+													}
+												}
+											},
+											{ctor: '[]'}),
+										_1: {ctor: '[]'}
+									}
 								}),
 							_1: {
 								ctor: '::',
 								_0: A2(
-									_elm_lang$html$Html$div,
+									_elm_lang$html$Html$br,
 									{ctor: '[]'},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text(
-											_elm_lang$core$Basics$toString(model.message)),
-										_1: {ctor: '[]'}
-									}),
+									{ctor: '[]'}),
 								_1: {
 									ctor: '::',
 									_0: A2(
-										_elm_lang$html$Html$table,
+										_elm_lang$html$Html$div,
 										{ctor: '[]'},
 										{
 											ctor: '::',
-											_0: _user$project$MainPage$gameTableTitle,
-											_1: A2(_elm_lang$core$List$map, _user$project$MainPage$gameTableRow, model.filters.result)
+											_0: _user$project$MainPage$sourcesSelect(model.sources),
+											_1: {ctor: '[]'}
 										}),
-									_1: {ctor: '[]'}
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$div,
+											{ctor: '[]'},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text(
+													_elm_lang$core$Basics$toString(model.message)),
+												_1: {ctor: '[]'}
+											}),
+										_1: {
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$table,
+												{ctor: '[]'},
+												{
+													ctor: '::',
+													_0: _user$project$MainPage$gameTableTitle,
+													_1: A2(_elm_lang$core$List$map, _user$project$MainPage$gameTableRow, model.filters.result)
+												}),
+											_1: {ctor: '[]'}
+										}
+									}
 								}
 							}
 						}
