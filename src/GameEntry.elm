@@ -83,9 +83,16 @@ applyPriceFilter : (Maybe Float, Maybe Float) -> List GameEntry -> List GameEntr
 applyPriceFilter (lowPrice, highPrice) entries =
     let
         filterByLow lowPrice entry =
-            Maybe.andThen (\p -> Tuple.first p) (getPrice entry) |> Maybe.map (\e -> e >= lowPrice) |> Maybe.withDefault False
+            getPrice entry |> discountedIfAvailable |> Maybe.map (\e -> e >= lowPrice) |> Maybe.withDefault False
         filterByHigh highPrice entry =
-            Maybe.andThen (\p -> Tuple.second p) (getPrice entry) |> Maybe.map (\e -> e <= highPrice) |> Maybe.withDefault False
+            getPrice entry |> discountedIfAvailable |> Maybe.map (\e -> e <= highPrice) |> Maybe.withDefault False
         lowFiltered = Maybe.map (\p -> List.filter (filterByLow p) entries) lowPrice |> Maybe.withDefault entries
     in
         Maybe.map (\p -> List.filter (filterByHigh p) lowFiltered) highPrice |> Maybe.withDefault lowFiltered
+
+discountedIfAvailable : Maybe (Maybe Float, Maybe Float) -> Maybe Float
+discountedIfAvailable prices =
+     let
+        selectFromPair (f, s) = if s == Nothing then f else s
+     in
+        Maybe.andThen selectFromPair prices
