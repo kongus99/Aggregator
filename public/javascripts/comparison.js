@@ -10188,6 +10188,68 @@ var _user$project$GameEntry$getPrice = function (gameEntry) {
 		return steamPrice;
 	}
 };
+var _user$project$GameEntry$applyPriceFilter = F2(
+	function (_p6, entries) {
+		var _p7 = _p6;
+		var filterByHigh = F2(
+			function (highPrice, entry) {
+				return A2(
+					_elm_lang$core$Maybe$withDefault,
+					false,
+					A2(
+						_elm_lang$core$Maybe$map,
+						function (e) {
+							return _elm_lang$core$Native_Utils.cmp(e, highPrice) < 1;
+						},
+						A2(
+							_elm_lang$core$Maybe$andThen,
+							function (p) {
+								return _elm_lang$core$Tuple$second(p);
+							},
+							_user$project$GameEntry$getPrice(entry))));
+			});
+		var filterByLow = F2(
+			function (lowPrice, entry) {
+				return A2(
+					_elm_lang$core$Maybe$withDefault,
+					false,
+					A2(
+						_elm_lang$core$Maybe$map,
+						function (e) {
+							return _elm_lang$core$Native_Utils.cmp(e, lowPrice) > -1;
+						},
+						A2(
+							_elm_lang$core$Maybe$andThen,
+							function (p) {
+								return _elm_lang$core$Tuple$first(p);
+							},
+							_user$project$GameEntry$getPrice(entry))));
+			});
+		var lowFiltered = A2(
+			_elm_lang$core$Maybe$withDefault,
+			entries,
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (p) {
+					return A2(
+						_elm_lang$core$List$filter,
+						filterByLow(p),
+						entries);
+				},
+				_p7._0));
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			lowFiltered,
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (p) {
+					return A2(
+						_elm_lang$core$List$filter,
+						filterByHigh(p),
+						lowFiltered);
+				},
+				_p7._1));
+	});
 var _user$project$GameEntry$getName = function (gameEntry) {
 	var steamName = A2(
 		_elm_lang$core$Maybe$withDefault,
@@ -10221,23 +10283,52 @@ var _user$project$GameEntry$applyNameFilter = F2(
 			},
 			entries);
 	});
-var _user$project$GameEntry$setNewFilterLists = F2(
+var _user$project$GameEntry$applyFilters = function (filters) {
+	var filteredByName = A2(_user$project$GameEntry$applyNameFilter, filters.name, filters.original);
+	var filteredByPrices = A2(_user$project$GameEntry$applyPriceFilter, filters.prices, filteredByName);
+	return _elm_lang$core$Native_Utils.update(
+		filters,
+		{result: filteredByPrices});
+};
+var _user$project$GameEntry$updateFilterLists = F2(
 	function (list, filters) {
-		return _elm_lang$core$Native_Utils.update(
-			filters,
-			{
-				result: A2(_user$project$GameEntry$applyNameFilter, filters.name, list),
-				original: list
-			});
+		return _user$project$GameEntry$applyFilters(
+			_elm_lang$core$Native_Utils.update(
+				filters,
+				{original: list}));
 	});
-var _user$project$GameEntry$filterByName = F2(
+var _user$project$GameEntry$updateNameFilter = F2(
 	function (name, filters) {
-		return _elm_lang$core$Native_Utils.update(
-			filters,
-			{
-				name: name,
-				result: A2(_user$project$GameEntry$applyNameFilter, name, filters.original)
-			});
+		return _user$project$GameEntry$applyFilters(
+			_elm_lang$core$Native_Utils.update(
+				filters,
+				{name: name}));
+	});
+var _user$project$GameEntry$updateLowFilter = F2(
+	function (low, filters) {
+		return _user$project$GameEntry$applyFilters(
+			_elm_lang$core$Native_Utils.update(
+				filters,
+				{
+					prices: {
+						ctor: '_Tuple2',
+						_0: low,
+						_1: _elm_lang$core$Tuple$second(filters.prices)
+					}
+				}));
+	});
+var _user$project$GameEntry$updateHighFilter = F2(
+	function (high, filters) {
+		return _user$project$GameEntry$applyFilters(
+			_elm_lang$core$Native_Utils.update(
+				filters,
+				{
+					prices: {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Tuple$first(filters.prices),
+						_1: high
+					}
+				}));
 	});
 var _user$project$GameEntry$GameEntry = F3(
 	function (a, b, c) {

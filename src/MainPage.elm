@@ -45,9 +45,9 @@ update msg model =
   case msg of
     ChangeSources s -> ({model | filters = resetFilterLists model.filters, sources = s, message = ""}, getResponse <| Router.getUserGames [("sources", toString s), ("userId", toString model.userId)])
     SendRefresh cmd -> ({model | filters = resetFilterLists model.filters, message = ""}, cmd)
-    ReceiveRefresh entries -> ({model | filters = setNewFilterLists entries model.filters, message = ""} , Cmd.none)
+    ReceiveRefresh entries -> ({model | filters = updateFilterLists entries model.filters, message = ""} , Cmd.none)
     RefreshError err -> ({model | filters = resetFilterLists model.filters, message = toString err} , Cmd.none)
-    FilterChange name -> ({model | filters = filterByName name model.filters, message = ""} , Cmd.none)
+    FilterChange name -> ({model | filters = updateNameFilter name model.filters, message = ""} , Cmd.none)
 
 -- VIEW
 

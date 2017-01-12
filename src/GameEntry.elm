@@ -1,4 +1,4 @@
-module GameEntry exposing (GameEntry, Filters, getPrice, resetFilterLists, setNewFilterLists, getName, pricesToString, roundToString, emptyFilters, filterByName)
+module GameEntry exposing (GameEntry, Filters, getPrice, resetFilterLists, updateFilterLists, getName, pricesToString, roundToString, emptyFilters, updateNameFilter)
 import Model exposing (..)
 
 type alias GameEntry = {gog: List GogEntry, steam: List SteamEntry, prices : List PriceEntry}
@@ -54,23 +54,38 @@ resetFilterLists : Filters -> Filters
 resetFilterLists filters =
     {filters | result = [], original = [] }
 
-setNewFilterLists : List GameEntry -> Filters -> Filters
-setNewFilterLists list filters =
-    {filters | result = applyNameFilter filters.name list, original = list }
+updateFilterLists : List GameEntry -> Filters -> Filters
+updateFilterLists list filters = applyFilters {filters | original = list}
 
+updateNameFilter : String -> Filters -> Filters
+updateNameFilter name filters = applyFilters {filters | name = name}
+
+updateLowFilter : Maybe Float -> Filters -> Filters
+updateLowFilter low filters = applyFilters {filters | prices = (low, Tuple.second filters.prices)}
+
+updateHighFilter : Maybe Float -> Filters -> Filters
+updateHighFilter high filters = applyFilters {filters | prices = (Tuple.first filters.prices, high)}
+
+applyFilters : Filters -> Filters
+applyFilters filters =
+    let
+        filteredByName = applyNameFilter filters.name filters.original
+        filteredByPrices = applyPriceFilter filters.prices filteredByName
+    in
+        {filters | result = filteredByPrices}
+
+applyNameFilter : String -> List GameEntry -> List GameEntry
 applyNameFilter name entries =
     if String.isEmpty name then entries
     else List.filter (\e -> getName e |> String.toLower |> String.contains (String.toLower name)) entries
 
-filterByName : String -> Filters -> Filters
-filterByName name filters = {filters | name = name, result = applyNameFilter name filters.original}
-
---filterByLowerPrice : Maybe Float -> List GameEntry -> Filters -> Filters
---filterByLowerPrice price entries filters =
---    let
---        applyPriceFilter =
---            if price == Nothing then entries
---            else List.filter (\e -> getName e |> String.toLower |> String.contains (String.toLower name)) list
---        updatedPrices (lower, upper) = (price, upper)
---    in
---        {filters | prices = updatedPrices filters.prices, result = applyPriceFilter entries}
+applyPriceFilter : (Maybe Float, Maybe Float) -> List GameEntry -> List GameEntry
+applyPriceFilter (lowPrice, highPrice) entries =
+    let
+        filterByLow lowPrice entry =
+            Maybe.andThen (\p -> Tuple.first p) (getPrice entry) |> Maybe.map (\e -> e >= lowPrice) |> Maybe.withDefault False
+        filterByHigh highPrice entry =
+            Maybe.andThen (\p -> Tuple.second p) (getPrice entry) |> Maybe.map (\e -> e <= highPrice) |> Maybe.withDefault False
+        lowFiltered = Maybe.map (\p -> List.filter (filterByLow p) entries) lowPrice |> Maybe.withDefault entries
+    in
+        Maybe.map (\p -> List.filter (filterByHigh p) lowFiltered) highPrice |> Maybe.withDefault lowFiltered
