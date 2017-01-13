@@ -1,12 +1,12 @@
 module GameEntry exposing (GameEntry, Filters, getPrice, resetFilterLists,
                            updateFilterLists, getName, pricesToString, roundToString,
-                           emptyFilters, updateNameFilter, updateLowFilter, updateHighFilter, updateGameOnFilter)
+                           emptyFilters, updateNameFilter, updateLowFilter, updateHighFilter, updateGameOnFilter, toggleDiscountedFilter)
 import Model exposing (..)
 
 type alias GameEntry = {gog: List GogEntry, steam: List SteamEntry, prices : List PriceEntry}
-type alias Filters = {gameOn: Maybe GameOn, name : String, prices : (Maybe Float, Maybe Float), original : List GameEntry, result : List GameEntry}
+type alias Filters = {isDiscounted : Bool, gameOn: Maybe GameOn, name : String, prices : (Maybe Float, Maybe Float), original : List GameEntry, result : List GameEntry}
 
-emptyFilters = Filters Nothing "" (Nothing, Nothing) [] []
+emptyFilters = Filters False Nothing "" (Nothing, Nothing) [] []
 
 getName : GameEntry -> String
 getName gameEntry =
@@ -71,14 +71,25 @@ updateHighFilter high filters = applyFilters {filters | prices = (Tuple.first fi
 updateGameOnFilter : Maybe GameOn -> Filters -> Filters
 updateGameOnFilter on filters = applyFilters {filters | gameOn = on}
 
+toggleDiscountedFilter : Bool -> Filters -> Filters
+toggleDiscountedFilter isDiscounted filters = applyFilters {filters | isDiscounted = isDiscounted}
+
 applyFilters : Filters -> Filters
 applyFilters filters =
     let
-        filteredByGameOn = applyGameOnFilter filters.gameOn filters.original
-        filteredByName = applyNameFilter filters.name filteredByGameOn
-        filteredByPrices = applyPriceFilter filters.prices filteredByName
+        result = applyDiscountedFilter filters.isDiscounted filters.original |>
+                 applyGameOnFilter filters.gameOn |>
+                 applyNameFilter filters.name |>
+                 applyPriceFilter filters.prices
     in
-        {filters | result = filteredByPrices}
+        {filters | result = result}
+
+applyDiscountedFilter : Bool -> List GameEntry -> List GameEntry
+applyDiscountedFilter isDiscounted entries =
+    let
+        filterDiscounted e = Maybe.map (\p -> not (Tuple.second p == Nothing)) (getPrice e) |> Maybe.withDefault False
+    in
+        if not isDiscounted then entries else List.filter filterDiscounted entries
 
 applyGameOnFilter : Maybe GameOn -> List GameEntry -> List GameEntry
 applyGameOnFilter gameOn entries =

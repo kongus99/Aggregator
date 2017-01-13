@@ -9842,6 +9842,32 @@ var _user$project$GameEntry$getName = function (gameEntry) {
 			},
 			_elm_lang$core$List$head(gameEntry.gog)));
 };
+var _user$project$GameEntry$applyDiscountedFilter = F2(
+	function (isDiscounted, entries) {
+		var filterDiscounted = function (e) {
+			var prices = _user$project$GameEntry$getPrice(e);
+			var ttt = A2(
+				_elm_lang$core$Debug$log,
+				'',
+				{
+					ctor: '_Tuple2',
+					_0: _user$project$GameEntry$getName(e),
+					_1: _user$project$GameEntry$getPrice(e)
+				});
+			return A2(
+				_elm_lang$core$Maybe$withDefault,
+				true,
+				A2(
+					_elm_lang$core$Maybe$map,
+					function (p) {
+						return !_elm_lang$core$Native_Utils.eq(
+							_elm_lang$core$Tuple$second(p),
+							_elm_lang$core$Maybe$Nothing);
+					},
+					prices));
+		};
+		return (!isDiscounted) ? entries : A2(_elm_lang$core$List$filter, filterDiscounted, entries);
+	});
 var _user$project$GameEntry$applyNameFilter = F2(
 	function (name, entries) {
 		return _elm_lang$core$String$isEmpty(name) ? entries : A2(
@@ -9856,12 +9882,19 @@ var _user$project$GameEntry$applyNameFilter = F2(
 			entries);
 	});
 var _user$project$GameEntry$applyFilters = function (filters) {
-	var filteredByGameOn = A2(_user$project$GameEntry$applyGameOnFilter, filters.gameOn, filters.original);
-	var filteredByName = A2(_user$project$GameEntry$applyNameFilter, filters.name, filteredByGameOn);
-	var filteredByPrices = A2(_user$project$GameEntry$applyPriceFilter, filters.prices, filteredByName);
+	var result = A2(
+		_user$project$GameEntry$applyPriceFilter,
+		filters.prices,
+		A2(
+			_user$project$GameEntry$applyNameFilter,
+			filters.name,
+			A2(
+				_user$project$GameEntry$applyGameOnFilter,
+				filters.gameOn,
+				A2(_user$project$GameEntry$applyDiscountedFilter, filters.isDiscounted, filters.original))));
 	return _elm_lang$core$Native_Utils.update(
 		filters,
-		{result: filteredByPrices});
+		{result: result});
 };
 var _user$project$GameEntry$updateFilterLists = F2(
 	function (list, filters) {
@@ -9910,16 +9943,24 @@ var _user$project$GameEntry$updateGameOnFilter = F2(
 				filters,
 				{gameOn: on}));
 	});
+var _user$project$GameEntry$toggleDiscountedFilter = F2(
+	function (isDiscounted, filters) {
+		return _user$project$GameEntry$applyFilters(
+			_elm_lang$core$Native_Utils.update(
+				filters,
+				{isDiscounted: isDiscounted}));
+	});
 var _user$project$GameEntry$GameEntry = F3(
 	function (a, b, c) {
 		return {gog: a, steam: b, prices: c};
 	});
-var _user$project$GameEntry$Filters = F5(
-	function (a, b, c, d, e) {
-		return {gameOn: a, name: b, prices: c, original: d, result: e};
+var _user$project$GameEntry$Filters = F6(
+	function (a, b, c, d, e, f) {
+		return {isDiscounted: a, gameOn: b, name: c, prices: d, original: e, result: f};
 	});
-var _user$project$GameEntry$emptyFilters = A5(
+var _user$project$GameEntry$emptyFilters = A6(
 	_user$project$GameEntry$Filters,
+	false,
 	_elm_lang$core$Maybe$Nothing,
 	'',
 	{ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
@@ -10356,6 +10397,42 @@ var _user$project$MainPage$Model = F4(
 		return {sources: a, message: b, userId: c, filters: d};
 	});
 var _user$project$MainPage$initialModel = A4(_user$project$MainPage$Model, _user$project$Model$WishList, '', 1, _user$project$GameEntry$emptyFilters);
+var _user$project$MainPage$DiscountedFilterChange = function (a) {
+	return {ctor: 'DiscountedFilterChange', _0: a};
+};
+var _user$project$MainPage$discountedInput = function (isDiscounted) {
+	return A2(
+		_elm_lang$html$Html$label,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$input,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$type_('checkbox'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$name('Discounted'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$checked(isDiscounted),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Events$onCheck(_user$project$MainPage$DiscountedFilterChange),
+								_1: {ctor: '[]'}
+							}
+						}
+					}
+				},
+				{ctor: '[]'}),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('Discounted'),
+				_1: {ctor: '[]'}
+			}
+		});
+};
 var _user$project$MainPage$GameOnFilterChange = function (a) {
 	return {ctor: 'GameOnFilterChange', _0: a};
 };
@@ -10637,13 +10714,24 @@ var _user$project$MainPage$update = F2(
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			default:
+			case 'GameOnFilterChange':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
 							filters: A2(_user$project$GameEntry$updateGameOnFilter, _p5._0, model.filters),
+							message: ''
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							filters: A2(_user$project$GameEntry$toggleDiscountedFilter, _p5._0, model.filters),
 							message: ''
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
@@ -10898,7 +10986,11 @@ var _user$project$MainPage$view = function (model) {
 											_1: {
 												ctor: '::',
 												_0: _user$project$MainPage$gameOnSelect(model.filters.gameOn),
-												_1: {ctor: '[]'}
+												_1: {
+													ctor: '::',
+													_0: _user$project$MainPage$discountedInput(model.filters.isDiscounted),
+													_1: {ctor: '[]'}
+												}
 											}
 										}),
 									_1: {

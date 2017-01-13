@@ -9261,6 +9261,32 @@ var _user$project$GameEntry$getName = function (gameEntry) {
 			},
 			_elm_lang$core$List$head(gameEntry.gog)));
 };
+var _user$project$GameEntry$applyDiscountedFilter = F2(
+	function (isDiscounted, entries) {
+		var filterDiscounted = function (e) {
+			var prices = _user$project$GameEntry$getPrice(e);
+			var ttt = A2(
+				_elm_lang$core$Debug$log,
+				'',
+				{
+					ctor: '_Tuple2',
+					_0: _user$project$GameEntry$getName(e),
+					_1: _user$project$GameEntry$getPrice(e)
+				});
+			return A2(
+				_elm_lang$core$Maybe$withDefault,
+				true,
+				A2(
+					_elm_lang$core$Maybe$map,
+					function (p) {
+						return !_elm_lang$core$Native_Utils.eq(
+							_elm_lang$core$Tuple$second(p),
+							_elm_lang$core$Maybe$Nothing);
+					},
+					prices));
+		};
+		return (!isDiscounted) ? entries : A2(_elm_lang$core$List$filter, filterDiscounted, entries);
+	});
 var _user$project$GameEntry$applyNameFilter = F2(
 	function (name, entries) {
 		return _elm_lang$core$String$isEmpty(name) ? entries : A2(
@@ -9275,12 +9301,19 @@ var _user$project$GameEntry$applyNameFilter = F2(
 			entries);
 	});
 var _user$project$GameEntry$applyFilters = function (filters) {
-	var filteredByGameOn = A2(_user$project$GameEntry$applyGameOnFilter, filters.gameOn, filters.original);
-	var filteredByName = A2(_user$project$GameEntry$applyNameFilter, filters.name, filteredByGameOn);
-	var filteredByPrices = A2(_user$project$GameEntry$applyPriceFilter, filters.prices, filteredByName);
+	var result = A2(
+		_user$project$GameEntry$applyPriceFilter,
+		filters.prices,
+		A2(
+			_user$project$GameEntry$applyNameFilter,
+			filters.name,
+			A2(
+				_user$project$GameEntry$applyGameOnFilter,
+				filters.gameOn,
+				A2(_user$project$GameEntry$applyDiscountedFilter, filters.isDiscounted, filters.original))));
 	return _elm_lang$core$Native_Utils.update(
 		filters,
-		{result: filteredByPrices});
+		{result: result});
 };
 var _user$project$GameEntry$updateFilterLists = F2(
 	function (list, filters) {
@@ -9329,16 +9362,24 @@ var _user$project$GameEntry$updateGameOnFilter = F2(
 				filters,
 				{gameOn: on}));
 	});
+var _user$project$GameEntry$toggleDiscountedFilter = F2(
+	function (isDiscounted, filters) {
+		return _user$project$GameEntry$applyFilters(
+			_elm_lang$core$Native_Utils.update(
+				filters,
+				{isDiscounted: isDiscounted}));
+	});
 var _user$project$GameEntry$GameEntry = F3(
 	function (a, b, c) {
 		return {gog: a, steam: b, prices: c};
 	});
-var _user$project$GameEntry$Filters = F5(
-	function (a, b, c, d, e) {
-		return {gameOn: a, name: b, prices: c, original: d, result: e};
+var _user$project$GameEntry$Filters = F6(
+	function (a, b, c, d, e, f) {
+		return {isDiscounted: a, gameOn: b, name: c, prices: d, original: e, result: f};
 	});
-var _user$project$GameEntry$emptyFilters = A5(
+var _user$project$GameEntry$emptyFilters = A6(
 	_user$project$GameEntry$Filters,
+	false,
 	_elm_lang$core$Maybe$Nothing,
 	'',
 	{ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},

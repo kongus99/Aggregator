@@ -1,7 +1,7 @@
 port module MainPage exposing (..)
 import Html exposing (Html, button, br, input, div, text, span, table, tr, th, td, select, option, a, label)
-import Html.Attributes exposing(class, selected, value, href, type_, name)
-import Html.Events exposing (onClick, on, targetValue, onInput)
+import Html.Attributes exposing(class, selected, value, href, type_, name, checked)
+import Html.Events exposing (onClick, on, targetValue, onInput, onCheck)
 import Json.Decode as Json
 import GameEntry exposing(..)
 import Http
@@ -42,6 +42,7 @@ type Msg
   | LowPriceFilterChange String
   | HighPriceFilterChange String
   | GameOnFilterChange (Maybe GameOn)
+  | DiscountedFilterChange Bool
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -54,7 +55,7 @@ update msg model =
     LowPriceFilterChange priceString -> ({model | filters = updateLowFilter (String.toFloat priceString |> Result.toMaybe) model.filters, message = ""} , Cmd.none)
     HighPriceFilterChange priceString -> ({model | filters = updateHighFilter (String.toFloat priceString |> Result.toMaybe) model.filters, message = ""} , Cmd.none)
     GameOnFilterChange gameOn -> ({model | filters = updateGameOnFilter gameOn model.filters, message = ""} , Cmd.none)
-
+    DiscountedFilterChange isDiscounted-> ({model | filters = toggleDiscountedFilter isDiscounted model.filters, message = ""}, Cmd.none)
 -- VIEW
 
 view : Model -> Html Msg
@@ -66,7 +67,7 @@ view model =
     , label[][text "Lowest price:", input[type_ "text", onInput LowPriceFilterChange, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.first model.filters.prices][]]
     , label[][text "Highest price:", input[type_ "text", onInput HighPriceFilterChange, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.second model.filters.prices][]]
     , br[][]
-    , div [] [sourcesSelect model.sources, gameOnSelect  model.filters.gameOn]
+    , div [] [sourcesSelect model.sources, gameOnSelect model.filters.gameOn, discountedInput model.filters.isDiscounted]
     , div [] [ text (toString model.message) ]
     , table[] <| gameTableTitle :: (List.map gameTableRow model.filters.result)
     ]
@@ -108,6 +109,10 @@ gameOnSelect maybeGameOn =
         select [onSelect change] [ option [selected (maybeGameOn == Nothing), value ""][text ""]
                                  , option [selected (maybeGameOn == Just Steam), value <| toString Steam][text <| toString Steam]
                                  , option [selected (maybeGameOn == Just Gog), value <| toString Gog][text <| toString Gog]]
+
+discountedInput isDiscounted =
+    label[][input [type_ "checkbox", name "Discounted", checked isDiscounted, onCheck DiscountedFilterChange][], text "Discounted"]
+
 
 getResponse : (Http.Request (List GameEntry), String) -> Cmd Msg
 getResponse (request, address) =
