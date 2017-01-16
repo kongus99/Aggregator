@@ -28,7 +28,7 @@ object SteamEntry {
       val id = e.attr("id").split("_")(1)
       val name = e.getElementsByAttributeValue("class", "ellipsis").text()
       val (price, discounted) = getPrices(e)
-      SteamEntry(name, id.toLong, price.map(converter.convert), discounted.map(converter.convert))
+      SteamEntry(name, id.toLong, price.flatMap(converter.convert), discounted.flatMap(converter.convert))
     })
   }
 

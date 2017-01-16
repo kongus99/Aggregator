@@ -10202,12 +10202,14 @@ var _user$project$GameEntry$getPrice = function (gameEntry) {
 			return {ctor: '_Tuple2', _0: g.price, _1: g.discounted};
 		},
 		_elm_lang$core$List$head(gameEntry.gog));
+	var y = A2(_elm_lang$core$Debug$log, 'prices2', gogPrice);
 	var steamPrice = A2(
 		_elm_lang$core$Maybe$map,
 		function (s) {
 			return {ctor: '_Tuple2', _0: s.price, _1: s.discounted};
 		},
 		_elm_lang$core$List$head(gameEntry.steam));
+	var x = A2(_elm_lang$core$Debug$log, 'prices1', steamPrice);
 	var _p8 = gogPrice;
 	if (_p8.ctor === 'Just') {
 		return _elm_lang$core$Maybe$Just(_p8._0);
@@ -10215,6 +10217,23 @@ var _user$project$GameEntry$getPrice = function (gameEntry) {
 		return steamPrice;
 	}
 };
+var _user$project$GameEntry$applyDiscountedFilter = F2(
+	function (isDiscounted, entries) {
+		var filterDiscounted = function (e) {
+			return A2(
+				_elm_lang$core$Maybe$withDefault,
+				false,
+				A2(
+					_elm_lang$core$Maybe$map,
+					function (p) {
+						return !_elm_lang$core$Native_Utils.eq(
+							_elm_lang$core$Tuple$second(p),
+							_elm_lang$core$Maybe$Nothing);
+					},
+					_user$project$GameEntry$getPrice(e)));
+		};
+		return (!isDiscounted) ? entries : A2(_elm_lang$core$List$filter, filterDiscounted, entries);
+	});
 var _user$project$GameEntry$applyPriceFilter = F2(
 	function (_p9, entries) {
 		var _p10 = _p9;
@@ -10289,32 +10308,6 @@ var _user$project$GameEntry$getName = function (gameEntry) {
 			},
 			_elm_lang$core$List$head(gameEntry.gog)));
 };
-var _user$project$GameEntry$applyDiscountedFilter = F2(
-	function (isDiscounted, entries) {
-		var filterDiscounted = function (e) {
-			var prices = _user$project$GameEntry$getPrice(e);
-			var ttt = A2(
-				_elm_lang$core$Debug$log,
-				'',
-				{
-					ctor: '_Tuple2',
-					_0: _user$project$GameEntry$getName(e),
-					_1: _user$project$GameEntry$getPrice(e)
-				});
-			return A2(
-				_elm_lang$core$Maybe$withDefault,
-				true,
-				A2(
-					_elm_lang$core$Maybe$map,
-					function (p) {
-						return !_elm_lang$core$Native_Utils.eq(
-							_elm_lang$core$Tuple$second(p),
-							_elm_lang$core$Maybe$Nothing);
-					},
-					prices));
-		};
-		return (!isDiscounted) ? entries : A2(_elm_lang$core$List$filter, filterDiscounted, entries);
-	});
 var _user$project$GameEntry$applyNameFilter = F2(
 	function (name, entries) {
 		return _elm_lang$core$String$isEmpty(name) ? entries : A2(

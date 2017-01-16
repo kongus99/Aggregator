@@ -14,7 +14,7 @@ object GogEntry {
   def gogWishListReads(converter: CurrencyConverter): Reads[GogEntry] = (coreGogRead
     and (JsPath \ "price" \ "symbol").read[String]
     and (JsPath \ "price" \ "baseAmount").read[String]
-    and (JsPath \ "price" \ "finalAmount").read[String])((t, i, s, p, d) => GogEntry(t, i, Some(converter.convert(p + s)), Some(converter.convert(d + s))))
+    and (JsPath \ "price" \ "finalAmount").read[String])((t, i, s, p, d) => GogEntry(t, i, converter.convert(p + s), converter.convert(d + s)))
   val gogReads: Reads[GogEntry] = coreGogRead((t, i) => GogEntry(t, i))
 
   implicit val gogWrites: Writes[GogEntry] = (

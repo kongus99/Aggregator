@@ -4,13 +4,17 @@ import scala.xml.XML
 
 case class CurrencyConverter(euroTo: Map[String, BigDecimal]) {
 
-  def convert(value : String) : BigDecimal= {
-    if(value.contains('€'))
-      recalculate(toBigDecimal(value, "€"), "EUR", "PLN").getOrElse(BigDecimal(-1))
-    else if (value.contains('$'))
-      recalculate(toBigDecimal(value, "$"), "USD", "PLN").getOrElse(BigDecimal(-1))
-    else
-      recalculate(toBigDecimal(value, "zł"), "PLN", "PLN").getOrElse(BigDecimal(-1))
+  def convert(value: String): Option[BigDecimal] = {
+    try {
+      if (value.contains('€'))
+        recalculate(toBigDecimal(value, "€"), "EUR", "PLN")
+      else if (value.contains('$'))
+        recalculate(toBigDecimal(value, "$"), "USD", "PLN")
+      else
+        recalculate(toBigDecimal(value, "zł"), "PLN", "PLN")
+    } catch {
+      case _: NumberFormatException => None
+    }
   }
 
   private def toBigDecimal(value: String, currencySeparator: String): BigDecimal = {
