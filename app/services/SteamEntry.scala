@@ -16,8 +16,7 @@ object SteamEntry {
     (JsPath \ "name").write[String] and
       (JsPath \ "steamId").write[Long] and
       (JsPath \ "price").write[Option[BigDecimal]]and
-      (JsPath \ "discounted").write[Option[BigDecimal]]and
-      (JsPath \ "owned").write[Boolean]) ((e) => (e.name, e.steamId, e.price, e.discounted, e.owned))
+      (JsPath \ "discounted").write[Option[BigDecimal]]) ((e) => (e.name, e.steamId, e.price, e.discounted))
 
   def parse(owned: String, wishList : String, converter : CurrencyConverter): Seq[SteamEntry] =
     parseOwned(owned) ++ parseWishList(wishList, converter)

@@ -24,8 +24,8 @@ object GameSources extends Enumeration {
   val Owned, WishList, Both = Value
 
   def toOption(value: Value) : Option[Boolean] = {
-    if(value == Owned) Some(false)
-    else if(value == WishList) Some(true)
+    if(value == Owned) Some(true)
+    else if(value == WishList) Some(false)
     else None
   }
 }

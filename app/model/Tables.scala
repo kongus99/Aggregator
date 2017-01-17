@@ -250,7 +250,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     def condition(e: GogOwnershipData, g : GogData): Rep[Boolean] = {
       if (user.isEmpty) true
       else if (user.isDefined && sources.isEmpty) e.userId === user.get.id.get
-      else g.price.isDefined === sources.get && e.userId === user.get.id.get
+      else e.owned === sources.get && e.userId === user.get.id.get
     }
     db.run(gogOwnershipData.join(gogData).on(_.gogId === _.gogId).filter((condition _).tupled).result).map(_.map(p => p._2.copy(owned = p._1._3)))
   }
@@ -259,7 +259,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     def condition(e: SteamOwnershipData, s : SteamData): Rep[Boolean] = {
       if (user.isEmpty) true
       else if (user.isDefined && sources.isEmpty) e.userId === user.get.id.get
-      else s.price.isDefined === sources.get && e.userId === user.get.id.get
+      else e.owned === sources.get && e.userId === user.get.id.get
     }
     db.run(steamOwnershipData.join(steamData).on(_.steamId === _.steamId).filter((condition _).tupled).result).map(_.map(p => p._2.copy(owned = p._1._3)))
   }

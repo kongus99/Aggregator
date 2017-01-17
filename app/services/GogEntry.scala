@@ -21,8 +21,7 @@ object GogEntry {
     (JsPath \ "title").write[String] and
       (JsPath \ "gogId").write[Long] and
       (JsPath \ "price").write[Option[BigDecimal]] and
-      (JsPath \ "discounted").write[Option[BigDecimal]] and
-      (JsPath \ "owned").write[Boolean])((e) => (e.title, e.gogId, e.price, if(e.price != e.discounted) e.discounted else None, e.owned))
+      (JsPath \ "discounted").write[Option[BigDecimal]])((e) => (e.title, e.gogId, e.price, if(e.price != e.discounted) e.discounted else None))
 
   private def parseWishList(wishList: String, converter : CurrencyConverter) = {
     val body = regExp.findAllMatchIn(wishList).map(m => m.group(1)).toSeq.headOption
