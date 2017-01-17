@@ -1,9 +1,9 @@
 module Login exposing (..)
-import Html exposing (Html, button, div, text, form, br, input, span)
-import Html.Attributes exposing (action, type_, name, style, method, value)
-import Html.Events exposing (onClick, onSubmit, onInput)
+import Html exposing (Html, button, div, text, form, br, input, span, label)
+import Html.Attributes exposing (action, type_, name, style, method, value, checked)
+import Html.Events exposing (onClick, onSubmit, onInput, onCheck)
 import Model exposing(..)
-import Router exposing(fetchUser, createUpdateUser, mainPageUrl)
+import Router exposing(fetchUser, createUpdateUser, mainPageUrl, changeSteamAlternate)
 import Http
 
 main =
@@ -16,7 +16,7 @@ main =
 
 -- MODEL
 
-type alias Model = {user : Maybe User, u1 : SteamUsername, u2 : GogUserName, message : String}
+type alias Model = {user : Maybe User, u1 : SteamUsername, u1Alternate: Bool, u2 : GogUserName, message : String}
 
 getSteamUserName : Model -> User -> String
 getSteamUserName model user = Maybe.withDefault model.u1 user.username1
@@ -25,7 +25,7 @@ getGogUserName : Model -> User -> String
 getGogUserName model user = Maybe.withDefault model.u2 user.username2
 
 initialModel : Model
-initialModel = Model Nothing "" "" ""
+initialModel = Model Nothing "" False "" ""
 
 -- UPDATE
 
@@ -35,6 +35,7 @@ type Msg
     UserFetched User |
     SteamUsernameChange SteamUsername |
     GogUsernameChange GogUserName |
+    SteamAlternateChange Bool|
     ResponseError Http.Error
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -43,13 +44,19 @@ update msg model =
     FetchUser ->
       ({model | message = ""}, getResponse <| fetchUser [("steamUsername", model.u1), ("gogUsername", model.u2)])
     CreateUpdate ->
-      ({model | message = ""}, getResponse <| createUpdateUser [("steamUsername", model.u1), ("gogUsername", model.u2)])
+      ({model | message = ""}, getResponse <| createUpdateUser [("steamUsername", model.u1), ("steamIsAlternate", String.toLower <| toString model.u1Alternate), ("gogUsername", model.u2)])
     UserFetched u ->
       ({model | user = Just u, u1 = getSteamUserName model u, u2 = getGogUserName model u, message = ""}, Cmd.none)
     SteamUsernameChange u ->
       ({model | u1 = u, message = ""}, Cmd.none)
     GogUsernameChange u ->
       ({model | u2 = u, message = ""}, Cmd.none)
+    SteamAlternateChange c ->
+        let
+            alterValue = ("steamAlternate", String.toLower <| toString model.u1Alternate)
+            maybeCmd = Maybe.andThen (\u -> Maybe.map toString u.id) model.user |> Maybe.map (\id -> getResponse <| changeSteamAlternate [("steamId", id), alterValue])
+        in
+            ({model | message = "", u1Alternate = c}, Maybe.withDefault Cmd.none maybeCmd)
     ResponseError err -> ({model | user = Nothing, message = toString err} , Cmd.none)
 
 
@@ -76,6 +83,7 @@ usernameForm model =
         , text "Steam username"
         , br[][]
         , input[type_ "text", name "username1", onInput SteamUsernameChange, value model.u1][]
+        , label[][input [type_ "checkbox", name "Alternate", checked model.u1Alternate, onCheck SteamAlternateChange][], text "Alternate Steam Login?"]
         , br[][]
         , text "Gog username"
         , br[][]

@@ -10057,9 +10057,9 @@ var _elm_lang$http$Http$StringPart = F2(
 	});
 var _elm_lang$http$Http$stringPart = _elm_lang$http$Http$StringPart;
 
-var _user$project$Model$User = F3(
-	function (a, b, c) {
-		return {id: a, username1: b, username2: c};
+var _user$project$Model$User = F4(
+	function (a, b, c, d) {
+		return {id: a, username1: b, steamAlternate: c, username2: d};
 	});
 var _user$project$Model$GogEntry = F4(
 	function (a, b, c, d) {
@@ -10503,8 +10503,8 @@ var _user$project$Router$decodedGameEntry = A4(
 		_elm_lang$core$Json_Decode$field,
 		'prices',
 		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedPriceEntry)));
-var _user$project$Router$decodedUserEntry = A4(
-	_elm_lang$core$Json_Decode$map3,
+var _user$project$Router$decodedUserEntry = A5(
+	_elm_lang$core$Json_Decode$map4,
 	_user$project$Model$User,
 	A2(
 		_elm_lang$core$Json_Decode$field,
@@ -10514,6 +10514,7 @@ var _user$project$Router$decodedUserEntry = A4(
 		_elm_lang$core$Json_Decode$field,
 		'steamLogin',
 		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$string)),
+	A2(_elm_lang$core$Json_Decode$field, 'steamAlternate', _elm_lang$core$Json_Decode$bool),
 	A2(
 		_elm_lang$core$Json_Decode$field,
 		'gogLogin',
@@ -10523,14 +10524,15 @@ var _user$project$Router$Addresses = F3(
 	function (a, b, c) {
 		return {login: a, main: b, comparison: c};
 	});
-var _user$project$Router$Login = F2(
-	function (a, b) {
-		return {fetch: a, createUpdate: b};
+var _user$project$Router$Login = F3(
+	function (a, b, c) {
+		return {fetch: a, createUpdate: b, changeSteamAlternate: c};
 	});
-var _user$project$Router$login = A2(
+var _user$project$Router$login = A3(
 	_user$project$Router$Login,
 	_user$project$Router$generateAddress('login/fetch'),
-	_user$project$Router$generateAddress('login/createUpdate'));
+	_user$project$Router$generateAddress('login/createUpdate'),
+	_user$project$Router$generateAddress('login/changeSteamAlternate'));
 var _user$project$Router$Main = F3(
 	function (a, b, c) {
 		return {refreshGames: a, fetch: b, page: c};
@@ -10599,6 +10601,13 @@ var _user$project$Router$comparisonData = function (params) {
 			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedComparisonEntry)),
 		_1: _user$project$Router$routes.comparison.page(params)
 	};
+};
+var _user$project$Router$changeSteamAlternate = function (params) {
+	return A3(
+		_elm_lang$http$Http$post,
+		_user$project$Router$routes.login.changeSteamAlternate(params),
+		_elm_lang$http$Http$emptyBody,
+		_user$project$Router$decodedUserEntry);
 };
 
 var _user$project$Comparison$onSelect = function (msg) {

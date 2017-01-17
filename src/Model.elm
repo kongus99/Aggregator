@@ -9,7 +9,7 @@ type alias SteamUsername = String
 
 type alias GogUserName = String
 
-type alias User = {id : Maybe Int, username1 : Maybe SteamUsername, username2 : Maybe GogUserName}
+type alias User = {id : Maybe Int, username1 : Maybe SteamUsername, steamAlternate : Bool, username2 : Maybe GogUserName}
 
 type alias GogEntry = {title: String, gogId : Int, price : Maybe Float, discounted : Maybe Float}
 

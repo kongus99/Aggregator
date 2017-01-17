@@ -1,4 +1,4 @@
-module Router exposing(refreshUserGames, getUserGames, toggleSelected, comparisonData, resolveResponse, fetchUser, createUpdateUser, mainPageUrl)
+module Router exposing(refreshUserGames, getUserGames, toggleSelected, comparisonData, resolveResponse, fetchUser, createUpdateUser, mainPageUrl, changeSteamAlternate)
 
 import Http
 import Json.Decode as Json exposing (..)
@@ -12,15 +12,16 @@ refreshUserGames params =   (Http.get (routes.main.refreshGames params) (list de
 getUserGames params =   (Http.get (routes.main.fetch params) (list decodedGameEntry), routes.main.page params)
 toggleSelected params = Http.post (routes.comparison.toggleSelected params) Http.emptyBody string
 comparisonData params = (Http.get (routes.comparison.comparisonData params) (list decodedComparisonEntry), routes.comparison.page params)
+changeSteamAlternate params = Http.post (routes.login.changeSteamAlternate params) Http.emptyBody decodedUserEntry
 --ROUTES
 
 type alias UrlGenerator = List (String, String) -> String
 type alias Addresses = {login : Login, main : Main, comparison : Comparison}
-type alias Login = {fetch : UrlGenerator, createUpdate : UrlGenerator}
+type alias Login = {fetch : UrlGenerator, createUpdate : UrlGenerator, changeSteamAlternate : UrlGenerator}
 type alias Main = {refreshGames : UrlGenerator, fetch : UrlGenerator, page : UrlGenerator}
 type alias Comparison = {toggleSelected : UrlGenerator, comparisonData : UrlGenerator, page : UrlGenerator}
 
-login = Login (generateAddress "login/fetch") (generateAddress "login/createUpdate")
+login = Login (generateAddress "login/fetch") (generateAddress "login/createUpdate") (generateAddress "login/changeSteamAlternate")
 main_ = Main (generateAddress "main/refresh") (generateAddress "main/fetch") (generateAddress "main")
 comparison = Comparison (generateAddress "comparison/toggleMatch") (generateAddress "comparison/data") (generateAddress "comparison")
 
@@ -28,7 +29,7 @@ routes = Addresses login main_ comparison
 --URLS
 mainPageUrl = "/main"
 --DECODERS
-decodedUserEntry = map3 User (field "id" (maybe int)) (field "steamLogin" (maybe string)) (field "gogLogin" (maybe string))
+decodedUserEntry = map4 User (field "id" (maybe int)) (field "steamLogin" (maybe string)) (field "steamAlternate" (bool)) (field "gogLogin" (maybe string))
 decodedGogEntry = map4 GogEntry (field "title" string) (field "gogId" int) (field "price" (maybe float)) (field "discounted" (maybe float))
 decodedSteamEntry = map4 SteamEntry (field "name" string) (field "steamId" int) (field "price" (maybe float)) (field "discounted" (maybe float))
 decodedPriceEntry = map5 PriceEntry (field "steamId" int) (field "name" string) (field "host" string) (field "link" string) (field "price" float)

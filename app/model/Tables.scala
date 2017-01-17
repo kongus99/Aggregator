@@ -38,11 +38,13 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def steamLogin = column[Option[String]]("USER_DATA_STEAM_LOGIN")
 
+    def steamAlternate = column[Boolean]("USER_DATA_STEAM_LOGIN_ALTERNATE")
+
     def gogLoginUnique = index("USER_DATA_GOG_LOGIN_UNIQUE", gogLogin, unique = true)
 
     def steamLoginUnique = index("USER_DATA_STEAM_LOGIN_UNIQUE", steamLogin, unique = true)
 
-    override def * : ProvenShape[User] = (id.?, steamLogin, gogLogin) <> ((User.apply _).tupled, User.unapply)
+    override def * : ProvenShape[User] = (id.?, steamLogin, steamAlternate, gogLogin) <> ((User.apply _).tupled, User.unapply)
   }
 
   class GogData(tag: Tag) extends Table[GogEntry](tag, "GOG_DATA") {
@@ -214,10 +216,10 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
   def getUserById(id : Long) : Future[Option[User]] =
     db.run(userData.filter(_.id === id).result.headOption)
 
-  def getUserByLogin(u : User) : Future[Option[User]] = {
+  def getUserByLogin(steamLogin : Option[String], gogLogin : Option[String]) : Future[Option[User]] = {
     def getBySteamLogin(l : String) = db.run(userData.filter(_.steamLogin.like("%" + l + "%")).result.headOption)
     def getByGogLogin(l : String) = db.run(userData.filter(_.gogLogin.like("%" + l + "%")).result.headOption)
-    u.steamLogin.map(getBySteamLogin).getOrElse(u.gogLogin.map(getByGogLogin).getOrElse(Future{None}))
+    steamLogin.map(getBySteamLogin).getOrElse(gogLogin.map(getByGogLogin).getOrElse(Future{None}))
   }
 
   def getSteamUser(username: String) : Future[Option[User]] = db.run(userData.filter(_.steamLogin.like(username)).result.headOption)
@@ -295,7 +297,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
             gogOwnershipData.schema.create andThen
             steamOwnershipData.schema.create andThen
             priceData.schema.create andThen
-            (userData += User(None, Some("kongus"), Some("kongus99")))
+            (userData += User(None, Some("kongus"), steamAlternate = false, Some("kongus99")))
       })
       Await.result(db.run(initialization), Duration.Inf)
     }

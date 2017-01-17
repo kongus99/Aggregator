@@ -27,30 +27,30 @@ class LoginController @Inject()(client: WSClient, configuration: Configuration, 
 
   def fetch(steamUsername: Option[String], gogUsername: Option[String]) = Action.async {
     for{
-      u <- tables.getUserByLogin(User(None, steamUsername, gogUsername))
+      u <- tables.getUserByLogin(steamUsername, gogUsername)
     } yield{
       Ok(Json.toJson(u))
     }
   }
 
-  def createUpdate(steamUsername: Option[String], gogUsername: Option[String]) = Action.async {
+  def createUpdate(steamUsername: Option[String], steamAlternate : Boolean, gogUsername: Option[String]) = Action.async {
     def resolveUser(isValidSteam: Boolean, isValidGog: Boolean, steamExists: Option[User], gogExists: Option[User]) : Future[Option[User]] = {
       if (isValidGog && isValidGog)
         if (steamExists.isDefined && gogExists.isDefined)
           Future(None) //switch gog login between entries
         else
-          tables.addUser(User(None, steamUsername, gogUsername))
+          tables.addUser(User(None, steamUsername, steamAlternate, gogUsername))
       else if (isValidSteam)
-        steamExists.map(x => Future(Some(x))).getOrElse(tables.addUser(User(None, steamUsername, None)))
+        steamExists.map(x => Future(Some(x))).getOrElse(tables.addUser(User(None, steamUsername, steamAlternate, None)))
       else if (isValidGog)
-        gogExists.map(x => Future(Some(x))).getOrElse(tables.addUser(User(None, None, gogUsername)))
+        gogExists.map(x => Future(Some(x))).getOrElse(tables.addUser(User(None, None, steamAlternate = false, gogUsername)))
       else
         Future(None)
     }
 
     val user = for{
-      isValidSteam <- isValidUsername(steamUsername, steamRetriever, "error_ctn")
-      isValidGog <- isValidUsername(gogUsername, gogWishListRetriever, "error404")
+      isValidSteam <- isValidUsername(steamUsername, steamAlternate, steamRetriever, "error_ctn")
+      isValidGog <- isValidUsername(gogUsername, useAlternateAddress = false, gogWishListRetriever, "error404")
       steamExists <- if(isValidSteam) tables.getSteamUser(steamUsername.get) else Future(None)
       gogExists <- if(isValidGog) tables.getGogUser(gogUsername.get) else Future(None)
       resolved <- resolveUser(isValidSteam, isValidGog, steamExists, gogExists)
@@ -64,11 +64,11 @@ class LoginController @Inject()(client: WSClient, configuration: Configuration, 
 
 
 
-  private def isValidUsername(username: Option[String], retriever : PageRetriever, errorClass : String) = {
+  private def isValidUsername(username: Option[String], useAlternateAddress : Boolean, retriever : PageRetriever, errorClass : String) = {
     username.map(u =>
       if (!u.isEmpty) {
         for {
-          ur <- retriever.retrieveWithUser(u)("/wishlist")
+          ur <- retriever.retrieveWithUser(useAlternateAddress)(u)("/wishlist")
         } yield {
           Jsoup.parse(ur).body().getElementsByClass(errorClass).size() <= 0
         }

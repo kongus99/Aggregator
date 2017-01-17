@@ -7,14 +7,18 @@ import scala.collection.immutable.Seq
 import scala.concurrent.{ExecutionContext, Future}
 
 abstract class PageRetriever(client: WSClient)(implicit exec: ExecutionContext) {
-  def address(user: String)(query: String): UrlAddress
+  protected def address(username: String)(query: String): UrlAddress
 
-  def retrieve(query: String): Future[String] = retrieveWithUser("")(query)
+  protected def alternateAddress(username: String)(query: String) : UrlAddress = UrlAddress("")
 
-  def retrieveWithUser(user: String)(query: String): Future[String] = {
-    val add = address(user)(query)
-    client.url(add.url).withHeaders(add.headers: _*).get().map(_.body)
+  def retrieve(query: String): Future[String] = call(address("")(query))
+
+  def retrieveWithUser(useAlternate : Boolean)(username: String)(query: String): Future[String] = {
+    val add = if (useAlternate) alternateAddress(username)(query) else address(username)(query)
+    call(add)
   }
+
+  private def call(add : UrlAddress): Future[String] = client.url(add.url).withHeaders(add.headers: _*).get().map(_.body)
 }
 
 class GogPageRetriever(client: WSClient, configuration: Configuration)(implicit exec: ExecutionContext) {
@@ -33,19 +37,20 @@ class GogPageRetriever(client: WSClient, configuration: Configuration)(implicit 
 }
 
 class GogWishListRetriever(client: WSClient, configuration: Configuration)(implicit exec: ExecutionContext) extends PageRetriever(client) {
-  override def address(user: String)(query: String): UrlAddress = UrlAddress(s"https://www.gog.com/u/$user$query")
+  override protected def address(user: String)(query: String): UrlAddress = UrlAddress(s"https://www.gog.com/u/$user$query")
 }
 
 class SteamPageRetriever(client: WSClient)(implicit exec: ExecutionContext) extends PageRetriever(client) {
-  override def address(user: String)(query: String): UrlAddress = UrlAddress(s"http://steamcommunity.com/id/$user$query")
+  override protected def alternateAddress(user: String)(query: String): UrlAddress = UrlAddress(s"http://steamcommunity.com/profiles/$user$query")
+  override protected def address(user: String)(query: String): UrlAddress = UrlAddress(s"http://steamcommunity.com/id/$user$query")
 }
 
 class ReferenceRatesRetriever(client: WSClient)(implicit exec: ExecutionContext) extends PageRetriever(client) {
-  override def address(user: String)(query: String): UrlAddress = UrlAddress("http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml")
+  override protected def address(user: String)(query: String): UrlAddress = UrlAddress("http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml")
 }
 
 class GolRetriever(client: WSClient)(implicit exec: ExecutionContext) extends PageRetriever(client) {
-  override def address(user: String)(query: String): UrlAddress = UrlAddress("http://www.gry-online.pl" + query)
+  override protected def address(user: String)(query: String): UrlAddress = UrlAddress("http://www.gry-online.pl" + query)
 }
 
 class FKRetriever(client: WSClient)(implicit exec: ExecutionContext) extends PageRetriever(client) {
@@ -58,5 +63,5 @@ class FKRetriever(client: WSClient)(implicit exec: ExecutionContext) extends Pag
 }
 
 class KeyeRetriever(client: WSClient)(implicit exec: ExecutionContext) extends PageRetriever(client) {
-  override def address(user: String)(query: String) = UrlAddress("https://www.keye.pl" + query)
+  override protected def address(user: String)(query: String) = UrlAddress("https://www.keye.pl" + query)
 }

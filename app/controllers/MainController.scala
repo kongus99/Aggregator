@@ -34,7 +34,7 @@ class MainController @Inject()(client: WSClient, configuration: Configuration, t
   private def getGogGames(user : Option[User]) = {
     for{
       owned <- gogRetriever.retrieve(getGogPageNumber)
-      wishlist <- user.map(u => u.gogLogin.map(l => gogWishListRetriever.retrieveWithUser(l)("/wishlist")).getOrElse(Future{""})).getOrElse(Future{""})
+      wishlist <- user.map(u => u.gogLogin.map(l => gogWishListRetriever.retrieveWithUser(useAlternate = false)(l)("/wishlist")).getOrElse(Future{""})).getOrElse(Future{""})
     } yield{
       (owned, wishlist)
     }
@@ -42,8 +42,8 @@ class MainController @Inject()(client: WSClient, configuration: Configuration, t
 
   private def getSteamGames(user: Option[User]) = {
     for{
-      owned <- user.map(u => u.steamLogin.map(l => steamRetriever.retrieveWithUser(l)("/games/?tab=all")).getOrElse(Future{""})).getOrElse(Future{""})
-      wishlist <- user.map(u => u.steamLogin.map(l => steamRetriever.retrieveWithUser(l)("/wishlist")).getOrElse(Future{""})).getOrElse(Future{""})
+      owned <- user.map(u => u.steamLogin.map(l => steamRetriever.retrieveWithUser(u.steamAlternate)(l)("/games/?tab=all")).getOrElse(Future{""})).getOrElse(Future{""})
+      wishlist <- user.map(u => u.steamLogin.map(l => steamRetriever.retrieveWithUser(u.steamAlternate)(l)("/wishlist")).getOrElse(Future{""})).getOrElse(Future{""})
     } yield{
       (owned, wishlist)
     }
