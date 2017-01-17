@@ -9755,14 +9755,12 @@ var _user$project$GameEntry$getPrice = function (gameEntry) {
 			return {ctor: '_Tuple2', _0: g.price, _1: g.discounted};
 		},
 		_elm_lang$core$List$head(gameEntry.gog));
-	var y = A2(_elm_lang$core$Debug$log, 'prices2', gogPrice);
 	var steamPrice = A2(
 		_elm_lang$core$Maybe$map,
 		function (s) {
 			return {ctor: '_Tuple2', _0: s.price, _1: s.discounted};
 		},
 		_elm_lang$core$List$head(gameEntry.steam));
-	var x = A2(_elm_lang$core$Debug$log, 'prices1', steamPrice);
 	var _p8 = gogPrice;
 	if (_p8.ctor === 'Just') {
 		return _elm_lang$core$Maybe$Just(_p8._0);

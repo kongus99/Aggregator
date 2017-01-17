@@ -6,17 +6,18 @@ import org.jsoup.nodes.Element
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Json, Reads, Writes}
 
-case class SteamEntry(name: String, steamId: Long, price: Option[BigDecimal] = None, discounted: Option[BigDecimal]= None)
+case class SteamEntry(name: String, steamId: Long, price: Option[BigDecimal] = None, discounted: Option[BigDecimal]= None, owned : Boolean)
 
 object SteamEntry {
   private val regExp = "var rgGames = (.+);".r
 
-  implicit val steamReads: Reads[SteamEntry] = ((JsPath \ "name").read[String] and (JsPath \ "appid").read[Long]) ((n, i) => SteamEntry(n, i))
+  implicit val steamReads: Reads[SteamEntry] = ((JsPath \ "name").read[String] and (JsPath \ "appid").read[Long]) ((n, i) => SteamEntry(n, i, owned = true))
   implicit val steamWrites: Writes[SteamEntry] = (
     (JsPath \ "name").write[String] and
       (JsPath \ "steamId").write[Long] and
       (JsPath \ "price").write[Option[BigDecimal]]and
-      (JsPath \ "discounted").write[Option[BigDecimal]]) ((e) => (e.name, e.steamId, e.price, e.discounted))
+      (JsPath \ "discounted").write[Option[BigDecimal]]and
+      (JsPath \ "owned").write[Boolean]) ((e) => (e.name, e.steamId, e.price, e.discounted, e.owned))
 
   def parse(owned: String, wishList : String, converter : CurrencyConverter): Seq[SteamEntry] =
     parseOwned(owned) ++ parseWishList(wishList, converter)
@@ -28,7 +29,7 @@ object SteamEntry {
       val id = e.attr("id").split("_")(1)
       val name = e.getElementsByAttributeValue("class", "ellipsis").text()
       val (price, discounted) = getPrices(e)
-      SteamEntry(name, id.toLong, price.flatMap(converter.convert), discounted.flatMap(converter.convert))
+      SteamEntry(name, id.toLong, price.flatMap(converter.convert), discounted.flatMap(converter.convert), owned = false)
     })
   }
 

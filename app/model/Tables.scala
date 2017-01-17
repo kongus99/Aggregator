@@ -56,7 +56,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def * : ProvenShape[GogEntry] = {
 
-      val apply: (Long, String, Option[BigDecimal], Option[BigDecimal]) => GogEntry = (gogId, title, price, discountedPrice) => GogEntry(title, gogId, price, discountedPrice)
+      val apply: (Long, String, Option[BigDecimal], Option[BigDecimal]) => GogEntry = (gogId, title, price, discountedPrice) => GogEntry(title, gogId, price, discountedPrice, owned = true)
 
       val unapply: GogEntry => Option[(Long, String, Option[BigDecimal], Option[BigDecimal])] = g => Some(g.gogId, g.title, g.price, g.discounted)
       (gogId, title, price, discountedPrice) <>(apply.tupled, unapply)
@@ -64,10 +64,12 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
   }
 
-  class GogOwnershipData(tag: Tag) extends Table[(Long, Long)](tag, "GOG_OWNERSHIP_DATA") {
+  class GogOwnershipData(tag: Tag) extends Table[(Long, Long, Boolean)](tag, "GOG_OWNERSHIP_DATA") {
     def gogId = column[Long]("GOG_OWNERSHIP_DATA_GOG_ID")
 
     def userId = column[Long]("GOG_OWNERSHIP_DATA_USER_ID")
+
+    def owned = column[Boolean]("GOG_OWNERSHIP_DATA_OWNED")
 
     def comboUnique = primaryKey("GOG_OWNERSHIP_DATA_COMBO_UNIQUE", (gogId, userId))
 
@@ -75,12 +77,12 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def userFk = foreignKey("USER_DATA_FK", userId, userData)(_.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Cascade)
 
-    def * : ProvenShape[(Long, Long)] = {
+    def * : ProvenShape[(Long, Long, Boolean)] = {
 
-      val apply: (Long, Long) => (Long, Long) = (gogId, userId) => (gogId, userId)
+      val apply: (Long, Long, Boolean) => (Long, Long, Boolean) = (gogId, userId, owned) => (gogId, userId, owned)
 
-      val unapply: ((Long, Long)) => Option[(Long, Long)] = g => Some(g._1, g._2)
-      (gogId, userId) <>(apply.tupled, unapply)
+      val unapply: ((Long, Long, Boolean)) => Option[(Long, Long, Boolean)] = g => Some(g._1, g._2, g._3)
+      (gogId, userId, owned) <>(apply.tupled, unapply)
     }
   }
 
@@ -95,18 +97,20 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def * : ProvenShape[SteamEntry] = {
 
-      val apply: (Long, String, Option[BigDecimal], Option[BigDecimal]) => SteamEntry = (steamId, name, price, discountedPrice) => SteamEntry(name, steamId, price, discountedPrice)
+      val apply: (Long, String, Option[BigDecimal], Option[BigDecimal]) => SteamEntry = (steamId, name, price, discountedPrice) => SteamEntry(name, steamId, price, discountedPrice, owned = true)
 
       val unapply: (SteamEntry) => Option[(Long, String, Option[BigDecimal], Option[BigDecimal])] = s => Some((s.steamId, s.name, s.price, s.discounted))
       (steamId, name, price, discountedPrice) <>(apply.tupled, unapply)
     }
   }
 
-  class SteamOwnershipData(tag: Tag) extends Table[(Long, Long)](tag, "STEAM_OWNERSHIP_DATA") {
+  class SteamOwnershipData(tag: Tag) extends Table[(Long, Long, Boolean)](tag, "STEAM_OWNERSHIP_DATA") {
 
     def steamId = column[Long]("STEAM_OWNERSHIP_DATA_STEAM_ID")
 
     def userId = column[Long]("STEAM_OWNERSHIP_DATA_USER_ID")
+
+    def owned = column[Boolean]("STEAM_OWNERSHIP_DATA_OWNED")
 
     def comboUnique = primaryKey("STEAM_OWNERSHIP_DATA_COMBO_UNIQUE", (steamId, userId))
 
@@ -114,12 +118,12 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def userFk = foreignKey("USER_DATA_FK", userId, userData)(_.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Cascade)
 
-    def * : ProvenShape[(Long, Long)] = {
+    def * : ProvenShape[(Long, Long, Boolean)] = {
 
-      val apply: (Long, Long) => (Long, Long) = (steamId, userId) => (steamId, userId)
+      val apply: (Long, Long, Boolean) => (Long, Long, Boolean) = (steamId, userId, owned) => (steamId, userId, owned)
 
-      val unapply: ((Long, Long)) => Option[(Long, Long)] = s => Some(s._1, s._2)
-      (steamId, userId) <>(apply.tupled, unapply)
+      val unapply: ((Long, Long, Boolean)) => Option[(Long, Long, Boolean)] = s => Some(s._1, s._2, s._3)
+      (steamId, userId, owned) <>(apply.tupled, unapply)
     }
   }
 
@@ -228,7 +232,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
   def replaceGogData(user : Option[User], data : Seq[GogEntry]): Future[_] =
     user.map(u => {
       val ids = data.map(_.gogId).toSet
-      val newOwnership = data.map(g => (g.gogId, u.id.get))
+      val newOwnership = data.map(g => (g.gogId, u.id.get, g.owned))
       val oldDataIdsQuery = gogData.filter(_.gogId.inSet(ids)).map(_.gogId)
       def insertNewData(oldDataIds : Seq[Long]) = {
         val newData = data.filter(d => !oldDataIds.contains(d.gogId))
@@ -248,7 +252,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
       else if (user.isDefined && sources.isEmpty) e.userId === user.get.id.get
       else g.price.isDefined === sources.get && e.userId === user.get.id.get
     }
-    db.run(gogOwnershipData.join(gogData).on(_.gogId === _.gogId).filter((condition _).tupled).map(_._2).result)
+    db.run(gogOwnershipData.join(gogData).on(_.gogId === _.gogId).filter((condition _).tupled).result).map(_.map(p => p._2.copy(owned = p._1._3)))
   }
 
   def getSteamEntries(user: Option[User], sources: Option[Boolean]): Future[Seq[SteamEntry]] = {
@@ -257,13 +261,13 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
       else if (user.isDefined && sources.isEmpty) e.userId === user.get.id.get
       else s.price.isDefined === sources.get && e.userId === user.get.id.get
     }
-    db.run(steamOwnershipData.join(steamData).on(_.steamId === _.steamId).filter((condition _).tupled).map(_._2).result)
+    db.run(steamOwnershipData.join(steamData).on(_.steamId === _.steamId).filter((condition _).tupled).result).map(_.map(p => p._2.copy(owned = p._1._3)))
   }
 
   def replaceSteamData(user : Option[User], data : Seq[SteamEntry]): Future[_] =
     user.map(u => {
       val ids = data.map(_.steamId).toSet
-      val newOwnership = data.map(g => (g.steamId, u.id.get))
+      val newOwnership = data.map(g => (g.steamId, u.id.get, g.owned))
       val oldDataIdsQuery = steamData.filter(_.steamId.inSet(ids)).map(_.steamId)
       def insertNewData(oldDataIds : Seq[Long]) = {
         val newData = data.filter(d => !oldDataIds.contains(d.steamId))
