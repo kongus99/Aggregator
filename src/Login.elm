@@ -16,16 +16,20 @@ main =
 
 -- MODEL
 
-type alias Model = {user : Maybe User, u1 : SteamUsername, u1Alternate: Bool, u2 : GogUserName, message : String}
+type alias Model = {loadedUser : Maybe User, enteredUser : User, message : String}
 
-getSteamUserName : Model -> User -> String
-getSteamUserName model user = Maybe.withDefault model.u1 user.username1
+serializeUser : User -> List (String, String)
+serializeUser u =
+    [("steamUsername", getSteamUserName u), ("steamIsAlternate", String.toLower <| toString u.steamAlternate), ("gogUsername", getGogUserName u)]
 
-getGogUserName : Model -> User -> String
-getGogUserName model user = Maybe.withDefault model.u2 user.username2
+getSteamUserName : User -> String
+getSteamUserName user = Maybe.withDefault "" user.username1
+
+getGogUserName : User -> String
+getGogUserName user = Maybe.withDefault "" user.username2
 
 initialModel : Model
-initialModel = Model Nothing "" False "" ""
+initialModel = Model Nothing (User Nothing (Just "") False (Just "")) ""
 
 -- UPDATE
 
@@ -42,22 +46,30 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     FetchUser ->
-      ({model | message = ""}, getResponse <| fetchUser [("steamUsername", model.u1), ("gogUsername", model.u2)])
+      ({model | message = ""}, serializeUser model.enteredUser |> fetchUser |> getResponse)
     CreateUpdate ->
-      ({model | message = ""}, getResponse <| createUpdateUser [("steamUsername", model.u1), ("steamIsAlternate", String.toLower <| toString model.u1Alternate), ("gogUsername", model.u2)])
+      ({model | message = ""}, serializeUser model.enteredUser |> createUpdateUser |> getResponse)
     UserFetched u ->
-      ({model | user = Just u, u1 = getSteamUserName model u, u2 = getGogUserName model u, message = ""}, Cmd.none)
+      ({model | loadedUser = Just u, enteredUser = u, message = ""}, Cmd.none)
     SteamUsernameChange u ->
-      ({model | u1 = u, message = ""}, Cmd.none)
+        let
+            oldUser = model.enteredUser
+            newUser = {oldUser | username1 = Just u}
+        in
+            ({model | enteredUser = newUser, message = ""}, Cmd.none)
     GogUsernameChange u ->
-      ({model | u2 = u, message = ""}, Cmd.none)
+      let
+          oldUser = model.enteredUser
+          newUser = {oldUser | username2 = Just u}
+      in
+          ({model | enteredUser = newUser, message = ""}, Cmd.none)
     SteamAlternateChange c ->
         let
-            alterValue = ("steamAlternate", String.toLower <| toString model.u1Alternate)
-            maybeCmd = Maybe.andThen (\u -> Maybe.map toString u.id) model.user |> Maybe.map (\id -> getResponse <| changeSteamAlternate [("steamId", id), alterValue])
+            oldUser = model.enteredUser
+            newUser = {oldUser | steamAlternate = c}
         in
-            ({model | message = "", u1Alternate = c}, Maybe.withDefault Cmd.none maybeCmd)
-    ResponseError err -> ({model | user = Nothing, message = toString err} , Cmd.none)
+            ({model | enteredUser = newUser, message = ""}, Cmd.none)
+    ResponseError err -> ({model | loadedUser = Nothing, message = toString err} , Cmd.none)
 
 
 getResponse : Http.Request User -> Cmd Msg
@@ -77,27 +89,29 @@ view model =
 
 
 usernameForm model =
-    form [onSubmit FetchUser]
-        [ span[][text model.message]
-        , br[][]
-        , text "Steam username"
-        , br[][]
-        , input[type_ "text", name "username1", onInput SteamUsernameChange, value model.u1][]
-        , label[][input [type_ "checkbox", name "Alternate", checked model.u1Alternate, onCheck SteamAlternateChange][], text "Alternate Steam Login?"]
-        , br[][]
-        , text "Gog username"
-        , br[][]
-        , input[type_ "text", name "username2", onInput GogUsernameChange, value model.u2][]
-        , input[type_ "submit", style [("display","none")]][]
-        , br[][]
-        ]
+    let
+        loadedSteamUsername = (Maybe.withDefault "" <| Maybe.map getSteamUserName model.loadedUser)
+        loadedGogUsername = (Maybe.withDefault "" <| Maybe.map getGogUserName model.loadedUser)
+        loadedSteamAlternate = (Maybe.withDefault "" <| Maybe.map (\u -> toString u.steamAlternate) model.loadedUser)
+    in
+        form [onSubmit FetchUser]
+            [ span[][text model.message]
+            , br[][]
+            , label[][text "Steam username:", br[][], text loadedSteamUsername, br[][], input[type_ "text", name "username1", onInput SteamUsernameChange, value <| getSteamUserName model.enteredUser][]]
+            , br[][]
+            , label[][text "Alternate Steam login:", br[][], text loadedSteamAlternate, br[][], input [type_ "checkbox", name "Alternate", checked model.enteredUser.steamAlternate, onCheck SteamAlternateChange][]]
+            , br[][]
+            , label[][text "Gog username:", br[][], text loadedGogUsername, br[][], input[type_ "text", name "username2", onInput GogUsernameChange, value <| getGogUserName model.enteredUser][]]
+            , input[type_ "submit", style [("display","none")]][]
+            , br[][]
+            ]
 
 mainPageLink model =
     let
-        userId = Maybe.withDefault 1 <| Maybe.andThen (\u -> u.id) model.user
+        userId = Maybe.withDefault 1 <| Maybe.andThen (\u -> u.id) model.loadedUser
     in
         Maybe.withDefault [] (Maybe.map (\_ ->
         [form [method "get", action Router.mainPageUrl]
         [ input [type_ "hidden", name "sources", value <| toString WishList][]
         , input [type_ "hidden", name "userId",  value <| toString userId][]
-        , button[type_ "submit"][text "Continue"]]]) model.user)
+        , button[type_ "submit"][text "Continue"]]]) model.loadedUser)
