@@ -1,4 +1,4 @@
-module Router exposing(refreshUserGames, getUserGames, toggleSelected, comparisonData, resolveResponse, fetchUser, createUpdateUser, mainPageUrl, changeSteamAlternate)
+module Router exposing(refreshUserGames, getUserGames, toggleSelected, comparisonData, resolveResponse, fetchUser, createUser, updateUser, mainPageUrl)
 
 import Http
 import Json.Decode as Json exposing (..)
@@ -7,21 +7,21 @@ import GameEntry exposing(GameEntry)
 import String
 --METHODS
 fetchUser params =   Http.get (routes.login.fetch params) decodedUserEntry
-createUpdateUser params =  Http.post (routes.login.createUpdate params) Http.emptyBody decodedUserEntry
+createUser params =  Http.post (routes.login.create params) Http.emptyBody decodedUserEntry
+updateUser params =  Http.post (routes.login.update params) Http.emptyBody decodedUserEntry
 refreshUserGames params =   (Http.get (routes.main.refreshGames params) (list decodedGameEntry), routes.main.page params)
 getUserGames params =   (Http.get (routes.main.fetch params) (list decodedGameEntry), routes.main.page params)
 toggleSelected params = Http.post (routes.comparison.toggleSelected params) Http.emptyBody string
 comparisonData params = (Http.get (routes.comparison.comparisonData params) (list decodedComparisonEntry), routes.comparison.page params)
-changeSteamAlternate params = Http.post (routes.login.changeSteamAlternate params) Http.emptyBody decodedUserEntry
 --ROUTES
 
 type alias UrlGenerator = List (String, String) -> String
 type alias Addresses = {login : Login, main : Main, comparison : Comparison}
-type alias Login = {fetch : UrlGenerator, createUpdate : UrlGenerator, changeSteamAlternate : UrlGenerator}
+type alias Login = {fetch : UrlGenerator, create : UrlGenerator, update : UrlGenerator}
 type alias Main = {refreshGames : UrlGenerator, fetch : UrlGenerator, page : UrlGenerator}
 type alias Comparison = {toggleSelected : UrlGenerator, comparisonData : UrlGenerator, page : UrlGenerator}
 
-login = Login (generateAddress "login/fetch") (generateAddress "login/createUpdate") (generateAddress "login/changeSteamAlternate")
+login = Login (generateAddress "login/fetch") (generateAddress "login/create") (generateAddress "login/update")
 main_ = Main (generateAddress "main/refresh") (generateAddress "main/fetch") (generateAddress "main")
 comparison = Comparison (generateAddress "comparison/toggleMatch") (generateAddress "comparison/data") (generateAddress "comparison")
 

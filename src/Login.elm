@@ -3,7 +3,7 @@ import Html exposing (Html, button, div, text, form, br, input, span, label)
 import Html.Attributes exposing (action, type_, name, style, method, value, checked)
 import Html.Events exposing (onClick, onSubmit, onInput, onCheck)
 import Model exposing(..)
-import Router exposing(fetchUser, createUpdateUser, mainPageUrl, changeSteamAlternate)
+import Router exposing(fetchUser, createUser, updateUser, mainPageUrl)
 import Http
 
 main =
@@ -35,7 +35,8 @@ initialModel = Model Nothing (User Nothing (Just "") False (Just "")) ""
 
 type Msg
   = FetchUser |
-    CreateUpdate |
+    CreateUser |
+    UpdateUser |
     UserFetched User |
     SteamUsernameChange SteamUsername |
     GogUsernameChange GogUserName |
@@ -47,8 +48,10 @@ update msg model =
   case msg of
     FetchUser ->
       ({model | message = ""}, serializeUser model.enteredUser |> fetchUser |> getResponse)
-    CreateUpdate ->
-      ({model | message = ""}, serializeUser model.enteredUser |> createUpdateUser |> getResponse)
+    CreateUser ->
+      ({model | message = ""}, serializeUser model.enteredUser |> createUser |> getResponse)
+    UpdateUser ->
+      ({model | message = ""}, serializeUser model.enteredUser |> updateUser |> getResponse)
     UserFetched u ->
       ({model | loadedUser = Just u, enteredUser = u, message = ""}, Cmd.none)
     SteamUsernameChange u ->
@@ -80,13 +83,11 @@ getResponse request =
 
 view : Model -> Html Msg
 view model =
-  div[] <| List.append
-       [ usernameForm model
-       , br[][]
-       , button[type_ "button", onClick CreateUpdate][text "Create/Update"]
-       , br[][]
-       ] (mainPageLink model)
+  div[] <| List.concat [usernameForm model, createButton model, updateButton model, mainPageLink model]
 
+createButton model = [ button[type_ "button", onClick CreateUser][text "Create"], br[][]]
+
+updateButton model = Maybe.withDefault [] <| Maybe.map (\_ -> [ button[type_ "button", onClick UpdateUser][text "Update"], br[][]]) model.loadedUser
 
 usernameForm model =
     let
@@ -94,7 +95,7 @@ usernameForm model =
         loadedGogUsername = (Maybe.withDefault "" <| Maybe.map getGogUserName model.loadedUser)
         loadedSteamAlternate = (Maybe.withDefault "" <| Maybe.map (\u -> toString u.steamAlternate) model.loadedUser)
     in
-        form [onSubmit FetchUser]
+        [form [onSubmit FetchUser]
             [ span[][text model.message]
             , br[][]
             , label[][text "Steam username:", br[][], text loadedSteamUsername, br[][], input[type_ "text", name "username1", onInput SteamUsernameChange, value <| getSteamUserName model.enteredUser][]]
@@ -105,6 +106,7 @@ usernameForm model =
             , input[type_ "submit", style [("display","none")]][]
             , br[][]
             ]
+        , br[][]]
 
 mainPageLink model =
     let

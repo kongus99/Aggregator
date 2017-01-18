@@ -10079,13 +10079,13 @@ var _user$project$Router$Addresses = F3(
 	});
 var _user$project$Router$Login = F3(
 	function (a, b, c) {
-		return {fetch: a, createUpdate: b, changeSteamAlternate: c};
+		return {fetch: a, create: b, update: c};
 	});
 var _user$project$Router$login = A3(
 	_user$project$Router$Login,
 	_user$project$Router$generateAddress('login/fetch'),
-	_user$project$Router$generateAddress('login/createUpdate'),
-	_user$project$Router$generateAddress('login/changeSteamAlternate'));
+	_user$project$Router$generateAddress('login/create'),
+	_user$project$Router$generateAddress('login/update'));
 var _user$project$Router$Main = F3(
 	function (a, b, c) {
 		return {refreshGames: a, fetch: b, page: c};
@@ -10111,10 +10111,17 @@ var _user$project$Router$fetchUser = function (params) {
 		_user$project$Router$routes.login.fetch(params),
 		_user$project$Router$decodedUserEntry);
 };
-var _user$project$Router$createUpdateUser = function (params) {
+var _user$project$Router$createUser = function (params) {
 	return A3(
 		_elm_lang$http$Http$post,
-		_user$project$Router$routes.login.createUpdate(params),
+		_user$project$Router$routes.login.create(params),
+		_elm_lang$http$Http$emptyBody,
+		_user$project$Router$decodedUserEntry);
+};
+var _user$project$Router$updateUser = function (params) {
+	return A3(
+		_elm_lang$http$Http$post,
+		_user$project$Router$routes.login.update(params),
 		_elm_lang$http$Http$emptyBody,
 		_user$project$Router$decodedUserEntry);
 };
@@ -10154,13 +10161,6 @@ var _user$project$Router$comparisonData = function (params) {
 			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedComparisonEntry)),
 		_1: _user$project$Router$routes.comparison.page(params)
 	};
-};
-var _user$project$Router$changeSteamAlternate = function (params) {
-	return A3(
-		_elm_lang$http$Http$post,
-		_user$project$Router$routes.login.changeSteamAlternate(params),
-		_elm_lang$http$Http$emptyBody,
-		_user$project$Router$decodedUserEntry);
 };
 
 var _user$project$MainPage$onSelect = function (msg) {
