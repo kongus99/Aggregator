@@ -10041,11 +10041,16 @@ var _user$project$Login$usernameForm = function (model) {
 																	_0: _elm_lang$html$Html_Attributes$name('Alternate'),
 																	_1: {
 																		ctor: '::',
-																		_0: _elm_lang$html$Html_Attributes$checked(model.enteredUser.steamAlternate),
+																		_0: _elm_lang$html$Html_Attributes$disabled(
+																			_elm_lang$core$Native_Utils.eq(model.loadedUser, _elm_lang$core$Maybe$Nothing)),
 																		_1: {
 																			ctor: '::',
-																			_0: _elm_lang$html$Html_Events$onCheck(_user$project$Login$SteamAlternateChange),
-																			_1: {ctor: '[]'}
+																			_0: _elm_lang$html$Html_Attributes$checked(model.enteredUser.steamAlternate),
+																			_1: {
+																				ctor: '::',
+																				_0: _elm_lang$html$Html_Events$onCheck(_user$project$Login$SteamAlternateChange),
+																				_1: {ctor: '[]'}
+																			}
 																		}
 																	}
 																}

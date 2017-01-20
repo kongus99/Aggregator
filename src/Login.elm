@@ -1,6 +1,6 @@
 module Login exposing (..)
 import Html exposing (Html, button, div, text, form, br, input, span, label)
-import Html.Attributes exposing (action, type_, name, style, method, value, checked)
+import Html.Attributes exposing (action, type_, name, style, method, value, checked, disabled)
 import Html.Events exposing (onClick, onSubmit, onInput, onCheck)
 import Model exposing(..)
 import Router exposing(fetchUser, createUpdateUser, mainPageUrl, updateSteamAlternate)
@@ -97,7 +97,7 @@ usernameForm model =
             , br[][]
             , label[][text "Steam username:", br[][], text loadedSteamUsername, br[][], input[type_ "text", name "username1", onInput SteamUsernameChange, value <| getSteamUserName model.enteredUser][]]
             , br[][]
-            , label[][text "Alternate Steam login:", br[][], text loadedSteamAlternate, br[][], input [type_ "checkbox", name "Alternate", checked model.enteredUser.steamAlternate, onCheck SteamAlternateChange][]]
+            , label[][text "Alternate Steam login:", br[][], text loadedSteamAlternate, br[][], input [type_ "checkbox", name "Alternate", disabled <| model.loadedUser == Nothing, checked model.enteredUser.steamAlternate, onCheck SteamAlternateChange][]]
             , br[][]
             , label[][text "Gog username:", br[][], text loadedGogUsername, br[][], input[type_ "text", name "username2", onInput GogUsernameChange, value <| getGogUserName model.enteredUser][]]
             , input[type_ "submit", style [("display","none")]][]
