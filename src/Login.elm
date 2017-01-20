@@ -3,7 +3,7 @@ import Html exposing (Html, button, div, text, form, br, input, span, label)
 import Html.Attributes exposing (action, type_, name, style, method, value, checked)
 import Html.Events exposing (onClick, onSubmit, onInput, onCheck)
 import Model exposing(..)
-import Router exposing(fetchUser, createUser, updateUser, mainPageUrl)
+import Router exposing(fetchUser, createUpdateUser, mainPageUrl, updateSteamAlternate)
 import Http
 
 main =
@@ -20,7 +20,7 @@ type alias Model = {loadedUser : Maybe User, enteredUser : User, message : Strin
 
 serializeUser : User -> List (String, String)
 serializeUser u =
-    [("steamUsername", getSteamUserName u), ("steamIsAlternate", String.toLower <| toString u.steamAlternate), ("gogUsername", getGogUserName u)]
+    [("steamUsername", getSteamUserName u), ("steamAlternate", String.toLower <| toString u.steamAlternate), ("gogUsername", getGogUserName u)]
 
 getSteamUserName : User -> String
 getSteamUserName user = Maybe.withDefault "" user.username1
@@ -35,8 +35,7 @@ initialModel = Model Nothing (User Nothing (Just "") False (Just "")) ""
 
 type Msg
   = FetchUser |
-    CreateUser |
-    UpdateUser |
+    CreateUpdateUser |
     UserFetched User |
     SteamUsernameChange SteamUsername |
     GogUsernameChange GogUserName |
@@ -48,10 +47,8 @@ update msg model =
   case msg of
     FetchUser ->
       ({model | message = ""}, serializeUser model.enteredUser |> fetchUser |> getResponse)
-    CreateUser ->
-      ({model | message = ""}, serializeUser model.enteredUser |> createUser |> getResponse)
-    UpdateUser ->
-      ({model | message = ""}, serializeUser model.enteredUser |> updateUser |> getResponse)
+    CreateUpdateUser ->
+      ({model | message = ""}, serializeUser model.enteredUser |> createUpdateUser |> getResponse)
     UserFetched u ->
       ({model | loadedUser = Just u, enteredUser = u, message = ""}, Cmd.none)
     SteamUsernameChange u ->
@@ -70,8 +67,10 @@ update msg model =
         let
             oldUser = model.enteredUser
             newUser = {oldUser | steamAlternate = c}
+            userId = (Maybe.andThen (\u -> u.id) model.loadedUser)
+            cmd = Maybe.withDefault Cmd.none <| Maybe.map (\id -> [("userId", toString id), ("steamAlternate", String.toLower <| toString c)] |> updateSteamAlternate |> getResponse) userId
         in
-            ({model | enteredUser = newUser, message = ""}, Cmd.none)
+            ({model | enteredUser = newUser, message = ""}, cmd)
     ResponseError err -> ({model | loadedUser = Nothing, message = toString err} , Cmd.none)
 
 
@@ -83,11 +82,9 @@ getResponse request =
 
 view : Model -> Html Msg
 view model =
-  div[] <| List.concat [usernameForm model, createButton model, updateButton model, mainPageLink model]
+  div[] <| List.concat [usernameForm model, createUpdateButton model, mainPageLink model]
 
-createButton model = [ button[type_ "button", onClick CreateUser][text "Create"], br[][]]
-
-updateButton model = Maybe.withDefault [] <| Maybe.map (\_ -> [ button[type_ "button", onClick UpdateUser][text "Update"], br[][]]) model.loadedUser
+createUpdateButton model = Maybe.withDefault [ button[type_ "button", onClick CreateUpdateUser][text "Create/Update"], br[][]] <| Maybe.map (\_ -> []) model.loadedUser
 
 usernameForm model =
     let

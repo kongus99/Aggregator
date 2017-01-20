@@ -10079,13 +10079,13 @@ var _user$project$Router$Addresses = F3(
 	});
 var _user$project$Router$Login = F3(
 	function (a, b, c) {
-		return {fetch: a, create: b, update: c};
+		return {fetch: a, createUpdate: b, steamAlternate: c};
 	});
 var _user$project$Router$login = A3(
 	_user$project$Router$Login,
 	_user$project$Router$generateAddress('login/fetch'),
-	_user$project$Router$generateAddress('login/create'),
-	_user$project$Router$generateAddress('login/update'));
+	_user$project$Router$generateAddress('login/createUpdate'),
+	_user$project$Router$generateAddress('login/steamAlternate'));
 var _user$project$Router$Main = F3(
 	function (a, b, c) {
 		return {refreshGames: a, fetch: b, page: c};
@@ -10111,17 +10111,17 @@ var _user$project$Router$fetchUser = function (params) {
 		_user$project$Router$routes.login.fetch(params),
 		_user$project$Router$decodedUserEntry);
 };
-var _user$project$Router$createUser = function (params) {
+var _user$project$Router$createUpdateUser = function (params) {
 	return A3(
 		_elm_lang$http$Http$post,
-		_user$project$Router$routes.login.create(params),
+		_user$project$Router$routes.login.createUpdate(params),
 		_elm_lang$http$Http$emptyBody,
 		_user$project$Router$decodedUserEntry);
 };
-var _user$project$Router$updateUser = function (params) {
+var _user$project$Router$updateSteamAlternate = function (params) {
 	return A3(
 		_elm_lang$http$Http$post,
-		_user$project$Router$routes.login.update(params),
+		_user$project$Router$routes.login.steamAlternate(params),
 		_elm_lang$http$Http$emptyBody,
 		_user$project$Router$decodedUserEntry);
 };

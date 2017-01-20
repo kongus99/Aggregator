@@ -231,6 +231,10 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     db.run(userWithId.map(Some(_)))
   }
 
+  def updateSteamAlternate(userId: Long, steamAlternate: Boolean) : Future[Option[User]]= {
+    db.run(userData.filter(_.id === userId).map(_.steamAlternate).update(steamAlternate).andThen(userData.filter(_.id === userId).result.headOption))
+  }
+
   def replaceGogData(user : Option[User], data : Seq[GogEntry]): Future[_] =
     user.map(u => {
       val ids = data.map(_.gogId).toSet

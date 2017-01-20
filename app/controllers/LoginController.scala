@@ -75,4 +75,9 @@ class LoginController @Inject()(client: WSClient, configuration: Configuration, 
       } else Future(false)
     ).getOrElse(Future(false))
   }
+
+  def steamAlternate(userId: Long, steamAlternate: Boolean) = Action.async {
+    tables.updateSteamAlternate(userId, steamAlternate).map(x => Ok(Json.toJson(x)))
+
+  }
 }
