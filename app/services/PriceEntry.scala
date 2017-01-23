@@ -29,7 +29,7 @@ object PriceEntry {
                 fkRetriever : String => Future[String],
                 keyeRetriever : String => Future[String])(implicit exec: ExecutionContext): Future[Map[Long, Seq[PriceEntry]]] = {
     for {
-      entries <- tables.getSteamEntries(user, Some(true))
+      entries <- tables.getSteamEntries(user, Some(false))
       golPrices <- GolPricesFetcher.getPrices(entries, tables, golRetriever)
       fkPrices <- FKPricesFetcher.getPrices(entries, tables, fkRetriever)
       keyePrices <- KeyePricesFetcher.getPrices(entries, tables, keyeRetriever)
