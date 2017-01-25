@@ -2,7 +2,7 @@ package controllers
 
 import javax.inject._
 
-import model.{CurrencyConverter, Tables, User}
+import model.{Tables, User}
 import play.api.Configuration
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
@@ -55,23 +55,6 @@ class MainController @Inject()(client: WSClient, configuration: Configuration, t
       result <- generateFromNames(user, sources, tables)
       prices <- tables.getPrices(result.map(_.steam).filter(_.nonEmpty).flatten).map(_.groupBy(_.steamId))
     } yield{
-      Ok(Json.toJson(result.map(e => if (e.steam.isEmpty) e else e.copy(prices = prices.getOrElse(e.steam.head.steamId, Seq())))))
-    }
-  }
-
-  def refreshUserGames(userId : Long, sources: GameSources) = Action.async {
-    for {
-      user <- tables.getUserById(userId)
-      rates <- ratesRetriever.retrieve("").map(CurrencyConverter.parseFromXml)
-      (gogOwned, gogWishlist) <- getGogGames(user)
-      (steamOwned, steamWishlist) <- getSteamGames(user)
-      result <- generateFromNames(user, sources, tables)
-      _ <- tables.replaceGogData(user, GogEntry.parse(gogOwned, gogWishlist, rates))
-      _ <- tables.replaceSteamData(user, SteamEntry.parse(steamOwned, steamWishlist, rates))
-      entries <- tables.getSteamEntries(user, Some(false))
-      prices <- PriceEntry.getPrices(tables, entries, golRetriever.retrieve, fkRetriever.retrieve, keyeRetriever.retrieve)
-      _ <- tables.replacePrices(prices.values.flatten.toSeq)
-    } yield {
       Ok(Json.toJson(result.map(e => if (e.steam.isEmpty) e else e.copy(prices = prices.getOrElse(e.steam.head.steamId, Seq())))))
     }
   }

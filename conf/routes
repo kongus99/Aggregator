@@ -9,7 +9,6 @@ POST        /login/createUpdate            controllers.LoginController.createUpd
 POST        /login/steamAlternate          controllers.LoginController.steamAlternate(userId : Long, steamAlternate : Boolean)
 GET         /main                          controllers.MainController.main
 GET         /main/fetch                    controllers.MainController.getUserGames(userId : Long, sources : services.GameSources.GameSources)
-GET         /main/refresh                  controllers.MainController.refreshUserGames(userId : Long, sources : services.GameSources.GameSources)
 
 GET         /comparison                    controllers.ComparisonController.main
 GET         /comparison/data               controllers.ComparisonController.data(left : services.GameOn.GameOn, right : services.GameOn.GameOn, minimumMetric : Int)
