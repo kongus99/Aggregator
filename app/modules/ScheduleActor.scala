@@ -1,26 +1,29 @@
 package modules
 
-import akka.actor.{Actor, ActorSystem}
+import akka.actor.{Actor, ActorSystem, Props}
 import com.google.inject.Inject
 import model.{CurrencyConverter, Tables}
+import modules.PriceRefreshActor.RunRefresh
 import modules.ScheduleActor.{RefreshGog, RefreshPrices, RefreshSteam}
 import play.api.Configuration
 import play.api.libs.ws.WSClient
 import services.GogEntry.getGogPageNumber
 import services._
 
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.{FiniteDuration, MINUTES, SECONDS}
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 object ScheduleActor {
 
   case class RefreshSteam()
+
   case class RefreshGog()
+
   case class RefreshPrices()
 
 }
 
-class ScheduleActor @Inject()(actorSystem: ActorSystem, client: WSClient, configuration: Configuration, tables: Tables)(implicit exec: ExecutionContext) extends Actor {
+class ScheduleActor @Inject()(system : ActorSystem, client: WSClient, configuration: Configuration, tables: Tables)(implicit exec: ExecutionContext) extends Actor {
   val gogRetriever = new GogPageRetriever(client, configuration)
   val steamRetriever = new SteamPageRetriever(client)
   val gogWishListRetriever = new GogWishListRetriever(client, configuration)
@@ -30,15 +33,15 @@ class ScheduleActor @Inject()(actorSystem: ActorSystem, client: WSClient, config
   val keyeRetriever = new KeyeRetriever(client)
 
   override def receive: Receive = {
-    case _ : RefreshSteam =>
-      Await.result(refreshSteamGames(1L), Duration.Inf)
+    case _: RefreshSteam =>
+      Await.result(refreshSteamGames(1L), FiniteDuration(5, MINUTES))
       println("Refreshed steam")
-    case _ : RefreshGog =>
-      Await.result(refreshGogGames(1L), Duration.Inf)
+    case _: RefreshGog =>
+      Await.result(refreshGogGames(1L), FiniteDuration(5, MINUTES))
       println("Refreshed gog")
-    case _ : RefreshPrices =>
-      Await.result(refreshPrices(1L), Duration.Inf)
-      println("Refreshed prices")
+    case _: RefreshPrices =>
+      Await.result(refreshPrices(), FiniteDuration(5, MINUTES))
+      println("refreshed prices")
   }
 
   private def refreshGogGames(userId: Long): Future[Any] = {
@@ -66,14 +69,9 @@ class ScheduleActor @Inject()(actorSystem: ActorSystem, client: WSClient, config
     }
   }
 
-  private def refreshPrices(userId: Long) : Future[Any] ={
-    for {
-      user <- tables.getUserById(userId)
-      prices <- PriceEntry.getPrices(tables, user, golRetriever.retrieve, fkRetriever.retrieve, keyeRetriever.retrieve)
-      refreshed <- tables.replacePrices(prices.values.flatten.toSeq)
-    } yield {
-      refreshed
-    }
+  private def refreshPrices(): Future[Unit] = {
+    val actors = (1 to 2).map(_ => system.actorOf(Props(classOf[PriceRefreshActor], client, tables, exec))).toArray
+    def scheduleRefresh(e : Seq[SteamEntry], i : Int) : Unit = system.scheduler.scheduleOnce(FiniteDuration(1, SECONDS), actors(i % actors.length), RunRefresh(e))
+    tables.getSteamEntries(None, None).map(entries => entries.grouped(20).toSeq.zipWithIndex.foreach((scheduleRefresh _).tupled))
   }
-
 }

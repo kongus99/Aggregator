@@ -68,7 +68,8 @@ class MainController @Inject()(client: WSClient, configuration: Configuration, t
       result <- generateFromNames(user, sources, tables)
       _ <- tables.replaceGogData(user, GogEntry.parse(gogOwned, gogWishlist, rates))
       _ <- tables.replaceSteamData(user, SteamEntry.parse(steamOwned, steamWishlist, rates))
-      prices <- PriceEntry.getPrices(tables, user, golRetriever.retrieve, fkRetriever.retrieve, keyeRetriever.retrieve)
+      entries <- tables.getSteamEntries(user, Some(false))
+      prices <- PriceEntry.getPrices(tables, entries, golRetriever.retrieve, fkRetriever.retrieve, keyeRetriever.retrieve)
       _ <- tables.replacePrices(prices.values.flatten.toSeq)
     } yield {
       Ok(Json.toJson(result.map(e => if (e.steam.isEmpty) e else e.copy(prices = prices.getOrElse(e.steam.head.steamId, Seq())))))

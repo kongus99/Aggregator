@@ -2,7 +2,7 @@ package services
 
 import java.net.URL
 
-import model.{Tables, User}
+import model.Tables
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import play.api.libs.json._
@@ -24,12 +24,11 @@ object PriceEntry {
       (JsPath \ "price").write[BigDecimal]) ((e) => (e.steamId, e.name, e.host, e.link, e.price))
 
   def getPrices(tables: Tables,
-                user : Option[User],
+                entries : Seq[SteamEntry],
                 golRetriever: String => Future[String],
                 fkRetriever : String => Future[String],
                 keyeRetriever : String => Future[String])(implicit exec: ExecutionContext): Future[Map[Long, Seq[PriceEntry]]] = {
     for {
-      entries <- tables.getSteamEntries(user, Some(false))
       golPrices <- GolPricesFetcher.getPrices(entries, tables, golRetriever)
       fkPrices <- FKPricesFetcher.getPrices(entries, tables, fkRetriever)
       keyePrices <- KeyePricesFetcher.getPrices(entries, tables, keyeRetriever)
