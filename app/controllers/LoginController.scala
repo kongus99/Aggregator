@@ -33,8 +33,8 @@ class LoginController @Inject()(client: WSClient, configuration: Configuration, 
     }
   }
 
-  def createUpdate(steamUsername: Option[String], steamAlternate : Boolean, gogUsername: Option[String]) = Action.async {
-    def resolveUser(isValidSteam: Boolean, isValidGog: Boolean, steamExists: Option[User], gogExists: Option[User]) : Future[Option[User]] = {
+  def createUpdate(steamUsername: Option[String], gogUsername: Option[String]) = Action.async {
+    def resolveUser(isValidSteam: Boolean, steamAlternate : Boolean, isValidGog: Boolean, steamExists: Option[User], gogExists: Option[User]) : Future[Option[User]] = {
       if (isValidGog && isValidGog)
         if (steamExists.isDefined && gogExists.isDefined)
           Future(None) //switch gog login between entries
@@ -49,11 +49,11 @@ class LoginController @Inject()(client: WSClient, configuration: Configuration, 
     }
 
     val user = for{
-      isValidSteam <- isValidUsername(steamUsername, steamAlternate, steamRetriever, "error_ctn")
-      isValidGog <- isValidUsername(gogUsername, useAlternateAddress = false, gogWishListRetriever, "error404")
+      (isValidSteam, steamAlternate) <- isValidUsername(steamUsername, steamRetriever, "error_ctn")
+      (isValidGog, _) <- isValidUsername(gogUsername, gogWishListRetriever, "error404")
       steamExists <- if(isValidSteam) tables.getSteamUser(steamUsername.get) else Future(None)
       gogExists <- if(isValidGog) tables.getGogUser(gogUsername.get) else Future(None)
-      resolved <- resolveUser(isValidSteam, isValidGog, steamExists, gogExists)
+      resolved <- resolveUser(isValidSteam, steamAlternate, isValidGog, steamExists, gogExists)
     } yield {
       resolved
     }
@@ -64,16 +64,20 @@ class LoginController @Inject()(client: WSClient, configuration: Configuration, 
 
 
 
-  private def isValidUsername(username: Option[String], useAlternateAddress : Boolean, retriever : PageRetriever, errorClass : String) = {
+  private def isValidUsername(username: Option[String], retriever : PageRetriever, errorClass : String) : Future[(Boolean, Boolean)] = {
+    def checkNoError(u: String, useAlternate : Boolean): Future[Boolean] = {
+      for {
+        ur <- retriever.retrieveWithUser(useAlternate)(u)("/wishlist")
+      } yield {
+        Jsoup.parse(ur).body().getElementsByClass(errorClass).size() <= 0
+      }
+    }
+
     username.map(u =>
       if (!u.isEmpty) {
-        for {
-          ur <- retriever.retrieveWithUser(useAlternateAddress)(u)("/wishlist")
-        } yield {
-          Jsoup.parse(ur).body().getElementsByClass(errorClass).size() <= 0
-        }
-      } else Future(false)
-    ).getOrElse(Future(false))
+        checkNoError(u, useAlternate = false).flatMap(r => if(r) Future((r, false)) else checkNoError(u, useAlternate = true).map((_, true)))
+      } else Future((false, false))
+    ).getOrElse(Future((false, false)))
   }
 
   def steamAlternate(userId: Long, steamAlternate: Boolean) = Action.async {
