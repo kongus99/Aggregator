@@ -9,6 +9,7 @@ import Task
 import Erl
 import Model exposing (..)
 import Router exposing (..)
+import WebSocket
 
 initProgram : String -> ( Model, Cmd Msg )
 initProgram address =
@@ -20,10 +21,14 @@ initProgram address =
     in
         ( model , getResponse <| Router.getUserGames [("sources", toString model.sources), ("userId", toString model.userId)])
 
-main = Html.programWithFlags { init = initProgram, view = view, update = update, subscriptions = \_ -> Sub.none }
+main = Html.programWithFlags { init = initProgram, view = view, update = update, subscriptions = subscriptions }
 
 -- PORTS
 port elmAddressChange : String -> Cmd msg
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+  WebSocket.listen Router.refreshSocketUrl ServerRefreshRequest
 
 -- MODEL
 
@@ -42,6 +47,7 @@ type Msg
   | HighPriceFilterChange String
   | GameOnFilterChange (Maybe GameOn)
   | DiscountedFilterChange Bool
+  | ServerRefreshRequest String
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -54,6 +60,8 @@ update msg model =
     HighPriceFilterChange priceString -> ({model | filters = updateHighFilter (String.toFloat priceString |> Result.toMaybe) model.filters, message = ""} , Cmd.none)
     GameOnFilterChange gameOn -> ({model | filters = updateGameOnFilter gameOn model.filters, message = ""} , Cmd.none)
     DiscountedFilterChange isDiscounted-> ({model | filters = toggleDiscountedFilter isDiscounted model.filters, message = ""}, Cmd.none)
+    ServerRefreshRequest msg -> ({model | filters = resetFilterLists model.filters, message = ""}, getResponse <| Router.getUserGames [("sources", toString model.sources), ("userId", toString model.userId)])
+
 -- VIEW
 
 view : Model -> Html Msg

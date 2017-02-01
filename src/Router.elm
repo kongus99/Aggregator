@@ -1,4 +1,4 @@
-module Router exposing(refreshUserGames, getUserGames, toggleSelected, comparisonData, resolveResponse, fetchUser, createUpdateUser, updateSteamAlternate, mainPageUrl)
+module Router exposing(refreshUserGames, getUserGames, toggleSelected, comparisonData, resolveResponse, fetchUser, createUpdateUser, updateSteamAlternate, mainPageUrl, refreshSocketUrl)
 
 import Http
 import Json.Decode as Json exposing (..)
@@ -28,6 +28,7 @@ comparison = Comparison (generateAddress "comparison/toggleMatch") (generateAddr
 routes = Addresses login main_ comparison
 --URLS
 mainPageUrl = "/main"
+refreshSocketUrl = "ws://localhost:9000/refreshSocket"
 --DECODERS
 decodedUserEntry = map4 User (field "id" (maybe int)) (field "steamLogin" (maybe string)) (field "steamAlternate" (bool)) (field "gogLogin" (maybe string))
 decodedGogEntry = map4 GogEntry (field "title" string) (field "gogId" int) (field "price" (maybe float)) (field "discounted" (maybe float))

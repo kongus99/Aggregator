@@ -3,6 +3,7 @@
 # ~~~~
 
 GET         /                              controllers.LoginController.init
+GET         /refreshSocket                 controllers.RefreshController.socket
 GET         /login                         controllers.LoginController.init
 GET         /login/fetch                   controllers.LoginController.fetch(steamUsername : Option[String], gogUsername : Option[String])
 POST        /login/createUpdate            controllers.LoginController.createUpdate(steamUsername : Option[String], gogUsername : Option[String])

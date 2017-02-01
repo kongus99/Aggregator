@@ -3,6 +3,7 @@ package modules
 import akka.actor.{Actor, ActorSystem, Props}
 import com.google.inject.Inject
 import model.{CurrencyConverter, Tables}
+import modules.MyWebSocketActor.RefreshUserData
 import modules.PriceRefreshActor.RunRefresh
 import modules.ScheduleActor.{RefreshGog, RefreshPrices, RefreshSteam}
 import play.api.Configuration
@@ -35,6 +36,7 @@ class ScheduleActor @Inject()(system : ActorSystem, client: WSClient, configurat
   override def receive: Receive = {
     case _: RefreshSteam =>
       Await.result(refreshSteamGames(1L), FiniteDuration(5, MINUTES))
+      system.actorSelection("akka://application/user/*") ! RefreshUserData()
       println("Refreshed steam")
     case _: RefreshGog =>
       Await.result(refreshGogGames(1L), FiniteDuration(5, MINUTES))
