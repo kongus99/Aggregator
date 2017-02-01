@@ -6,6 +6,8 @@ import org.jsoup.nodes.Element
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Json, Reads, Writes}
 
+import scala.collection.immutable.Seq
+
 case class SteamEntry(name: String, steamId: Long, price: Option[BigDecimal] = None, discounted: Option[BigDecimal]= None, owned : Boolean)
 
 object SteamEntry {
@@ -21,15 +23,18 @@ object SteamEntry {
   def parse(owned: String, wishList : String, converter : CurrencyConverter): Seq[SteamEntry] =
     parseOwned(owned) ++ parseWishList(wishList, converter)
 
-  private def parseWishList(wishList: String, converter: CurrencyConverter) = {
+  private def parseWishList(wishList: String, converter: CurrencyConverter): Seq[SteamEntry] = {
     import scala.collection.JavaConversions._
-    val items = Jsoup.parse(wishList).getElementById("wishlist_items").getElementsByClass("wishlistRow").toList
-    items.map(e => {
-      val id = e.attr("id").split("_")(1)
-      val name = e.getElementsByAttributeValue("class", "ellipsis").text()
-      val (price, discounted) = getPrices(e)
-      SteamEntry(name, id.toLong, price.flatMap(converter.convert), discounted.flatMap(converter.convert), owned = false)
-    })
+    val wItems = Jsoup.parse(wishList).getElementById("wishlist_items")
+    if (wItems != null) {
+      val items = wItems.getElementsByClass("wishlistRow").toList
+      items.map(e => {
+        val id = e.attr("id").split("_")(1)
+        val name = e.getElementsByAttributeValue("class", "ellipsis").text()
+        val (price, discounted) = getPrices(e)
+        SteamEntry(name, id.toLong, price.flatMap(converter.convert), discounted.flatMap(converter.convert), owned = false)
+      })
+    } else Seq()
   }
 
   private def getPrices(e: Element): (Option[String], Option[String]) = {
