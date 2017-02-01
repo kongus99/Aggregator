@@ -1,9 +1,10 @@
 package modules
 
+import actors.ScheduleActor
+import actors.ScheduleActor.{RefreshGog, RefreshPrices, RefreshSteam}
 import akka.actor.{ActorRef, ActorSystem}
 import com.google.inject.name.Named
 import com.google.inject.{AbstractModule, Inject, Singleton}
-import modules.ScheduleActor.{RefreshGog, RefreshPrices, RefreshSteam}
 import play.api.libs.concurrent.AkkaGuiceSupport
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 

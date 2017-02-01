@@ -1,7 +1,7 @@
-package modules
+package actors
 
+import actors.MyWebSocketActor.RefreshUserData
 import akka.actor._
-import modules.MyWebSocketActor.RefreshUserData
 
 object MyWebSocketActor {
   def props(out: ActorRef) = Props(new MyWebSocketActor(out))

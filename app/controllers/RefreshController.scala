@@ -2,9 +2,9 @@ package controllers
 
 import javax.inject.Inject
 
+import actors.MyWebSocketActor
 import akka.actor.ActorSystem
 import akka.stream.Materializer
-import modules.MyWebSocketActor
 import play.api.libs.streams._
 import play.api.mvc._
 

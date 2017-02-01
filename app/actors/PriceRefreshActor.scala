@@ -1,9 +1,8 @@
-package modules
+package actors
 
-
+import actors.PriceRefreshActor.RunRefresh
 import akka.actor.Actor
 import model.Tables
-import modules.PriceRefreshActor.RunRefresh
 import play.api.libs.ws.WSClient
 import services._
 

@@ -1,11 +1,11 @@
-package modules
+package actors
 
+import actors.MyWebSocketActor.RefreshUserData
+import actors.PriceRefreshActor.RunRefresh
+import actors.ScheduleActor.{RefreshGog, RefreshPrices, RefreshSteam}
 import akka.actor.{Actor, ActorSystem, Props}
 import com.google.inject.Inject
 import model.{CurrencyConverter, Tables}
-import modules.MyWebSocketActor.RefreshUserData
-import modules.PriceRefreshActor.RunRefresh
-import modules.ScheduleActor.{RefreshGog, RefreshPrices, RefreshSteam}
 import play.api.Configuration
 import play.api.libs.ws.WSClient
 import services.GogEntry.getGogPageNumber
