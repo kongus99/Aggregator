@@ -1,6 +1,6 @@
 port module MainPage exposing (..)
 import Html exposing (Html, button, br, input, div, text, span, table, tr, th, td, select, option, a, label, thead, tbody)
-import Html.Attributes exposing(class, selected, value, href, type_, name, checked)
+import Html.Attributes exposing(class, selected, value, href, type_, name, checked, style)
 import Html.Events exposing (onClick, on, targetValue, onInput, onCheck)
 import Json.Decode as Json
 import GameEntry exposing(..)
@@ -83,8 +83,8 @@ gameTableTitle =
           ]
 
 gameTableRow e =
-    tr [] [ th[class <| toStyle e ][text <| getName e]
-          , td[][text <| pricesToString (getPrice e)]
+    tr [] [ th[][span[class <| toStyle e][text <| getName e], span [class "glyphicon glyphicon-cog", style [("float", "right")]][]]
+          , td[class "text-right"][text <| pricesToString (getPrice e)]
           , td[] (additionalPrices e.prices)
           ]
 
