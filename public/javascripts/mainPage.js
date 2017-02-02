@@ -10922,7 +10922,7 @@ var _user$project$MainPage$gameTableTitle = A2(
 		_1: {
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$td,
+				_elm_lang$html$Html$th,
 				{ctor: '[]'},
 				{
 					ctor: '::',
@@ -10932,7 +10932,7 @@ var _user$project$MainPage$gameTableTitle = A2(
 			_1: {
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$td,
+					_elm_lang$html$Html$th,
 					{ctor: '[]'},
 					{
 						ctor: '::',

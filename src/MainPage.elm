@@ -78,8 +78,8 @@ view model =
 
 gameTableTitle =
     tr [] [ th[][text "Game - ", span[class "cell_Steam"][text " Steam"], span[class "cell_Gog"][text " Gog"], span[class "cell_Both"][text " Both"]]
-          , td[][text "Price(PLN)"]
-          , td[][text "Additional prices(PLN)"]
+          , th[][text "Price(PLN)"]
+          , th[][text "Additional prices(PLN)"]
           ]
 
 gameTableRow e =
