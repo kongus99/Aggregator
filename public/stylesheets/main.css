@@ -1,29 +1,3 @@
-table {
-    font-family: arial, sans-serif;
-    border-collapse: collapse;
-    width: 100%;
-}
-
-.inlineTable {
-    display: inline-block;
-    vertical-align:top;
-    width: 50%;
-}
-
-td, th {
-    border: 1px solid #dddddd;
-    text-align: left;
-    padding: 8px;
-}
-
-th, td {
-    border: 1px solid black;
-}
-
-tr:nth-child(even) {
-    background-color: #dddddd;
-}
-
 table .cell_Gog {
     color: blue;
 }
@@ -34,8 +8,4 @@ table .cell_Both {
 
 table .cell_Steam {
     color: red;
-}
-
-td span:last-child {
-    float: right;
 }

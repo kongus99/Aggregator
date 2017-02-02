@@ -10825,7 +10825,7 @@ var _user$project$MainPage$gameTableRow = function (e) {
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$td,
+				_elm_lang$html$Html$th,
 				{
 					ctor: '::',
 					_0: _elm_lang$html$Html_Attributes$class(
@@ -10922,7 +10922,7 @@ var _user$project$MainPage$gameTableTitle = A2(
 		_1: {
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$th,
+				_elm_lang$html$Html$td,
 				{ctor: '[]'},
 				{
 					ctor: '::',
@@ -10932,7 +10932,7 @@ var _user$project$MainPage$gameTableTitle = A2(
 			_1: {
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$th,
+					_elm_lang$html$Html$td,
 					{ctor: '[]'},
 					{
 						ctor: '::',
@@ -11545,11 +11545,29 @@ var _user$project$MainPage$view = function (model) {
 									ctor: '::',
 									_0: A2(
 										_elm_lang$html$Html$table,
-										{ctor: '[]'},
 										{
 											ctor: '::',
-											_0: _user$project$MainPage$gameTableTitle,
-											_1: A2(_elm_lang$core$List$map, _user$project$MainPage$gameTableRow, model.filters.result)
+											_0: _elm_lang$html$Html_Attributes$class('table table-striped table-bordered'),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$thead,
+												{ctor: '[]'},
+												{
+													ctor: '::',
+													_0: _user$project$MainPage$gameTableTitle,
+													_1: {ctor: '[]'}
+												}),
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$tbody,
+													{ctor: '[]'},
+													A2(_elm_lang$core$List$map, _user$project$MainPage$gameTableRow, model.filters.result)),
+												_1: {ctor: '[]'}
+											}
 										}),
 									_1: {ctor: '[]'}
 								}

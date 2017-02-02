@@ -1,5 +1,5 @@
 port module MainPage exposing (..)
-import Html exposing (Html, button, br, input, div, text, span, table, tr, th, td, select, option, a, label)
+import Html exposing (Html, button, br, input, div, text, span, table, tr, th, td, select, option, a, label, thead, tbody)
 import Html.Attributes exposing(class, selected, value, href, type_, name, checked)
 import Html.Events exposing (onClick, on, targetValue, onInput, onCheck)
 import Json.Decode as Json
@@ -73,17 +73,17 @@ view model =
     , br[][]
     , div [] [sourcesSelect model.sources, gameOnSelect model.filters.gameOn, discountedInput model.filters.isDiscounted]
     , div [] [ text (toString model.message) ]
-    , table[] <| gameTableTitle :: (List.map gameTableRow model.filters.result)
+    , table[class "table table-striped table-bordered"][ thead[][ gameTableTitle ], tbody[] (List.map gameTableRow model.filters.result)]
     ]
 
 gameTableTitle =
     tr [] [ th[][text "Game - ", span[class "cell_Steam"][text " Steam"], span[class "cell_Gog"][text " Gog"], span[class "cell_Both"][text " Both"]]
-          , th[][text "Price(PLN)"]
-          , th[][text "Additional prices(PLN)"]
+          , td[][text "Price(PLN)"]
+          , td[][text "Additional prices(PLN)"]
           ]
 
 gameTableRow e =
-    tr [] [ td[class <| toStyle e ][text <| getName e]
+    tr [] [ th[class <| toStyle e ][text <| getName e]
           , td[][text <| pricesToString (getPrice e)]
           , td[] (additionalPrices e.prices)
           ]
