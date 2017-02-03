@@ -1,3 +1,8 @@
+.center form {
+    display: table;
+    margin: 0 auto;
+}
+
 table .cell_Gog {
     color: blue;
 }

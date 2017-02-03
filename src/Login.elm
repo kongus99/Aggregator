@@ -1,6 +1,6 @@
 module Login exposing (..)
 import Html exposing (Html, button, div, text, form, br, input, span, label)
-import Html.Attributes exposing (action, type_, name, style, method, value, checked, disabled)
+import Html.Attributes exposing (action, type_, name, style, method, value, checked, disabled,class)
 import Html.Events exposing (onClick, onSubmit, onInput, onCheck)
 import Model exposing(..)
 import Router exposing(fetchUser, createUpdateUser, mainPageUrl, updateSteamAlternate)
@@ -82,9 +82,9 @@ getResponse request =
 
 view : Model -> Html Msg
 view model =
-  div[] <| List.concat [usernameForm model, createUpdateButton model, mainPageLink model]
+  div[class "center"] <| List.concat [usernameForm model, createUpdateButton model, mainPageLink model]
 
-createUpdateButton model = Maybe.withDefault [ button[type_ "button", onClick CreateUpdateUser][text "Create/Update"], br[][]] <| Maybe.map (\_ -> []) model.loadedUser
+createUpdateButton model = Maybe.withDefault [form[][ button[type_ "button", onClick CreateUpdateUser][text "Create/Update"], br[][]]] <| Maybe.map (\_ -> []) model.loadedUser
 
 usernameForm model =
     let
@@ -94,14 +94,10 @@ usernameForm model =
     in
         [form [onSubmit FetchUser]
             [ span[][text model.message]
-            , br[][]
-            , label[][text "Steam username:", br[][], text loadedSteamUsername, br[][], input[type_ "text", name "username1", onInput SteamUsernameChange, value <| getSteamUserName model.enteredUser][]]
-            , br[][]
-            , label[][text "Alternate Steam login:", br[][], text loadedSteamAlternate, br[][], input [type_ "checkbox", name "Alternate", disabled <| model.loadedUser == Nothing, checked model.enteredUser.steamAlternate, onCheck SteamAlternateChange][]]
-            , br[][]
-            , label[][text "Gog username:", br[][], text loadedGogUsername, br[][], input[type_ "text", name "username2", onInput GogUsernameChange, value <| getGogUserName model.enteredUser][]]
-            , input[type_ "submit", style [("display","none")]][]
-            , br[][]
+            , div[class "form-group"][label[][text "Steam username:", br[][], text loadedSteamUsername, br[][], input[type_ "text", name "username1", onInput SteamUsernameChange, value <| getSteamUserName model.enteredUser][]]]
+            , div[class "form-group"][label[][text "Alternate Steam login:", br[][], text loadedSteamAlternate, br[][], input [type_ "checkbox", name "Alternate", disabled <| model.loadedUser == Nothing, checked model.enteredUser.steamAlternate, onCheck SteamAlternateChange][]]]
+            , div[class "form-group"][label[][text "Gog username:", br[][], text loadedGogUsername, br[][], input[type_ "text", name "username2", onInput GogUsernameChange, value <| getGogUserName model.enteredUser][]]]
+            , div[class "form-group"][input[type_ "submit", style [("display","none")]][]]
             ]
         , br[][]]
 

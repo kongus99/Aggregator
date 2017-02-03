@@ -9878,29 +9878,36 @@ var _user$project$Login$createUpdateButton = function (model) {
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$button,
+				_elm_lang$html$Html$form,
+				{ctor: '[]'},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$type_('button'),
+					_0: A2(
+						_elm_lang$html$Html$button,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$type_('button'),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Events$onClick(_user$project$Login$CreateUpdateUser),
+								_1: {ctor: '[]'}
+							}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Create/Update'),
+							_1: {ctor: '[]'}
+						}),
 					_1: {
 						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onClick(_user$project$Login$CreateUpdateUser),
+						_0: A2(
+							_elm_lang$html$Html$br,
+							{ctor: '[]'},
+							{ctor: '[]'}),
 						_1: {ctor: '[]'}
 					}
-				},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text('Create/Update'),
-					_1: {ctor: '[]'}
 				}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$br,
-					{ctor: '[]'},
-					{ctor: '[]'}),
-				_1: {ctor: '[]'}
-			}
+			_1: {ctor: '[]'}
 		},
 		A2(
 			_elm_lang$core$Maybe$map,
@@ -9950,68 +9957,76 @@ var _user$project$Login$usernameForm = function (model) {
 				_1: {
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$br,
-						{ctor: '[]'},
-						{ctor: '[]'}),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$label,
-							{ctor: '[]'},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text('Steam username:'),
-								_1: {
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('form-group'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$label,
+								{ctor: '[]'},
+								{
 									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$br,
-										{ctor: '[]'},
-										{ctor: '[]'}),
+									_0: _elm_lang$html$Html$text('Steam username:'),
 									_1: {
 										ctor: '::',
-										_0: _elm_lang$html$Html$text(loadedSteamUsername),
+										_0: A2(
+											_elm_lang$html$Html$br,
+											{ctor: '[]'},
+											{ctor: '[]'}),
 										_1: {
 											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$br,
-												{ctor: '[]'},
-												{ctor: '[]'}),
+											_0: _elm_lang$html$Html$text(loadedSteamUsername),
 											_1: {
 												ctor: '::',
 												_0: A2(
-													_elm_lang$html$Html$input,
-													{
-														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$type_('text'),
-														_1: {
+													_elm_lang$html$Html$br,
+													{ctor: '[]'},
+													{ctor: '[]'}),
+												_1: {
+													ctor: '::',
+													_0: A2(
+														_elm_lang$html$Html$input,
+														{
 															ctor: '::',
-															_0: _elm_lang$html$Html_Attributes$name('username1'),
+															_0: _elm_lang$html$Html_Attributes$type_('text'),
 															_1: {
 																ctor: '::',
-																_0: _elm_lang$html$Html_Events$onInput(_user$project$Login$SteamUsernameChange),
+																_0: _elm_lang$html$Html_Attributes$name('username1'),
 																_1: {
 																	ctor: '::',
-																	_0: _elm_lang$html$Html_Attributes$value(
-																		_user$project$Login$getSteamUserName(model.enteredUser)),
-																	_1: {ctor: '[]'}
+																	_0: _elm_lang$html$Html_Events$onInput(_user$project$Login$SteamUsernameChange),
+																	_1: {
+																		ctor: '::',
+																		_0: _elm_lang$html$Html_Attributes$value(
+																			_user$project$Login$getSteamUserName(model.enteredUser)),
+																		_1: {ctor: '[]'}
+																	}
 																}
 															}
-														}
-													},
-													{ctor: '[]'}),
-												_1: {ctor: '[]'}
+														},
+														{ctor: '[]'}),
+													_1: {ctor: '[]'}
+												}
 											}
 										}
 									}
-								}
-							}),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$br,
-								{ctor: '[]'},
-								{ctor: '[]'}),
-							_1: {
+								}),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('form-group'),
+								_1: {ctor: '[]'}
+							},
+							{
 								ctor: '::',
 								_0: A2(
 									_elm_lang$html$Html$label,
@@ -10067,94 +10082,102 @@ var _user$project$Login$usernameForm = function (model) {
 											}
 										}
 									}),
-								_1: {
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('form-group'),
+									_1: {ctor: '[]'}
+								},
+								{
 									ctor: '::',
 									_0: A2(
-										_elm_lang$html$Html$br,
+										_elm_lang$html$Html$label,
 										{ctor: '[]'},
-										{ctor: '[]'}),
-									_1: {
-										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$label,
-											{ctor: '[]'},
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html$text('Gog username:'),
-												_1: {
-													ctor: '::',
-													_0: A2(
-														_elm_lang$html$Html$br,
-														{ctor: '[]'},
-														{ctor: '[]'}),
-													_1: {
-														ctor: '::',
-														_0: _elm_lang$html$Html$text(loadedGogUsername),
-														_1: {
-															ctor: '::',
-															_0: A2(
-																_elm_lang$html$Html$br,
-																{ctor: '[]'},
-																{ctor: '[]'}),
-															_1: {
-																ctor: '::',
-																_0: A2(
-																	_elm_lang$html$Html$input,
-																	{
-																		ctor: '::',
-																		_0: _elm_lang$html$Html_Attributes$type_('text'),
-																		_1: {
-																			ctor: '::',
-																			_0: _elm_lang$html$Html_Attributes$name('username2'),
-																			_1: {
-																				ctor: '::',
-																				_0: _elm_lang$html$Html_Events$onInput(_user$project$Login$GogUsernameChange),
-																				_1: {
-																					ctor: '::',
-																					_0: _elm_lang$html$Html_Attributes$value(
-																						_user$project$Login$getGogUserName(model.enteredUser)),
-																					_1: {ctor: '[]'}
-																				}
-																			}
-																		}
-																	},
-																	{ctor: '[]'}),
-																_1: {ctor: '[]'}
-															}
-														}
-													}
-												}
-											}),
-										_1: {
+										{
 											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$input,
-												{
-													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$type_('submit'),
-													_1: {
-														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$style(
-															{
-																ctor: '::',
-																_0: {ctor: '_Tuple2', _0: 'display', _1: 'none'},
-																_1: {ctor: '[]'}
-															}),
-														_1: {ctor: '[]'}
-													}
-												},
-												{ctor: '[]'}),
+											_0: _elm_lang$html$Html$text('Gog username:'),
 											_1: {
 												ctor: '::',
 												_0: A2(
 													_elm_lang$html$Html$br,
 													{ctor: '[]'},
 													{ctor: '[]'}),
-												_1: {ctor: '[]'}
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html$text(loadedGogUsername),
+													_1: {
+														ctor: '::',
+														_0: A2(
+															_elm_lang$html$Html$br,
+															{ctor: '[]'},
+															{ctor: '[]'}),
+														_1: {
+															ctor: '::',
+															_0: A2(
+																_elm_lang$html$Html$input,
+																{
+																	ctor: '::',
+																	_0: _elm_lang$html$Html_Attributes$type_('text'),
+																	_1: {
+																		ctor: '::',
+																		_0: _elm_lang$html$Html_Attributes$name('username2'),
+																		_1: {
+																			ctor: '::',
+																			_0: _elm_lang$html$Html_Events$onInput(_user$project$Login$GogUsernameChange),
+																			_1: {
+																				ctor: '::',
+																				_0: _elm_lang$html$Html_Attributes$value(
+																					_user$project$Login$getGogUserName(model.enteredUser)),
+																				_1: {ctor: '[]'}
+																			}
+																		}
+																	}
+																},
+																{ctor: '[]'}),
+															_1: {ctor: '[]'}
+														}
+													}
+												}
 											}
-										}
-									}
-								}
+										}),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$div,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class('form-group'),
+										_1: {ctor: '[]'}
+									},
+									{
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$input,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$type_('submit'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$style(
+														{
+															ctor: '::',
+															_0: {ctor: '_Tuple2', _0: 'display', _1: 'none'},
+															_1: {ctor: '[]'}
+														}),
+													_1: {ctor: '[]'}
+												}
+											},
+											{ctor: '[]'}),
+										_1: {ctor: '[]'}
+									}),
+								_1: {ctor: '[]'}
 							}
 						}
 					}
@@ -10173,7 +10196,11 @@ var _user$project$Login$usernameForm = function (model) {
 var _user$project$Login$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
-		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('center'),
+			_1: {ctor: '[]'}
+		},
 		_elm_lang$core$List$concat(
 			{
 				ctor: '::',
