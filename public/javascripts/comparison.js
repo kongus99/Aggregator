@@ -10085,6 +10085,14 @@ var _user$project$Model$ComparisonEntry = F4(
 	function (a, b, c, d) {
 		return {left: a, metricResult: b, right: c, matches: d};
 	});
+var _user$project$Model$GameQuery = F3(
+	function (a, b, c) {
+		return {query: a, site: b, results: c};
+	});
+var _user$project$Model$GameOptions = F2(
+	function (a, b) {
+		return {entry: a, queries: b};
+	});
 var _user$project$Model$Steam = {ctor: 'Steam'};
 var _user$project$Model$Gog = {ctor: 'Gog'};
 var _user$project$Model$Both = {ctor: 'Both'};
@@ -10290,6 +10298,14 @@ var _user$project$GameEntry$applyPriceFilter = F2(
 				},
 				_p10._1));
 	});
+var _user$project$GameEntry$getSteamId = function (gameEntry) {
+	return A2(
+		_elm_lang$core$Maybe$map,
+		function (g) {
+			return g.steamId;
+		},
+		_elm_lang$core$List$head(gameEntry.steam));
+};
 var _user$project$GameEntry$getName = function (gameEntry) {
 	var steamName = A2(
 		_elm_lang$core$Maybe$withDefault,
@@ -10446,6 +10462,15 @@ var _user$project$Router$generateAddress = F2(
 					'?',
 					joinParameters(params))));
 	});
+var _user$project$Router$decodedGameQueryEntry = A4(
+	_elm_lang$core$Json_Decode$map3,
+	_user$project$Model$GameQuery,
+	A2(_elm_lang$core$Json_Decode$field, 'query', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'site', _elm_lang$core$Json_Decode$string),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'results',
+		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)));
 var _user$project$Router$decodedNamedEntry = A3(
 	_elm_lang$core$Json_Decode$map2,
 	_user$project$Model$NamedEntry,
@@ -10479,6 +10504,14 @@ var _user$project$Router$decodedSteamEntry = A5(
 		_elm_lang$core$Json_Decode$field,
 		'discounted',
 		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)));
+var _user$project$Router$decodedGameOptionsEntry = A3(
+	_elm_lang$core$Json_Decode$map2,
+	_user$project$Model$GameOptions,
+	A2(_elm_lang$core$Json_Decode$field, 'entry', _user$project$Router$decodedSteamEntry),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'queries',
+		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameQueryEntry)));
 var _user$project$Router$decodedGogEntry = A5(
 	_elm_lang$core$Json_Decode$map4,
 	_user$project$Model$GogEntry,
@@ -10538,13 +10571,14 @@ var _user$project$Router$login = A3(
 	_user$project$Router$generateAddress('login/fetch'),
 	_user$project$Router$generateAddress('login/createUpdate'),
 	_user$project$Router$generateAddress('login/steamAlternate'));
-var _user$project$Router$Main = F3(
-	function (a, b, c) {
-		return {refreshGames: a, fetch: b, page: c};
+var _user$project$Router$Main = F4(
+	function (a, b, c, d) {
+		return {refreshGames: a, gameOptions: b, fetch: c, page: d};
 	});
-var _user$project$Router$main_ = A3(
+var _user$project$Router$main_ = A4(
 	_user$project$Router$Main,
 	_user$project$Router$generateAddress('main/refresh'),
+	_user$project$Router$generateAddress('main/gameOptions'),
 	_user$project$Router$generateAddress('main/fetch'),
 	_user$project$Router$generateAddress('main'));
 var _user$project$Router$Comparison = F3(
@@ -10596,6 +10630,12 @@ var _user$project$Router$getUserGames = function (params) {
 			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
 		_1: _user$project$Router$routes.main.page(params)
 	};
+};
+var _user$project$Router$fetchGameOptions = function (params) {
+	return A2(
+		_elm_lang$http$Http$get,
+		_user$project$Router$routes.main.gameOptions(params),
+		_user$project$Router$decodedGameOptionsEntry);
 };
 var _user$project$Router$toggleSelected = function (params) {
 	return A3(

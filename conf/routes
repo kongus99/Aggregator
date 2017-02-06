@@ -1,16 +1,20 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
-
+#MAIN
 GET         /                              controllers.LoginController.init
+#SOCKET
 GET         /refreshSocket                 controllers.RefreshController.socket
+#LOGIN
 GET         /login                         controllers.LoginController.init
 GET         /login/fetch                   controllers.LoginController.fetch(steamUsername : Option[String], gogUsername : Option[String])
 POST        /login/createUpdate            controllers.LoginController.createUpdate(steamUsername : Option[String], gogUsername : Option[String])
 POST        /login/steamAlternate          controllers.LoginController.steamAlternate(userId : Long, steamAlternate : Boolean)
+#MAIN
 GET         /main                          controllers.MainController.main
 GET         /main/fetch                    controllers.MainController.getUserGames(userId : Long, sources : services.GameSources.GameSources)
-
+GET         /main/gameOptions              controllers.MainController.getGameOptions(gameId : Long)
+#COMPARISON
 GET         /comparison                    controllers.ComparisonController.main
 GET         /comparison/data               controllers.ComparisonController.data(left : services.GameOn.GameOn, right : services.GameOn.GameOn, minimumMetric : Int)
 POST        /comparison/toggleMatch        controllers.ComparisonController.toggleMatch(leftOn : services.GameOn.GameOn, rightOn : services.GameOn.GameOn, leftId :Long, rightId : Long)

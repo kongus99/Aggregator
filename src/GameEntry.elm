@@ -1,6 +1,7 @@
 module GameEntry exposing (GameEntry, Filters, getPrice, resetFilterLists,
                            updateFilterLists, getName, pricesToString, roundToString,
-                           emptyFilters, updateNameFilter, updateLowFilter, updateHighFilter, updateGameOnFilter, toggleDiscountedFilter)
+                           emptyFilters, updateNameFilter, updateLowFilter, updateHighFilter,
+                           updateGameOnFilter, toggleDiscountedFilter, getSteamId)
 import Model exposing (..)
 
 type alias GameEntry = {gog: List GogEntry, steam: List SteamEntry, prices : List PriceEntry}
@@ -14,6 +15,9 @@ getName gameEntry =
         steamName = List.head gameEntry.steam |> Maybe.map (\g -> g.name) |> Maybe.withDefault ""
     in
         List.head gameEntry.gog |> Maybe.map (\g -> g.title) |> Maybe.withDefault steamName
+
+getSteamId : GameEntry -> Maybe Int
+getSteamId gameEntry = List.head gameEntry.steam |> Maybe.map (\g -> g.steamId)
 
 getPrice : GameEntry -> Maybe (Maybe Float, Maybe Float)
 getPrice gameEntry =

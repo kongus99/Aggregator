@@ -1,5 +1,5 @@
 port module MainPage exposing (..)
-import Html exposing (Html, button, br, input, div, text, span, table, tr, th, td, select, option, a, label, thead, tbody)
+import Html exposing (Html, button, br, input, div, text, span, table, tr, th, td, select, option, a, label, thead, tbody, p)
 import Html.Attributes exposing(class, selected, value, href, type_, name, checked, style)
 import Html.Events exposing (onClick, on, targetValue, onInput, onCheck)
 import Json.Decode as Json
@@ -10,6 +10,7 @@ import Erl
 import Model exposing (..)
 import Router exposing (..)
 import WebSocket
+import Dialog
 
 initProgram : String -> ( Model, Cmd Msg )
 initProgram address =
@@ -32,9 +33,9 @@ subscriptions model =
 
 -- MODEL
 
-type alias Model = {sources : GameSources, message : String, userId : Int, filters : Filters}
+type alias Model = {sources : GameSources, message : String, userId : Int, filters : Filters, gameOptions : Maybe GameOptions}
 
-initialModel = Model WishList "" 1 emptyFilters
+initialModel = Model WishList "" 1 emptyFilters Nothing
 
 -- UPDATE
 
@@ -48,6 +49,9 @@ type Msg
   | GameOnFilterChange (Maybe GameOn)
   | DiscountedFilterChange Bool
   | ServerRefreshRequest String
+  | DialogOpen (Maybe Int)
+  | DialogData GameOptions
+  | DialogClose
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -61,7 +65,13 @@ update msg model =
     GameOnFilterChange gameOn -> ({model | filters = updateGameOnFilter gameOn model.filters, message = ""} , Cmd.none)
     DiscountedFilterChange isDiscounted-> ({model | filters = toggleDiscountedFilter isDiscounted model.filters, message = ""}, Cmd.none)
     ServerRefreshRequest msg -> ({model | filters = resetFilterLists model.filters, message = ""}, getResponse <| Router.getUserGames [("sources", toString model.sources), ("userId", toString model.userId)])
-
+    DialogOpen steamId->
+        let
+            send id = Http.send (Router.resolveResponse DialogData RefreshError) <| Router.fetchGameOptions [("gameId", toString id)]
+        in
+            (model, Maybe.withDefault Cmd.none <| Maybe.map send steamId)
+    DialogData options -> ({model | gameOptions = Just options}, Cmd.none)
+    DialogClose -> ({model | gameOptions = Nothing}, Cmd.none)
 -- VIEW
 
 view : Model -> Html Msg
@@ -74,6 +84,7 @@ view model =
     , div [] [sourcesSelect model.sources, gameOnSelect model.filters.gameOn, discountedInput model.filters.isDiscounted]
     , div [] [ text (toString model.message) ]
     , table[class "table table-striped table-bordered"][ thead[][ gameTableTitle ], tbody[] (List.map gameTableRow model.filters.result)]
+    , gameOptionsDialog model
     ]
 
 gameTableTitle =
@@ -83,10 +94,20 @@ gameTableTitle =
           ]
 
 gameTableRow e =
-    tr [] [ th[][span[class <| toStyle e][text <| getName e], span [class "glyphicon glyphicon-cog", style [("float", "right")]][]]
+    tr [] [ th[][span[class <| toStyle e][text <| getName e], button [onClick <| DialogOpen <| getSteamId e, class "glyphicon glyphicon-cog btn btn-default", style [("float", "right")]][]]
           , td[class "text-right"][text <| pricesToString (getPrice e)]
           , td[] (additionalPrices e.prices)
           ]
+gameOptionsDialog : Model -> Html Msg
+gameOptionsDialog model =
+    Dialog.view <| Maybe.map
+                   (\_ -> { closeMessage = Just DialogClose
+                         , containerClass = Just "your-container-class"
+                         , header = Just (text "Alert!")
+                         , body = Just (p [] [text "Let me tell you something important..."])
+                         , footer = Nothing
+                         })
+                   model.gameOptions
 
 sourcesFromString value = case value of
                                 "Owned" -> Owned

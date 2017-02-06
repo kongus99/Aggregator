@@ -21,5 +21,9 @@ type alias NamedEntry = {id : Int, name : String}
 
 type alias ComparisonEntry = {left : NamedEntry, metricResult : Int, right : NamedEntry, matches : Bool}
 
+type alias GameQuery = { query : String, site : String, results : List String}
+
+type alias GameOptions = { entry : SteamEntry, queries : List GameQuery}
+
 
 

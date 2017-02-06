@@ -31,32 +31,41 @@ class MainController @Inject()(client: WSClient, configuration: Configuration, t
     }
   }
 
-  private def getGogGames(user : Option[User]) = {
-    for{
+  private def getGogGames(user: Option[User]) = {
+    for {
       owned <- gogRetriever.retrieve(getGogPageNumber)
-      wishlist <- user.map(u => u.gogLogin.map(l => gogWishListRetriever.retrieveWithUser(useAlternate = false)(l)("/wishlist")).getOrElse(Future{""})).getOrElse(Future{""})
-    } yield{
+      wishlist <- user.map(u => u.gogLogin.map(l => gogWishListRetriever.retrieveWithUser(useAlternate = false)(l)("/wishlist")).getOrElse(Future {
+        ""
+      })).getOrElse(Future {
+        ""
+      })
+    } yield {
       (owned, wishlist)
     }
   }
 
   private def getSteamGames(user: Option[User]) = {
-    for{
-      owned <- user.map(u => u.steamLogin.map(l => steamRetriever.retrieveWithUser(u.steamAlternate)(l)("/games/?tab=all")).getOrElse(Future{""})).getOrElse(Future{""})
-      wishlist <- user.map(u => u.steamLogin.map(l => steamRetriever.retrieveWithUser(u.steamAlternate)(l)("/wishlist")).getOrElse(Future{""})).getOrElse(Future{""})
-    } yield{
+    for {
+      owned <- user.map(u => u.steamLogin.map(l => steamRetriever.retrieveWithUser(u.steamAlternate)(l)("/games/?tab=all")).getOrElse(Future(""))).getOrElse(Future(""))
+      wishlist <- user.map(u => u.steamLogin.map(l => steamRetriever.retrieveWithUser(u.steamAlternate)(l)("/wishlist")).getOrElse(Future(""))).getOrElse(Future(""))
+    } yield {
       (owned, wishlist)
     }
   }
 
-  def getUserGames(userId : Long, sources: GameSources) = Action.async {
+  def getUserGames(userId: Long, sources: GameSources) = Action.async {
     for {
       user <- tables.getUserById(userId)
       result <- generateFromNames(user, sources, tables)
       prices <- tables.getPrices(result.map(_.steam).filter(_.nonEmpty).flatten).map(_.groupBy(_.steamId))
-    } yield{
+    } yield {
       Ok(Json.toJson(result.map(e => if (e.steam.isEmpty) e else e.copy(prices = prices.getOrElse(e.steam.head.steamId, Seq())))))
     }
   }
 
+  def getGameOptions(gameId: Long) = Action.async {
+    Future {
+      Ok("")
+    }
+  }
 }
