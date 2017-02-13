@@ -74,8 +74,8 @@ object FKPricesFetcher {
       } yield {
         def parseUrl(name: String, html: String): Seq[String] = {
           val candidates = Jsoup.parse(html).getElementsByTag("a").toList
-          val winner = candidates.map(a => (ThresholdLevenshtein.count(a.text(), name, 100), a)).sortBy(_._1).head._2
-          Seq(winner.attr("href").split(host)(1))
+          val winner = candidates.map(a => (ThresholdLevenshtein.count(a.text(), name, 100), a)).sortBy(_._1).headOption
+          winner.map(_._2.attr("href").split(host)(1)).map(Seq(_)).getOrElse(Seq())
         }
         complete.filter(p => !p._2.isEmpty).flatMap(p => parseUrl(p._1.name, p._2).map(s => (p._1, s)))
       }
