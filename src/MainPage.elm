@@ -121,7 +121,7 @@ update msg model =
                 send id =
                     Http.send (Router.resolveResponse DialogData RefreshError) <| Router.fetchGameOptions [ ( "gameId", toString id ) ]
             in
-                ( model, Maybe.withDefault Cmd.none <| Maybe.map send steamId )
+                ( model, Maybe.map send steamId |> Maybe.withDefault Cmd.none )
 
         DialogData options ->
             ( { model | gameOptions = Just options }, Cmd.none )
