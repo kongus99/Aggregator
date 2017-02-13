@@ -158,11 +158,17 @@ gameTableTitle =
 
 gameTableRow e =
     tr []
-        [ th [] [ span [ class <| toStyle e ] [ text <| getName e ], button [ onClick <| DialogOpen <| getSteamId e, class "glyphicon glyphicon-cog btn btn-default", style [ ( "float", "right" ) ] ] [] ]
+        [ th [] [ span [ class <| toStyle e ] [ text <| getName e ], gameOptionsButton e  ]
         , td [ class "text-right" ] [ text <| pricesToString (getPrice e) ]
         , td [] (additionalPrices e.prices)
         ]
 
+
+gameOptionsButton entry =
+    let
+        dialogButton e = button [ onClick <| DialogOpen <| getSteamId e, class "glyphicon glyphicon-cog btn btn-default", style [ ( "float", "right" ) ] ] []
+    in
+        List.head entry.steam |> Maybe.map (\_ -> dialogButton entry) |> Maybe.withDefault (div[][])
 
 gameOptionsDialog : Model -> Html Msg
 gameOptionsDialog model =

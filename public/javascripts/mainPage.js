@@ -12874,6 +12874,45 @@ var _user$project$MainPage$DialogData = function (a) {
 var _user$project$MainPage$DialogOpen = function (a) {
 	return {ctor: 'DialogOpen', _0: a};
 };
+var _user$project$MainPage$gameOptionsButton = function (entry) {
+	var dialogButton = function (e) {
+		return A2(
+			_elm_lang$html$Html$button,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Events$onClick(
+					_user$project$MainPage$DialogOpen(
+						_user$project$GameEntry$getSteamId(e))),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('glyphicon glyphicon-cog btn btn-default'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$style(
+							{
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'float', _1: 'right'},
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}
+				}
+			},
+			{ctor: '[]'});
+	};
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{ctor: '[]'}),
+		A2(
+			_elm_lang$core$Maybe$map,
+			function (_p3) {
+				return dialogButton(entry);
+			},
+			_elm_lang$core$List$head(entry.steam)));
+};
 var _user$project$MainPage$gameTableRow = function (e) {
 	return A2(
 		_elm_lang$html$Html$tr,
@@ -12901,29 +12940,7 @@ var _user$project$MainPage$gameTableRow = function (e) {
 						}),
 					_1: {
 						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$button,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Events$onClick(
-									_user$project$MainPage$DialogOpen(
-										_user$project$GameEntry$getSteamId(e))),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('glyphicon glyphicon-cog btn btn-default'),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$style(
-											{
-												ctor: '::',
-												_0: {ctor: '_Tuple2', _0: 'float', _1: 'right'},
-												_1: {ctor: '[]'}
-											}),
-										_1: {ctor: '[]'}
-									}
-								}
-							},
-							{ctor: '[]'}),
+						_0: _user$project$MainPage$gameOptionsButton(e),
 						_1: {ctor: '[]'}
 					}
 				}),
@@ -13099,18 +13116,18 @@ var _user$project$MainPage$RefreshError = function (a) {
 var _user$project$MainPage$ReceiveRefresh = function (a) {
 	return {ctor: 'ReceiveRefresh', _0: a};
 };
-var _user$project$MainPage$getResponse = function (_p3) {
-	var _p4 = _p3;
+var _user$project$MainPage$getResponse = function (_p4) {
+	var _p5 = _p4;
 	return _elm_lang$core$Platform_Cmd$batch(
 		{
 			ctor: '::',
 			_0: A2(
 				_elm_lang$http$Http$send,
 				A2(_user$project$Router$resolveResponse, _user$project$MainPage$ReceiveRefresh, _user$project$MainPage$RefreshError),
-				_p4._0),
+				_p5._0),
 			_1: {
 				ctor: '::',
-				_0: _user$project$MainPage$elmAddressChange(_p4._1),
+				_0: _user$project$MainPage$elmAddressChange(_p5._1),
 				_1: {ctor: '[]'}
 			}
 		});
@@ -13176,17 +13193,17 @@ var _user$project$MainPage$initProgram = function (address) {
 };
 var _user$project$MainPage$update = F2(
 	function (msg, model) {
-		var _p5 = msg;
-		switch (_p5.ctor) {
+		var _p6 = msg;
+		switch (_p6.ctor) {
 			case 'ChangeSources':
-				var _p6 = _p5._0;
+				var _p7 = _p6._0;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
 							filters: _user$project$GameEntry$resetFilterLists(model.filters),
-							sources: _p6,
+							sources: _p7,
 							message: ''
 						}),
 					_1: _user$project$MainPage$getResponse(
@@ -13196,7 +13213,7 @@ var _user$project$MainPage$update = F2(
 								_0: {
 									ctor: '_Tuple2',
 									_0: 'sources',
-									_1: _elm_lang$core$Basics$toString(_p6)
+									_1: _elm_lang$core$Basics$toString(_p7)
 								},
 								_1: {
 									ctor: '::',
@@ -13215,7 +13232,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							filters: A2(_user$project$GameEntry$updateFilterLists, _p5._0, model.filters),
+							filters: A2(_user$project$GameEntry$updateFilterLists, _p6._0, model.filters),
 							message: ''
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
@@ -13227,7 +13244,7 @@ var _user$project$MainPage$update = F2(
 						model,
 						{
 							filters: _user$project$GameEntry$resetFilterLists(model.filters),
-							message: _elm_lang$core$Basics$toString(_p5._0)
+							message: _elm_lang$core$Basics$toString(_p6._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -13237,7 +13254,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							filters: A2(_user$project$GameEntry$updateNameFilter, _p5._0, model.filters),
+							filters: A2(_user$project$GameEntry$updateNameFilter, _p6._0, model.filters),
 							message: ''
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
@@ -13251,7 +13268,7 @@ var _user$project$MainPage$update = F2(
 							filters: A2(
 								_user$project$GameEntry$updateLowFilter,
 								_elm_lang$core$Result$toMaybe(
-									_elm_lang$core$String$toFloat(_p5._0)),
+									_elm_lang$core$String$toFloat(_p6._0)),
 								model.filters),
 							message: ''
 						}),
@@ -13266,7 +13283,7 @@ var _user$project$MainPage$update = F2(
 							filters: A2(
 								_user$project$GameEntry$updateHighFilter,
 								_elm_lang$core$Result$toMaybe(
-									_elm_lang$core$String$toFloat(_p5._0)),
+									_elm_lang$core$String$toFloat(_p6._0)),
 								model.filters),
 							message: ''
 						}),
@@ -13278,7 +13295,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							filters: A2(_user$project$GameEntry$updateGameOnFilter, _p5._0, model.filters),
+							filters: A2(_user$project$GameEntry$updateGameOnFilter, _p6._0, model.filters),
 							message: ''
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
@@ -13289,7 +13306,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							filters: A2(_user$project$GameEntry$toggleDiscountedFilter, _p5._0, model.filters),
+							filters: A2(_user$project$GameEntry$toggleDiscountedFilter, _p6._0, model.filters),
 							message: ''
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
@@ -13345,7 +13362,7 @@ var _user$project$MainPage$update = F2(
 					_1: A2(
 						_elm_lang$core$Maybe$withDefault,
 						_elm_lang$core$Platform_Cmd$none,
-						A2(_elm_lang$core$Maybe$map, send, _p5._0))
+						A2(_elm_lang$core$Maybe$map, send, _p6._0))
 				};
 			case 'DialogData':
 				return {
@@ -13353,7 +13370,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							gameOptions: _elm_lang$core$Maybe$Just(_p5._0)
+							gameOptions: _elm_lang$core$Maybe$Just(_p6._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
