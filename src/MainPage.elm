@@ -18,19 +18,23 @@ import List.Extra as Lists
 initProgram : String -> ( Model, Cmd Msg )
 initProgram address =
     let
-        url = Erl.parse address
+        url =
+            Erl.parse address
 
         parseInt value =
             String.toInt value |> Result.toMaybe |> Maybe.withDefault 0
 
-        userId = Erl.getQueryValuesForKey "userId" url |> List.head |> Maybe.map parseInt |> Maybe.withDefault 0
+        userId =
+            Erl.getQueryValuesForKey "userId" url |> List.head |> Maybe.map parseInt |> Maybe.withDefault 0
 
-        sources = Erl.getQueryValuesForKey "userId" url |> List.head |> Maybe.map sourcesFromString |> Maybe.withDefault WishList
+        sources =
+            Erl.getQueryValuesForKey "userId" url |> List.head |> Maybe.map sourcesFromString |> Maybe.withDefault WishList
 
-        host = (url.host |> String.join ".") ++ ":" ++ toString url.port_
+        host =
+            (url.host |> String.join ".") ++ ":" ++ toString url.port_
 
         model =
-            { initialModel | sources = sources, userId = userId, host = host}
+            { initialModel | sources = sources, userId = userId, host = host }
     in
         ( model, getResponse <| Router.getUserGames [ ( "sources", toString model.sources ), ( "userId", toString model.userId ) ] )
 
