@@ -53,7 +53,7 @@ class MainController @Inject()(client: WSClient, configuration: Configuration, t
     for {
       user <- tables.getUserById(userId)
       result <- generateFromNames(user, sources, tables)
-      prices <- tables.getPrices(result.map(_.steam).filter(_.nonEmpty).flatten).map(_.groupBy(_.steamId))
+      prices <- tables.getPrices(result.map(_.steam).filter(_.nonEmpty).flatten).map(_.groupBy(_.steamId).mapValues(_.sortBy(_.price)))
     } yield {
       Ok(Json.toJson(result.map(e => if (e.steam.isEmpty) e else e.copy(prices = prices.getOrElse(e.steam.head.steamId, Seq())))))
     }
