@@ -12,22 +12,25 @@ import Model exposing (..)
 import Router exposing (..)
 import WebSocket
 import Dialog
+import List.Extra as Lists
 
 
 initProgram : String -> ( Model, Cmd Msg )
 initProgram address =
     let
+        url = Erl.parse address
+
         parseInt value =
             String.toInt value |> Result.toMaybe |> Maybe.withDefault 0
 
-        decodeAddress =
-            Json.map2 (,) (Json.field "userId" <| Json.map parseInt Json.string) (Json.field "sources" <| Json.map sourcesFromString Json.string)
+        userId = Erl.getQueryValuesForKey "userId" url |> List.head |> Maybe.map parseInt |> Maybe.withDefault 0
 
-        ( userId, sources ) =
-            Json.decodeString decodeAddress address |> Result.toMaybe |> Maybe.withDefault ( initialModel.userId, initialModel.sources )
+        sources = Erl.getQueryValuesForKey "userId" url |> List.head |> Maybe.map sourcesFromString |> Maybe.withDefault WishList
+
+        host = (url.host |> String.join ".") ++ ":" ++ toString url.port_
 
         model =
-            { initialModel | sources = sources, userId = userId }
+            { initialModel | sources = sources, userId = userId, host = host}
     in
         ( model, getResponse <| Router.getUserGames [ ( "sources", toString model.sources ), ( "userId", toString model.userId ) ] )
 
@@ -45,7 +48,7 @@ port elmAddressChange : String -> Cmd msg
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    WebSocket.listen Router.refreshSocketUrl ServerRefreshRequest
+    WebSocket.listen (Router.refreshSocketUrl model.host) ServerRefreshRequest
 
 
 
@@ -53,11 +56,11 @@ subscriptions model =
 
 
 type alias Model =
-    { sources : GameSources, message : String, userId : Int, filters : Filters, gameOptions : Maybe GameOptions }
+    { sources : GameSources, message : String, userId : Int, filters : Filters, gameOptions : Maybe GameOptions, host : String }
 
 
 initialModel =
-    Model WishList "" 1 emptyFilters Nothing
+    Model WishList "" 1 emptyFilters Nothing ""
 
 
 

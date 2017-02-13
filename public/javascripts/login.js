@@ -9528,7 +9528,12 @@ var _user$project$Router$decodedUserEntry = A5(
 		_elm_lang$core$Json_Decode$field,
 		'gogLogin',
 		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$string)));
-var _user$project$Router$refreshSocketUrl = 'ws://localhost:9000/refreshSocket';
+var _user$project$Router$refreshSocketUrl = function (host) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		'ws://',
+		A2(_elm_lang$core$Basics_ops['++'], host, '/refreshSocket'));
+};
 var _user$project$Router$mainPageUrl = '/main';
 var _user$project$Router$Addresses = F3(
 	function (a, b, c) {

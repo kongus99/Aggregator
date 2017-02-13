@@ -90,8 +90,8 @@ mainPageUrl =
     "/main"
 
 
-refreshSocketUrl =
-    "ws://localhost:9000/refreshSocket"
+refreshSocketUrl host =
+    "ws://" ++ host ++ "/refreshSocket"
 
 
 
