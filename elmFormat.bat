@@ -1,1 +1,1 @@
-elm-format src/
+elm-format src/ --yes

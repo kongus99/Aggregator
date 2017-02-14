@@ -1,6 +1,6 @@
 port module MainPage exposing (..)
 
-import Html exposing (Html, button, br, input, div, text, span, table, tr, th, td, select, option, a, label, thead, tbody, p)
+import Html exposing (Html, button, br, input, div, text, span, table, tr, th, td, select, option, a, label, thead, tbody, p, h2, h3)
 import Html.Attributes exposing (class, selected, value, href, type_, name, checked, style)
 import Html.Events exposing (onClick, on, targetValue, onInput, onCheck)
 import Json.Decode as Json
@@ -28,7 +28,7 @@ initProgram address =
             Erl.getQueryValuesForKey "userId" url |> List.head |> Maybe.map parseInt |> Maybe.withDefault 0
 
         sources =
-            Erl.getQueryValuesForKey "userId" url |> List.head |> Maybe.map sourcesFromString |> Maybe.withDefault WishList
+            Erl.getQueryValuesForKey "sources" url |> List.head |> Maybe.map sourcesFromString |> Maybe.withDefault WishList
 
         host =
             (url.host |> String.join ".") ++ ":" ++ toString url.port_
@@ -158,7 +158,7 @@ gameTableTitle =
 
 gameTableRow e =
     tr []
-        [ th [] [ span [ class <| toStyle e ] [ text <| getName e ], gameOptionsButton e  ]
+        [ th [] [ span [ class <| toStyle e ] [ text <| getName e ], gameOptionsButton e ]
         , td [ class "text-right" ] [ text <| pricesToString (getPrice e) ]
         , td [] (additionalPrices e.prices)
         ]
@@ -166,23 +166,42 @@ gameTableRow e =
 
 gameOptionsButton entry =
     let
-        dialogButton e = button [ onClick <| DialogOpen <| getSteamId e, class "glyphicon glyphicon-cog btn btn-default", style [ ( "float", "right" ) ] ] []
+        dialogButton e =
+            button [ onClick <| DialogOpen <| getSteamId e, class "glyphicon glyphicon-cog btn btn-default", style [ ( "float", "right" ) ] ] []
     in
-        List.head entry.steam |> Maybe.map (\_ -> dialogButton entry) |> Maybe.withDefault (div[][])
+        List.head entry.steam |> Maybe.map (\_ -> dialogButton entry) |> Maybe.withDefault (div [] [])
+
 
 gameOptionsDialog : Model -> Html Msg
 gameOptionsDialog model =
     Dialog.view <|
         Maybe.map
-            (\_ ->
+            (\o ->
                 { closeMessage = Just DialogClose
                 , containerClass = Just "your-container-class"
-                , header = Just (text "Alert!")
-                , body = Just (p [] [ text "Let me tell you something important..." ])
+                , header = Just (h2 [] [ text "Game Options" ])
+                , body =
+                    Just
+                        (div []
+                            [ h3 [] [ text "Name:" ]
+                            , p [] [ text o.entry.name ]
+                            , p [] [ text "Let me tell you something important..." ]
+                            , p [] [ text "Let me tell you something important..." ]
+                            ]
+                        )
                 , footer = Nothing
                 }
             )
             model.gameOptions
+
+
+
+--type alias GameQuery =
+--    { query : String, site : String, results : List String }
+--
+--
+--type alias GameOptions =
+--    { entry : SteamEntry, queries : List GameQuery }
 
 
 sourcesFromString value =
