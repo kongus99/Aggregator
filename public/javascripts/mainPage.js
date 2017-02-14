@@ -12417,6 +12417,87 @@ var _user$project$GameEntry$emptyFilters = A6(
 	{ctor: '[]'},
 	{ctor: '[]'});
 
+var _user$project$GameOptionsDialog$view = F2(
+	function (mess, model) {
+		return _krisajenkins$elm_dialog$Dialog$view(
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (o) {
+					return {
+						closeMessage: _elm_lang$core$Maybe$Just(mess),
+						containerClass: _elm_lang$core$Maybe$Just('your-container-class'),
+						header: _elm_lang$core$Maybe$Just(
+							A2(
+								_elm_lang$html$Html$h2,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('Game Options'),
+									_1: {ctor: '[]'}
+								})),
+						body: _elm_lang$core$Maybe$Just(
+							A2(
+								_elm_lang$html$Html$div,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$h3,
+										{ctor: '[]'},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('Name:'),
+											_1: {ctor: '[]'}
+										}),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$p,
+											{ctor: '[]'},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text(o.entry.name),
+												_1: {ctor: '[]'}
+											}),
+										_1: {
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$p,
+												{ctor: '[]'},
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html$text('Let me tell you something important...'),
+													_1: {ctor: '[]'}
+												}),
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$p,
+													{ctor: '[]'},
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html$text('Let me tell you something important...'),
+														_1: {ctor: '[]'}
+													}),
+												_1: {ctor: '[]'}
+											}
+										}
+									}
+								})),
+						footer: _elm_lang$core$Maybe$Nothing
+					};
+				},
+				model.gameOptions));
+	});
+var _user$project$GameOptionsDialog$Model = function (a) {
+	return {gameOptions: a};
+};
+var _user$project$GameOptionsDialog$model = function (options) {
+	return _user$project$GameOptionsDialog$Model(
+		_elm_lang$core$Maybe$Just(options));
+};
+var _user$project$GameOptionsDialog$emptyModel = _user$project$GameOptionsDialog$Model(_elm_lang$core$Maybe$Nothing);
+
 var _user$project$Router$resolveResponse = F3(
 	function (successResolver, errorResolver, response) {
 		var _p0 = response;
@@ -12840,81 +12921,10 @@ var _user$project$MainPage$elmAddressChange = _elm_lang$core$Native_Platform.out
 	});
 var _user$project$MainPage$Model = F6(
 	function (a, b, c, d, e, f) {
-		return {sources: a, message: b, userId: c, filters: d, gameOptions: e, host: f};
+		return {sources: a, message: b, userId: c, filters: d, host: e, options: f};
 	});
-var _user$project$MainPage$initialModel = A6(_user$project$MainPage$Model, _user$project$Model$WishList, '', 1, _user$project$GameEntry$emptyFilters, _elm_lang$core$Maybe$Nothing, '');
+var _user$project$MainPage$initialModel = A6(_user$project$MainPage$Model, _user$project$Model$WishList, '', 1, _user$project$GameEntry$emptyFilters, '', _user$project$GameOptionsDialog$emptyModel);
 var _user$project$MainPage$DialogClose = {ctor: 'DialogClose'};
-var _user$project$MainPage$gameOptionsDialog = function (model) {
-	return _krisajenkins$elm_dialog$Dialog$view(
-		A2(
-			_elm_lang$core$Maybe$map,
-			function (o) {
-				return {
-					closeMessage: _elm_lang$core$Maybe$Just(_user$project$MainPage$DialogClose),
-					containerClass: _elm_lang$core$Maybe$Just('your-container-class'),
-					header: _elm_lang$core$Maybe$Just(
-						A2(
-							_elm_lang$html$Html$h2,
-							{ctor: '[]'},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text('Game Options'),
-								_1: {ctor: '[]'}
-							})),
-					body: _elm_lang$core$Maybe$Just(
-						A2(
-							_elm_lang$html$Html$div,
-							{ctor: '[]'},
-							{
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$h3,
-									{ctor: '[]'},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('Name'),
-										_1: {ctor: '[]'}
-									}),
-								_1: {
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$p,
-										{ctor: '[]'},
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html$text(o.entry.name),
-											_1: {ctor: '[]'}
-										}),
-									_1: {
-										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$p,
-											{ctor: '[]'},
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html$text('Let me tell you something important...'),
-												_1: {ctor: '[]'}
-											}),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$p,
-												{ctor: '[]'},
-												{
-													ctor: '::',
-													_0: _elm_lang$html$Html$text('Let me tell you something important...'),
-													_1: {ctor: '[]'}
-												}),
-											_1: {ctor: '[]'}
-										}
-									}
-								}
-							})),
-					footer: _elm_lang$core$Maybe$Nothing
-				};
-			},
-			model.gameOptions));
-};
 var _user$project$MainPage$DialogData = function (a) {
 	return {ctor: 'DialogData', _0: a};
 };
@@ -13417,7 +13427,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							gameOptions: _elm_lang$core$Maybe$Just(_p5._0)
+							options: _user$project$GameOptionsDialog$model(_p5._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -13426,7 +13436,7 @@ var _user$project$MainPage$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{gameOptions: _elm_lang$core$Maybe$Nothing}),
+						{options: _user$project$GameOptionsDialog$emptyModel}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 		}
@@ -13684,7 +13694,7 @@ var _user$project$MainPage$view = function (model) {
 										}),
 									_1: {
 										ctor: '::',
-										_0: _user$project$MainPage$gameOptionsDialog(model),
+										_0: A2(_user$project$GameOptionsDialog$view, _user$project$MainPage$DialogClose, model.options),
 										_1: {ctor: '[]'}
 									}
 								}

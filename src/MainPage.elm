@@ -1,5 +1,6 @@
 port module MainPage exposing (..)
 
+import GameOptionsDialog
 import Html exposing (Html, button, br, input, div, text, span, table, tr, th, td, select, option, a, label, thead, tbody, p, h2, h3)
 import Html.Attributes exposing (class, selected, value, href, type_, name, checked, style)
 import Html.Events exposing (onClick, on, targetValue, onInput, onCheck)
@@ -60,11 +61,11 @@ subscriptions model =
 
 
 type alias Model =
-    { sources : GameSources, message : String, userId : Int, filters : Filters, gameOptions : Maybe GameOptions, host : String }
+    { sources : GameSources, message : String, userId : Int, filters : Filters, host : String, options : GameOptionsDialog.Model }
 
 
 initialModel =
-    Model WishList "" 1 emptyFilters Nothing ""
+    Model WishList "" 1 GameEntry.emptyFilters "" GameOptionsDialog.emptyModel
 
 
 
@@ -124,10 +125,10 @@ update msg model =
                 ( model, Maybe.map send steamId |> Maybe.withDefault Cmd.none )
 
         DialogData options ->
-            ( { model | gameOptions = Just options }, Cmd.none )
+            ( { model | options = GameOptionsDialog.model options }, Cmd.none )
 
         DialogClose ->
-            ( { model | gameOptions = Nothing }, Cmd.none )
+            ( { model | options = GameOptionsDialog.emptyModel }, Cmd.none )
 
 
 
@@ -144,7 +145,7 @@ view model =
         , div [] [ sourcesSelect model.sources, gameOnSelect model.filters.gameOn, discountedInput model.filters.isDiscounted ]
         , div [] [ text (toString model.message) ]
         , table [ class "table table-striped table-bordered" ] [ thead [] [ gameTableTitle ], tbody [] (List.map gameTableRow model.filters.result) ]
-        , gameOptionsDialog model
+        , GameOptionsDialog.view DialogClose model.options
         ]
 
 
@@ -170,38 +171,6 @@ gameOptionsButton entry =
             button [ onClick <| DialogOpen <| getSteamId e, class "glyphicon glyphicon-cog btn btn-default", style [ ( "float", "right" ) ] ] []
     in
         List.head entry.steam |> Maybe.map (\_ -> dialogButton entry) |> Maybe.withDefault (div [] [])
-
-
-gameOptionsDialog : Model -> Html Msg
-gameOptionsDialog model =
-    Dialog.view <|
-        Maybe.map
-            (\o ->
-                { closeMessage = Just DialogClose
-                , containerClass = Just "your-container-class"
-                , header = Just (h2 [] [ text "Game Options" ])
-                , body =
-                    Just
-                        (div []
-                            [ h3 [] [ text "Name:" ]
-                            , p [] [ text o.entry.name ]
-                            , p [] [ text "Let me tell you something important..." ]
-                            , p [] [ text "Let me tell you something important..." ]
-                            ]
-                        )
-                , footer = Nothing
-                }
-            )
-            model.gameOptions
-
-
-
---type alias GameQuery =
---    { query : String, site : String, results : List String }
---
---
---type alias GameOptions =
---    { entry : SteamEntry, queries : List GameQuery }
 
 
 sourcesFromString value =
