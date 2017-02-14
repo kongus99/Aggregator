@@ -1,5 +1,7 @@
 module Model exposing (..)
 
+import Array exposing (Array)
+
 
 type GameOn
     = Gog
@@ -45,8 +47,8 @@ type alias ComparisonEntry =
 
 
 type alias GameQuery =
-    { query : String, site : String, results : List String, selectedResult : Int }
+    { query : String, site : String, results : Array String, selectedResult : Int }
 
 
 type alias GameOptions =
-    { entry : SteamEntry, queries : List GameQuery }
+    { entry : SteamEntry, queries : Array GameQuery }

@@ -1,5 +1,6 @@
 module GameOptionsDialog exposing (model, emptyModel, view, fetch, Model, Msg)
 
+import Array
 import Dialog
 import Html exposing (Html, br, div, h2, h3, h4, input, label, option, p, select, table, tbody, td, text, th, thead, tr)
 import Html.Attributes exposing (attribute, checked, class, name, type_, value)
@@ -82,7 +83,7 @@ dialogBody options =
         [ h4 [] [ text options.entry.name ]
         , table [ class "table table-striped table-bordered" ]
             [ tableHead
-            , tbody [] (List.map tableRow options.queries)
+            , tbody [] (Array.map tableRow options.queries |> Array.toList)
             ]
         ]
 
@@ -107,9 +108,10 @@ tableRow gameQuery =
         , td []
             [ input [ type_ "text", value gameQuery.query ] [] ]
         , td []
-            (List.indexedMap
+            (Array.indexedMap
                 (queryResult gameQuery.selectedResult SwitchTo)
                 gameQuery.results
+                |> Array.toList
             )
         ]
 

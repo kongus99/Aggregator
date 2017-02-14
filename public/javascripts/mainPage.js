@@ -12462,7 +12462,7 @@ var _user$project$Router$decodedGameQueryEntry = A5(
 	A2(
 		_elm_lang$core$Json_Decode$field,
 		'results',
-		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)),
+		_elm_lang$core$Json_Decode$array(_elm_lang$core$Json_Decode$string)),
 	A2(_elm_lang$core$Json_Decode$field, 'selectedResult', _elm_lang$core$Json_Decode$int));
 var _user$project$Router$decodedNamedEntry = A3(
 	_elm_lang$core$Json_Decode$map2,
@@ -12504,7 +12504,7 @@ var _user$project$Router$decodedGameOptionsEntry = A3(
 	A2(
 		_elm_lang$core$Json_Decode$field,
 		'queries',
-		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameQueryEntry)));
+		_elm_lang$core$Json_Decode$array(_user$project$Router$decodedGameQueryEntry)));
 var _user$project$Router$decodedGogEntry = A5(
 	_elm_lang$core$Json_Decode$map4,
 	_user$project$Model$GogEntry,
@@ -12829,10 +12829,11 @@ var _user$project$GameOptionsDialog$tableRow = function (gameQuery) {
 					_0: A2(
 						_elm_lang$html$Html$td,
 						{ctor: '[]'},
-						A2(
-							_elm_lang$core$List$indexedMap,
-							A2(_user$project$GameOptionsDialog$queryResult, gameQuery.selectedResult, _user$project$GameOptionsDialog$SwitchTo),
-							gameQuery.results)),
+						_elm_lang$core$Array$toList(
+							A2(
+								_elm_lang$core$Array$indexedMap,
+								A2(_user$project$GameOptionsDialog$queryResult, gameQuery.selectedResult, _user$project$GameOptionsDialog$SwitchTo),
+								gameQuery.results))),
 					_1: {ctor: '[]'}
 				}
 			}
@@ -12869,7 +12870,8 @@ var _user$project$GameOptionsDialog$dialogBody = function (options) {
 							_0: A2(
 								_elm_lang$html$Html$tbody,
 								{ctor: '[]'},
-								A2(_elm_lang$core$List$map, _user$project$GameOptionsDialog$tableRow, options.queries)),
+								_elm_lang$core$Array$toList(
+									A2(_elm_lang$core$Array$map, _user$project$GameOptionsDialog$tableRow, options.queries))),
 							_1: {ctor: '[]'}
 						}
 					}),

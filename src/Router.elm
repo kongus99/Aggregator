@@ -127,11 +127,11 @@ decodedNamedEntry =
 
 
 decodedGameOptionsEntry =
-    map2 GameOptions (field "entry" decodedSteamEntry) (field "queries" (list decodedGameQueryEntry))
+    map2 GameOptions (field "entry" decodedSteamEntry) (field "queries" (array decodedGameQueryEntry))
 
 
 decodedGameQueryEntry =
-    map4 GameQuery (field "query" string) (field "site" string) (field "results" (list string)) (field "selectedResult" int)
+    map4 GameQuery (field "query" string) (field "site" string) (field "results" (array string)) (field "selectedResult" int)
 
 
 
