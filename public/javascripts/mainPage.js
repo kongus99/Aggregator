@@ -12653,8 +12653,8 @@ var _user$project$Router$comparisonData = function (params) {
 	};
 };
 
-var _user$project$GameOptionsDialog$queryResult = F3(
-	function (selectedResult, index, r) {
+var _user$project$GameOptionsDialog$queryResult = F4(
+	function (selectedResult, msg, index, currentResult) {
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -12679,12 +12679,17 @@ var _user$project$GameOptionsDialog$queryResult = F3(
 									_0: _elm_lang$html$Html_Attributes$type_('radio'),
 									_1: {
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$value(r),
+										_0: _elm_lang$html$Html_Attributes$value(currentResult),
 										_1: {
 											ctor: '::',
 											_0: _elm_lang$html$Html_Attributes$checked(
 												_elm_lang$core$Native_Utils.eq(selectedResult, index)),
-											_1: {ctor: '[]'}
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onClick(
+													msg(index)),
+												_1: {ctor: '[]'}
+											}
 										}
 									}
 								}
@@ -12692,62 +12697,13 @@ var _user$project$GameOptionsDialog$queryResult = F3(
 							{ctor: '[]'}),
 						_1: {
 							ctor: '::',
-							_0: _elm_lang$html$Html$text(r),
+							_0: _elm_lang$html$Html$text(currentResult),
 							_1: {ctor: '[]'}
 						}
 					}),
 				_1: {ctor: '[]'}
 			});
 	});
-var _user$project$GameOptionsDialog$tableRow = function (gameQuery) {
-	return A2(
-		_elm_lang$html$Html$tr,
-		{ctor: '[]'},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$th,
-				{ctor: '[]'},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text(gameQuery.site),
-					_1: {ctor: '[]'}
-				}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$td,
-					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$input,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$type_('text'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$value(gameQuery.query),
-									_1: {ctor: '[]'}
-								}
-							},
-							{ctor: '[]'}),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$td,
-						{ctor: '[]'},
-						A2(
-							_elm_lang$core$List$indexedMap,
-							_user$project$GameOptionsDialog$queryResult(gameQuery.selectedResult),
-							gameQuery.results)),
-					_1: {ctor: '[]'}
-				}
-			}
-		});
-};
 var _user$project$GameOptionsDialog$tableHead = A2(
 	_elm_lang$html$Html$thead,
 	{ctor: '[]'},
@@ -12792,6 +12748,96 @@ var _user$project$GameOptionsDialog$tableHead = A2(
 			}),
 		_1: {ctor: '[]'}
 	});
+var _user$project$GameOptionsDialog$dialogHeader = A2(
+	_elm_lang$html$Html$h3,
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: _elm_lang$html$Html$text('Search Options'),
+		_1: {ctor: '[]'}
+	});
+var _user$project$GameOptionsDialog$fetch = F3(
+	function (steamId, mess, err) {
+		var send = function (id) {
+			return A2(
+				_elm_lang$http$Http$send,
+				A2(_user$project$Router$resolveResponse, mess, err),
+				_user$project$Router$fetchGameOptions(
+					{
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'gameId',
+							_1: _elm_lang$core$Basics$toString(id)
+						},
+						_1: {ctor: '[]'}
+					}));
+		};
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			_elm_lang$core$Platform_Cmd$none,
+			A2(_elm_lang$core$Maybe$map, send, steamId));
+	});
+var _user$project$GameOptionsDialog$Model = function (a) {
+	return {gameOptions: a};
+};
+var _user$project$GameOptionsDialog$model = function (options) {
+	return _user$project$GameOptionsDialog$Model(
+		_elm_lang$core$Maybe$Just(options));
+};
+var _user$project$GameOptionsDialog$emptyModel = _user$project$GameOptionsDialog$Model(_elm_lang$core$Maybe$Nothing);
+var _user$project$GameOptionsDialog$SwitchTo = function (a) {
+	return {ctor: 'SwitchTo', _0: a};
+};
+var _user$project$GameOptionsDialog$tableRow = function (gameQuery) {
+	return A2(
+		_elm_lang$html$Html$tr,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$th,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(gameQuery.site),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$td,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$input,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$type_('text'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$value(gameQuery.query),
+									_1: {ctor: '[]'}
+								}
+							},
+							{ctor: '[]'}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$td,
+						{ctor: '[]'},
+						A2(
+							_elm_lang$core$List$indexedMap,
+							A2(_user$project$GameOptionsDialog$queryResult, gameQuery.selectedResult, _user$project$GameOptionsDialog$SwitchTo),
+							gameQuery.results)),
+					_1: {ctor: '[]'}
+				}
+			}
+		});
+};
 var _user$project$GameOptionsDialog$dialogBody = function (options) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -12831,61 +12877,26 @@ var _user$project$GameOptionsDialog$dialogBody = function (options) {
 			}
 		});
 };
-var _user$project$GameOptionsDialog$dialogHeader = A2(
-	_elm_lang$html$Html$h3,
-	{ctor: '[]'},
-	{
-		ctor: '::',
-		_0: _elm_lang$html$Html$text('Search Options'),
-		_1: {ctor: '[]'}
+var _user$project$GameOptionsDialog$view = F3(
+	function (close, wrapper, model) {
+		var x = A2(
+			_elm_lang$core$Maybe$map,
+			function (o) {
+				return {
+					closeMessage: _elm_lang$core$Maybe$Just(close),
+					containerClass: _elm_lang$core$Maybe$Just('your-container-class'),
+					header: _elm_lang$core$Maybe$Just(_user$project$GameOptionsDialog$dialogHeader),
+					body: _elm_lang$core$Maybe$Just(
+						A2(
+							_elm_lang$html$Html$map,
+							wrapper,
+							_user$project$GameOptionsDialog$dialogBody(o))),
+					footer: _elm_lang$core$Maybe$Nothing
+				};
+			},
+			model.gameOptions);
+		return _krisajenkins$elm_dialog$Dialog$view(x);
 	});
-var _user$project$GameOptionsDialog$view = F2(
-	function (mess, model) {
-		return _krisajenkins$elm_dialog$Dialog$view(
-			A2(
-				_elm_lang$core$Maybe$map,
-				function (o) {
-					return {
-						closeMessage: _elm_lang$core$Maybe$Just(mess),
-						containerClass: _elm_lang$core$Maybe$Just('your-container-class'),
-						header: _elm_lang$core$Maybe$Just(_user$project$GameOptionsDialog$dialogHeader),
-						body: _elm_lang$core$Maybe$Just(
-							_user$project$GameOptionsDialog$dialogBody(o)),
-						footer: _elm_lang$core$Maybe$Nothing
-					};
-				},
-				model.gameOptions));
-	});
-var _user$project$GameOptionsDialog$fetch = F3(
-	function (steamId, mess, err) {
-		var send = function (id) {
-			return A2(
-				_elm_lang$http$Http$send,
-				A2(_user$project$Router$resolveResponse, mess, err),
-				_user$project$Router$fetchGameOptions(
-					{
-						ctor: '::',
-						_0: {
-							ctor: '_Tuple2',
-							_0: 'gameId',
-							_1: _elm_lang$core$Basics$toString(id)
-						},
-						_1: {ctor: '[]'}
-					}));
-		};
-		return A2(
-			_elm_lang$core$Maybe$withDefault,
-			_elm_lang$core$Platform_Cmd$none,
-			A2(_elm_lang$core$Maybe$map, send, steamId));
-	});
-var _user$project$GameOptionsDialog$Model = function (a) {
-	return {gameOptions: a};
-};
-var _user$project$GameOptionsDialog$model = function (options) {
-	return _user$project$GameOptionsDialog$Model(
-		_elm_lang$core$Maybe$Just(options));
-};
-var _user$project$GameOptionsDialog$emptyModel = _user$project$GameOptionsDialog$Model(_elm_lang$core$Maybe$Nothing);
 
 var _user$project$MainPage$onSelect = function (msg) {
 	return A2(
@@ -13078,6 +13089,9 @@ var _user$project$MainPage$Model = F6(
 		return {sources: a, message: b, userId: c, filters: d, host: e, options: f};
 	});
 var _user$project$MainPage$initialModel = A6(_user$project$MainPage$Model, _user$project$Model$WishList, '', 1, _user$project$GameEntry$emptyFilters, '', _user$project$GameOptionsDialog$emptyModel);
+var _user$project$MainPage$DialogMessage = function (a) {
+	return {ctor: 'DialogMessage', _0: a};
+};
 var _user$project$MainPage$DialogClose = {ctor: 'DialogClose'};
 var _user$project$MainPage$DialogData = function (a) {
 	return {ctor: 'DialogData', _0: a};
@@ -13567,7 +13581,7 @@ var _user$project$MainPage$update = F2(
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			default:
+			case 'DialogClose':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -13575,6 +13589,8 @@ var _user$project$MainPage$update = F2(
 						{options: _user$project$GameOptionsDialog$emptyModel}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
+			default:
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}
 	});
 var _user$project$MainPage$ChangeSources = function (a) {
@@ -13830,7 +13846,7 @@ var _user$project$MainPage$view = function (model) {
 										}),
 									_1: {
 										ctor: '::',
-										_0: A2(_user$project$GameOptionsDialog$view, _user$project$MainPage$DialogClose, model.options),
+										_0: A3(_user$project$GameOptionsDialog$view, _user$project$MainPage$DialogClose, _user$project$MainPage$DialogMessage, model.options),
 										_1: {ctor: '[]'}
 									}
 								}

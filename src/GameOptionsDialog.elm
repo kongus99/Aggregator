@@ -1,8 +1,9 @@
-module GameOptionsDialog exposing (model, emptyModel, view, fetch, Model)
+module GameOptionsDialog exposing (model, emptyModel, view, fetch, Model, Msg)
 
 import Dialog
 import Html exposing (Html, br, div, h2, h3, h4, input, label, option, p, select, table, tbody, td, text, th, thead, tr)
 import Html.Attributes exposing (attribute, checked, class, name, type_, value)
+import Html.Events exposing (onClick)
 import Http
 import Model exposing (GameOptions)
 import Router
@@ -27,6 +28,20 @@ emptyModel =
 -- UPDATE
 
 
+type Msg
+    = SwitchTo Int
+
+
+
+--
+--
+--update : Msg -> Model -> Model
+--update msg model =
+--  case msg of
+--    SwitchTo selectedResult ->
+--      { model | fontSize = newFontSize }
+
+
 fetch : Maybe Int -> (GameOptions -> c) -> (Http.Error -> c) -> Cmd c
 fetch steamId mess err =
     let
@@ -40,19 +55,22 @@ fetch steamId mess err =
 -- VIEW
 
 
-view : msg -> Model -> Html msg
-view mess model =
-    Dialog.view <|
-        Maybe.map
-            (\o ->
-                { closeMessage = Just mess
-                , containerClass = Just "your-container-class"
-                , header = Just dialogHeader
-                , body = Just (dialogBody o)
-                , footer = Nothing
-                }
-            )
-            model.gameOptions
+view : msg -> (Msg -> msg) -> Model -> Html msg
+view close wrapper model =
+    let
+        x =
+            Maybe.map
+                (\o ->
+                    { closeMessage = Just close
+                    , containerClass = Just "your-container-class"
+                    , header = Just dialogHeader
+                    , body = Just <| Html.map wrapper (dialogBody o)
+                    , footer = Nothing
+                    }
+                )
+                model.gameOptions
+    in
+        Dialog.view x
 
 
 dialogHeader =
@@ -90,26 +108,18 @@ tableRow gameQuery =
             [ input [ type_ "text", value gameQuery.query ] [] ]
         , td []
             (List.indexedMap
-                (queryResult gameQuery.selectedResult)
+                (queryResult gameQuery.selectedResult SwitchTo)
                 gameQuery.results
             )
         ]
 
 
-queryResult selectedResult index r =
+queryResult : Int -> (Int -> msg) -> Int -> String -> Html msg
+queryResult selectedResult msg index currentResult =
     div [ class "radio" ]
         [ label []
-            [ input [ name "selectedResult", type_ "radio", value r, checked (selectedResult == index) ]
+            [ input [ name "selectedResult", type_ "radio", value currentResult, checked (selectedResult == index), onClick (msg index) ]
                 []
-            , text r
+            , text currentResult
             ]
         ]
-
-
-
---type alias GameQuery =
---    { query : String, site : String, results : List String }
---
---
---type alias GameOptions =
---    { entry : SteamEntry, queries : List GameQuery }

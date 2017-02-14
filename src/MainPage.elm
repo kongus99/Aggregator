@@ -85,6 +85,7 @@ type Msg
     | DialogOpen (Maybe Int)
     | DialogData GameOptions
     | DialogClose
+    | DialogMessage GameOptionsDialog.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -126,6 +127,9 @@ update msg model =
         DialogClose ->
             ( { model | options = GameOptionsDialog.emptyModel }, Cmd.none )
 
+        DialogMessage msg ->
+            ( model, Cmd.none )
+
 
 
 -- VIEW
@@ -141,7 +145,7 @@ view model =
         , div [] [ sourcesSelect model.sources, gameOnSelect model.filters.gameOn, discountedInput model.filters.isDiscounted ]
         , div [] [ text (toString model.message) ]
         , table [ class "table table-striped table-bordered" ] [ thead [] [ gameTableTitle ], tbody [] (List.map gameTableRow model.filters.result) ]
-        , GameOptionsDialog.view DialogClose model.options
+        , GameOptionsDialog.view DialogClose DialogMessage model.options
         ]
 
 
