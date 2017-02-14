@@ -131,7 +131,7 @@ decodedGameOptionsEntry =
 
 
 decodedGameQueryEntry =
-    map3 GameQuery (field "query" string) (field "site" string) (field "results" (list string))
+    map4 GameQuery (field "query" string) (field "site" string) (field "results" (list string)) (field "selectedResult" int)
 
 
 

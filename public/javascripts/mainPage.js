@@ -12077,9 +12077,9 @@ var _user$project$Model$ComparisonEntry = F4(
 	function (a, b, c, d) {
 		return {left: a, metricResult: b, right: c, matches: d};
 	});
-var _user$project$Model$GameQuery = F3(
-	function (a, b, c) {
-		return {query: a, site: b, results: c};
+var _user$project$Model$GameQuery = F4(
+	function (a, b, c, d) {
+		return {query: a, site: b, results: c, selectedResult: d};
 	});
 var _user$project$Model$GameOptions = F2(
 	function (a, b) {
@@ -12454,15 +12454,16 @@ var _user$project$Router$generateAddress = F2(
 					'?',
 					joinParameters(params))));
 	});
-var _user$project$Router$decodedGameQueryEntry = A4(
-	_elm_lang$core$Json_Decode$map3,
+var _user$project$Router$decodedGameQueryEntry = A5(
+	_elm_lang$core$Json_Decode$map4,
 	_user$project$Model$GameQuery,
 	A2(_elm_lang$core$Json_Decode$field, 'query', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'site', _elm_lang$core$Json_Decode$string),
 	A2(
 		_elm_lang$core$Json_Decode$field,
 		'results',
-		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)));
+		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)),
+	A2(_elm_lang$core$Json_Decode$field, 'selectedResult', _elm_lang$core$Json_Decode$int));
 var _user$project$Router$decodedNamedEntry = A3(
 	_elm_lang$core$Json_Decode$map2,
 	_user$project$Model$NamedEntry,
@@ -12652,6 +12653,192 @@ var _user$project$Router$comparisonData = function (params) {
 	};
 };
 
+var _user$project$GameOptionsDialog$queryResult = F3(
+	function (selectedResult, index, r) {
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('radio'),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$label,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$input,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$name('selectedResult'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$type_('radio'),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$value(r),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$checked(
+												_elm_lang$core$Native_Utils.eq(selectedResult, index)),
+											_1: {ctor: '[]'}
+										}
+									}
+								}
+							},
+							{ctor: '[]'}),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(r),
+							_1: {ctor: '[]'}
+						}
+					}),
+				_1: {ctor: '[]'}
+			});
+	});
+var _user$project$GameOptionsDialog$tableRow = function (gameQuery) {
+	return A2(
+		_elm_lang$html$Html$tr,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$th,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(gameQuery.site),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$td,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$input,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$type_('text'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$value(gameQuery.query),
+									_1: {ctor: '[]'}
+								}
+							},
+							{ctor: '[]'}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$td,
+						{ctor: '[]'},
+						A2(
+							_elm_lang$core$List$indexedMap,
+							_user$project$GameOptionsDialog$queryResult(gameQuery.selectedResult),
+							gameQuery.results)),
+					_1: {ctor: '[]'}
+				}
+			}
+		});
+};
+var _user$project$GameOptionsDialog$tableHead = A2(
+	_elm_lang$html$Html$thead,
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: A2(
+			_elm_lang$html$Html$tr,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$th,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Site'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$th,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Query'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$th,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Results'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}
+				}
+			}),
+		_1: {ctor: '[]'}
+	});
+var _user$project$GameOptionsDialog$dialogBody = function (options) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$h4,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(options.entry.name),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$table,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('table table-striped table-bordered'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _user$project$GameOptionsDialog$tableHead,
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$tbody,
+								{ctor: '[]'},
+								A2(_elm_lang$core$List$map, _user$project$GameOptionsDialog$tableRow, options.queries)),
+							_1: {ctor: '[]'}
+						}
+					}),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _user$project$GameOptionsDialog$dialogHeader = A2(
+	_elm_lang$html$Html$h3,
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: _elm_lang$html$Html$text('Search Options'),
+		_1: {ctor: '[]'}
+	});
 var _user$project$GameOptionsDialog$view = F2(
 	function (mess, model) {
 		return _krisajenkins$elm_dialog$Dialog$view(
@@ -12661,64 +12848,9 @@ var _user$project$GameOptionsDialog$view = F2(
 					return {
 						closeMessage: _elm_lang$core$Maybe$Just(mess),
 						containerClass: _elm_lang$core$Maybe$Just('your-container-class'),
-						header: _elm_lang$core$Maybe$Just(
-							A2(
-								_elm_lang$html$Html$h2,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text('Game Options'),
-									_1: {ctor: '[]'}
-								})),
+						header: _elm_lang$core$Maybe$Just(_user$project$GameOptionsDialog$dialogHeader),
 						body: _elm_lang$core$Maybe$Just(
-							A2(
-								_elm_lang$html$Html$div,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$h3,
-										{ctor: '[]'},
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html$text('Name:'),
-											_1: {ctor: '[]'}
-										}),
-									_1: {
-										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$p,
-											{ctor: '[]'},
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html$text(o.entry.name),
-												_1: {ctor: '[]'}
-											}),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$p,
-												{ctor: '[]'},
-												{
-													ctor: '::',
-													_0: _elm_lang$html$Html$text('Let me tell you something important...'),
-													_1: {ctor: '[]'}
-												}),
-											_1: {
-												ctor: '::',
-												_0: A2(
-													_elm_lang$html$Html$p,
-													{ctor: '[]'},
-													{
-														ctor: '::',
-														_0: _elm_lang$html$Html$text('Let me tell you something important...'),
-														_1: {ctor: '[]'}
-													}),
-												_1: {ctor: '[]'}
-											}
-										}
-									}
-								})),
+							_user$project$GameOptionsDialog$dialogBody(o)),
 						footer: _elm_lang$core$Maybe$Nothing
 					};
 				},

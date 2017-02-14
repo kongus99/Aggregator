@@ -63,20 +63,21 @@ class MainController @Inject()(client: WSClient, configuration: Configuration, t
     import play.api.libs.functional.syntax._
     import play.api.libs.json.{JsPath, Writes}
 
-    case class GameQuery(query: String, site: String, results: List[String])
+    case class GameQuery(query: String, site: String, results: List[String], selectedResult : Int)
     case class GameOptions(entry: SteamEntry, queries: List[GameQuery])
 
     implicit val gameQueryWrites: Writes[GameQuery] =
       ((JsPath \ "query").write[String] and
        (JsPath \ "site").write[String] and
-       (JsPath \ "results").write[Seq[String]]) ((q) => (q.query, q.site, q.results))
+       (JsPath \ "results").write[Seq[String]] and
+       (JsPath \ "selectedResult").write[Int] ) ((q) => (q.query, q.site, q.results, q.selectedResult))
 
     implicit val gameOptionsWrites: Writes[GameOptions] =
       ((JsPath \ "entry").write[SteamEntry] and
        (JsPath \ "queries").write[Seq[GameQuery]]) ((o) => (o.entry, o.queries))
 
     val st = SteamEntry("Some Game", gameId, None, None, owned = true)
-    val go = GameOptions(st, GameQuery("some query", "some site", "result1" :: "result2" :: Nil) :: Nil)
+    val go = GameOptions(st, GameQuery("some query", "some site", "result1" :: "result2" :: Nil, 0) :: Nil)
     Future(Ok(Json.toJson(go)))
   }
 

@@ -1,7 +1,8 @@
 module GameOptionsDialog exposing (model, emptyModel, view, fetch, Model)
 
 import Dialog
-import Html exposing (Html, div, h2, h3, p, text)
+import Html exposing (Html, br, div, h2, h3, h4, input, label, option, p, select, table, tbody, td, text, th, thead, tr)
+import Html.Attributes exposing (attribute, checked, class, name, type_, value)
 import Http
 import Model exposing (GameOptions)
 import Router
@@ -46,20 +47,63 @@ view mess model =
             (\o ->
                 { closeMessage = Just mess
                 , containerClass = Just "your-container-class"
-                , header = Just (h2 [] [ text "Game Options" ])
-                , body =
-                    Just
-                        (div []
-                            [ h3 [] [ text "Name:" ]
-                            , p [] [ text o.entry.name ]
-                            , p [] [ text "Let me tell you something important..." ]
-                            , p [] [ text "Let me tell you something important..." ]
-                            ]
-                        )
+                , header = Just dialogHeader
+                , body = Just (dialogBody o)
                 , footer = Nothing
                 }
             )
             model.gameOptions
+
+
+dialogHeader =
+    h3 [] [ text "Search Options" ]
+
+
+dialogBody options =
+    div []
+        [ h4 [] [ text options.entry.name ]
+        , table [ class "table table-striped table-bordered" ]
+            [ tableHead
+            , tbody [] (List.map tableRow options.queries)
+            ]
+        ]
+
+
+tableHead =
+    thead []
+        [ tr []
+            [ th []
+                [ text "Site" ]
+            , th []
+                [ text "Query" ]
+            , th []
+                [ text "Results" ]
+            ]
+        ]
+
+
+tableRow gameQuery =
+    tr []
+        [ th []
+            [ text gameQuery.site ]
+        , td []
+            [ input [ type_ "text", value gameQuery.query ] [] ]
+        , td []
+            (List.indexedMap
+                (queryResult gameQuery.selectedResult)
+                gameQuery.results
+            )
+        ]
+
+
+queryResult selectedResult index r =
+    div [ class "radio" ]
+        [ label []
+            [ input [ name "selectedResult", type_ "radio", value r, checked (selectedResult == index) ]
+                []
+            , text r
+            ]
+        ]
 
 
 

@@ -45,7 +45,7 @@ type alias ComparisonEntry =
 
 
 type alias GameQuery =
-    { query : String, site : String, results : List String }
+    { query : String, site : String, results : List String, selectedResult : Int }
 
 
 type alias GameOptions =

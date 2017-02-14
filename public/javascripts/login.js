@@ -9057,9 +9057,9 @@ var _user$project$Model$ComparisonEntry = F4(
 	function (a, b, c, d) {
 		return {left: a, metricResult: b, right: c, matches: d};
 	});
-var _user$project$Model$GameQuery = F3(
-	function (a, b, c) {
-		return {query: a, site: b, results: c};
+var _user$project$Model$GameQuery = F4(
+	function (a, b, c, d) {
+		return {query: a, site: b, results: c, selectedResult: d};
 	});
 var _user$project$Model$GameOptions = F2(
 	function (a, b) {
@@ -9434,15 +9434,16 @@ var _user$project$Router$generateAddress = F2(
 					'?',
 					joinParameters(params))));
 	});
-var _user$project$Router$decodedGameQueryEntry = A4(
-	_elm_lang$core$Json_Decode$map3,
+var _user$project$Router$decodedGameQueryEntry = A5(
+	_elm_lang$core$Json_Decode$map4,
 	_user$project$Model$GameQuery,
 	A2(_elm_lang$core$Json_Decode$field, 'query', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'site', _elm_lang$core$Json_Decode$string),
 	A2(
 		_elm_lang$core$Json_Decode$field,
 		'results',
-		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)));
+		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)),
+	A2(_elm_lang$core$Json_Decode$field, 'selectedResult', _elm_lang$core$Json_Decode$int));
 var _user$project$Router$decodedNamedEntry = A3(
 	_elm_lang$core$Json_Decode$map2,
 	_user$project$Model$NamedEntry,
