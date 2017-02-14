@@ -1,8 +1,10 @@
-module GameOptionsDialog exposing (model, emptyModel, view, Model)
+module GameOptionsDialog exposing (model, emptyModel, view, fetch, Model)
 
 import Dialog
 import Html exposing (Html, div, h2, h3, p, text)
+import Http
 import Model exposing (GameOptions)
+import Router
 
 
 -- MODEL
@@ -18,6 +20,19 @@ model options =
 
 emptyModel =
     Model Nothing
+
+
+
+-- UPDATE
+
+
+fetch : Maybe Int -> (GameOptions -> c) -> (Http.Error -> c) -> Cmd c
+fetch steamId mess err =
+    let
+        send id =
+            Http.send (Router.resolveResponse mess err) <| Router.fetchGameOptions [ ( "gameId", toString id ) ]
+    in
+        Maybe.map send steamId |> Maybe.withDefault Cmd.none
 
 
 

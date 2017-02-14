@@ -146,6 +146,7 @@ generateAddress resourceName params =
         "/" ++ resourceName ++ "?" ++ (joinParameters params)
 
 
+resolveResponse : (a -> c) -> (b -> c) -> Result b a -> c
 resolveResponse successResolver errorResolver response =
     case response of
         Ok x ->

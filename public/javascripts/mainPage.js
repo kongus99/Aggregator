@@ -12417,87 +12417,6 @@ var _user$project$GameEntry$emptyFilters = A6(
 	{ctor: '[]'},
 	{ctor: '[]'});
 
-var _user$project$GameOptionsDialog$view = F2(
-	function (mess, model) {
-		return _krisajenkins$elm_dialog$Dialog$view(
-			A2(
-				_elm_lang$core$Maybe$map,
-				function (o) {
-					return {
-						closeMessage: _elm_lang$core$Maybe$Just(mess),
-						containerClass: _elm_lang$core$Maybe$Just('your-container-class'),
-						header: _elm_lang$core$Maybe$Just(
-							A2(
-								_elm_lang$html$Html$h2,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text('Game Options'),
-									_1: {ctor: '[]'}
-								})),
-						body: _elm_lang$core$Maybe$Just(
-							A2(
-								_elm_lang$html$Html$div,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$h3,
-										{ctor: '[]'},
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html$text('Name:'),
-											_1: {ctor: '[]'}
-										}),
-									_1: {
-										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$p,
-											{ctor: '[]'},
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html$text(o.entry.name),
-												_1: {ctor: '[]'}
-											}),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$p,
-												{ctor: '[]'},
-												{
-													ctor: '::',
-													_0: _elm_lang$html$Html$text('Let me tell you something important...'),
-													_1: {ctor: '[]'}
-												}),
-											_1: {
-												ctor: '::',
-												_0: A2(
-													_elm_lang$html$Html$p,
-													{ctor: '[]'},
-													{
-														ctor: '::',
-														_0: _elm_lang$html$Html$text('Let me tell you something important...'),
-														_1: {ctor: '[]'}
-													}),
-												_1: {ctor: '[]'}
-											}
-										}
-									}
-								})),
-						footer: _elm_lang$core$Maybe$Nothing
-					};
-				},
-				model.gameOptions));
-	});
-var _user$project$GameOptionsDialog$Model = function (a) {
-	return {gameOptions: a};
-};
-var _user$project$GameOptionsDialog$model = function (options) {
-	return _user$project$GameOptionsDialog$Model(
-		_elm_lang$core$Maybe$Just(options));
-};
-var _user$project$GameOptionsDialog$emptyModel = _user$project$GameOptionsDialog$Model(_elm_lang$core$Maybe$Nothing);
-
 var _user$project$Router$resolveResponse = F3(
 	function (successResolver, errorResolver, response) {
 		var _p0 = response;
@@ -12732,6 +12651,109 @@ var _user$project$Router$comparisonData = function (params) {
 		_1: _user$project$Router$routes.comparison.page(params)
 	};
 };
+
+var _user$project$GameOptionsDialog$view = F2(
+	function (mess, model) {
+		return _krisajenkins$elm_dialog$Dialog$view(
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (o) {
+					return {
+						closeMessage: _elm_lang$core$Maybe$Just(mess),
+						containerClass: _elm_lang$core$Maybe$Just('your-container-class'),
+						header: _elm_lang$core$Maybe$Just(
+							A2(
+								_elm_lang$html$Html$h2,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('Game Options'),
+									_1: {ctor: '[]'}
+								})),
+						body: _elm_lang$core$Maybe$Just(
+							A2(
+								_elm_lang$html$Html$div,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$h3,
+										{ctor: '[]'},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('Name:'),
+											_1: {ctor: '[]'}
+										}),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$p,
+											{ctor: '[]'},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text(o.entry.name),
+												_1: {ctor: '[]'}
+											}),
+										_1: {
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$p,
+												{ctor: '[]'},
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html$text('Let me tell you something important...'),
+													_1: {ctor: '[]'}
+												}),
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$p,
+													{ctor: '[]'},
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html$text('Let me tell you something important...'),
+														_1: {ctor: '[]'}
+													}),
+												_1: {ctor: '[]'}
+											}
+										}
+									}
+								})),
+						footer: _elm_lang$core$Maybe$Nothing
+					};
+				},
+				model.gameOptions));
+	});
+var _user$project$GameOptionsDialog$fetch = F3(
+	function (steamId, mess, err) {
+		var send = function (id) {
+			return A2(
+				_elm_lang$http$Http$send,
+				A2(_user$project$Router$resolveResponse, mess, err),
+				_user$project$Router$fetchGameOptions(
+					{
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'gameId',
+							_1: _elm_lang$core$Basics$toString(id)
+						},
+						_1: {ctor: '[]'}
+					}));
+		};
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			_elm_lang$core$Platform_Cmd$none,
+			A2(_elm_lang$core$Maybe$map, send, steamId));
+	});
+var _user$project$GameOptionsDialog$Model = function (a) {
+	return {gameOptions: a};
+};
+var _user$project$GameOptionsDialog$model = function (options) {
+	return _user$project$GameOptionsDialog$Model(
+		_elm_lang$core$Maybe$Just(options));
+};
+var _user$project$GameOptionsDialog$emptyModel = _user$project$GameOptionsDialog$Model(_elm_lang$core$Maybe$Nothing);
 
 var _user$project$MainPage$onSelect = function (msg) {
 	return A2(
@@ -13398,28 +13420,10 @@ var _user$project$MainPage$update = F2(
 							}))
 				};
 			case 'DialogOpen':
-				var send = function (id) {
-					return A2(
-						_elm_lang$http$Http$send,
-						A2(_user$project$Router$resolveResponse, _user$project$MainPage$DialogData, _user$project$MainPage$RefreshError),
-						_user$project$Router$fetchGameOptions(
-							{
-								ctor: '::',
-								_0: {
-									ctor: '_Tuple2',
-									_0: 'gameId',
-									_1: _elm_lang$core$Basics$toString(id)
-								},
-								_1: {ctor: '[]'}
-							}));
-				};
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: A2(
-						_elm_lang$core$Maybe$withDefault,
-						_elm_lang$core$Platform_Cmd$none,
-						A2(_elm_lang$core$Maybe$map, send, _p5._0))
+					_1: A3(_user$project$GameOptionsDialog$fetch, _p5._0, _user$project$MainPage$DialogData, _user$project$MainPage$RefreshError)
 				};
 			case 'DialogData':
 				return {

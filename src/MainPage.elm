@@ -118,11 +118,7 @@ update msg model =
             ( { model | filters = resetFilterLists model.filters, message = "" }, getResponse <| Router.getUserGames [ ( "sources", toString model.sources ), ( "userId", toString model.userId ) ] )
 
         DialogOpen steamId ->
-            let
-                send id =
-                    Http.send (Router.resolveResponse DialogData RefreshError) <| Router.fetchGameOptions [ ( "gameId", toString id ) ]
-            in
-                ( model, Maybe.map send steamId |> Maybe.withDefault Cmd.none )
+            ( model, GameOptionsDialog.fetch steamId DialogData RefreshError )
 
         DialogData options ->
             ( { model | options = GameOptionsDialog.model options }, Cmd.none )
