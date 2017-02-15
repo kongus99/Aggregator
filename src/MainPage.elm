@@ -128,7 +128,7 @@ update msg model =
             ( { model | options = GameOptionsDialog.emptyModel }, Cmd.none )
 
         DialogMessage msg ->
-            ( model, Cmd.none )
+            ( { model | options = GameOptionsDialog.update msg model.options }, Cmd.none )
 
 
 

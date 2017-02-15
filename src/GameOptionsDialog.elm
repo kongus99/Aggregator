@@ -1,12 +1,12 @@
-module GameOptionsDialog exposing (model, emptyModel, view, fetch, Model, Msg)
+module GameOptionsDialog exposing (model, emptyModel, view, fetch, Model, Msg, update)
 
-import Array
+import Array exposing (Array)
 import Dialog
 import Html exposing (Html, br, div, h2, h3, h4, input, label, option, p, select, table, tbody, td, text, th, thead, tr)
 import Html.Attributes exposing (attribute, checked, class, name, type_, value)
 import Html.Events exposing (onClick)
 import Http
-import Model exposing (GameOptions)
+import Model exposing (GameOptions, GameQuery)
 import Router
 
 
@@ -30,17 +30,34 @@ emptyModel =
 
 
 type Msg
-    = SwitchTo Int
+    = SwitchTo Int Int
 
 
+updateArray : Int -> (a -> a) -> Array a -> Array a
+updateArray n f a =
+    case (Array.get n a) of
+        Nothing ->
+            a
 
---
---
---update : Msg -> Model -> Model
---update msg model =
---  case msg of
---    SwitchTo selectedResult ->
---      { model | fontSize = newFontSize }
+        Just element ->
+            Array.set n (f element) a
+
+
+update : Msg -> Model -> Model
+update msg model =
+    case msg of
+        SwitchTo queryIndex resultIndex ->
+            let
+                updatedQueries queries =
+                    updateArray queryIndex (\q -> { q | selectedResult = resultIndex }) queries
+
+                updateOptions options =
+                    { options | queries = updatedQueries options.queries }
+
+                newModel =
+                    Debug.log "model" { model | gameOptions = Maybe.map updateOptions model.gameOptions }
+            in
+                newModel
 
 
 fetch : Maybe Int -> (GameOptions -> c) -> (Http.Error -> c) -> Cmd c
@@ -83,7 +100,7 @@ dialogBody options =
         [ h4 [] [ text options.entry.name ]
         , table [ class "table table-striped table-bordered" ]
             [ tableHead
-            , tbody [] (Array.map tableRow options.queries |> Array.toList)
+            , tbody [] (Array.indexedMap tableRow options.queries |> Array.toList)
             ]
         ]
 
@@ -101,7 +118,7 @@ tableHead =
         ]
 
 
-tableRow gameQuery =
+tableRow index gameQuery =
     tr []
         [ th []
             [ text gameQuery.site ]
@@ -109,7 +126,7 @@ tableRow gameQuery =
             [ input [ type_ "text", value gameQuery.query ] [] ]
         , td []
             (Array.indexedMap
-                (queryResult gameQuery.selectedResult SwitchTo)
+                (queryResult gameQuery.selectedResult (SwitchTo index))
                 gameQuery.results
                 |> Array.toList
             )
