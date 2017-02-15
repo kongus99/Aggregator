@@ -12580,12 +12580,12 @@ var _user$project$Router$main_ = A3(
 	_user$project$Router$generateAddress('main'));
 var _user$project$Router$Options = F2(
 	function (a, b) {
-		return {gameOptions: a, changeSelectedSearch: b};
+		return {fetch: a, changeSelectedSearch: b};
 	});
 var _user$project$Router$gameOptions = A2(
 	_user$project$Router$Options,
-	_user$project$Router$generateAddress('main/gameOptions'),
-	_user$project$Router$generateAddress('main/search'));
+	_user$project$Router$generateAddress('gameOptions/fetch'),
+	_user$project$Router$generateAddress('gameOptions/changeSelectedSearch'));
 var _user$project$Router$Comparison = F3(
 	function (a, b, c) {
 		return {toggleSelected: a, comparisonData: b, page: c};
@@ -12639,7 +12639,7 @@ var _user$project$Router$getUserGames = function (params) {
 var _user$project$Router$fetchGameOptions = function (params) {
 	return A2(
 		_elm_lang$http$Http$get,
-		_user$project$Router$routes.gameOptions.gameOptions(params),
+		_user$project$Router$routes.gameOptions.fetch(params),
 		_user$project$Router$decodedGameOptionsEntry);
 };
 var _user$project$Router$saveSelectedSearchResult = function (params) {

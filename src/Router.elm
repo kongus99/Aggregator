@@ -31,7 +31,7 @@ getUserGames params =
 
 
 fetchGameOptions params =
-    Http.get (routes.gameOptions.gameOptions params) decodedGameOptionsEntry
+    Http.get (routes.gameOptions.fetch params) decodedGameOptionsEntry
 
 
 saveSelectedSearchResult params =
@@ -67,7 +67,7 @@ type alias Main =
 
 
 type alias Options =
-    { gameOptions : UrlGenerator, changeSelectedSearch : UrlGenerator }
+    { fetch : UrlGenerator, changeSelectedSearch : UrlGenerator }
 
 
 type alias Comparison =
@@ -83,7 +83,7 @@ main_ =
 
 
 gameOptions =
-    Options (generateAddress "main/gameOptions") (generateAddress "main/search")
+    Options (generateAddress "gameOptions/fetch") (generateAddress "gameOptions/changeSelectedSearch")
 
 
 comparison =
