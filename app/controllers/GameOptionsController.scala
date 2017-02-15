@@ -37,4 +37,8 @@ class GameOptionsController @Inject()(tables: Tables)(implicit exec: ExecutionCo
   def changeSearch(userId: Long) = Action.async {
     Future(Ok(Json.toJson("Done.")))
   }
+
+  def fetchSearch(userId: Long) = Action.async {
+    Future(Ok(Json.toJson("new 1" :: "new 2" :: "new 2" :: Nil)))
+  }
 }

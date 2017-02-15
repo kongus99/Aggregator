@@ -12578,14 +12578,15 @@ var _user$project$Router$main_ = A3(
 	_user$project$Router$generateAddress('main/refresh'),
 	_user$project$Router$generateAddress('main/fetch'),
 	_user$project$Router$generateAddress('main'));
-var _user$project$Router$Options = F2(
-	function (a, b) {
-		return {fetch: a, changeSelectedSearch: b};
+var _user$project$Router$Options = F3(
+	function (a, b, c) {
+		return {fetch: a, changeSelectedSearch: b, fetchSearchResults: c};
 	});
-var _user$project$Router$gameOptions = A2(
+var _user$project$Router$gameOptions = A3(
 	_user$project$Router$Options,
 	_user$project$Router$generateAddress('gameOptions/fetch'),
-	_user$project$Router$generateAddress('gameOptions/changeSelectedSearch'));
+	_user$project$Router$generateAddress('gameOptions/changeSelectedSearch'),
+	_user$project$Router$generateAddress('gameOptions/fetchSearchResults'));
 var _user$project$Router$Comparison = F3(
 	function (a, b, c) {
 		return {toggleSelected: a, comparisonData: b, page: c};
@@ -12641,6 +12642,12 @@ var _user$project$Router$fetchGameOptions = function (params) {
 		_elm_lang$http$Http$get,
 		_user$project$Router$routes.gameOptions.fetch(params),
 		_user$project$Router$decodedGameOptionsEntry);
+};
+var _user$project$Router$fetchNewSearchResults = function (params) {
+	return A2(
+		_elm_lang$http$Http$get,
+		_user$project$Router$routes.gameOptions.fetchSearchResults(params),
+		_elm_lang$core$Json_Decode$array(_elm_lang$core$Json_Decode$string));
 };
 var _user$project$Router$saveSelectedSearchResult = function (params) {
 	return A3(
@@ -12836,8 +12843,28 @@ var _user$project$GameOptionsDialog$emptyModel = F2(
 var _user$project$GameOptionsDialog$DialogError = function (a) {
 	return {ctor: 'DialogError', _0: a};
 };
-var _user$project$GameOptionsDialog$EnterPressed = function (a) {
-	return {ctor: 'EnterPressed', _0: a};
+var _user$project$GameOptionsDialog$NewResults = function (a) {
+	return {ctor: 'NewResults', _0: a};
+};
+var _user$project$GameOptionsDialog$newResults = F3(
+	function (userId, queryIndex, model) {
+		var send = A2(
+			_elm_lang$http$Http$send,
+			A2(_user$project$Router$resolveResponse, _user$project$GameOptionsDialog$NewResults, _user$project$GameOptionsDialog$DialogError),
+			_user$project$Router$fetchNewSearchResults(
+				{
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'userId',
+						_1: _elm_lang$core$Basics$toString(userId)
+					},
+					_1: {ctor: '[]'}
+				}));
+		return A2(_elm_lang$core$Platform_Cmd$map, model.wrapper, send);
+	});
+var _user$project$GameOptionsDialog$GetNewResults = function (a) {
+	return {ctor: 'GetNewResults', _0: a};
 };
 var _user$project$GameOptionsDialog$Switched = function (a) {
 	return {ctor: 'Switched', _0: a};
@@ -12920,8 +12947,16 @@ var _user$project$GameOptionsDialog$update = F3(
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			default:
+			case 'GetNewResults':
 				var x = A2(_elm_lang$core$Debug$log, 'code', 'ttt');
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{message: _elm_lang$core$Maybe$Nothing}),
+					_1: A3(_user$project$GameOptionsDialog$newResults, userId, _p3._0, model)
+				};
+			default:
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -12968,7 +13003,7 @@ var _user$project$GameOptionsDialog$tableRow = F2(
 										_1: {
 											ctor: '::',
 											_0: _user$project$GameOptionsDialog$onEnter(
-												_user$project$GameOptionsDialog$EnterPressed(index)),
+												_user$project$GameOptionsDialog$GetNewResults(index)),
 											_1: {ctor: '[]'}
 										}
 									}

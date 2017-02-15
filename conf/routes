@@ -15,6 +15,7 @@ GET         /main                                    controllers.MainController.
 GET         /main/fetch                              controllers.MainController.getUserGames(userId : Long, sources : services.GameSources.GameSources)
 #OPTIONS
 GET         /gameOptions/fetch                       controllers.GameOptionsController.fetch(gameId : Long)
+GET         /gameOptions/fetchSearchResults           controllers.GameOptionsController.fetchSearch(userId : Long)
 POST        /gameOptions/changeSelectedSearch        controllers.GameOptionsController.changeSearch(userId : Long)
 #COMPARISON
 GET         /comparison                              controllers.ComparisonController.main

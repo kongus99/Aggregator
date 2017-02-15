@@ -38,7 +38,8 @@ emptyModel closeMsg wrapper =
 type Msg
     = SwitchTo Int Int
     | Switched String
-    | EnterPressed Int
+    | GetNewResults Int
+    | NewResults (Array String)
     | DialogError Http.Error
 
 
@@ -71,12 +72,15 @@ update userId msg model =
         DialogError err ->
             ( { model | message = Just <| toString err }, Cmd.none )
 
-        EnterPressed queryIndex ->
+        GetNewResults queryIndex ->
             let
                 x =
                     Debug.log "code" "ttt"
             in
-                ( { model | message = Nothing }, Cmd.none )
+                ( { model | message = Nothing }, newResults userId queryIndex model )
+
+        NewResults results ->
+            ( { model | message = Nothing }, Cmd.none )
 
 
 fetch : Maybe Int -> (GameOptions -> c) -> (Http.Error -> c) -> Cmd c
@@ -92,6 +96,14 @@ saveSwitched userId ( queryIndex, resultIndex ) model =
     let
         send =
             Http.send (Router.resolveResponse Switched DialogError) <| Router.saveSelectedSearchResult [ ( "userId", toString userId ) ]
+    in
+        Cmd.map model.wrapper send
+
+
+newResults userId queryIndex model =
+    let
+        send =
+            Http.send (Router.resolveResponse NewResults DialogError) <| Router.fetchNewSearchResults [ ( "userId", toString userId ) ]
     in
         Cmd.map model.wrapper send
 
@@ -146,7 +158,7 @@ tableRow index gameQuery =
         [ th []
             [ text gameQuery.site ]
         , td []
-            [ input [ type_ "text", value gameQuery.query, onEnter (EnterPressed index) ] [] ]
+            [ input [ type_ "text", value gameQuery.query, onEnter (GetNewResults index) ] [] ]
         , td []
             (Array.indexedMap
                 (queryResult gameQuery.selectedResult (SwitchTo index))
