@@ -98,7 +98,7 @@ view model =
             (\o ->
                 { closeMessage = Just model.closeMsg
                 , containerClass = Just "your-container-class"
-                , header = Just dialogHeader
+                , header = Just <| dialogHeader o
                 , body = Just <| Html.map model.wrapper (dialogBody o)
                 , footer = Maybe.map text model.message
                 }
@@ -106,14 +106,13 @@ view model =
             model.gameOptions
 
 
-dialogHeader =
-    h3 [] [ text "Search Options" ]
+dialogHeader options =
+    h4 [] [ text options.entry.name ]
 
 
 dialogBody options =
     div []
-        [ h4 [] [ text options.entry.name ]
-        , table [ class "table table-striped table-bordered" ]
+        [ table [ class "table table-striped table-bordered" ]
             [ tableHead
             , tbody [] (Array.indexedMap tableRow options.queries |> Array.toList)
             ]

@@ -31,11 +31,11 @@ getUserGames params =
 
 
 fetchGameOptions params =
-    Http.get (routes.main.gameOptions params) decodedGameOptionsEntry
+    Http.get (routes.gameOptions.gameOptions params) decodedGameOptionsEntry
 
 
 saveSelectedSearchResult params =
-    Http.post (routes.main.changeSelectedSearch params) Http.emptyBody string
+    Http.post (routes.gameOptions.changeSelectedSearch params) Http.emptyBody string
 
 
 toggleSelected params =
@@ -55,7 +55,7 @@ type alias UrlGenerator =
 
 
 type alias Addresses =
-    { login : Login, main : Main, comparison : Comparison }
+    { login : Login, main : Main, gameOptions : Options, comparison : Comparison }
 
 
 type alias Login =
@@ -63,7 +63,11 @@ type alias Login =
 
 
 type alias Main =
-    { refreshGames : UrlGenerator, gameOptions : UrlGenerator, fetch : UrlGenerator, page : UrlGenerator, changeSelectedSearch : UrlGenerator }
+    { refreshGames : UrlGenerator, fetch : UrlGenerator, page : UrlGenerator }
+
+
+type alias Options =
+    { gameOptions : UrlGenerator, changeSelectedSearch : UrlGenerator }
 
 
 type alias Comparison =
@@ -75,7 +79,11 @@ login =
 
 
 main_ =
-    Main (generateAddress "main/refresh") (generateAddress "main/gameOptions") (generateAddress "main/fetch") (generateAddress "main") (generateAddress "main/search")
+    Main (generateAddress "main/refresh") (generateAddress "main/fetch") (generateAddress "main")
+
+
+gameOptions =
+    Options (generateAddress "main/gameOptions") (generateAddress "main/search")
 
 
 comparison =
@@ -83,7 +91,7 @@ comparison =
 
 
 routes =
-    Addresses login main_ comparison
+    Addresses login main_ gameOptions comparison
 
 
 
