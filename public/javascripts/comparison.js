@@ -10577,16 +10577,17 @@ var _user$project$Router$login = A3(
 	_user$project$Router$generateAddress('login/fetch'),
 	_user$project$Router$generateAddress('login/createUpdate'),
 	_user$project$Router$generateAddress('login/steamAlternate'));
-var _user$project$Router$Main = F4(
-	function (a, b, c, d) {
-		return {refreshGames: a, gameOptions: b, fetch: c, page: d};
+var _user$project$Router$Main = F5(
+	function (a, b, c, d, e) {
+		return {refreshGames: a, gameOptions: b, fetch: c, page: d, changeSelectedSearch: e};
 	});
-var _user$project$Router$main_ = A4(
+var _user$project$Router$main_ = A5(
 	_user$project$Router$Main,
 	_user$project$Router$generateAddress('main/refresh'),
 	_user$project$Router$generateAddress('main/gameOptions'),
 	_user$project$Router$generateAddress('main/fetch'),
-	_user$project$Router$generateAddress('main'));
+	_user$project$Router$generateAddress('main'),
+	_user$project$Router$generateAddress('main/search'));
 var _user$project$Router$Comparison = F3(
 	function (a, b, c) {
 		return {toggleSelected: a, comparisonData: b, page: c};
@@ -10642,6 +10643,13 @@ var _user$project$Router$fetchGameOptions = function (params) {
 		_elm_lang$http$Http$get,
 		_user$project$Router$routes.main.gameOptions(params),
 		_user$project$Router$decodedGameOptionsEntry);
+};
+var _user$project$Router$saveSelectedSearchResult = function (params) {
+	return A3(
+		_elm_lang$http$Http$post,
+		_user$project$Router$routes.main.changeSelectedSearch(params),
+		_elm_lang$http$Http$emptyBody,
+		_elm_lang$core$Json_Decode$string);
 };
 var _user$project$Router$toggleSelected = function (params) {
 	return A3(

@@ -12569,16 +12569,17 @@ var _user$project$Router$login = A3(
 	_user$project$Router$generateAddress('login/fetch'),
 	_user$project$Router$generateAddress('login/createUpdate'),
 	_user$project$Router$generateAddress('login/steamAlternate'));
-var _user$project$Router$Main = F4(
-	function (a, b, c, d) {
-		return {refreshGames: a, gameOptions: b, fetch: c, page: d};
+var _user$project$Router$Main = F5(
+	function (a, b, c, d, e) {
+		return {refreshGames: a, gameOptions: b, fetch: c, page: d, changeSelectedSearch: e};
 	});
-var _user$project$Router$main_ = A4(
+var _user$project$Router$main_ = A5(
 	_user$project$Router$Main,
 	_user$project$Router$generateAddress('main/refresh'),
 	_user$project$Router$generateAddress('main/gameOptions'),
 	_user$project$Router$generateAddress('main/fetch'),
-	_user$project$Router$generateAddress('main'));
+	_user$project$Router$generateAddress('main'),
+	_user$project$Router$generateAddress('main/search'));
 var _user$project$Router$Comparison = F3(
 	function (a, b, c) {
 		return {toggleSelected: a, comparisonData: b, page: c};
@@ -12634,6 +12635,13 @@ var _user$project$Router$fetchGameOptions = function (params) {
 		_elm_lang$http$Http$get,
 		_user$project$Router$routes.main.gameOptions(params),
 		_user$project$Router$decodedGameOptionsEntry);
+};
+var _user$project$Router$saveSelectedSearchResult = function (params) {
+	return A3(
+		_elm_lang$http$Http$post,
+		_user$project$Router$routes.main.changeSelectedSearch(params),
+		_elm_lang$http$Http$emptyBody,
+		_elm_lang$core$Json_Decode$string);
 };
 var _user$project$Router$toggleSelected = function (params) {
 	return A3(
@@ -12791,48 +12799,108 @@ var _user$project$GameOptionsDialog$updateArray = F3(
 				a);
 		}
 	});
-var _user$project$GameOptionsDialog$update = F2(
-	function (msg, model) {
-		var _p1 = msg;
-		var updateQueries = function (queries) {
-			return A3(
-				_user$project$GameOptionsDialog$updateArray,
-				_p1._0,
-				function (q) {
-					return _elm_lang$core$Native_Utils.update(
-						q,
-						{selectedResult: _p1._1});
-				},
-				queries);
-		};
-		var updateOptions = function (options) {
-			return _elm_lang$core$Native_Utils.update(
-				options,
-				{
-					queries: updateQueries(options.queries)
-				});
-		};
-		return _elm_lang$core$Native_Utils.update(
-			model,
-			{
-				gameOptions: A2(_elm_lang$core$Maybe$map, updateOptions, model.gameOptions)
-			});
-	});
-var _user$project$GameOptionsDialog$Model = F3(
-	function (a, b, c) {
-		return {closeMsg: a, wrapper: b, gameOptions: c};
+var _user$project$GameOptionsDialog$Model = F4(
+	function (a, b, c, d) {
+		return {message: a, closeMsg: b, wrapper: c, gameOptions: d};
 	});
 var _user$project$GameOptionsDialog$model = F3(
 	function (closeMsg, wrapper, options) {
-		return A3(
+		return A4(
 			_user$project$GameOptionsDialog$Model,
+			_elm_lang$core$Maybe$Nothing,
 			closeMsg,
 			wrapper,
 			_elm_lang$core$Maybe$Just(options));
 	});
 var _user$project$GameOptionsDialog$emptyModel = F2(
 	function (closeMsg, wrapper) {
-		return A3(_user$project$GameOptionsDialog$Model, closeMsg, wrapper, _elm_lang$core$Maybe$Nothing);
+		return A4(_user$project$GameOptionsDialog$Model, _elm_lang$core$Maybe$Nothing, closeMsg, wrapper, _elm_lang$core$Maybe$Nothing);
+	});
+var _user$project$GameOptionsDialog$DialogError = function (a) {
+	return {ctor: 'DialogError', _0: a};
+};
+var _user$project$GameOptionsDialog$Switched = function (a) {
+	return {ctor: 'Switched', _0: a};
+};
+var _user$project$GameOptionsDialog$saveSwitched = F3(
+	function (userId, _p1, model) {
+		var _p2 = _p1;
+		var send = A2(
+			_elm_lang$http$Http$send,
+			A2(_user$project$Router$resolveResponse, _user$project$GameOptionsDialog$Switched, _user$project$GameOptionsDialog$DialogError),
+			_user$project$Router$saveSelectedSearchResult(
+				{
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'userId',
+						_1: _elm_lang$core$Basics$toString(userId)
+					},
+					_1: {ctor: '[]'}
+				}));
+		return A2(_elm_lang$core$Platform_Cmd$map, model.wrapper, send);
+	});
+var _user$project$GameOptionsDialog$update = F3(
+	function (userId, msg, model) {
+		var _p3 = msg;
+		switch (_p3.ctor) {
+			case 'SwitchTo':
+				var _p5 = _p3._1;
+				var _p4 = _p3._0;
+				var updateQueries = function (queries) {
+					return A3(
+						_user$project$GameOptionsDialog$updateArray,
+						_p4,
+						function (q) {
+							return _elm_lang$core$Native_Utils.update(
+								q,
+								{selectedResult: _p5});
+						},
+						queries);
+				};
+				var updateOptions = function (options) {
+					return _elm_lang$core$Native_Utils.update(
+						options,
+						{
+							queries: updateQueries(options.queries)
+						});
+				};
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							gameOptions: A2(_elm_lang$core$Maybe$map, updateOptions, model.gameOptions),
+							message: _elm_lang$core$Maybe$Nothing
+						}),
+					_1: A3(
+						_user$project$GameOptionsDialog$saveSwitched,
+						userId,
+						{ctor: '_Tuple2', _0: _p4, _1: _p5},
+						model)
+				};
+			case 'Switched':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							message: _elm_lang$core$Maybe$Just(_p3._0)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							message: _elm_lang$core$Maybe$Just(
+								_elm_lang$core$Basics$toString(_p3._0))
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+		}
 	});
 var _user$project$GameOptionsDialog$SwitchTo = F2(
 	function (a, b) {
@@ -12946,7 +13014,7 @@ var _user$project$GameOptionsDialog$view = function (model) {
 							_elm_lang$html$Html$map,
 							model.wrapper,
 							_user$project$GameOptionsDialog$dialogBody(o))),
-					footer: _elm_lang$core$Maybe$Nothing
+					footer: A2(_elm_lang$core$Maybe$map, _elm_lang$html$Html$text, model.message)
 				};
 			},
 			model.gameOptions));
@@ -13653,14 +13721,15 @@ var _user$project$MainPage$update = F2(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			default:
+				var updated = A3(_user$project$GameOptionsDialog$update, model.userId, _p5._0, model.options);
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							options: A2(_user$project$GameOptionsDialog$update, _p5._0, model.options)
+							options: _elm_lang$core$Tuple$first(updated)
 						}),
-					_1: _elm_lang$core$Platform_Cmd$none
+					_1: _elm_lang$core$Tuple$second(updated)
 				};
 		}
 	});

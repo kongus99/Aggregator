@@ -128,7 +128,11 @@ update msg model =
             ( { model | options = GameOptionsDialog.emptyModel DialogClose DialogMessage }, Cmd.none )
 
         DialogMessage msg ->
-            ( { model | options = GameOptionsDialog.update msg model.options }, Cmd.none )
+            let
+                updated =
+                    GameOptionsDialog.update model.userId msg model.options
+            in
+                ( { model | options = Tuple.first updated }, Tuple.second updated )
 
 
 

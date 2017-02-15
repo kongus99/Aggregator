@@ -7,24 +7,27 @@ import Html.Attributes exposing (attribute, checked, class, name, type_, value)
 import Html.Events exposing (onClick)
 import Http
 import Model exposing (GameOptions, GameQuery)
+import Process
 import Router
+import Task
+import Time exposing (second)
 
 
 -- MODEL
 
 
 type alias Model msg =
-    { closeMsg : msg, wrapper : Msg -> msg, gameOptions : Maybe GameOptions }
+    { message : Maybe String, closeMsg : msg, wrapper : Msg -> msg, gameOptions : Maybe GameOptions }
 
 
 model : msg -> (Msg -> msg) -> GameOptions -> Model msg
 model closeMsg wrapper options =
-    Model closeMsg wrapper (Just options)
+    Model Nothing closeMsg wrapper (Just options)
 
 
 emptyModel : msg -> (Msg -> msg) -> Model msg
 emptyModel closeMsg wrapper =
-    Model closeMsg wrapper Nothing
+    Model Nothing closeMsg wrapper Nothing
 
 
 
@@ -33,6 +36,8 @@ emptyModel closeMsg wrapper =
 
 type Msg
     = SwitchTo Int Int
+    | Switched String
+    | DialogError Http.Error
 
 
 updateArray : Int -> (a -> a) -> Array a -> Array a
@@ -45,8 +50,8 @@ updateArray n f a =
             Array.set n (f element) a
 
 
-update : Msg -> Model msg -> Model msg
-update msg model =
+update : Int -> Msg -> Model msg -> ( Model msg, Cmd msg )
+update userId msg model =
     case msg of
         SwitchTo queryIndex resultIndex ->
             let
@@ -56,7 +61,13 @@ update msg model =
                 updateOptions options =
                     { options | queries = updateQueries options.queries }
             in
-                { model | gameOptions = Maybe.map updateOptions model.gameOptions }
+                ( { model | gameOptions = Maybe.map updateOptions model.gameOptions, message = Nothing }, saveSwitched userId ( queryIndex, resultIndex ) model )
+
+        Switched msg ->
+            ( { model | message = Just msg }, Cmd.none )
+
+        DialogError err ->
+            ( { model | message = Just <| toString err }, Cmd.none )
 
 
 fetch : Maybe Int -> (GameOptions -> c) -> (Http.Error -> c) -> Cmd c
@@ -66,6 +77,14 @@ fetch steamId mess err =
             Http.send (Router.resolveResponse mess err) <| Router.fetchGameOptions [ ( "gameId", toString id ) ]
     in
         Maybe.map send steamId |> Maybe.withDefault Cmd.none
+
+
+saveSwitched userId ( queryIndex, resultIndex ) model =
+    let
+        send =
+            Http.send (Router.resolveResponse Switched DialogError) <| Router.saveSelectedSearchResult [ ( "userId", toString userId ) ]
+    in
+        Cmd.map model.wrapper send
 
 
 
@@ -81,7 +100,7 @@ view model =
                 , containerClass = Just "your-container-class"
                 , header = Just dialogHeader
                 , body = Just <| Html.map model.wrapper (dialogBody o)
-                , footer = Nothing
+                , footer = Maybe.map text model.message
                 }
             )
             model.gameOptions

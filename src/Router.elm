@@ -1,4 +1,4 @@
-module Router exposing (refreshUserGames, getUserGames, toggleSelected, comparisonData, resolveResponse, fetchUser, createUpdateUser, updateSteamAlternate, mainPageUrl, refreshSocketUrl, fetchGameOptions)
+module Router exposing (refreshUserGames, getUserGames, toggleSelected, comparisonData, resolveResponse, fetchUser, createUpdateUser, updateSteamAlternate, mainPageUrl, refreshSocketUrl, fetchGameOptions, saveSelectedSearchResult)
 
 import Http
 import Json.Decode as Json exposing (..)
@@ -34,6 +34,10 @@ fetchGameOptions params =
     Http.get (routes.main.gameOptions params) decodedGameOptionsEntry
 
 
+saveSelectedSearchResult params =
+    Http.post (routes.main.changeSelectedSearch params) Http.emptyBody string
+
+
 toggleSelected params =
     Http.post (routes.comparison.toggleSelected params) Http.emptyBody string
 
@@ -59,7 +63,7 @@ type alias Login =
 
 
 type alias Main =
-    { refreshGames : UrlGenerator, gameOptions : UrlGenerator, fetch : UrlGenerator, page : UrlGenerator }
+    { refreshGames : UrlGenerator, gameOptions : UrlGenerator, fetch : UrlGenerator, page : UrlGenerator, changeSelectedSearch : UrlGenerator }
 
 
 type alias Comparison =
@@ -71,7 +75,7 @@ login =
 
 
 main_ =
-    Main (generateAddress "main/refresh") (generateAddress "main/gameOptions") (generateAddress "main/fetch") (generateAddress "main")
+    Main (generateAddress "main/refresh") (generateAddress "main/gameOptions") (generateAddress "main/fetch") (generateAddress "main") (generateAddress "main/search")
 
 
 comparison =
