@@ -12667,6 +12667,15 @@ var _user$project$Router$comparisonData = function (params) {
 	};
 };
 
+var _user$project$GameOptionsDialog$onEnter = function (msg) {
+	var isEnter = function (code) {
+		return _elm_lang$core$Native_Utils.eq(code, 13) ? _elm_lang$core$Json_Decode$succeed(msg) : _elm_lang$core$Json_Decode$fail('not ENTER');
+	};
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'keydown',
+		A2(_elm_lang$core$Json_Decode$andThen, isEnter, _elm_lang$html$Html_Events$keyCode));
+};
 var _user$project$GameOptionsDialog$queryResult = F4(
 	function (selectedResult, msg, index, currentResult) {
 		return A2(
@@ -12827,6 +12836,9 @@ var _user$project$GameOptionsDialog$emptyModel = F2(
 var _user$project$GameOptionsDialog$DialogError = function (a) {
 	return {ctor: 'DialogError', _0: a};
 };
+var _user$project$GameOptionsDialog$EnterPressed = function (a) {
+	return {ctor: 'EnterPressed', _0: a};
+};
 var _user$project$GameOptionsDialog$Switched = function (a) {
 	return {ctor: 'Switched', _0: a};
 };
@@ -12897,7 +12909,7 @@ var _user$project$GameOptionsDialog$update = F3(
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			default:
+			case 'DialogError':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -12906,6 +12918,15 @@ var _user$project$GameOptionsDialog$update = F3(
 							message: _elm_lang$core$Maybe$Just(
 								_elm_lang$core$Basics$toString(_p3._0))
 						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				var x = A2(_elm_lang$core$Debug$log, 'code', 'ttt');
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{message: _elm_lang$core$Maybe$Nothing}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 		}
@@ -12944,7 +12965,12 @@ var _user$project$GameOptionsDialog$tableRow = F2(
 									_1: {
 										ctor: '::',
 										_0: _elm_lang$html$Html_Attributes$value(gameQuery.query),
-										_1: {ctor: '[]'}
+										_1: {
+											ctor: '::',
+											_0: _user$project$GameOptionsDialog$onEnter(
+												_user$project$GameOptionsDialog$EnterPressed(index)),
+											_1: {ctor: '[]'}
+										}
 									}
 								},
 								{ctor: '[]'}),

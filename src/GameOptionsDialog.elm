@@ -2,10 +2,11 @@ module GameOptionsDialog exposing (model, emptyModel, view, fetch, Model, Msg, u
 
 import Array exposing (Array)
 import Dialog
-import Html exposing (Html, br, div, h2, h3, h4, input, label, option, p, select, table, tbody, td, text, th, thead, tr)
+import Html exposing (Attribute, Html, br, div, h2, h3, h4, input, label, option, p, select, table, tbody, td, text, th, thead, tr)
 import Html.Attributes exposing (attribute, checked, class, name, type_, value)
-import Html.Events exposing (onClick)
+import Html.Events exposing (keyCode, on, onClick)
 import Http
+import Json.Decode as Json
 import Model exposing (GameOptions, GameQuery)
 import Process
 import Router
@@ -37,6 +38,7 @@ emptyModel closeMsg wrapper =
 type Msg
     = SwitchTo Int Int
     | Switched String
+    | EnterPressed Int
     | DialogError Http.Error
 
 
@@ -68,6 +70,13 @@ update userId msg model =
 
         DialogError err ->
             ( { model | message = Just <| toString err }, Cmd.none )
+
+        EnterPressed queryIndex ->
+            let
+                x =
+                    Debug.log "code" "ttt"
+            in
+                ( { model | message = Nothing }, Cmd.none )
 
 
 fetch : Maybe Int -> (GameOptions -> c) -> (Http.Error -> c) -> Cmd c
@@ -137,7 +146,7 @@ tableRow index gameQuery =
         [ th []
             [ text gameQuery.site ]
         , td []
-            [ input [ type_ "text", value gameQuery.query ] [] ]
+            [ input [ type_ "text", value gameQuery.query, onEnter (EnterPressed index) ] [] ]
         , td []
             (Array.indexedMap
                 (queryResult gameQuery.selectedResult (SwitchTo index))
@@ -156,3 +165,15 @@ queryResult selectedResult msg index currentResult =
             , text currentResult
             ]
         ]
+
+
+onEnter : msg -> Attribute msg
+onEnter msg =
+    let
+        isEnter code =
+            if code == 13 then
+                Json.succeed msg
+            else
+                Json.fail "not ENTER"
+    in
+        on "keydown" (Json.andThen isEnter keyCode)
