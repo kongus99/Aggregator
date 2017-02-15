@@ -12794,7 +12794,7 @@ var _user$project$GameOptionsDialog$updateArray = F3(
 var _user$project$GameOptionsDialog$update = F2(
 	function (msg, model) {
 		var _p1 = msg;
-		var updatedQueries = function (queries) {
+		var updateQueries = function (queries) {
 			return A3(
 				_user$project$GameOptionsDialog$updateArray,
 				_p1._0,
@@ -12809,27 +12809,31 @@ var _user$project$GameOptionsDialog$update = F2(
 			return _elm_lang$core$Native_Utils.update(
 				options,
 				{
-					queries: updatedQueries(options.queries)
+					queries: updateQueries(options.queries)
 				});
 		};
-		var newModel = A2(
-			_elm_lang$core$Debug$log,
-			'model',
-			_elm_lang$core$Native_Utils.update(
-				model,
-				{
-					gameOptions: A2(_elm_lang$core$Maybe$map, updateOptions, model.gameOptions)
-				}));
-		return newModel;
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{
+				gameOptions: A2(_elm_lang$core$Maybe$map, updateOptions, model.gameOptions)
+			});
 	});
-var _user$project$GameOptionsDialog$Model = function (a) {
-	return {gameOptions: a};
-};
-var _user$project$GameOptionsDialog$model = function (options) {
-	return _user$project$GameOptionsDialog$Model(
-		_elm_lang$core$Maybe$Just(options));
-};
-var _user$project$GameOptionsDialog$emptyModel = _user$project$GameOptionsDialog$Model(_elm_lang$core$Maybe$Nothing);
+var _user$project$GameOptionsDialog$Model = F3(
+	function (a, b, c) {
+		return {closeMsg: a, wrapper: b, gameOptions: c};
+	});
+var _user$project$GameOptionsDialog$model = F3(
+	function (closeMsg, wrapper, options) {
+		return A3(
+			_user$project$GameOptionsDialog$Model,
+			closeMsg,
+			wrapper,
+			_elm_lang$core$Maybe$Just(options));
+	});
+var _user$project$GameOptionsDialog$emptyModel = F2(
+	function (closeMsg, wrapper) {
+		return A3(_user$project$GameOptionsDialog$Model, closeMsg, wrapper, _elm_lang$core$Maybe$Nothing);
+	});
 var _user$project$GameOptionsDialog$SwitchTo = F2(
 	function (a, b) {
 		return {ctor: 'SwitchTo', _0: a, _1: b};
@@ -12928,26 +12932,25 @@ var _user$project$GameOptionsDialog$dialogBody = function (options) {
 			}
 		});
 };
-var _user$project$GameOptionsDialog$view = F3(
-	function (close, wrapper, model) {
-		var x = A2(
+var _user$project$GameOptionsDialog$view = function (model) {
+	return _krisajenkins$elm_dialog$Dialog$view(
+		A2(
 			_elm_lang$core$Maybe$map,
 			function (o) {
 				return {
-					closeMessage: _elm_lang$core$Maybe$Just(close),
+					closeMessage: _elm_lang$core$Maybe$Just(model.closeMsg),
 					containerClass: _elm_lang$core$Maybe$Just('your-container-class'),
 					header: _elm_lang$core$Maybe$Just(_user$project$GameOptionsDialog$dialogHeader),
 					body: _elm_lang$core$Maybe$Just(
 						A2(
 							_elm_lang$html$Html$map,
-							wrapper,
+							model.wrapper,
 							_user$project$GameOptionsDialog$dialogBody(o))),
 					footer: _elm_lang$core$Maybe$Nothing
 				};
 			},
-			model.gameOptions);
-		return _krisajenkins$elm_dialog$Dialog$view(x);
-	});
+			model.gameOptions));
+};
 
 var _user$project$MainPage$onSelect = function (msg) {
 	return A2(
@@ -13139,11 +13142,18 @@ var _user$project$MainPage$Model = F6(
 	function (a, b, c, d, e, f) {
 		return {sources: a, message: b, userId: c, filters: d, host: e, options: f};
 	});
-var _user$project$MainPage$initialModel = A6(_user$project$MainPage$Model, _user$project$Model$WishList, '', 1, _user$project$GameEntry$emptyFilters, '', _user$project$GameOptionsDialog$emptyModel);
 var _user$project$MainPage$DialogMessage = function (a) {
 	return {ctor: 'DialogMessage', _0: a};
 };
 var _user$project$MainPage$DialogClose = {ctor: 'DialogClose'};
+var _user$project$MainPage$initialModel = A6(
+	_user$project$MainPage$Model,
+	_user$project$Model$WishList,
+	'',
+	1,
+	_user$project$GameEntry$emptyFilters,
+	'',
+	A2(_user$project$GameOptionsDialog$emptyModel, _user$project$MainPage$DialogClose, _user$project$MainPage$DialogMessage));
 var _user$project$MainPage$DialogData = function (a) {
 	return {ctor: 'DialogData', _0: a};
 };
@@ -13628,7 +13638,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							options: _user$project$GameOptionsDialog$model(_p5._0)
+							options: A3(_user$project$GameOptionsDialog$model, _user$project$MainPage$DialogClose, _user$project$MainPage$DialogMessage, _p5._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -13637,7 +13647,9 @@ var _user$project$MainPage$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{options: _user$project$GameOptionsDialog$emptyModel}),
+						{
+							options: A2(_user$project$GameOptionsDialog$emptyModel, _user$project$MainPage$DialogClose, _user$project$MainPage$DialogMessage)
+						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			default:
@@ -13905,7 +13917,7 @@ var _user$project$MainPage$view = function (model) {
 										}),
 									_1: {
 										ctor: '::',
-										_0: A3(_user$project$GameOptionsDialog$view, _user$project$MainPage$DialogClose, _user$project$MainPage$DialogMessage, model.options),
+										_0: _user$project$GameOptionsDialog$view(model.options),
 										_1: {ctor: '[]'}
 									}
 								}

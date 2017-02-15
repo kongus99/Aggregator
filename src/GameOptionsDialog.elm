@@ -13,16 +13,18 @@ import Router
 -- MODEL
 
 
-type alias Model =
-    { gameOptions : Maybe GameOptions }
+type alias Model msg =
+    { closeMsg : msg, wrapper : Msg -> msg, gameOptions : Maybe GameOptions }
 
 
-model options =
-    Model <| Just options
+model : msg -> (Msg -> msg) -> GameOptions -> Model msg
+model closeMsg wrapper options =
+    Model closeMsg wrapper (Just options)
 
 
-emptyModel =
-    Model Nothing
+emptyModel : msg -> (Msg -> msg) -> Model msg
+emptyModel closeMsg wrapper =
+    Model closeMsg wrapper Nothing
 
 
 
@@ -43,21 +45,18 @@ updateArray n f a =
             Array.set n (f element) a
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model msg -> Model msg
 update msg model =
     case msg of
         SwitchTo queryIndex resultIndex ->
             let
-                updatedQueries queries =
+                updateQueries queries =
                     updateArray queryIndex (\q -> { q | selectedResult = resultIndex }) queries
 
                 updateOptions options =
-                    { options | queries = updatedQueries options.queries }
-
-                newModel =
-                    Debug.log "model" { model | gameOptions = Maybe.map updateOptions model.gameOptions }
+                    { options | queries = updateQueries options.queries }
             in
-                newModel
+                { model | gameOptions = Maybe.map updateOptions model.gameOptions }
 
 
 fetch : Maybe Int -> (GameOptions -> c) -> (Http.Error -> c) -> Cmd c
@@ -73,22 +72,19 @@ fetch steamId mess err =
 -- VIEW
 
 
-view : msg -> (Msg -> msg) -> Model -> Html msg
-view close wrapper model =
-    let
-        x =
-            Maybe.map
-                (\o ->
-                    { closeMessage = Just close
-                    , containerClass = Just "your-container-class"
-                    , header = Just dialogHeader
-                    , body = Just <| Html.map wrapper (dialogBody o)
-                    , footer = Nothing
-                    }
-                )
-                model.gameOptions
-    in
-        Dialog.view x
+view : Model msg -> Html msg
+view model =
+    Dialog.view <|
+        Maybe.map
+            (\o ->
+                { closeMessage = Just model.closeMsg
+                , containerClass = Just "your-container-class"
+                , header = Just dialogHeader
+                , body = Just <| Html.map model.wrapper (dialogBody o)
+                , footer = Nothing
+                }
+            )
+            model.gameOptions
 
 
 dialogHeader =

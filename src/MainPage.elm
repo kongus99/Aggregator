@@ -61,11 +61,11 @@ subscriptions model =
 
 
 type alias Model =
-    { sources : GameSources, message : String, userId : Int, filters : Filters, host : String, options : GameOptionsDialog.Model }
+    { sources : GameSources, message : String, userId : Int, filters : Filters, host : String, options : GameOptionsDialog.Model Msg }
 
 
 initialModel =
-    Model WishList "" 1 GameEntry.emptyFilters "" GameOptionsDialog.emptyModel
+    Model WishList "" 1 GameEntry.emptyFilters "" (GameOptionsDialog.emptyModel DialogClose DialogMessage)
 
 
 
@@ -122,10 +122,10 @@ update msg model =
             ( model, GameOptionsDialog.fetch steamId DialogData RefreshError )
 
         DialogData options ->
-            ( { model | options = GameOptionsDialog.model options }, Cmd.none )
+            ( { model | options = GameOptionsDialog.model DialogClose DialogMessage options }, Cmd.none )
 
         DialogClose ->
-            ( { model | options = GameOptionsDialog.emptyModel }, Cmd.none )
+            ( { model | options = GameOptionsDialog.emptyModel DialogClose DialogMessage }, Cmd.none )
 
         DialogMessage msg ->
             ( { model | options = GameOptionsDialog.update msg model.options }, Cmd.none )
@@ -145,7 +145,7 @@ view model =
         , div [] [ sourcesSelect model.sources, gameOnSelect model.filters.gameOn, discountedInput model.filters.isDiscounted ]
         , div [] [ text (toString model.message) ]
         , table [ class "table table-striped table-bordered" ] [ thead [] [ gameTableTitle ], tbody [] (List.map gameTableRow model.filters.result) ]
-        , GameOptionsDialog.view DialogClose DialogMessage model.options
+        , GameOptionsDialog.view model.options
         ]
 
 
