@@ -12462,8 +12462,8 @@ var _user$project$Router$decodedGameQueryEntry = A5(
 	A2(
 		_elm_lang$core$Json_Decode$field,
 		'results',
-		_elm_lang$core$Json_Decode$array(_elm_lang$core$Json_Decode$string)),
-	A2(_elm_lang$core$Json_Decode$field, 'selectedResult', _elm_lang$core$Json_Decode$int));
+		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)),
+	A2(_elm_lang$core$Json_Decode$field, 'selectedResult', _elm_lang$core$Json_Decode$string));
 var _user$project$Router$decodedNamedEntry = A3(
 	_elm_lang$core$Json_Decode$map2,
 	_user$project$Model$NamedEntry,
@@ -12683,8 +12683,8 @@ var _user$project$GameOptionsDialog$onEnter = function (msg) {
 		'keydown',
 		A2(_elm_lang$core$Json_Decode$andThen, isEnter, _elm_lang$html$Html_Events$keyCode));
 };
-var _user$project$GameOptionsDialog$queryResult = F4(
-	function (selectedResult, msg, index, currentResult) {
+var _user$project$GameOptionsDialog$queryResult = F3(
+	function (selectedResult, msg, currentResult) {
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -12703,7 +12703,7 @@ var _user$project$GameOptionsDialog$queryResult = F4(
 							_elm_lang$html$Html$input,
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$name('selectedResult'),
+								_0: _elm_lang$html$Html_Attributes$name('queryResult'),
 								_1: {
 									ctor: '::',
 									_0: _elm_lang$html$Html_Attributes$type_('radio'),
@@ -12713,11 +12713,11 @@ var _user$project$GameOptionsDialog$queryResult = F4(
 										_1: {
 											ctor: '::',
 											_0: _elm_lang$html$Html_Attributes$checked(
-												_elm_lang$core$Native_Utils.eq(selectedResult, index)),
+												_elm_lang$core$Native_Utils.eq(selectedResult, currentResult)),
 											_1: {
 												ctor: '::',
 												_0: _elm_lang$html$Html_Events$onClick(
-													msg(index)),
+													msg(currentResult)),
 												_1: {ctor: '[]'}
 											}
 										}
@@ -12809,6 +12809,21 @@ var _user$project$GameOptionsDialog$fetch = F3(
 			_elm_lang$core$Maybe$withDefault,
 			_elm_lang$core$Platform_Cmd$none,
 			A2(_elm_lang$core$Maybe$map, send, steamId));
+	});
+var _user$project$GameOptionsDialog$serializeQuery = F3(
+	function (queryIndex, querySerializer, model) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			{ctor: '[]'},
+			A2(
+				_elm_lang$core$Maybe$map,
+				querySerializer,
+				A2(
+					_elm_lang$core$Maybe$andThen,
+					function (o) {
+						return A2(_elm_lang$core$Array$get, queryIndex, o.queries);
+					},
+					model.gameOptions)));
 	});
 var _user$project$GameOptionsDialog$updateArray = F3(
 	function (n, f, a) {
@@ -12914,15 +12929,15 @@ var _user$project$GameOptionsDialog$update = F3(
 		var _p3 = msg;
 		switch (_p3.ctor) {
 			case 'SwitchTo':
-				var _p5 = _p3._1;
-				var _p4 = _p3._0;
+				var _p5 = _p3._0;
+				var _p4 = _p3._1;
 				var newModel = A3(
 					_user$project$GameOptionsDialog$updateQuery,
-					_p4,
+					_p5,
 					function (q) {
 						return _elm_lang$core$Native_Utils.update(
 							q,
-							{selectedResult: _p5});
+							{selectedResult: _p4});
 					},
 					model);
 				return {
@@ -12933,7 +12948,7 @@ var _user$project$GameOptionsDialog$update = F3(
 					_1: A3(
 						_user$project$GameOptionsDialog$saveSwitched,
 						userId,
-						{ctor: '_Tuple2', _0: _p4, _1: _p5},
+						{ctor: '_Tuple2', _0: _p5, _1: _p4},
 						newModel)
 				};
 			case 'Switched':
@@ -12982,7 +12997,9 @@ var _user$project$GameOptionsDialog$update = F3(
 					function (q) {
 						return _elm_lang$core$Native_Utils.update(
 							q,
-							{results: _elm_lang$core$Array$empty});
+							{
+								results: {ctor: '[]'}
+							});
 					},
 					model);
 				return {
@@ -13057,14 +13074,13 @@ var _user$project$GameOptionsDialog$tableRow = F2(
 						_0: A2(
 							_elm_lang$html$Html$td,
 							{ctor: '[]'},
-							_elm_lang$core$Array$toList(
+							A2(
+								_elm_lang$core$List$map,
 								A2(
-									_elm_lang$core$Array$indexedMap,
-									A2(
-										_user$project$GameOptionsDialog$queryResult,
-										gameQuery.selectedResult,
-										_user$project$GameOptionsDialog$SwitchTo(index)),
-									gameQuery.results))),
+									_user$project$GameOptionsDialog$queryResult,
+									gameQuery.selectedResult,
+									_user$project$GameOptionsDialog$SwitchTo(index)),
+								gameQuery.results)),
 						_1: {ctor: '[]'}
 					}
 				}

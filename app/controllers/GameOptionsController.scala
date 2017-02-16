@@ -16,21 +16,21 @@ class GameOptionsController @Inject()(tables: Tables)(implicit exec: ExecutionCo
     import play.api.libs.functional.syntax._
     import play.api.libs.json.{JsPath, Writes}
 
-    case class GameQuery(query: String, site: String, results: List[String], selectedResult: Int)
+    case class GameQuery(query: String, site: String, results: List[String], selectedResult: String)
     case class GameOptions(entry: SteamEntry, queries: List[GameQuery])
 
     implicit val gameQueryWrites: Writes[GameQuery] =
       ((JsPath \ "query").write[String] and
         (JsPath \ "site").write[String] and
         (JsPath \ "results").write[Seq[String]] and
-        (JsPath \ "selectedResult").write[Int]) ((q) => (q.query, q.site, q.results, q.selectedResult))
+        (JsPath \ "selectedResult").write[String]) ((q) => (q.query, q.site, q.results, q.selectedResult))
 
     implicit val gameOptionsWrites: Writes[GameOptions] =
       ((JsPath \ "entry").write[SteamEntry] and
         (JsPath \ "queries").write[Seq[GameQuery]]) ((o) => (o.entry, o.queries))
 
     val st = SteamEntry("Some Game", gameId, None, None, owned = true)
-    val go = GameOptions(st, GameQuery("some query", "some site", "result1" :: "result2" :: Nil, 0) :: Nil)
+    val go = GameOptions(st, GameQuery("some query", "some site", "result1" :: "result2" :: Nil, "result2") :: Nil)
     Future(Ok(Json.toJson(go)))
   }
 

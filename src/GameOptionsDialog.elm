@@ -36,7 +36,7 @@ emptyModel closeMsg wrapper =
 
 
 type Msg
-    = SwitchTo Int Int
+    = SwitchTo Int String
     | Switched String
     | ChangeQuery Int String
     | GetNewResults Int
@@ -66,15 +66,22 @@ updateQuery queryIndex queryUpdate model =
         { model | gameOptions = Maybe.map updateOptions model.gameOptions }
 
 
+serializeQuery : Int -> (GameQuery -> List ( String, String )) -> Model msg -> List ( String, String )
+serializeQuery queryIndex querySerializer model =
+    Maybe.andThen (\o -> Array.get queryIndex o.queries) model.gameOptions |> Maybe.map querySerializer |> Maybe.withDefault []
+
+
 update : Int -> Msg -> Model msg -> ( Model msg, Cmd msg )
 update userId msg model =
     case msg of
-        SwitchTo queryIndex resultIndex ->
+        SwitchTo queryIndex newSelectedResult ->
             let
                 newModel =
-                    updateQuery queryIndex (\q -> { q | selectedResult = resultIndex }) model
+                    updateQuery queryIndex (\q -> { q | selectedResult = newSelectedResult }) model
+
+                --                serialized = serializeQuery queryIndex (\q -> )
             in
-                ( { newModel | message = Nothing }, saveSwitched userId ( queryIndex, resultIndex ) newModel )
+                ( { newModel | message = Nothing }, saveSwitched userId ( queryIndex, newSelectedResult ) newModel )
 
         Switched msg ->
             ( { model | message = Just msg }, Cmd.none )
@@ -92,7 +99,7 @@ update userId msg model =
         GetNewResults queryIndex ->
             let
                 newModel =
-                    updateQuery queryIndex (\q -> { q | results = Array.empty }) model
+                    updateQuery queryIndex (\q -> { q | results = [] }) model
             in
                 ( { newModel | message = Nothing }, newResults userId queryIndex model )
 
@@ -109,7 +116,7 @@ fetch steamId mess err =
         Maybe.map send steamId |> Maybe.withDefault Cmd.none
 
 
-saveSwitched userId ( queryIndex, resultIndex ) model =
+saveSwitched userId ( queryIndex, newSelectedResult ) model =
     let
         send =
             Http.send (Router.resolveResponse Switched DialogError) <| Router.saveSelectedSearchResult [ ( "userId", toString userId ) ]
@@ -144,10 +151,12 @@ view model =
             model.gameOptions
 
 
+dialogHeader : GameOptions -> Html msg
 dialogHeader options =
     h4 [] [ text options.entry.name ]
 
 
+dialogBody : GameOptions -> Html Msg
 dialogBody options =
     div []
         [ table [ class "table table-striped table-bordered" ]
@@ -170,6 +179,7 @@ tableHead =
         ]
 
 
+tableRow : Int -> GameQuery -> Html Msg
 tableRow index gameQuery =
     tr []
         [ th []
@@ -177,19 +187,18 @@ tableRow index gameQuery =
         , td []
             [ input [ type_ "text", value gameQuery.query, onEnter (GetNewResults index), onInput (ChangeQuery index) ] [] ]
         , td []
-            (Array.indexedMap
+            (List.map
                 (queryResult gameQuery.selectedResult (SwitchTo index))
                 gameQuery.results
-                |> Array.toList
             )
         ]
 
 
-queryResult : Int -> (Int -> msg) -> Int -> String -> Html msg
-queryResult selectedResult msg index currentResult =
+queryResult : String -> (String -> msg) -> String -> Html msg
+queryResult selectedResult msg currentResult =
     div [ class "radio" ]
         [ label []
-            [ input [ name "selectedResult", type_ "radio", value currentResult, checked (selectedResult == index), onClick (msg index) ]
+            [ input [ name "queryResult", type_ "radio", value currentResult, checked (selectedResult == currentResult), onClick (msg currentResult) ]
                 []
             , text currentResult
             ]
