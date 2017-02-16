@@ -12823,6 +12823,24 @@ var _user$project$GameOptionsDialog$updateArray = F3(
 				a);
 		}
 	});
+var _user$project$GameOptionsDialog$updateQuery = F3(
+	function (queryIndex, queryUpdate, model) {
+		var updateQueries = function (queries) {
+			return A3(_user$project$GameOptionsDialog$updateArray, queryIndex, queryUpdate, queries);
+		};
+		var updateOptions = function (options) {
+			return _elm_lang$core$Native_Utils.update(
+				options,
+				{
+					queries: updateQueries(options.queries)
+				});
+		};
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{
+				gameOptions: A2(_elm_lang$core$Maybe$map, updateOptions, model.gameOptions)
+			});
+	});
 var _user$project$GameOptionsDialog$Model = F4(
 	function (a, b, c, d) {
 		return {message: a, closeMsg: b, wrapper: c, gameOptions: d};
@@ -12866,6 +12884,10 @@ var _user$project$GameOptionsDialog$newResults = F3(
 var _user$project$GameOptionsDialog$GetNewResults = function (a) {
 	return {ctor: 'GetNewResults', _0: a};
 };
+var _user$project$GameOptionsDialog$ChangeQuery = F2(
+	function (a, b) {
+		return {ctor: 'ChangeQuery', _0: a, _1: b};
+	});
 var _user$project$GameOptionsDialog$Switched = function (a) {
 	return {ctor: 'Switched', _0: a};
 };
@@ -12894,37 +12916,25 @@ var _user$project$GameOptionsDialog$update = F3(
 			case 'SwitchTo':
 				var _p5 = _p3._1;
 				var _p4 = _p3._0;
-				var updateQueries = function (queries) {
-					return A3(
-						_user$project$GameOptionsDialog$updateArray,
-						_p4,
-						function (q) {
-							return _elm_lang$core$Native_Utils.update(
-								q,
-								{selectedResult: _p5});
-						},
-						queries);
-				};
-				var updateOptions = function (options) {
-					return _elm_lang$core$Native_Utils.update(
-						options,
-						{
-							queries: updateQueries(options.queries)
-						});
-				};
+				var newModel = A3(
+					_user$project$GameOptionsDialog$updateQuery,
+					_p4,
+					function (q) {
+						return _elm_lang$core$Native_Utils.update(
+							q,
+							{selectedResult: _p5});
+					},
+					model);
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							gameOptions: A2(_elm_lang$core$Maybe$map, updateOptions, model.gameOptions),
-							message: _elm_lang$core$Maybe$Nothing
-						}),
+						newModel,
+						{message: _elm_lang$core$Maybe$Nothing}),
 					_1: A3(
 						_user$project$GameOptionsDialog$saveSwitched,
 						userId,
 						{ctor: '_Tuple2', _0: _p4, _1: _p5},
-						model)
+						newModel)
 				};
 			case 'Switched':
 				return {
@@ -12947,14 +12957,40 @@ var _user$project$GameOptionsDialog$update = F3(
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			case 'GetNewResults':
-				var x = A2(_elm_lang$core$Debug$log, 'code', 'ttt');
+			case 'ChangeQuery':
+				var newModel = A3(
+					_user$project$GameOptionsDialog$updateQuery,
+					_p3._0,
+					function (q) {
+						return _elm_lang$core$Native_Utils.update(
+							q,
+							{query: _p3._1});
+					},
+					model);
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
-						model,
+						newModel,
 						{message: _elm_lang$core$Maybe$Nothing}),
-					_1: A3(_user$project$GameOptionsDialog$newResults, userId, _p3._0, model)
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'GetNewResults':
+				var _p6 = _p3._0;
+				var newModel = A3(
+					_user$project$GameOptionsDialog$updateQuery,
+					_p6,
+					function (q) {
+						return _elm_lang$core$Native_Utils.update(
+							q,
+							{results: _elm_lang$core$Array$empty});
+					},
+					model);
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						newModel,
+						{message: _elm_lang$core$Maybe$Nothing}),
+					_1: A3(_user$project$GameOptionsDialog$newResults, userId, _p6, model)
 				};
 			default:
 				return {
@@ -13004,7 +13040,12 @@ var _user$project$GameOptionsDialog$tableRow = F2(
 											ctor: '::',
 											_0: _user$project$GameOptionsDialog$onEnter(
 												_user$project$GameOptionsDialog$GetNewResults(index)),
-											_1: {ctor: '[]'}
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Events$onInput(
+													_user$project$GameOptionsDialog$ChangeQuery(index)),
+												_1: {ctor: '[]'}
+											}
 										}
 									}
 								},

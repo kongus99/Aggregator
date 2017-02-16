@@ -4,7 +4,7 @@ import Array exposing (Array)
 import Dialog
 import Html exposing (Attribute, Html, br, div, h2, h3, h4, input, label, option, p, select, table, tbody, td, text, th, thead, tr)
 import Html.Attributes exposing (attribute, checked, class, name, type_, value)
-import Html.Events exposing (keyCode, on, onClick)
+import Html.Events exposing (keyCode, on, onClick, onInput)
 import Http
 import Json.Decode as Json
 import Model exposing (GameOptions, GameQuery)
@@ -38,6 +38,7 @@ emptyModel closeMsg wrapper =
 type Msg
     = SwitchTo Int Int
     | Switched String
+    | ChangeQuery Int String
     | GetNewResults Int
     | NewResults (Array String)
     | DialogError Http.Error
@@ -53,18 +54,27 @@ updateArray n f a =
             Array.set n (f element) a
 
 
+updateQuery : Int -> (GameQuery -> GameQuery) -> Model msg -> Model msg
+updateQuery queryIndex queryUpdate model =
+    let
+        updateQueries queries =
+            updateArray queryIndex queryUpdate queries
+
+        updateOptions options =
+            { options | queries = updateQueries options.queries }
+    in
+        { model | gameOptions = Maybe.map updateOptions model.gameOptions }
+
+
 update : Int -> Msg -> Model msg -> ( Model msg, Cmd msg )
 update userId msg model =
     case msg of
         SwitchTo queryIndex resultIndex ->
             let
-                updateQueries queries =
-                    updateArray queryIndex (\q -> { q | selectedResult = resultIndex }) queries
-
-                updateOptions options =
-                    { options | queries = updateQueries options.queries }
+                newModel =
+                    updateQuery queryIndex (\q -> { q | selectedResult = resultIndex }) model
             in
-                ( { model | gameOptions = Maybe.map updateOptions model.gameOptions, message = Nothing }, saveSwitched userId ( queryIndex, resultIndex ) model )
+                ( { newModel | message = Nothing }, saveSwitched userId ( queryIndex, resultIndex ) newModel )
 
         Switched msg ->
             ( { model | message = Just msg }, Cmd.none )
@@ -72,12 +82,19 @@ update userId msg model =
         DialogError err ->
             ( { model | message = Just <| toString err }, Cmd.none )
 
+        ChangeQuery queryIndex newQuery ->
+            let
+                newModel =
+                    updateQuery queryIndex (\q -> { q | query = newQuery }) model
+            in
+                ( { newModel | message = Nothing }, Cmd.none )
+
         GetNewResults queryIndex ->
             let
-                x =
-                    Debug.log "code" "ttt"
+                newModel =
+                    updateQuery queryIndex (\q -> { q | results = Array.empty }) model
             in
-                ( { model | message = Nothing }, newResults userId queryIndex model )
+                ( { newModel | message = Nothing }, newResults userId queryIndex model )
 
         NewResults results ->
             ( { model | message = Nothing }, Cmd.none )
@@ -158,7 +175,7 @@ tableRow index gameQuery =
         [ th []
             [ text gameQuery.site ]
         , td []
-            [ input [ type_ "text", value gameQuery.query, onEnter (GetNewResults index) ] [] ]
+            [ input [ type_ "text", value gameQuery.query, onEnter (GetNewResults index), onInput (ChangeQuery index) ] [] ]
         , td []
             (Array.indexedMap
                 (queryResult gameQuery.selectedResult (SwitchTo index))

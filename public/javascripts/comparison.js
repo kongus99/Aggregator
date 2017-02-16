@@ -10564,9 +10564,9 @@ var _user$project$Router$refreshSocketUrl = function (host) {
 		A2(_elm_lang$core$Basics_ops['++'], host, '/refreshSocket'));
 };
 var _user$project$Router$mainPageUrl = '/main';
-var _user$project$Router$Addresses = F3(
-	function (a, b, c) {
-		return {login: a, main: b, comparison: c};
+var _user$project$Router$Addresses = F4(
+	function (a, b, c, d) {
+		return {login: a, main: b, gameOptions: c, comparison: d};
 	});
 var _user$project$Router$Login = F3(
 	function (a, b, c) {
@@ -10577,17 +10577,24 @@ var _user$project$Router$login = A3(
 	_user$project$Router$generateAddress('login/fetch'),
 	_user$project$Router$generateAddress('login/createUpdate'),
 	_user$project$Router$generateAddress('login/steamAlternate'));
-var _user$project$Router$Main = F5(
-	function (a, b, c, d, e) {
-		return {refreshGames: a, gameOptions: b, fetch: c, page: d, changeSelectedSearch: e};
+var _user$project$Router$Main = F3(
+	function (a, b, c) {
+		return {refreshGames: a, fetch: b, page: c};
 	});
-var _user$project$Router$main_ = A5(
+var _user$project$Router$main_ = A3(
 	_user$project$Router$Main,
 	_user$project$Router$generateAddress('main/refresh'),
-	_user$project$Router$generateAddress('main/gameOptions'),
 	_user$project$Router$generateAddress('main/fetch'),
-	_user$project$Router$generateAddress('main'),
-	_user$project$Router$generateAddress('main/search'));
+	_user$project$Router$generateAddress('main'));
+var _user$project$Router$Options = F3(
+	function (a, b, c) {
+		return {fetch: a, changeSelectedSearch: b, fetchSearchResults: c};
+	});
+var _user$project$Router$gameOptions = A3(
+	_user$project$Router$Options,
+	_user$project$Router$generateAddress('gameOptions/fetch'),
+	_user$project$Router$generateAddress('gameOptions/changeSelectedSearch'),
+	_user$project$Router$generateAddress('gameOptions/fetchSearchResults'));
 var _user$project$Router$Comparison = F3(
 	function (a, b, c) {
 		return {toggleSelected: a, comparisonData: b, page: c};
@@ -10597,7 +10604,7 @@ var _user$project$Router$comparison = A3(
 	_user$project$Router$generateAddress('comparison/toggleMatch'),
 	_user$project$Router$generateAddress('comparison/data'),
 	_user$project$Router$generateAddress('comparison'));
-var _user$project$Router$routes = A3(_user$project$Router$Addresses, _user$project$Router$login, _user$project$Router$main_, _user$project$Router$comparison);
+var _user$project$Router$routes = A4(_user$project$Router$Addresses, _user$project$Router$login, _user$project$Router$main_, _user$project$Router$gameOptions, _user$project$Router$comparison);
 var _user$project$Router$fetchUser = function (params) {
 	return A2(
 		_elm_lang$http$Http$get,
@@ -10641,13 +10648,19 @@ var _user$project$Router$getUserGames = function (params) {
 var _user$project$Router$fetchGameOptions = function (params) {
 	return A2(
 		_elm_lang$http$Http$get,
-		_user$project$Router$routes.main.gameOptions(params),
+		_user$project$Router$routes.gameOptions.fetch(params),
 		_user$project$Router$decodedGameOptionsEntry);
+};
+var _user$project$Router$fetchNewSearchResults = function (params) {
+	return A2(
+		_elm_lang$http$Http$get,
+		_user$project$Router$routes.gameOptions.fetchSearchResults(params),
+		_elm_lang$core$Json_Decode$array(_elm_lang$core$Json_Decode$string));
 };
 var _user$project$Router$saveSelectedSearchResult = function (params) {
 	return A3(
 		_elm_lang$http$Http$post,
-		_user$project$Router$routes.main.changeSelectedSearch(params),
+		_user$project$Router$routes.gameOptions.changeSelectedSearch(params),
 		_elm_lang$http$Http$emptyBody,
 		_elm_lang$core$Json_Decode$string);
 };
