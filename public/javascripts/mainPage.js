@@ -12647,7 +12647,7 @@ var _user$project$Router$fetchNewSearchResults = function (params) {
 	return A2(
 		_elm_lang$http$Http$get,
 		_user$project$Router$routes.gameOptions.fetchSearchResults(params),
-		_elm_lang$core$Json_Decode$array(_elm_lang$core$Json_Decode$string));
+		_user$project$Router$decodedGameOptionsEntry);
 };
 var _user$project$Router$saveSelectedSearchResult = function (params) {
 	return A3(
@@ -12799,7 +12799,7 @@ var _user$project$GameOptionsDialog$fetch = F3(
 						ctor: '::',
 						_0: {
 							ctor: '_Tuple2',
-							_0: 'gameId',
+							_0: 'steamId',
 							_1: _elm_lang$core$Basics$toString(id)
 						},
 						_1: {ctor: '[]'}
@@ -12810,7 +12810,26 @@ var _user$project$GameOptionsDialog$fetch = F3(
 			_elm_lang$core$Platform_Cmd$none,
 			A2(_elm_lang$core$Maybe$map, send, steamId));
 	});
-var _user$project$GameOptionsDialog$serializeQuery = F3(
+var _user$project$GameOptionsDialog$serializeSteamId = function (model) {
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		{ctor: '[]'},
+		A2(
+			_elm_lang$core$Maybe$map,
+			function (o) {
+				return {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'steamId',
+						_1: _elm_lang$core$Basics$toString(o.entry.steamId)
+					},
+					_1: {ctor: '[]'}
+				};
+			},
+			model.gameOptions));
+};
+var _user$project$GameOptionsDialog$serializeSelectedQuery = F3(
 	function (queryIndex, querySerializer, model) {
 		return A2(
 			_elm_lang$core$Maybe$withDefault,
@@ -12880,21 +12899,26 @@ var _user$project$GameOptionsDialog$NewResults = function (a) {
 	return {ctor: 'NewResults', _0: a};
 };
 var _user$project$GameOptionsDialog$newResults = F3(
-	function (userId, queryIndex, model) {
-		var send = A2(
-			_elm_lang$http$Http$send,
-			A2(_user$project$Router$resolveResponse, _user$project$GameOptionsDialog$NewResults, _user$project$GameOptionsDialog$DialogError),
-			_user$project$Router$fetchNewSearchResults(
-				{
-					ctor: '::',
-					_0: {
-						ctor: '_Tuple2',
-						_0: 'userId',
-						_1: _elm_lang$core$Basics$toString(userId)
-					},
-					_1: {ctor: '[]'}
-				}));
-		return A2(_elm_lang$core$Platform_Cmd$map, model.wrapper, send);
+	function (userId, serialized, model) {
+		return A2(
+			_elm_lang$core$Platform_Cmd$map,
+			model.wrapper,
+			A2(
+				_elm_lang$http$Http$send,
+				A2(_user$project$Router$resolveResponse, _user$project$GameOptionsDialog$NewResults, _user$project$GameOptionsDialog$DialogError),
+				_user$project$Router$fetchNewSearchResults(
+					A2(
+						_elm_lang$core$List$append,
+						{
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'userId',
+								_1: _elm_lang$core$Basics$toString(userId)
+							},
+							_1: serialized
+						},
+						_user$project$GameOptionsDialog$serializeSteamId(model)))));
 	});
 var _user$project$GameOptionsDialog$GetNewResults = function (a) {
 	return {ctor: 'GetNewResults', _0: a};
@@ -12907,49 +12931,63 @@ var _user$project$GameOptionsDialog$Switched = function (a) {
 	return {ctor: 'Switched', _0: a};
 };
 var _user$project$GameOptionsDialog$saveSwitched = F3(
-	function (userId, _p1, model) {
-		var _p2 = _p1;
-		var send = A2(
-			_elm_lang$http$Http$send,
-			A2(_user$project$Router$resolveResponse, _user$project$GameOptionsDialog$Switched, _user$project$GameOptionsDialog$DialogError),
-			_user$project$Router$saveSelectedSearchResult(
-				{
-					ctor: '::',
-					_0: {
-						ctor: '_Tuple2',
-						_0: 'userId',
-						_1: _elm_lang$core$Basics$toString(userId)
-					},
-					_1: {ctor: '[]'}
-				}));
-		return A2(_elm_lang$core$Platform_Cmd$map, model.wrapper, send);
+	function (userId, serialized, model) {
+		return A2(
+			_elm_lang$core$Platform_Cmd$map,
+			model.wrapper,
+			A2(
+				_elm_lang$http$Http$send,
+				A2(_user$project$Router$resolveResponse, _user$project$GameOptionsDialog$Switched, _user$project$GameOptionsDialog$DialogError),
+				_user$project$Router$saveSelectedSearchResult(
+					A2(
+						_elm_lang$core$List$append,
+						{
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'userId',
+								_1: _elm_lang$core$Basics$toString(userId)
+							},
+							_1: serialized
+						},
+						_user$project$GameOptionsDialog$serializeSteamId(model)))));
 	});
 var _user$project$GameOptionsDialog$update = F3(
 	function (userId, msg, model) {
-		var _p3 = msg;
-		switch (_p3.ctor) {
+		var _p1 = msg;
+		switch (_p1.ctor) {
 			case 'SwitchTo':
-				var _p5 = _p3._0;
-				var _p4 = _p3._1;
+				var _p2 = _p1._0;
 				var newModel = A3(
 					_user$project$GameOptionsDialog$updateQuery,
-					_p5,
+					_p2,
 					function (q) {
 						return _elm_lang$core$Native_Utils.update(
 							q,
-							{selectedResult: _p4});
+							{selectedResult: _p1._1});
 					},
 					model);
+				var serialized = A3(
+					_user$project$GameOptionsDialog$serializeSelectedQuery,
+					_p2,
+					function (q) {
+						return {
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'selectedResult', _1: q.selectedResult},
+							_1: {
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'site', _1: q.site},
+								_1: {ctor: '[]'}
+							}
+						};
+					},
+					newModel);
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						newModel,
 						{message: _elm_lang$core$Maybe$Nothing}),
-					_1: A3(
-						_user$project$GameOptionsDialog$saveSwitched,
-						userId,
-						{ctor: '_Tuple2', _0: _p5, _1: _p4},
-						newModel)
+					_1: A3(_user$project$GameOptionsDialog$saveSwitched, userId, serialized, newModel)
 				};
 			case 'Switched':
 				return {
@@ -12957,7 +12995,7 @@ var _user$project$GameOptionsDialog$update = F3(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							message: _elm_lang$core$Maybe$Just(_p3._0)
+							message: _elm_lang$core$Maybe$Just(_p1._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -12968,18 +13006,18 @@ var _user$project$GameOptionsDialog$update = F3(
 						model,
 						{
 							message: _elm_lang$core$Maybe$Just(
-								_elm_lang$core$Basics$toString(_p3._0))
+								_elm_lang$core$Basics$toString(_p1._0))
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'ChangeQuery':
 				var newModel = A3(
 					_user$project$GameOptionsDialog$updateQuery,
-					_p3._0,
+					_p1._0,
 					function (q) {
 						return _elm_lang$core$Native_Utils.update(
 							q,
-							{query: _p3._1});
+							{query: _p1._1});
 					},
 					model);
 				return {
@@ -12990,10 +13028,10 @@ var _user$project$GameOptionsDialog$update = F3(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'GetNewResults':
-				var _p6 = _p3._0;
+				var _p3 = _p1._0;
 				var newModel = A3(
 					_user$project$GameOptionsDialog$updateQuery,
-					_p6,
+					_p3,
 					function (q) {
 						return _elm_lang$core$Native_Utils.update(
 							q,
@@ -13002,19 +13040,37 @@ var _user$project$GameOptionsDialog$update = F3(
 							});
 					},
 					model);
+				var serialized = A3(
+					_user$project$GameOptionsDialog$serializeSelectedQuery,
+					_p3,
+					function (q) {
+						return {
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'query', _1: q.query},
+							_1: {
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'site', _1: q.site},
+								_1: {ctor: '[]'}
+							}
+						};
+					},
+					newModel);
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						newModel,
 						{message: _elm_lang$core$Maybe$Nothing}),
-					_1: A3(_user$project$GameOptionsDialog$newResults, userId, _p6, model)
+					_1: A3(_user$project$GameOptionsDialog$newResults, userId, serialized, model)
 				};
 			default:
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{message: _elm_lang$core$Maybe$Nothing}),
+						{
+							message: _elm_lang$core$Maybe$Nothing,
+							gameOptions: _elm_lang$core$Maybe$Just(_p1._0)
+						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 		}

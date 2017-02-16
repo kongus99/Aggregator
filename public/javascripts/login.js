@@ -9627,7 +9627,7 @@ var _user$project$Router$fetchNewSearchResults = function (params) {
 	return A2(
 		_elm_lang$http$Http$get,
 		_user$project$Router$routes.gameOptions.fetchSearchResults(params),
-		_elm_lang$core$Json_Decode$array(_elm_lang$core$Json_Decode$string));
+		_user$project$Router$decodedGameOptionsEntry);
 };
 var _user$project$Router$saveSelectedSearchResult = function (params) {
 	return A3(

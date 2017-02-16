@@ -35,7 +35,7 @@ fetchGameOptions params =
 
 
 fetchNewSearchResults params =
-    Http.get (routes.gameOptions.fetchSearchResults params) (array string)
+    Http.get (routes.gameOptions.fetchSearchResults params) decodedGameOptionsEntry
 
 
 saveSelectedSearchResult params =

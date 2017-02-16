@@ -40,7 +40,7 @@ type Msg
     | Switched String
     | ChangeQuery Int String
     | GetNewResults Int
-    | NewResults (Array String)
+    | NewResults GameOptions
     | DialogError Http.Error
 
 
@@ -66,9 +66,14 @@ updateQuery queryIndex queryUpdate model =
         { model | gameOptions = Maybe.map updateOptions model.gameOptions }
 
 
-serializeQuery : Int -> (GameQuery -> List ( String, String )) -> Model msg -> List ( String, String )
-serializeQuery queryIndex querySerializer model =
+serializeSelectedQuery : Int -> (GameQuery -> List ( String, String )) -> Model msg -> List ( String, String )
+serializeSelectedQuery queryIndex querySerializer model =
     Maybe.andThen (\o -> Array.get queryIndex o.queries) model.gameOptions |> Maybe.map querySerializer |> Maybe.withDefault []
+
+
+serializeSteamId : Model msg -> List ( String, String )
+serializeSteamId model =
+    model.gameOptions |> Maybe.map (\o -> [ ( "steamId", toString o.entry.steamId ) ]) |> Maybe.withDefault []
 
 
 update : Int -> Msg -> Model msg -> ( Model msg, Cmd msg )
@@ -79,9 +84,10 @@ update userId msg model =
                 newModel =
                     updateQuery queryIndex (\q -> { q | selectedResult = newSelectedResult }) model
 
-                --                serialized = serializeQuery queryIndex (\q -> )
+                serialized =
+                    serializeSelectedQuery queryIndex (\q -> [ ( "selectedResult", q.selectedResult ), ( "site", q.site ) ]) newModel
             in
-                ( { newModel | message = Nothing }, saveSwitched userId ( queryIndex, newSelectedResult ) newModel )
+                ( { newModel | message = Nothing }, saveSwitched userId serialized newModel )
 
         Switched msg ->
             ( { model | message = Just msg }, Cmd.none )
@@ -100,36 +106,37 @@ update userId msg model =
             let
                 newModel =
                     updateQuery queryIndex (\q -> { q | results = [] }) model
+
+                serialized =
+                    serializeSelectedQuery queryIndex (\q -> [ ( "query", q.query ), ( "site", q.site ) ]) newModel
             in
-                ( { newModel | message = Nothing }, newResults userId queryIndex model )
+                ( { newModel | message = Nothing }, newResults userId serialized model )
 
         NewResults results ->
-            ( { model | message = Nothing }, Cmd.none )
+            ( { model | message = Nothing, gameOptions = Just results }, Cmd.none )
 
 
 fetch : Maybe Int -> (GameOptions -> c) -> (Http.Error -> c) -> Cmd c
 fetch steamId mess err =
     let
         send id =
-            Http.send (Router.resolveResponse mess err) <| Router.fetchGameOptions [ ( "gameId", toString id ) ]
+            Http.send (Router.resolveResponse mess err) <| Router.fetchGameOptions [ ( "steamId", toString id ) ]
     in
         Maybe.map send steamId |> Maybe.withDefault Cmd.none
 
 
-saveSwitched userId ( queryIndex, newSelectedResult ) model =
-    let
-        send =
-            Http.send (Router.resolveResponse Switched DialogError) <| Router.saveSelectedSearchResult [ ( "userId", toString userId ) ]
-    in
-        Cmd.map model.wrapper send
+saveSwitched userId serialized model =
+    List.append (( "userId", toString userId ) :: serialized) (serializeSteamId model)
+        |> Router.saveSelectedSearchResult
+        |> Http.send (Router.resolveResponse Switched DialogError)
+        |> Cmd.map model.wrapper
 
 
-newResults userId queryIndex model =
-    let
-        send =
-            Http.send (Router.resolveResponse NewResults DialogError) <| Router.fetchNewSearchResults [ ( "userId", toString userId ) ]
-    in
-        Cmd.map model.wrapper send
+newResults userId serialized model =
+    List.append (( "userId", toString userId ) :: serialized) (serializeSteamId model)
+        |> Router.fetchNewSearchResults
+        |> Http.send (Router.resolveResponse NewResults DialogError)
+        |> Cmd.map model.wrapper
 
 
 
