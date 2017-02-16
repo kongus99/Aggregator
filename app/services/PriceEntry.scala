@@ -6,6 +6,7 @@ import model.Tables
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import play.api.libs.json._
+import services.PriceHost.{FK, Keye}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -43,7 +44,6 @@ object KeyePricesFetcher {
 
   private val keyePriceReads = ((JsPath \ "name").read[String] and (JsPath \ "price").read[String] and (JsPath \ "url").read[String])((n, p, u) => (n, p, u))
 
-  private val host = "https://www.keye.pl"
   def getPrices(entries: Seq[SteamEntry], tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
     def autoCompleteUrl(query: String) = s"/index/lists?term=$query"
 
@@ -53,7 +53,7 @@ object KeyePricesFetcher {
       def parsePrice(steamEntry: SteamEntry, json: String): PriceEntry = {
         val parse = Json.parse(json)
         val data = parse.as[List[JsValue]].map(_.as(keyePriceReads)).head
-        PriceEntry(steamEntry.steamId, data._1, host, host + data._3, BigDecimal(data._2).setScale(2))
+        PriceEntry(steamEntry.steamId, data._1, Keye.toString, Keye.toString + data._3, BigDecimal(data._2).setScale(2))
       }
 
       complete.filter(p => !p._2.isEmpty && p._2 != "[]").map((parsePrice _).tupled)
@@ -64,7 +64,6 @@ object KeyePricesFetcher {
 object FKPricesFetcher {
 
   import scala.collection.JavaConversions._
-  val host = "www.fabrykakluczy.pl"
 
   def getPrices(entries: Seq[SteamEntry], tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
     def getLinks = {
@@ -75,7 +74,7 @@ object FKPricesFetcher {
         def parseUrl(name: String, html: String): Seq[String] = {
           val candidates = Jsoup.parse(html).getElementsByTag("a").toList
           val winner = candidates.map(a => (ThresholdLevenshtein.count(a.text(), name, 100), a)).sortBy(_._1).headOption
-          winner.map(_._2.attr("href").split(host)(1)).map(Seq(_)).getOrElse(Seq())
+          winner.map(_._2.attr("href").split(FK.toString)(1)).map(Seq(_)).getOrElse(Seq())
         }
         complete.filter(p => !p._2.isEmpty).flatMap(p => parseUrl(p._1.name, p._2).map(s => (p._1, s)))
       }
@@ -91,7 +90,7 @@ object FKPricesFetcher {
         val activeContent = parsed.getElementById("content").getElementsByClass("active").head
         val name = activeContent.text()
         val link = activeContent.getElementsByTag("a").head.attr("href")
-        PriceEntry(e.steamId, name, host, link, BigDecimal(price))
+        PriceEntry(e.steamId, name, FK.toString, link, BigDecimal(price))
       }
       details.map((getPrice _).tupled)
     }

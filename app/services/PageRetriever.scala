@@ -6,6 +6,13 @@ import play.api.libs.ws.WSClient
 import scala.collection.immutable.Seq
 import scala.concurrent.{ExecutionContext, Future}
 
+object PriceHost extends Enumeration {
+  type PriceHost = Value
+  val FK = Value("www.fabrykakluczy.pl")
+  val Keye = Value("www.keye.pl")
+  val Gol = Value("www.gry-online.pl")
+}
+
 abstract class PageRetriever(client: WSClient)(implicit exec: ExecutionContext) {
   protected def address(username: String)(query: String): UrlAddress
 
@@ -50,18 +57,18 @@ class ReferenceRatesRetriever(client: WSClient)(implicit exec: ExecutionContext)
 }
 
 class GolRetriever(client: WSClient)(implicit exec: ExecutionContext) extends PageRetriever(client) {
-  override protected def address(user: String)(query: String): UrlAddress = UrlAddress("http://www.gry-online.pl" + query)
+  override protected def address(user: String)(query: String): UrlAddress = UrlAddress("http://" + PriceHost.Gol.toString + query)
 }
 
 class FKRetriever(client: WSClient)(implicit exec: ExecutionContext) extends PageRetriever(client) {
-  private val header = ("Host", "www.fabrykakluczy.pl") ::
+  private val header = ("Host", PriceHost.FK.toString) ::
     ("X-Requested-With", "XMLHttpRequest") ::
-    ("Referer", "http://www.fabrykakluczy.pl/") ::
+    ("Referer", "http://" + PriceHost.FK.toString) ::
     Nil
 
-  override def address(user: String)(query: String): UrlAddress = UrlAddress("http://www.fabrykakluczy.pl" + query, header)
+  override def address(user: String)(query: String): UrlAddress = UrlAddress("http://" + PriceHost.FK.toString + query, header)
 }
 
 class KeyeRetriever(client: WSClient)(implicit exec: ExecutionContext) extends PageRetriever(client) {
-  override protected def address(user: String)(query: String) = UrlAddress("https://www.keye.pl" + query)
+  override protected def address(user: String)(query: String) = UrlAddress("https://" + PriceHost.Keye.toString + query)
 }
