@@ -12683,8 +12683,8 @@ var _user$project$GameOptionsDialog$onEnter = function (msg) {
 		'keydown',
 		A2(_elm_lang$core$Json_Decode$andThen, isEnter, _elm_lang$html$Html_Events$keyCode));
 };
-var _user$project$GameOptionsDialog$queryResult = F3(
-	function (selectedResult, msg, currentResult) {
+var _user$project$GameOptionsDialog$queryResult = F4(
+	function (selectedResult, msg, index, currentResult) {
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -12703,7 +12703,11 @@ var _user$project$GameOptionsDialog$queryResult = F3(
 							_elm_lang$html$Html$input,
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$name('queryResult'),
+								_0: _elm_lang$html$Html_Attributes$name(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'queryResult',
+										_elm_lang$core$Basics$toString(index))),
 								_1: {
 									ctor: '::',
 									_0: _elm_lang$html$Html_Attributes$type_('radio'),
@@ -13132,10 +13136,11 @@ var _user$project$GameOptionsDialog$tableRow = F2(
 							{ctor: '[]'},
 							A2(
 								_elm_lang$core$List$map,
-								A2(
+								A3(
 									_user$project$GameOptionsDialog$queryResult,
 									gameQuery.selectedResult,
-									_user$project$GameOptionsDialog$SwitchTo(index)),
+									_user$project$GameOptionsDialog$SwitchTo(index),
+									index),
 								gameQuery.results)),
 						_1: {ctor: '[]'}
 					}
@@ -13178,7 +13183,7 @@ var _user$project$GameOptionsDialog$view = function (model) {
 			function (o) {
 				return {
 					closeMessage: _elm_lang$core$Maybe$Just(model.closeMsg),
-					containerClass: _elm_lang$core$Maybe$Just('your-container-class'),
+					containerClass: _elm_lang$core$Maybe$Just('game-options-class'),
 					header: _elm_lang$core$Maybe$Just(
 						_user$project$GameOptionsDialog$dialogHeader(o)),
 					body: _elm_lang$core$Maybe$Just(

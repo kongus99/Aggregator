@@ -53,7 +53,7 @@ object KeyePricesFetcher {
       def parsePrice(steamEntry: SteamEntry, json: String): PriceEntry = {
         val parse = Json.parse(json)
         val data = parse.as[List[JsValue]].map(_.as(keyePriceReads)).head
-        PriceEntry(steamEntry.steamId, data._1, Keye.toString, Keye.toString + data._3, BigDecimal(data._2).setScale(2))
+        PriceEntry(steamEntry.steamId, data._1, "https://" + Keye.toString, "https://" + Keye.toString + data._3, BigDecimal(data._2).setScale(2))
       }
 
       complete.filter(p => !p._2.isEmpty && p._2 != "[]").map((parsePrice _).tupled)

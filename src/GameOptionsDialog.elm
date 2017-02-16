@@ -149,7 +149,7 @@ view model =
         Maybe.map
             (\o ->
                 { closeMessage = Just model.closeMsg
-                , containerClass = Just "your-container-class"
+                , containerClass = Just "game-options-class"
                 , header = Just <| dialogHeader o
                 , body = Just <| Html.map model.wrapper (dialogBody o)
                 , footer = Maybe.map text model.message
@@ -195,17 +195,17 @@ tableRow index gameQuery =
             [ input [ type_ "text", value gameQuery.query, onEnter (GetNewResults index), onInput (ChangeQuery index) ] [] ]
         , td []
             (List.map
-                (queryResult gameQuery.selectedResult (SwitchTo index))
+                (queryResult gameQuery.selectedResult (SwitchTo index) index)
                 gameQuery.results
             )
         ]
 
 
-queryResult : String -> (String -> msg) -> String -> Html msg
-queryResult selectedResult msg currentResult =
+queryResult : String -> (String -> msg) -> Int -> String -> Html msg
+queryResult selectedResult msg index currentResult =
     div [ class "radio" ]
         [ label []
-            [ input [ name "queryResult", type_ "radio", value currentResult, checked (selectedResult == currentResult), onClick (msg currentResult) ]
+            [ input [ name <| "queryResult" ++ (toString index), type_ "radio", value currentResult, checked (selectedResult == currentResult), onClick (msg currentResult) ]
                 []
             , text currentResult
             ]

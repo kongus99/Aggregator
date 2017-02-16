@@ -14,3 +14,11 @@ table .cell_Both {
 table .cell_Steam {
     color: red;
 }
+
+.game-options-class .modal-dialog {
+    width: 80%;
+}
+
+.game-options-class input[type=text]{
+    width: 100%;
+}

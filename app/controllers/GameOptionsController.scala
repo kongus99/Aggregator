@@ -16,8 +16,8 @@ class GameOptionsController @Inject()(tables: Tables)(implicit exec: ExecutionCo
     for{
       steamEntry <- tables.getSteamEntryById(steamId)
     } yield {
-      val go = GameOptions(steamEntry, GameQuery("some query", "some site", "result1" :: "result2" :: Nil, "result2") :: Nil)
-      Ok(Json.toJson(go))
+      val queries = PriceHost.values.map(h => GameQuery(steamEntry.name, h.toString, "result1" :: "result2" :: Nil, "result2")).toList
+      Ok(Json.toJson(GameOptions(steamEntry, queries)))
     }
   }
 
@@ -30,8 +30,8 @@ class GameOptionsController @Inject()(tables: Tables)(implicit exec: ExecutionCo
     for{
       steamEntry <- tables.getSteamEntryById(steamId)
     } yield {
-      val go = GameOptions(steamEntry, GameQuery(query, site, "new 1" :: "new 2" :: "new 2" :: Nil, "") :: Nil)
-      Ok(Json.toJson(go))
+      val queries = PriceHost.values.map(h => GameQuery(steamEntry.name, h.toString, "new 1" :: "new 2" :: "new 2" :: Nil, "")).toList
+      Ok(Json.toJson(GameOptions(steamEntry, queries)))
     }
   }
 }
