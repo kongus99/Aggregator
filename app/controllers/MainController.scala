@@ -20,12 +20,8 @@ class MainController @Inject()(client: WSClient, configuration: Configuration, t
   val gogRetriever = new GogPageRetriever(client, configuration)
   val steamRetriever = new SteamPageRetriever(client)
   val gogWishListRetriever = new GogWishListRetriever(client, configuration)
-  val ratesRetriever = new ReferenceRatesRetriever(client)
-  val golRetriever = new GolRetriever(client)
-  val fkRetriever = new FKRetriever(client)
-  val keyeRetriever = new KeyeRetriever(client)
 
-  def main = Action.async {
+  def main: Action[AnyContent] = Action.async {
     Future {
       Ok(views.html.main("Aggregator - summary", "javascripts/mainPage", "MainPage"))
     }

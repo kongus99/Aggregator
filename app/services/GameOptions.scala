@@ -3,9 +3,9 @@ package services
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Writes}
 
-case class GameOptions(entry: SteamEntry, queries: List[GameQuery])
+case class GameOptions(entry: SteamEntry, queries: Seq[GameQuery])
 
-case class GameQuery(query: String, site: String, results: List[String], selectedResult: String)
+case class GameQuery(query: String, site: String, results: Seq[String], selectedResult: String)
 
 object GameOptions {
   implicit val gameOptionsWrites: Writes[GameOptions] =

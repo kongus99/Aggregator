@@ -44,9 +44,9 @@ object KeyePricesFetcher {
 
   private val keyePriceReads = ((JsPath \ "name").read[String] and (JsPath \ "price").read[String] and (JsPath \ "url").read[String])((n, p, u) => (n, p, u))
 
-  def getPrices(entries: Seq[SteamEntry], tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
-    def autoCompleteUrl(query: String) = s"/index/lists?term=$query"
+  private def autoCompleteUrl(query: String) = s"/index/lists?term=$query"
 
+  def getPrices(entries: Seq[SteamEntry], tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
     for {
       complete <- Future.sequence(entries.map(e => retriever(autoCompleteUrl(e.name)).map(s => (e, s))))
     } yield {
@@ -59,15 +59,24 @@ object KeyePricesFetcher {
       complete.filter(p => !p._2.isEmpty && p._2 != "[]").map((parsePrice _).tupled)
     }
   }
+
+  def getSuggestions(query: String, tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[String]] = {
+    for {
+      complete <- retriever(autoCompleteUrl(query))
+    } yield {
+      Json.parse(complete).as[List[JsValue]].map(_.as(keyePriceReads)._1)
+    }
+  }
 }
 
 object FKPricesFetcher {
 
   import scala.collection.JavaConversions._
 
+  private def autoCompleteUrl(query : String) = s"/search/?q=$query"
+
   def getPrices(entries: Seq[SteamEntry], tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
     def getLinks = {
-      def autoCompleteUrl(query : String) = s"/search/?q=$query"
       for {
         complete <- Future.sequence(entries.map(e => retriever(autoCompleteUrl(e.name)).map(s => (e, s))))
       } yield {
@@ -96,6 +105,14 @@ object FKPricesFetcher {
     }
   }
 
+  def getSuggestions(query: String, tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[String]] = {
+    for {
+      complete <- retriever(autoCompleteUrl(query))
+    } yield {
+      Jsoup.parse(complete).getElementsByTag("a").toList.map(_.text())
+    }
+  }
+
 }
 
 object GolPricesFetcher{
@@ -104,10 +121,11 @@ object GolPricesFetcher{
 
   import scala.collection.JavaConversions._
 
+  private def autoCompleteUrl(query : String) = s"/ajax/quicksearch.asp?qs=$query"
+
   def getPrices(entries : Seq[SteamEntry], tables: Tables, retriever: String => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
 
     def getGolIds(entries : Seq[SteamEntry]): Future[Seq[(SteamEntry, Future[String])]] = {
-      val nameSearchUrlPrefix = "/ajax/quicksearch.asp?qs="
       val miniPricesSearchUrlPrefix = "/ajax/porownywarka.asp?ID="
       def parseGameId(page: String) = Jsoup.parse(page).getElementsByTag("a").attr("href").split("=")(1)
       def onlyFullFinds(entry: SteamEntry, page: String) = {
@@ -117,7 +135,7 @@ object GolPricesFetcher{
         !fullText.isEmpty && fullText == foundText
       }
       for {
-        autoComplete <- Future.sequence(entries.map(e => retriever(nameSearchUrlPrefix + e.name).map(s => (e, s))))
+        autoComplete <- Future.sequence(entries.map(e => retriever(autoCompleteUrl(e.name)).map(s => (e, s))))
       } yield {
         autoComplete.filter((onlyFullFinds _).tupled).map({ case (e, p) => (e, retriever(miniPricesSearchUrlPrefix + parseGameId(p))) })
       }
@@ -145,6 +163,14 @@ object GolPricesFetcher{
         PriceEntry(e.steamId, name, host, link, price)
       }
       prices.flatMap({case (s, p) => Jsoup.parse(p).getElementsByClass("gpc-lista-a").toList.map(getPrice(s))})
+    }
+  }
+
+  def getSuggestions(query: String, tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[String]] = {
+    for {
+      complete <- retriever(autoCompleteUrl(query))
+    } yield {
+      Jsoup.parse(complete).getElementsByTag("a").toList.map(_.text())
     }
   }
 }
