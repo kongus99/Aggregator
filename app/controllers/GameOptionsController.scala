@@ -21,7 +21,7 @@ class GameOptionsController @Inject()(tables: Tables, client: WSClient)(implicit
   def fetch(steamId: Long): Action[AnyContent] = Action.async {
     for {
       steamEntry <- tables.getSteamEntryById(steamId)
-      queries <- queries(steamEntry.name, None)
+      queries <- queries(steamEntry, steamEntry.name, None)
     } yield {
       Ok(Json.toJson(GameOptions(steamEntry, queries)))
     }
@@ -35,19 +35,24 @@ class GameOptionsController @Inject()(tables: Tables, client: WSClient)(implicit
 
     for {
       steamEntry <- tables.getSteamEntryById(steamId)
-      queries <- queries(query, Some(site))
+      queries <- queries(steamEntry, query, Some(site))
     } yield {
       Ok(Json.toJson(GameOptions(steamEntry, queries)))
     }
   }
 
-  private def queries(query: String, site : Option[String]): Future[Seq[GameQuery]] = {
+  private def queries(steamEntry: SteamEntry, query: String, site: Option[String]): Future[Seq[GameQuery]] = {
+    def getQuery(currentSite: String): String = site.filter(_ == currentSite).map(_ => query).getOrElse(steamEntry.name)
+
     for {
-      keyeNames <- KeyePricesFetcher.getSuggestions(query, tables, keyeRetriever.retrieve)
-      fkNames <- FKPricesFetcher.getSuggestions(query, tables, fkRetriever.retrieve)
-      golNames <- GolPricesFetcher.getSuggestions(query, tables, golRetriever.retrieve)
+      keyeNames <- KeyePricesFetcher.getSuggestions(getQuery(Keye.toString), tables, keyeRetriever.retrieve)
+      fkNames <- FKPricesFetcher.getSuggestions(getQuery(FK.toString), tables, fkRetriever.retrieve)
+      golNames <- GolPricesFetcher.getSuggestions(getQuery(Gol.toString), tables, golRetriever.retrieve)
     } yield {
-      GameQuery(query, FK.toString, fkNames, "") :: GameQuery(query, Keye.toString, keyeNames, "") :: GameQuery(query, Gol.toString, golNames, "") :: Nil
+      GameQuery(getQuery(FK.toString), FK.toString, fkNames.take(5), "") ::
+        GameQuery(getQuery(Keye.toString), Keye.toString, keyeNames.take(5), "") ::
+        GameQuery(getQuery(Gol.toString), Gol.toString, golNames.take(5), "") ::
+        Nil
     }
   }
 
