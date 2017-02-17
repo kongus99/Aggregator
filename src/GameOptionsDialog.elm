@@ -129,11 +129,11 @@ update userId msg model =
             ( { model | message = Nothing, gameOptions = Just results }, Cmd.none )
 
 
-fetch : Maybe Int -> (GameOptions -> c) -> (Http.Error -> c) -> Cmd c
-fetch steamId mess err =
+fetch : Int -> Maybe Int -> (GameOptions -> c) -> (Http.Error -> c) -> Cmd c
+fetch userId steamId mess err =
     let
         send id =
-            Http.send (Router.resolveResponse mess err) <| Router.fetchGameOptions [ ( "steamId", toString id ) ]
+            Http.send (Router.resolveResponse mess err) <| Router.fetchGameOptions [ ( "userId", toString userId ), ( "steamId", toString id ) ]
     in
         Maybe.map send steamId |> Maybe.withDefault Cmd.none
 

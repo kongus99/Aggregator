@@ -5,7 +5,9 @@ import play.api.libs.json.{JsPath, Writes}
 
 case class GameOptions(entry: SteamEntry, queries: Seq[GameQuery])
 
-case class GameQuery(query: String, site: String, results: Seq[String], selectedResult: String)
+case class GameQuery(query: String, site: String, private val allResults: Seq[String], selectedResult: Option[String]){
+  val results: Seq[String] = allResults.take(5)
+}
 
 object GameOptions {
   implicit val gameOptionsWrites: Writes[GameOptions] =
@@ -18,5 +20,5 @@ object GameQuery {
     ((JsPath \ "query").write[String] and
       (JsPath \ "site").write[String] and
       (JsPath \ "results").write[Seq[String]] and
-      (JsPath \ "selectedResult").write[String]) ((q) => (q.query, q.site, q.results, q.selectedResult))
+      (JsPath \ "selectedResult").write[Option[String]]) ((q) => (q.query, q.site, q.results, q.selectedResult))
 }

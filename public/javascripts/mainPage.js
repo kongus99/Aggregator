@@ -12797,8 +12797,8 @@ var _user$project$GameOptionsDialog$dialogHeader = function (options) {
 			_1: {ctor: '[]'}
 		});
 };
-var _user$project$GameOptionsDialog$fetch = F3(
-	function (steamId, mess, err) {
+var _user$project$GameOptionsDialog$fetch = F4(
+	function (userId, steamId, mess, err) {
 		var send = function (id) {
 			return A2(
 				_elm_lang$http$Http$send,
@@ -12808,10 +12808,18 @@ var _user$project$GameOptionsDialog$fetch = F3(
 						ctor: '::',
 						_0: {
 							ctor: '_Tuple2',
-							_0: 'steamId',
-							_1: _elm_lang$core$Basics$toString(id)
+							_0: 'userId',
+							_1: _elm_lang$core$Basics$toString(userId)
 						},
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'steamId',
+								_1: _elm_lang$core$Basics$toString(id)
+							},
+							_1: {ctor: '[]'}
+						}
 					}));
 		};
 		return A2(
@@ -13895,7 +13903,7 @@ var _user$project$MainPage$update = F2(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: A3(_user$project$GameOptionsDialog$fetch, _p5._0, _user$project$MainPage$DialogData, _user$project$MainPage$RefreshError)
+					_1: A4(_user$project$GameOptionsDialog$fetch, model.userId, _p5._0, _user$project$MainPage$DialogData, _user$project$MainPage$RefreshError)
 				};
 			case 'DialogData':
 				return {

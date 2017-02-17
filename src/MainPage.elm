@@ -119,7 +119,7 @@ update msg model =
             ( { model | filters = resetFilterLists model.filters, message = "" }, getResponse <| Router.getUserGames [ ( "sources", toString model.sources ), ( "userId", toString model.userId ) ] )
 
         DialogOpen steamId ->
-            ( model, GameOptionsDialog.fetch steamId DialogData RefreshError )
+            ( model, GameOptionsDialog.fetch model.userId steamId DialogData RefreshError )
 
         DialogData options ->
             ( { model | options = GameOptionsDialog.model DialogClose DialogMessage options }, Cmd.none )

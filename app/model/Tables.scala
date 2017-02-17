@@ -5,7 +5,7 @@ import javax.inject._
 import controllers.MatchEntry
 import play.api.db.slick.DatabaseConfigProvider
 import services.GameOn._
-import services.{GameOn, GogEntry, PriceEntry, SteamEntry}
+import services._
 import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
 import slick.jdbc.meta.MTable
@@ -30,6 +30,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
   val steamData = TableQuery[SteamData]
   val steamOwnershipData = TableQuery[SteamOwnershipData]
   val priceData = TableQuery[PriceData]
+  val gameQueryData = TableQuery[GameQueryData]
 
   class UserData(tag: Tag) extends Table[User](tag, "USER_DATA") {
     def id = column[Long]("USER_DATA_ID", O.PrimaryKey, O.AutoInc)
@@ -172,6 +173,42 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
   }
 
+  case class GameQueryEntity(userId : Long, steamId : Long, query : String, site : String, selectedResult : Option[String]) {
+    val gameQuery = GameQuery(query, site, Seq(), selectedResult)
+  }
+
+  class GameQueryData(tag: Tag) extends Table[GameQueryEntity](tag, "GAME_QUERY_DATA") {
+
+    def userId = column[Long]("GAME_QUERY_DATA_USER_ID")
+
+    def steamId = column[Long]("GAME_QUERY_DATA_STEAM_ID")
+
+    def query = column[String]("GAME_QUERY_DATA_QUERY")
+
+    def site = column[String]("GAME_QUERY_DATA_SITE")
+
+    def selectedResult = column[Option[String]]("GAME_QUERY_DATA_RESULT")
+
+    def steamFk = foreignKey("GAME_QUERY_DATA_STEAM_FK", steamId, steamData)(_.steamId, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Cascade)
+
+    def userFk = foreignKey("GAME_QUERY_DATA_USER_FK", userId, userData)(_.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Cascade)
+
+    def steamLinkUnique = primaryKey("GAME_QUERY_DATA_SITE_UNIQUE", (userId, steamId, site))
+
+    override def * : ProvenShape[GameQueryEntity] = (userId, steamId, query, site, selectedResult) <> ((GameQueryEntity.apply _).tupled, GameQueryEntity.unapply)
+
+  }
+
+  def getQueryData(userId : Long, steamId : Long) : Future[Seq[GameQuery]] = {
+    db.run(gameQueryData.filter(e => e.steamId === steamId && e.userId === userId).result).map(_.map(_.gameQuery))
+  }
+
+  def changeQueryData(userId : Long, steamId : Long, query : GameQuery) : Future[Int] = {
+    val toUpsert = GameQueryEntity(userId, steamId, query.query, query.site, query.selectedResult)
+    lazy val runUpdate = db.run(gameQueryData.filter(e => e.steamId === steamId && e.userId === userId && e.site === query.site).update(toUpsert))
+    db.run(gameQueryData += toUpsert).recoverWith({ case _: Exception => runUpdate })
+  }
+
   def replacePrices(prices: Seq[PriceEntry]): Future[_] = {
     val deleteOldPrices = priceData.filter(_.steamId.inSet(prices.map(_.steamId))).delete
     val addNewPrices = priceData ++= prices
@@ -306,6 +343,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
             gogOwnershipData.schema.create andThen
             steamOwnershipData.schema.create andThen
             priceData.schema.create andThen
+            gameQueryData.schema.create andThen
             (userData += User(None, Some("kongus"), steamAlternate = false, Some("kongus99")))
       })
       Await.result(db.run(initialization), Duration.Inf)

@@ -14,9 +14,9 @@ POST        /login/steamAlternate                    controllers.LoginController
 GET         /main                                    controllers.MainController.main
 GET         /main/fetch                              controllers.MainController.getUserGames(userId : Long, sources : services.GameSources.GameSources)
 #OPTIONS
-GET         /gameOptions/fetch                       controllers.GameOptionsController.fetch(steamId : Long)
-GET         /gameOptions/fetchSearchResults           controllers.GameOptionsController.fetchSearch(userId : Long, query : String, site : String, steamId : Long)
-POST        /gameOptions/changeSelectedSearch        controllers.GameOptionsController.changeSearch(userId : Long, selectedResult : String, site : String, steamId : Long)
+GET         /gameOptions/fetch                       controllers.GameOptionsController.fetch(userId : Long, steamId : Long)
+GET         /gameOptions/fetchSearchResults           controllers.GameOptionsController.fetchSearch(userId : Long, steamId : Long , query : String, site : String)
+POST        /gameOptions/changeSelectedSearch        controllers.GameOptionsController.changeSearch(userId : Long, selectedResult : Option[String], site : String, steamId : Long)
 #COMPARISON
 GET         /comparison                              controllers.ComparisonController.main
 GET         /comparison/data                         controllers.ComparisonController.data(left : services.GameOn.GameOn, right : services.GameOn.GameOn, minimumMetric : Int)

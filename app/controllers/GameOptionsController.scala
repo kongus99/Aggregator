@@ -6,7 +6,7 @@ import model.Tables
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, Controller}
-import services.PriceHost.{PriceHost => _, _}
+import services.PriceHost._
 import services._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -18,41 +18,45 @@ class GameOptionsController @Inject()(tables: Tables, client: WSClient)(implicit
   val keyeRetriever = new KeyeRetriever(client)
   val golRetriever = new GolRetriever(client)
 
-  def fetch(steamId: Long): Action[AnyContent] = Action.async {
+  def fetch(userId: Long, steamId: Long): Action[AnyContent] = Action.async {
     for {
       steamEntry <- tables.getSteamEntryById(steamId)
-      queries <- queries(steamEntry, steamEntry.name, None)
+      definedQueries <- tables.getQueryData(userId, steamId)
+      queries <- queries(steamEntry, definedQueries)
     } yield {
       Ok(Json.toJson(GameOptions(steamEntry, queries)))
     }
   }
 
-  def changeSearch(userId: Long, selectedResult: String, site: String, steamId: Long): Action[AnyContent] = Action.async {
+  def changeSearch(userId: Long, selectedResult: Option[String], site: String, steamId: Long): Action[AnyContent] = Action.async {
     Future(Ok(Json.toJson("Done.")))
   }
 
-  def fetchSearch(userId: Long, query: String, site: String, steamId: Long): Action[AnyContent] = Action.async {
-
+  def fetchSearch(userId: Long, steamId: Long, query: String, site: String): Action[AnyContent] = Action.async {
     for {
       steamEntry <- tables.getSteamEntryById(steamId)
-      queries <- queries(steamEntry, query, Some(site))
+      _ <- tables.changeQueryData(userId, steamId, GameQuery(query, site, Seq(), None))
+      definedQueries <- tables.getQueryData(userId, steamId)
+      queries <- queries(steamEntry, definedQueries)
     } yield {
       Ok(Json.toJson(GameOptions(steamEntry, queries)))
     }
   }
 
-  private def queries(steamEntry: SteamEntry, query: String, site: Option[String]): Future[Seq[GameQuery]] = {
-    def getQuery(currentSite: String): String = site.filter(_ == currentSite).map(_ => query).getOrElse(steamEntry.name)
+  private def queries(steamEntry: SteamEntry, definedQueries : Seq[GameQuery]): Future[Seq[GameQuery]] = {
+    val queriesMap = definedQueries.map(q => (q.site, q)).toMap
+
+    def getQuery(currentSite: String): String = queriesMap.get(currentSite).map(_.query).getOrElse(steamEntry.name)
+
+    def createQuery(currentSite: String, results : Seq[String]) : GameQuery =
+      queriesMap.get(currentSite).map(_.copy(allResults = results)).getOrElse(GameQuery(getQuery(currentSite), currentSite, results, None))
 
     for {
       keyeNames <- KeyePricesFetcher.getSuggestions(getQuery(Keye.toString), tables, keyeRetriever.retrieve)
       fkNames <- FKPricesFetcher.getSuggestions(getQuery(FK.toString), tables, fkRetriever.retrieve)
       golNames <- GolPricesFetcher.getSuggestions(getQuery(Gol.toString), tables, golRetriever.retrieve)
     } yield {
-      GameQuery(getQuery(FK.toString), FK.toString, fkNames.take(5), "") ::
-        GameQuery(getQuery(Keye.toString), Keye.toString, keyeNames.take(5), "") ::
-        GameQuery(getQuery(Gol.toString), Gol.toString, golNames.take(5), "") ::
-        Nil
+      createQuery(FK.toString, fkNames) :: createQuery(Keye.toString, keyeNames) :: createQuery(Gol.toString, golNames) :: Nil
     }
   }
 
