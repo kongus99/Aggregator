@@ -12463,7 +12463,10 @@ var _user$project$Router$decodedGameQueryEntry = A5(
 		_elm_lang$core$Json_Decode$field,
 		'results',
 		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)),
-	A2(_elm_lang$core$Json_Decode$field, 'selectedResult', _elm_lang$core$Json_Decode$string));
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'selectedResult',
+		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$string)));
 var _user$project$Router$decodedNamedEntry = A3(
 	_elm_lang$core$Json_Decode$map2,
 	_user$project$Model$NamedEntry,
@@ -12717,7 +12720,9 @@ var _user$project$GameOptionsDialog$queryResult = F4(
 										_1: {
 											ctor: '::',
 											_0: _elm_lang$html$Html_Attributes$checked(
-												_elm_lang$core$Native_Utils.eq(selectedResult, currentResult)),
+												_elm_lang$core$Native_Utils.eq(
+													A2(_elm_lang$core$Maybe$withDefault, '', selectedResult),
+													currentResult)),
 											_1: {
 												ctor: '::',
 												_0: _elm_lang$html$Html_Events$onClick(
@@ -12961,23 +12966,38 @@ var _user$project$GameOptionsDialog$update = F3(
 		var _p1 = msg;
 		switch (_p1.ctor) {
 			case 'SwitchTo':
-				var _p2 = _p1._0;
+				var _p3 = _p1._0;
+				var _p2 = _p1._1;
+				var updateResult = function (res) {
+					return _elm_lang$core$Native_Utils.eq(res, _elm_lang$core$Maybe$Nothing) ? _elm_lang$core$Maybe$Just(_p2) : A2(
+						_elm_lang$core$Maybe$andThen,
+						function (r) {
+							return _elm_lang$core$Native_Utils.eq(r, _p2) ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(_p2);
+						},
+						res);
+				};
 				var newModel = A3(
 					_user$project$GameOptionsDialog$updateQuery,
-					_p2,
+					_p3,
 					function (q) {
 						return _elm_lang$core$Native_Utils.update(
 							q,
-							{selectedResult: _p1._1});
+							{
+								selectedResult: updateResult(q.selectedResult)
+							});
 					},
 					model);
 				var serialized = A3(
 					_user$project$GameOptionsDialog$serializeSelectedQuery,
-					_p2,
+					_p3,
 					function (q) {
 						return {
 							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 'selectedResult', _1: q.selectedResult},
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'selectedResult',
+								_1: _elm_lang$core$Basics$toString(q.selectedResult)
+							},
 							_1: {
 								ctor: '::',
 								_0: {ctor: '_Tuple2', _0: 'site', _1: q.site},
@@ -13032,10 +13052,10 @@ var _user$project$GameOptionsDialog$update = F3(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'GetNewResults':
-				var _p3 = _p1._0;
+				var _p4 = _p1._0;
 				var newModel = A3(
 					_user$project$GameOptionsDialog$updateQuery,
-					_p3,
+					_p4,
 					function (q) {
 						return _elm_lang$core$Native_Utils.update(
 							q,
@@ -13046,7 +13066,7 @@ var _user$project$GameOptionsDialog$update = F3(
 					model);
 				var serialized = A3(
 					_user$project$GameOptionsDialog$serializeSelectedQuery,
-					_p3,
+					_p4,
 					function (q) {
 						return {
 							ctor: '::',

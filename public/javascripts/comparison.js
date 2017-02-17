@@ -10471,7 +10471,10 @@ var _user$project$Router$decodedGameQueryEntry = A5(
 		_elm_lang$core$Json_Decode$field,
 		'results',
 		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string)),
-	A2(_elm_lang$core$Json_Decode$field, 'selectedResult', _elm_lang$core$Json_Decode$string));
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'selectedResult',
+		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$string)));
 var _user$project$Router$decodedNamedEntry = A3(
 	_elm_lang$core$Json_Decode$map2,
 	_user$project$Model$NamedEntry,

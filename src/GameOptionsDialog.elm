@@ -81,11 +81,24 @@ update userId msg model =
     case msg of
         SwitchTo queryIndex newSelectedResult ->
             let
+                updateResult res =
+                    if res == Nothing then
+                        Just newSelectedResult
+                    else
+                        Maybe.andThen
+                            (\r ->
+                                if (r == newSelectedResult) then
+                                    Nothing
+                                else
+                                    Just newSelectedResult
+                            )
+                            res
+
                 newModel =
-                    updateQuery queryIndex (\q -> { q | selectedResult = newSelectedResult }) model
+                    updateQuery queryIndex (\q -> { q | selectedResult = updateResult q.selectedResult }) model
 
                 serialized =
-                    serializeSelectedQuery queryIndex (\q -> [ ( "selectedResult", q.selectedResult ), ( "site", q.site ) ]) newModel
+                    serializeSelectedQuery queryIndex (\q -> [ ( "selectedResult", toString q.selectedResult ), ( "site", q.site ) ]) newModel
             in
                 ( { newModel | message = Nothing }, saveSwitched userId serialized newModel )
 
@@ -201,11 +214,11 @@ tableRow index gameQuery =
         ]
 
 
-queryResult : String -> (String -> msg) -> Int -> String -> Html msg
+queryResult : Maybe String -> (String -> msg) -> Int -> String -> Html msg
 queryResult selectedResult msg index currentResult =
     div [ class "radio" ]
         [ label []
-            [ input [ name <| "queryResult" ++ (toString index), type_ "radio", value currentResult, checked (selectedResult == currentResult), onClick (msg currentResult) ]
+            [ input [ name <| "queryResult" ++ (toString index), type_ "radio", value currentResult, checked ((Maybe.withDefault "" selectedResult) == currentResult), onClick (msg currentResult) ]
                 []
             , text currentResult
             ]
