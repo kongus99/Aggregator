@@ -203,6 +203,11 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     db.run(gameQueryData.filter(e => e.steamId === steamId && e.userId === userId).result).map(_.map(_.gameQuery))
   }
 
+  def updateQueryDataSelectedResult(userId : Long, steamId : Long, site : String, selectedResult : Option[String]) : Future[Int] = {
+    val q = for { e <- gameQueryData if e.steamId === steamId && e.userId === userId && e.site === site } yield e.selectedResult
+    db.run(q.update(selectedResult))
+  }
+
   def changeQueryData(userId : Long, steamId : Long, query : GameQuery) : Future[Int] = {
     val toUpsert = GameQueryEntity(userId, steamId, query.query, query.site, query.selectedResult)
     lazy val runUpdate = db.run(gameQueryData.filter(e => e.steamId === steamId && e.userId === userId && e.site === query.site).update(toUpsert))

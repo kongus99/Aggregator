@@ -97,8 +97,11 @@ update userId msg model =
                 newModel =
                     updateQuery queryIndex (\q -> { q | selectedResult = updateResult q.selectedResult }) model
 
+                getSelectedResult res =
+                    Maybe.map (\r -> [ ( "selectedResult", r ) ]) res |> Maybe.withDefault []
+
                 serialized =
-                    serializeSelectedQuery queryIndex (\q -> [ ( "selectedResult", toString q.selectedResult ), ( "site", q.site ) ]) newModel
+                    serializeSelectedQuery queryIndex (\q -> ( "site", q.site ) :: getSelectedResult q.selectedResult) newModel
             in
                 ( { newModel | message = Nothing }, saveSwitched userId serialized newModel )
 

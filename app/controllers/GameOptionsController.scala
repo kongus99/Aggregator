@@ -28,8 +28,12 @@ class GameOptionsController @Inject()(tables: Tables, client: WSClient)(implicit
     }
   }
 
-  def changeSearch(userId: Long, selectedResult: Option[String], site: String, steamId: Long): Action[AnyContent] = Action.async {
-    Future(Ok(Json.toJson("Done.")))
+  def changeSearch(userId: Long, steamId: Long, site: String, selectedResult: Option[String]): Action[AnyContent] = Action.async {
+    for {
+      _ <- tables.updateQueryDataSelectedResult(userId, steamId, site, selectedResult)
+    } yield {
+      Ok(Json.toJson("Done."))
+    }
   }
 
   def fetchSearch(userId: Long, steamId: Long, query: String, site: String): Action[AnyContent] = Action.async {

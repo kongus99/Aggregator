@@ -12976,6 +12976,21 @@ var _user$project$GameOptionsDialog$update = F3(
 			case 'SwitchTo':
 				var _p3 = _p1._0;
 				var _p2 = _p1._1;
+				var getSelectedResult = function (res) {
+					return A2(
+						_elm_lang$core$Maybe$withDefault,
+						{ctor: '[]'},
+						A2(
+							_elm_lang$core$Maybe$map,
+							function (r) {
+								return {
+									ctor: '::',
+									_0: {ctor: '_Tuple2', _0: 'selectedResult', _1: r},
+									_1: {ctor: '[]'}
+								};
+							},
+							res));
+				};
 				var updateResult = function (res) {
 					return _elm_lang$core$Native_Utils.eq(res, _elm_lang$core$Maybe$Nothing) ? _elm_lang$core$Maybe$Just(_p2) : A2(
 						_elm_lang$core$Maybe$andThen,
@@ -13001,16 +13016,8 @@ var _user$project$GameOptionsDialog$update = F3(
 					function (q) {
 						return {
 							ctor: '::',
-							_0: {
-								ctor: '_Tuple2',
-								_0: 'selectedResult',
-								_1: _elm_lang$core$Basics$toString(q.selectedResult)
-							},
-							_1: {
-								ctor: '::',
-								_0: {ctor: '_Tuple2', _0: 'site', _1: q.site},
-								_1: {ctor: '[]'}
-							}
+							_0: {ctor: '_Tuple2', _0: 'site', _1: q.site},
+							_1: getSelectedResult(q.selectedResult)
 						};
 					},
 					newModel);
