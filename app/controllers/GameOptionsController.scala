@@ -30,16 +30,17 @@ class GameOptionsController @Inject()(tables: Tables, client: WSClient)(implicit
 
   def changeSearch(userId: Long, steamId: Long, site: String, selectedResult: Option[String]): Action[AnyContent] = Action.async {
     for {
-      _ <- tables.updateQueryDataSelectedResult(userId, steamId, site, selectedResult)
+      steamEntry <- tables.getSteamEntryById(steamId)
+      _ <- tables.changeQueryData(userId, steamId, GameQuery(steamEntry.name, site, Seq(), selectedResult), Right(selectedResult))
     } yield {
-      Ok(Json.toJson("Done."))
+      Ok(Json.toJson(""))
     }
   }
 
   def fetchSearch(userId: Long, steamId: Long, query: String, site: String): Action[AnyContent] = Action.async {
     for {
       steamEntry <- tables.getSteamEntryById(steamId)
-      _ <- tables.changeQueryData(userId, steamId, GameQuery(query, site, Seq(), None))
+      _ <- tables.changeQueryData(userId, steamId, GameQuery(query, site, Seq(), None), Left(query))
       definedQueries <- tables.getQueryData(userId, steamId)
       queries <- queries(steamEntry, definedQueries)
     } yield {

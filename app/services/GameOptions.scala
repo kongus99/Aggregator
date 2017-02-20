@@ -6,7 +6,7 @@ import play.api.libs.json.{JsPath, Writes}
 case class GameOptions(entry: SteamEntry, queries: Seq[GameQuery])
 
 case class GameQuery(query: String, site: String, private val allResults: Seq[String], selectedResult: Option[String]){
-  val results: Seq[String] = allResults.take(5)
+  val results: Seq[String] = allResults.take(10)
 }
 
 object GameOptions {

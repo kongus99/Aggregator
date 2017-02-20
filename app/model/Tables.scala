@@ -174,6 +174,8 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
   }
 
   case class GameQueryEntity(userId : Long, steamId : Long, query : String, site : String, selectedResult : Option[String]) {
+    def this(userId: Long, steamId : Long, query : GameQuery) = this(userId, steamId, query.query, query.site, query.selectedResult)
+
     val gameQuery = GameQuery(query, site, Seq(), selectedResult)
   }
 
@@ -203,15 +205,10 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     db.run(gameQueryData.filter(e => e.steamId === steamId && e.userId === userId).result).map(_.map(_.gameQuery))
   }
 
-  def updateQueryDataSelectedResult(userId : Long, steamId : Long, site : String, selectedResult : Option[String]) : Future[Int] = {
-    val q = for { e <- gameQueryData if e.steamId === steamId && e.userId === userId && e.site === site } yield e.selectedResult
-    db.run(q.update(selectedResult))
-  }
-
-  def changeQueryData(userId : Long, steamId : Long, query : GameQuery) : Future[Int] = {
-    val toUpsert = GameQueryEntity(userId, steamId, query.query, query.site, query.selectedResult)
-    lazy val runUpdate = db.run(gameQueryData.filter(e => e.steamId === steamId && e.userId === userId && e.site === query.site).update(toUpsert))
-    db.run(gameQueryData += toUpsert).recoverWith({ case _: Exception => runUpdate })
+  def changeQueryData(userId : Long, steamId : Long, insertData : GameQuery, queryOrSelected : Either[String, Option[String]]) : Future[Int] = {
+    val q = for { e <- gameQueryData if e.steamId === steamId && e.userId === userId && e.site === insertData.site } yield e
+    lazy val updateQuery = queryOrSelected.fold(l => q.map(d => (d.query, d.selectedResult)).update((l, None)), q.map(_.selectedResult).update(_))
+    db.run(gameQueryData += new GameQueryEntity(userId, steamId, insertData)).recoverWith({ case _: Exception => db.run(updateQuery)})
   }
 
   def replacePrices(prices: Seq[PriceEntry]): Future[_] = {
