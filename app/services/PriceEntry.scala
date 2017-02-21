@@ -6,7 +6,7 @@ import model.Tables
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import play.api.libs.json._
-import services.PriceHost.{FK, Keye}
+import services.PriceHost.{FK, Gol, Keye}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -83,7 +83,7 @@ object FKPricesFetcher {
   private def autoCompleteUrl(query: String) = s"/search/?q=$query"
 
   def getPrices(entries: Seq[SteamEntry], tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
-    def getWinner(steamEntry: SteamEntry, suggestions: Seq[PartialPrice]) =
+    def getWinner(steamEntry: SteamEntry, suggestions: Seq[PartialPrice]): Option[PartialPrice] =
       suggestions.map(s => (ThresholdLevenshtein.count(s.name, steamEntry.name, 100), s)).sortBy(_._1).headOption.map(_._2)
 
     def parsePrice(steamEntry: SteamEntry, suggestions: Seq[PartialPrice]): Option[PriceEntry] =
@@ -118,67 +118,54 @@ object FKPricesFetcher {
 
 object GolPricesFetcher {
 
-  import services.PriceEntry.addArgumentToFuture
-
   import scala.collection.JavaConversions._
 
   private def autoCompleteUrl(query: String) = s"/ajax/quicksearch.asp?qs=$query"
 
   def getPrices(entries: Seq[SteamEntry], tables: Tables, retriever: String => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
 
-    def getGolIds(entries: Seq[SteamEntry]): Future[Seq[(SteamEntry, Future[String])]] = {
-      val miniPricesSearchUrlPrefix = "/ajax/porownywarka.asp?ID="
+    def getWinner(steamEntry: SteamEntry, suggestions: Seq[PartialPrice]): Option[PartialPrice] =
+      suggestions.find(_.name == steamEntry.name)
 
-      def parseGameId(page: String) = Jsoup.parse(page).getElementsByTag("a").attr("href").split("=")(1)
+    def parsePrice(steamEntry: SteamEntry, suggestions: Seq[PartialPrice]): Option[PriceEntry] =
+      getWinner(steamEntry, suggestions).map(p => PriceEntry(steamEntry.steamId, p.name, Gol.toString, p.link, BigDecimal(0)))
 
-      def onlyFullFinds(entry: SteamEntry, page: String) = {
-        val parsed = Jsoup.parse(page)
-        val fullText = parsed.getElementsByTag("a").text()
-        val foundText = parsed.getElementsByTag("b").text()
-        !fullText.isEmpty && fullText == foundText
-      }
-
-      for {
-        autoComplete <- Future.sequence(entries.map(e => retriever(autoCompleteUrl(e.name)).map(s => (e, s))))
-      } yield {
-        autoComplete.filter((onlyFullFinds _).tupled).map({ case (e, p) => (e, retriever(miniPricesSearchUrlPrefix + parseGameId(p))) })
-      }
-    }
-
-    def getPriceMiniatures(entries: Seq[SteamEntry]) = {
+    def changeLinkToPriceList(e: PriceEntry, page: String): Option[PriceEntry] = {
       def allPricesSearchUrlPrefix(gamePriceId: String) = s"/ajax/porownywarka_lista.asp?ID=$gamePriceId&ORDER=1&BOX=0&DIGITAL=1"
 
-      def parsePricesId(page: String) = Jsoup.parse(page).getElementsByAttribute("href").attr("href").split("=")(1)
-
-      def onlyContainingPrices(entry: SteamEntry, page: String) = Jsoup.parse(page).getElementById("PC_MAIN_CNT") != null
-
-      for {
-        details <- getGolIds(entries).flatMap(queries => Future.sequence(queries.map(addArgumentToFuture(_))))
-      } yield {
-        details.filter((onlyContainingPrices _).tupled).map({ case (e, p) => (e, retriever(allPricesSearchUrlPrefix(parsePricesId(p)))) })
-      }
+      val parsed = Jsoup.parse(page)
+      val priceListForPc = parsed.getElementById("PC_PLT_1")
+      val id = if(priceListForPc != null) priceListForPc.getElementsByClass("t5").headOption.map(_.attr("href").split("ID=")) else None
+      id.filter(_.length > 1).map(s => e.copy(link = allPricesSearchUrlPrefix(s(1))))
     }
 
-    for {
-      prices <- getPriceMiniatures(entries).flatMap(queries => Future.sequence(queries.map(addArgumentToFuture(_))))
-    } yield {
-      def getPrice(e: SteamEntry)(priceElement: Element) = {
-        val price = BigDecimal(priceElement.getElementsByClass("gpcl-cen").text().split(" ")(0).replaceAll(",", ".")).setScale(2)
-        val name = priceElement.getElementsByClass("gpcl-tit").head.getElementsByTag("p").head.text()
-        val host = new URL(priceElement.attr("onclick").split("'")(1)).getHost
-        val link = priceElement.attr("onclick").split("'")(1)
-        PriceEntry(e.steamId, name, host, link, price)
-      }
+    def getPrice(e: PriceEntry)(priceElement: Element): PriceEntry = {
+      val price = BigDecimal(priceElement.getElementsByClass("gpcl-cen").text().split(" ")(0).replaceAll(",", ".")).setScale(2)
+      val name = priceElement.getElementsByClass("gpcl-tit").head.getElementsByTag("p").head.text()
+      val host = new URL(priceElement.attr("onclick").split("'")(1)).getHost
+      val link = priceElement.attr("onclick").split("'")(1)
+      e.copy(link = link, name = name, host = host, price = price)
+    }
 
-      prices.flatMap({ case (s, p) => Jsoup.parse(p).getElementsByClass("gpc-lista-a").toList.map(getPrice(s)) })
+    def miniPricesSearchUrlPrefix(id : String) = s"/ajax/porownywarka.asp?ID=$id"
+
+    for {
+      complete <- Future.sequence(entries.map(e => getSuggestions(e.name, tables, retriever).map(s => (e, s))))
+      prices = complete.filter(p => p._2.nonEmpty).map((parsePrice _).tupled).filter(_.isDefined).map(_.get)
+      pricesWithDetails <- Future.sequence(prices.map(e => retriever(miniPricesSearchUrlPrefix(e.link.split("=")(1))).map(s => (e, s))))
+      pricesWithPriceLists = pricesWithDetails.map((changeLinkToPriceList _).tupled).filter(_.isDefined).map(_.get)
+      pricesWithLinkedPrices <- Future.sequence(pricesWithPriceLists.map(e => retriever(e.link).map(s => (e, Jsoup.parse(s).getElementsByClass("gpc-lista-a").toSeq))))
+      finalPrices = pricesWithLinkedPrices.flatMap(p => p._2.map(getPrice(p._1)))
+    } yield {
+      finalPrices
     }
   }
 
-  def getSuggestions(query: String, tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[String]] = {
+  def getSuggestions(query: String, tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PartialPrice]] = {
     for {
       complete <- retriever(autoCompleteUrl(query))
     } yield {
-      Jsoup.parse(complete).getElementsByTag("a").toList.map(_.text())
+      Jsoup.parse(complete).getElementsByTag("a").toList.map(e => PartialPrice(e.text(), e.attr("href"), None))
     }
   }
 }

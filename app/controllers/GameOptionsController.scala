@@ -61,7 +61,7 @@ class GameOptionsController @Inject()(tables: Tables, client: WSClient)(implicit
       fkNames <- FKPricesFetcher.getSuggestions(getQuery(FK.toString), tables, fkRetriever.retrieve)
       golNames <- GolPricesFetcher.getSuggestions(getQuery(Gol.toString), tables, golRetriever.retrieve)
     } yield {
-      createQuery(FK.toString, fkNames.map(_.name)) :: createQuery(Keye.toString, keyeNames.map(_.name)) :: createQuery(Gol.toString, golNames) :: Nil
+      createQuery(FK.toString, fkNames.map(_.name)) :: createQuery(Keye.toString, keyeNames.map(_.name)) :: createQuery(Gol.toString, golNames.map(_.name)) :: Nil
     }
   }
 
