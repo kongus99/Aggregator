@@ -10,7 +10,7 @@ import services.PriceHost.{FK, Gol, Keye}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class PriceEntry(steamId: Long, name: String, host: String, link: String, price: BigDecimal)
+case class PriceEntry(steamId: Long, userId : Long, name: String, host: String, link: String, price: BigDecimal)
 
 case class PartialPrice(name: String, link: String, price: Option[String])
 
@@ -43,10 +43,71 @@ object PriceEntry {
 }
 
 trait Fetcher {
+  val defaultSearchUserId = 1L
+
+  private case class SearchHelper(steamEntry : SteamEntry, userId : Long, query : Option[String])
+
+  private case class SuggestionHelper(searchHelper : SearchHelper, results : Seq[PartialPrice])
+
+  def createPriceEntry(steamEntry: SteamEntry, userId : Long)(bestMatch : PartialPrice) : PriceEntry
+
+  def getSuggestions(query: String, tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PartialPrice]]
+
+  def site: String
+
+  def getCompletes(entries: Seq[SteamEntry], tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] ={
+    def getSuggestion(q : Option[String]) : Future[Seq[PartialPrice]] = {
+      q.map(getSuggestions(_, tables, retriever)).getOrElse(Future(Seq()))
+    }
+
+    for {
+      siteCues <- tables.getQueryData(site, entries.map(_.steamId).toSet)
+      toSearch = allSearches(entries, siteCues)
+      suggestions <- Future.sequence(toSearch.map(e => getSuggestion(e.query).map(SuggestionHelper(e, _))))
+    } yield {
+      suggestions.map(resolveSuggestionToPriceEntry).filter(_.isDefined).map(_.get)
+    }
+  }
+
+  private def chooseBestPriceMatch(helper : SuggestionHelper) : Option[PartialPrice] = {
+    if (helper.results.nonEmpty && helper.searchHelper.query.isDefined) {
+      val exactMatch = helper.results.find(_.name == helper.searchHelper.query.get)
+      if (exactMatch.isDefined) exactMatch else
+      if (helper.results.size == 1) helper.results.headOption else
+        helper.results.map(s => (ThresholdLevenshtein.count(s.name, helper.searchHelper.steamEntry.name, 100), s)).sortBy(_._1).headOption.map(_._2)
+    } else None
+  }
+
+  private def resolveSuggestionToPriceEntry(suggestionHelper: SuggestionHelper) : Option[PriceEntry] = {
+    if(suggestionHelper.results.nonEmpty)
+      chooseBestPriceMatch(suggestionHelper).map(createPriceEntry(suggestionHelper.searchHelper.steamEntry, suggestionHelper.searchHelper.userId))
+    else None
+  }
+
+  private def allSearches(entries: Seq[SteamEntry], siteCues: Map[Long, Seq[(Long, GameQuery)]]) : Seq[SearchHelper] = {
+    val cuedSearches =
+      for {
+      e <- entries
+      cues = siteCues.getOrElse(e.steamId, Seq())
+      c <- cues
+    } yield {
+      SearchHelper(e, c._1, c._2.selectedResult)
+    }
+    val allSteamIds = entries.map(_.steamId).toSet
+    val defaultSearches = cuedSearches.filter(_.userId == defaultSearchUserId).map(_.steamEntry.steamId).toSet
+    val idsToAdd = allSteamIds.diff(defaultSearches)
+    val additionalSearches =
+      for {
+      e <- entries.filter(e => idsToAdd.contains(e.steamId))
+    } yield {
+      SearchHelper(e, defaultSearchUserId, Some(e.name))
+    }
+    cuedSearches ++ additionalSearches
+  }
 
 }
 
-object KeyePricesFetcher {
+object KeyePricesFetcher extends Fetcher{
 
   import play.api.libs.functional.syntax._
 
@@ -55,25 +116,22 @@ object KeyePricesFetcher {
   private def autoCompleteUrl(query: String) = s"/index/lists?term=$query"
 
   def getPrices(entries: Seq[SteamEntry], tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
-    def getWinner(steamEntry: SteamEntry, suggestions: Seq[PartialPrice]) = suggestions.headOption
-
-    def parsePrice(steamEntry: SteamEntry, suggestions: Seq[PartialPrice]): Option[PriceEntry] =
-      getWinner(steamEntry, suggestions).map(d => PriceEntry(steamEntry.steamId, d.name, "https://" + Keye.toString, "https://" + Keye.toString + d.link, BigDecimal(d.price.get).setScale(2)))
-
-    for {
-      complete <- Future.sequence(entries.map(e => getSuggestions(e.name, tables, retriever).map(s => (e, s))))
-    } yield {
-      complete.filter(p => p._2.nonEmpty).map((parsePrice _).tupled).filter(_.isDefined).map(_.get)
-    }
+    getCompletes(entries, tables, retriever)
   }
 
-  def getSuggestions(query: String, tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PartialPrice]] = {
+  override def getSuggestions(query: String, tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PartialPrice]] = {
     for {
       complete <- retriever(autoCompleteUrl(query))
     } yield {
       Json.parse(complete).as[List[JsValue]].map(_.as(keyePriceReads))
     }
   }
+
+  override def createPriceEntry(steamEntry: SteamEntry, userId : Long)(bestMatch: PartialPrice): PriceEntry = {
+    PriceEntry(steamEntry.steamId, userId, bestMatch.name, "https://" + site, "https://" + site + bestMatch.link, BigDecimal(bestMatch.price.get).setScale(2))
+  }
+
+  override val site: String = Keye.toString
 }
 
 object FKPricesFetcher {
@@ -87,7 +145,7 @@ object FKPricesFetcher {
       suggestions.map(s => (ThresholdLevenshtein.count(s.name, steamEntry.name, 100), s)).sortBy(_._1).headOption.map(_._2)
 
     def parsePrice(steamEntry: SteamEntry, suggestions: Seq[PartialPrice]): Option[PriceEntry] =
-      getWinner(steamEntry, suggestions).map(p => PriceEntry(steamEntry.steamId, p.name, FK.toString, p.link, BigDecimal(0)))
+      getWinner(steamEntry, suggestions).map(p => PriceEntry(steamEntry.steamId, 1L, p.name, FK.toString, p.link, BigDecimal(0)))
 
     for {
       complete <- Future.sequence(entries.map(e => getSuggestions(e.name, tables, retriever).map(s => (e, s))))
@@ -128,7 +186,7 @@ object GolPricesFetcher {
       suggestions.find(_.name == steamEntry.name)
 
     def parsePrice(steamEntry: SteamEntry, suggestions: Seq[PartialPrice]): Option[PriceEntry] =
-      getWinner(steamEntry, suggestions).map(p => PriceEntry(steamEntry.steamId, p.name, Gol.toString, p.link, BigDecimal(0)))
+      getWinner(steamEntry, suggestions).map(p => PriceEntry(steamEntry.steamId, 1L, p.name, Gol.toString, p.link, BigDecimal(0)))
 
     def changeLinkToPriceList(e: PriceEntry, page: String): Option[PriceEntry] = {
       def allPricesSearchUrlPrefix(gamePriceId: String) = s"/ajax/porownywarka_lista.asp?ID=$gamePriceId&ORDER=1&BOX=0&DIGITAL=1"

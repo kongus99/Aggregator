@@ -157,6 +157,8 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def steamId = column[Long]("PRICE_DATA_STEAM_ID")
 
+    def userId = column[Long]("PRICE_DATA_USER_ID")
+
     def name = column[String]("PRICE_DATA_NAME")
 
     def host = column[String]("PRICE_DATA_HOST")
@@ -165,11 +167,13 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def price = column[BigDecimal]("PRICE_DATA_PRICE", O.SqlType("DECIMAL(6,2)"))
 
-    def steamFk = foreignKey("PRICE_DATA_STEAM_FK", steamId, steamData)(_.steamId, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Cascade)
+    def steamFk = foreignKey("PRICE_DATA_STEAM_FK", steamId, steamData)(_.steamId, onUpdate = ForeignKeyAction.Restrict, onDelete = ForeignKeyAction.Cascade)
 
-    def steamLinkUnique = primaryKey("PRICE_DATA_STEAM_LINK_UNIQUE", (steamId, link))
+    def userFk = foreignKey("PRICE_DATA_USER_FK", userId, userData)(_.id, onUpdate = ForeignKeyAction.Restrict, onDelete = ForeignKeyAction.Cascade)
 
-    override def * : ProvenShape[PriceEntry] = (steamId, name, host, link, price) <> ((PriceEntry.apply _).tupled, PriceEntry.unapply)
+    def steamLinkUnique = primaryKey("PRICE_DATA_STEAM_USER_LINK_UNIQUE", (steamId, userId, link))
+
+    override def * : ProvenShape[PriceEntry] = (steamId, userId, name, host, link, price) <> ((PriceEntry.apply _).tupled, PriceEntry.unapply)
 
   }
 
@@ -203,6 +207,10 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
   def getQueryData(userId : Long, steamId : Long) : Future[Seq[GameQuery]] = {
     db.run(gameQueryData.filter(e => e.steamId === steamId && e.userId === userId).result).map(_.map(_.gameQuery))
+  }
+
+  def getQueryData(site : String, steamIds : Set[Long]) : Future[Map[Long, Seq[(Long, GameQuery)]]] = {
+    db.run(gameQueryData.filter(e => e.site === site && e.steamId.inSet(steamIds)).result).map(_.groupBy(r => r.steamId).mapValues(_.map(r => (r.userId, r.gameQuery))))
   }
 
   def changeQueryData(userId : Long, steamId : Long, insertData : GameQuery, queryOrSelected : Either[String, Option[String]]) : Future[Int] = {
