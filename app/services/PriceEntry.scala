@@ -56,14 +56,13 @@ trait Fetcher {
   def site: String
 
   def getCompletes(entries: Seq[SteamEntry], tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] ={
-    def getSuggestion(q : Option[String]) : Future[Seq[PartialPrice]] = {
+    def resolveQuery(q : Option[String]) : Future[Seq[PartialPrice]] =
       q.map(getSuggestions(_, tables, retriever)).getOrElse(Future(Seq()))
-    }
 
     for {
       siteCues <- tables.getQueryData(site, entries.map(_.steamId).toSet)
       toSearch = allSearches(entries, siteCues)
-      suggestions <- Future.sequence(toSearch.map(e => getSuggestion(e.query).map(SuggestionHelper(e, _))))
+      suggestions <- Future.sequence(toSearch.map(e => resolveQuery(e.query).map(SuggestionHelper(e, _))))
     } yield {
       suggestions.map(resolveSuggestionToPriceEntry).filter(_.isDefined).map(_.get)
     }
@@ -127,30 +126,22 @@ object KeyePricesFetcher extends Fetcher{
     }
   }
 
-  override def createPriceEntry(steamEntry: SteamEntry, userId : Long)(bestMatch: PartialPrice): PriceEntry = {
+  override def createPriceEntry(steamEntry: SteamEntry, userId : Long)(bestMatch: PartialPrice): PriceEntry =
     PriceEntry(steamEntry.steamId, userId, bestMatch.name, "https://" + site, "https://" + site + bestMatch.link, BigDecimal(bestMatch.price.get).setScale(2))
-  }
 
   override val site: String = Keye.toString
 }
 
-object FKPricesFetcher {
+object FKPricesFetcher extends Fetcher{
 
   import scala.collection.JavaConversions._
 
   private def autoCompleteUrl(query: String) = s"/search/?q=$query"
 
   def getPrices(entries: Seq[SteamEntry], tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
-    def getWinner(steamEntry: SteamEntry, suggestions: Seq[PartialPrice]): Option[PartialPrice] =
-      suggestions.map(s => (ThresholdLevenshtein.count(s.name, steamEntry.name, 100), s)).sortBy(_._1).headOption.map(_._2)
-
-    def parsePrice(steamEntry: SteamEntry, suggestions: Seq[PartialPrice]): Option[PriceEntry] =
-      getWinner(steamEntry, suggestions).map(p => PriceEntry(steamEntry.steamId, 1L, p.name, FK.toString, p.link, BigDecimal(0)))
-
     for {
-      complete <- Future.sequence(entries.map(e => getSuggestions(e.name, tables, retriever).map(s => (e, s))))
-      prices = complete.filter(p => p._2.nonEmpty).map((parsePrice _).tupled).filter(_.isDefined).map(_.get)
-      details <- Future.sequence(prices.map(e => retriever(e.link.split(FK.toString)(1)).map(s => (e, s))))
+      prices <- getCompletes(entries, tables, retriever)
+      details <- Future.sequence(prices.map(e => retriever(e.link.split(site)(1)).map(s => (e, s))))
     } yield {
       def fixPrice(e: PriceEntry, page: String) = {
         val parsed = Jsoup.parse(page)
@@ -172,6 +163,10 @@ object FKPricesFetcher {
     }
   }
 
+  override def createPriceEntry(steamEntry: SteamEntry, userId: Long)(bestMatch: PartialPrice): PriceEntry =
+    PriceEntry(steamEntry.steamId, userId, bestMatch.name, site, bestMatch.link, BigDecimal(0))
+
+  override def site: String = FK.toString
 }
 
 object GolPricesFetcher {
