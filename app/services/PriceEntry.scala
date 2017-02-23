@@ -45,7 +45,7 @@ object PriceEntry {
 trait Fetcher {
   val defaultSearchUserId = 1L
 
-  private case class SearchHelper(steamEntry : SteamEntry, userId : Long, query : Option[String])
+  private case class SearchHelper(steamEntry : SteamEntry, userId : Long, query : String, selectedResult: String)
 
   private case class SuggestionHelper(searchHelper : SearchHelper, results : Seq[PartialPrice])
 
@@ -56,24 +56,21 @@ trait Fetcher {
   def site: String
 
   def getCompletes(entries: Seq[SteamEntry], tables: Tables, retriever: (String) => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] ={
-    def resolveQuery(q : Option[String]) : Future[Seq[PartialPrice]] =
-      q.map(getSuggestions(_, tables, retriever)).getOrElse(Future(Seq()))
-
     for {
       siteCues <- tables.getQueryData(site, entries.map(_.steamId).toSet)
       toSearch = allSearches(entries, siteCues)
-      suggestions <- Future.sequence(toSearch.map(e => resolveQuery(e.query).map(SuggestionHelper(e, _))))
+      suggestions <- Future.sequence(toSearch.map(e => getSuggestions(e.query, tables, retriever).map(SuggestionHelper(e, _))))
     } yield {
       suggestions.map(resolveSuggestionToPriceEntry).filter(_.isDefined).map(_.get)
     }
   }
 
   private def chooseBestPriceMatch(helper : SuggestionHelper) : Option[PartialPrice] = {
-    if (helper.results.nonEmpty && helper.searchHelper.query.isDefined) {
-      val exactMatch = helper.results.find(_.name == helper.searchHelper.query.get)
+    if (helper.results.nonEmpty) {
+      val exactMatch = helper.results.find(_.name == helper.searchHelper.selectedResult)
       if (exactMatch.isDefined) exactMatch else
       if (helper.results.size == 1) helper.results.headOption else
-        helper.results.map(s => (ThresholdLevenshtein.count(s.name, helper.searchHelper.steamEntry.name, 100), s)).sortBy(_._1).headOption.map(_._2)
+        helper.results.map(s => (ThresholdLevenshtein.count(s.name, helper.searchHelper.selectedResult, 100), s)).sortBy(_._1).headOption.map(_._2)
     } else None
   }
 
@@ -84,13 +81,14 @@ trait Fetcher {
   }
 
   private def allSearches(entries: Seq[SteamEntry], siteCues: Map[Long, Seq[(Long, GameQuery)]]) : Seq[SearchHelper] = {
+    val meaningfulSiteCues = siteCues.mapValues(_.filter(_._2.selectedResult.isDefined)).filter(_._2.nonEmpty)
     val cuedSearches =
       for {
       e <- entries
-      cues = siteCues.getOrElse(e.steamId, Seq())
+      cues = meaningfulSiteCues.getOrElse(e.steamId, Seq())
       c <- cues
     } yield {
-      SearchHelper(e, c._1, c._2.selectedResult)
+      SearchHelper(e, c._1, c._2.query, c._2.selectedResult.get)
     }
     val allSteamIds = entries.map(_.steamId).toSet
     val defaultSearches = cuedSearches.filter(_.userId == defaultSearchUserId).map(_.steamEntry.steamId).toSet
@@ -99,7 +97,7 @@ trait Fetcher {
       for {
       e <- entries.filter(e => idsToAdd.contains(e.steamId))
     } yield {
-      SearchHelper(e, defaultSearchUserId, Some(e.name))
+      SearchHelper(e, defaultSearchUserId, e.name, e.name)
     }
     cuedSearches ++ additionalSearches
   }
