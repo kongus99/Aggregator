@@ -167,19 +167,13 @@ object FKPricesFetcher extends Fetcher{
   override def site: String = FK.toString
 }
 
-object GolPricesFetcher {
+object GolPricesFetcher extends Fetcher{
 
   import scala.collection.JavaConversions._
 
   private def autoCompleteUrl(query: String) = s"/ajax/quicksearch.asp?qs=$query"
 
   def getPrices(entries: Seq[SteamEntry], tables: Tables, retriever: String => Future[String])(implicit exec: ExecutionContext): Future[Seq[PriceEntry]] = {
-
-    def getWinner(steamEntry: SteamEntry, suggestions: Seq[PartialPrice]): Option[PartialPrice] =
-      suggestions.find(_.name == steamEntry.name)
-
-    def parsePrice(steamEntry: SteamEntry, suggestions: Seq[PartialPrice]): Option[PriceEntry] =
-      getWinner(steamEntry, suggestions).map(p => PriceEntry(steamEntry.steamId, 1L, p.name, Gol.toString, p.link, BigDecimal(0)))
 
     def changeLinkToPriceList(e: PriceEntry, page: String): Option[PriceEntry] = {
       def allPricesSearchUrlPrefix(gamePriceId: String) = s"/ajax/porownywarka_lista.asp?ID=$gamePriceId&ORDER=1&BOX=0&DIGITAL=1"
@@ -201,8 +195,7 @@ object GolPricesFetcher {
     def miniPricesSearchUrlPrefix(id : String) = s"/ajax/porownywarka.asp?ID=$id"
 
     for {
-      complete <- Future.sequence(entries.map(e => getSuggestions(e.name, tables, retriever).map(s => (e, s))))
-      prices = complete.filter(p => p._2.nonEmpty).map((parsePrice _).tupled).filter(_.isDefined).map(_.get)
+      prices <- getCompletes(entries, tables, retriever)
       pricesWithDetails <- Future.sequence(prices.map(e => retriever(miniPricesSearchUrlPrefix(e.link.split("=")(1))).map(s => (e, s))))
       pricesWithPriceLists = pricesWithDetails.map((changeLinkToPriceList _).tupled).filter(_.isDefined).map(_.get)
       pricesWithLinkedPrices <- Future.sequence(pricesWithPriceLists.map(e => retriever(e.link).map(s => (e, Jsoup.parse(s).getElementsByClass("gpc-lista-a").toSeq))))
@@ -219,4 +212,9 @@ object GolPricesFetcher {
       Jsoup.parse(complete).getElementsByTag("a").toList.map(e => PartialPrice(e.text(), e.attr("href"), None))
     }
   }
+
+  override def createPriceEntry(steamEntry: SteamEntry, userId: Long)(bestMatch: PartialPrice): PriceEntry =
+    PriceEntry(steamEntry.steamId, userId, bestMatch.name, site, bestMatch.link, BigDecimal(0))
+
+  override def site: String = Gol.toString
 }
