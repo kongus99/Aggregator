@@ -2,7 +2,7 @@ port module MainPage exposing (..)
 
 import GameOptionsDialog
 import Html exposing (Html, button, br, input, div, text, span, table, tr, th, td, select, option, a, label, thead, tbody, p, h2, h3)
-import Html.Attributes exposing (class, selected, value, href, type_, name, checked, style)
+import Html.Attributes exposing (checked, class, href, name, placeholder, selected, style, type_, value)
 import Html.Events exposing (onClick, on, targetValue, onInput, onCheck)
 import Json.Decode as Json
 import GameEntry exposing (..)
@@ -61,11 +61,11 @@ subscriptions model =
 
 
 type alias Model =
-    { sources : GameSources, message : String, userId : Int, filters : Filters, host : String, options : GameOptionsDialog.Model Msg }
+    { sources : GameSources, message : Maybe String, userId : Int, filters : Filters, host : String, options : GameOptionsDialog.Model Msg }
 
 
 initialModel =
-    Model WishList "" 1 GameEntry.emptyFilters "" (GameOptionsDialog.emptyModel DialogClose DialogMessage)
+    Model WishList Nothing 1 GameEntry.emptyFilters "" (GameOptionsDialog.emptyModel DialogClose DialogMessage)
 
 
 
@@ -92,31 +92,31 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ChangeSources s ->
-            ( { model | filters = resetFilterLists model.filters, sources = s, message = "" }, getResponse <| Router.getUserGames [ ( "sources", toString s ), ( "userId", toString model.userId ) ] )
+            ( { model | filters = resetFilterLists model.filters, sources = s, message = Nothing }, getResponse <| Router.getUserGames [ ( "sources", toString s ), ( "userId", toString model.userId ) ] )
 
         ReceiveRefresh entries ->
-            ( { model | filters = updateFilterLists entries model.filters, message = "" }, Cmd.none )
+            ( { model | filters = updateFilterLists entries model.filters, message = Nothing }, Cmd.none )
 
         RefreshError err ->
-            ( { model | filters = resetFilterLists model.filters, message = toString err }, Cmd.none )
+            ( { model | filters = resetFilterLists model.filters, message = Just <| toString err }, Cmd.none )
 
         NameFilterChange name ->
-            ( { model | filters = updateNameFilter name model.filters, message = "" }, Cmd.none )
+            ( { model | filters = updateNameFilter name model.filters, message = Nothing }, Cmd.none )
 
         LowPriceFilterChange priceString ->
-            ( { model | filters = updateLowFilter (String.toFloat priceString |> Result.toMaybe) model.filters, message = "" }, Cmd.none )
+            ( { model | filters = updateLowFilter (String.toFloat priceString |> Result.toMaybe) model.filters, message = Nothing }, Cmd.none )
 
         HighPriceFilterChange priceString ->
-            ( { model | filters = updateHighFilter (String.toFloat priceString |> Result.toMaybe) model.filters, message = "" }, Cmd.none )
+            ( { model | filters = updateHighFilter (String.toFloat priceString |> Result.toMaybe) model.filters, message = Nothing }, Cmd.none )
 
         GameOnFilterChange gameOn ->
-            ( { model | filters = updateGameOnFilter gameOn model.filters, message = "" }, Cmd.none )
+            ( { model | filters = updateGameOnFilter gameOn model.filters, message = Nothing }, Cmd.none )
 
         DiscountedFilterChange isDiscounted ->
-            ( { model | filters = toggleDiscountedFilter isDiscounted model.filters, message = "" }, Cmd.none )
+            ( { model | filters = toggleDiscountedFilter isDiscounted model.filters, message = Nothing }, Cmd.none )
 
         ServerRefreshRequest msg ->
-            ( { model | filters = resetFilterLists model.filters, message = "" }, getResponse <| Router.getUserGames [ ( "sources", toString model.sources ), ( "userId", toString model.userId ) ] )
+            ( { model | filters = resetFilterLists model.filters, message = Nothing }, getResponse <| Router.getUserGames [ ( "sources", toString model.sources ), ( "userId", toString model.userId ) ] )
 
         DialogOpen steamId ->
             ( model, GameOptionsDialog.fetch model.userId steamId DialogData RefreshError )
@@ -141,16 +141,29 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div [] <|
-        [ label [] [ text "Name:", input [ type_ "text", onInput NameFilterChange, value model.filters.name ] [] ]
-        , label [] [ text "Lowest price:", input [ type_ "text", onInput LowPriceFilterChange, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.first model.filters.prices ] [] ]
-        , label [] [ text "Highest price:", input [ type_ "text", onInput HighPriceFilterChange, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.second model.filters.prices ] [] ]
-        , br [] []
-        , div [] [ sourcesSelect model.sources, gameOnSelect model.filters.gameOn, discountedInput model.filters.isDiscounted ]
-        , div [] [ text (toString model.message) ]
-        , table [ class "table table-striped table-bordered" ] [ thead [] [ gameTableTitle ], tbody [] (List.map gameTableRow model.filters.result) ]
+    table [ class "table table-striped table-bordered" ]
+        [ thead [] [ gameTableTitle ]
+        , th [ class "form-inline" ]
+            [ div [ class "form-group" ]
+                [ input [ placeholder "Name", class "form-control", type_ "text", onInput NameFilterChange, value model.filters.name ] []
+                , sourcesSelect model.sources
+                , gameOnSelect model.filters.gameOn
+                ]
+            ]
+        , th [ class "form-inline" ]
+            [ div [ class "form-group" ]
+                [ input [ placeholder "Lowest price", class "form-control", type_ "text", onInput LowPriceFilterChange, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.first model.filters.prices ] []
+                , input [ placeholder "Highest price", class "form-control", type_ "text", onInput HighPriceFilterChange, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.second model.filters.prices ] []
+                ]
+            ]
+        , th [] [ discountedInput model.filters.isDiscounted ]
+        , tbody [] (List.map gameTableRow model.filters.result)
         , GameOptionsDialog.view model.options
         ]
+
+
+messageText model =
+    Maybe.map (\t -> div [] [ text t ]) model.message |> Maybe.withDefault (div [] [])
 
 
 gameTableTitle =
@@ -194,7 +207,7 @@ sourcesSelect sources =
         change s =
             ChangeSources <| sourcesFromString s
     in
-        select [ onSelect change ]
+        select [ class "form-control", onSelect change ]
             [ option [ selected (sources == Owned), value <| toString Owned ] [ text <| toString Owned ]
             , option [ selected (sources == WishList), value <| toString WishList ] [ text <| toString WishList ]
             , option [ selected (sources == Both), value <| toString Both ] [ text <| toString Both ]
@@ -218,7 +231,7 @@ gameOnSelect maybeGameOn =
         change s =
             GameOnFilterChange <| gameOnFromString s
     in
-        select [ onSelect change ]
+        select [ class "form-control", onSelect change ]
             [ option [ selected (maybeGameOn == Nothing), value "" ] [ text "" ]
             , option [ selected (maybeGameOn == Just Steam), value <| toString Steam ] [ text <| toString Steam ]
             , option [ selected (maybeGameOn == Just Gog), value <| toString Gog ] [ text <| toString Gog ]
@@ -226,7 +239,9 @@ gameOnSelect maybeGameOn =
 
 
 discountedInput isDiscounted =
-    label [] [ input [ type_ "checkbox", name "Discounted", checked isDiscounted, onCheck DiscountedFilterChange ] [], text "Discounted" ]
+    div [ class "checkbox" ]
+        [ label [] [ input [ type_ "checkbox", name "Discounted", checked isDiscounted, onCheck DiscountedFilterChange ] [], text "Discounted" ]
+        ]
 
 
 getResponse : ( Http.Request (List GameEntry), String ) -> Cmd Msg
