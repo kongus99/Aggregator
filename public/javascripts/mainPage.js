@@ -14107,37 +14107,41 @@ var _user$project$MainPage$view = function (model) {
 							},
 							{
 								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$input,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$placeholder('Name'),
-										_1: {
+								_0: _user$project$MainPage$discountedInput(model.filters.isDiscounted),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$input,
+										{
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$class('form-control'),
+											_0: _elm_lang$html$Html_Attributes$placeholder('Name'),
 											_1: {
 												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$type_('text'),
+												_0: _elm_lang$html$Html_Attributes$class('form-control'),
 												_1: {
 													ctor: '::',
-													_0: _elm_lang$html$Html_Events$onInput(_user$project$MainPage$NameFilterChange),
+													_0: _elm_lang$html$Html_Attributes$type_('text'),
 													_1: {
 														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$value(model.filters.name),
-														_1: {ctor: '[]'}
+														_0: _elm_lang$html$Html_Events$onInput(_user$project$MainPage$NameFilterChange),
+														_1: {
+															ctor: '::',
+															_0: _elm_lang$html$Html_Attributes$value(model.filters.name),
+															_1: {ctor: '[]'}
+														}
 													}
 												}
 											}
-										}
-									},
-									{ctor: '[]'}),
-								_1: {
-									ctor: '::',
-									_0: _user$project$MainPage$sourcesSelect(model.sources),
+										},
+										{ctor: '[]'}),
 									_1: {
 										ctor: '::',
-										_0: _user$project$MainPage$gameOnSelect(model.filters.gameOn),
-										_1: {ctor: '[]'}
+										_0: _user$project$MainPage$sourcesSelect(model.sources),
+										_1: {
+											ctor: '::',
+											_0: _user$project$MainPage$gameOnSelect(model.filters.gameOn),
+											_1: {ctor: '[]'}
+										}
 									}
 								}
 							}),
@@ -14237,11 +14241,7 @@ var _user$project$MainPage$view = function (model) {
 						_0: A2(
 							_elm_lang$html$Html$th,
 							{ctor: '[]'},
-							{
-								ctor: '::',
-								_0: _user$project$MainPage$discountedInput(model.filters.isDiscounted),
-								_1: {ctor: '[]'}
-							}),
+							{ctor: '[]'}),
 						_1: {
 							ctor: '::',
 							_0: A2(

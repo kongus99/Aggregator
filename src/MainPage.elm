@@ -145,7 +145,8 @@ view model =
         [ thead [] [ gameTableTitle ]
         , th [ class "form-inline" ]
             [ div [ class "form-group" ]
-                [ input [ placeholder "Name", class "form-control", type_ "text", onInput NameFilterChange, value model.filters.name ] []
+                [ discountedInput model.filters.isDiscounted
+                , input [ placeholder "Name", class "form-control", type_ "text", onInput NameFilterChange, value model.filters.name ] []
                 , sourcesSelect model.sources
                 , gameOnSelect model.filters.gameOn
                 ]
@@ -156,7 +157,7 @@ view model =
                 , input [ placeholder "Highest price", class "form-control", type_ "text", onInput HighPriceFilterChange, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.second model.filters.prices ] []
                 ]
             ]
-        , th [] [ discountedInput model.filters.isDiscounted ]
+        , th [] []
         , tbody [] (List.map gameTableRow model.filters.result)
         , GameOptionsDialog.view model.options
         ]
