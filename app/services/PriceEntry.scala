@@ -42,7 +42,19 @@ object PriceEntry {
   }
 }
 
-trait Fetcher {
+object BestMatcher {
+  def chooseBestMatch[A](selectedResult : String, results : Seq[A], extractor : A => String) : Option[A] = {
+    if (results.nonEmpty) {
+      val exactMatch = results.find(extractor(_) == selectedResult)
+      if (exactMatch.isDefined) exactMatch else
+      if (results.size == 1) results.headOption else
+        results.map(s => (ThresholdLevenshtein.count(extractor(s), selectedResult, 100), s)).sortBy(_._1).headOption.map(_._2)
+    } else None
+  }
+}
+
+
+trait Fetcher{
   val defaultSearchUserId = 1L
 
   private case class SearchHelper(steamEntry : SteamEntry, userId : Long, query : String, selectedResult: String)
@@ -65,14 +77,8 @@ trait Fetcher {
     }
   }
 
-  private def chooseBestPriceMatch(helper : SuggestionHelper) : Option[PartialPrice] = {
-    if (helper.results.nonEmpty) {
-      val exactMatch = helper.results.find(_.name == helper.searchHelper.selectedResult)
-      if (exactMatch.isDefined) exactMatch else
-      if (helper.results.size == 1) helper.results.headOption else
-        helper.results.map(s => (ThresholdLevenshtein.count(s.name, helper.searchHelper.selectedResult, 100), s)).sortBy(_._1).headOption.map(_._2)
-    } else None
-  }
+  private def chooseBestPriceMatch(helper : SuggestionHelper) : Option[PartialPrice] =
+    BestMatcher.chooseBestMatch(helper.searchHelper.selectedResult, helper.results, (p : PartialPrice) => p.name)
 
   private def resolveSuggestionToPriceEntry(suggestionHelper: SuggestionHelper) : Option[PriceEntry] = {
     if(suggestionHelper.results.nonEmpty)

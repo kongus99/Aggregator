@@ -21,10 +21,11 @@ class GameOptionsController @Inject()(tables: Tables, client: WSClient)(implicit
   def fetch(userId: Long, steamId: Long): Action[AnyContent] = Action.async {
     for {
       steamEntry <- tables.getSteamEntryById(steamId)
-      definedQueries <- tables.getQueryData(userId, steamId)
-      queries <- queries(steamEntry, definedQueries)
+      (queries, existing) <- getQueries(userId, Seq(), steamEntry, tables)
+      queryResults <- getQueryResults(steamEntry, queries)
+      response = constructResponse(steamEntry, queries, queryResults, existing, None)
     } yield {
-      Ok(Json.toJson(GameOptions(steamEntry, queries)))
+      Ok(Json.toJson(GameOptions(steamEntry, response)))
     }
   }
 
@@ -37,32 +38,59 @@ class GameOptionsController @Inject()(tables: Tables, client: WSClient)(implicit
     }
   }
 
+  private def constructResponse(steamEntry: SteamEntry, queries: Map[String, String], queryResults: Map[String, Seq[String]], existing : Seq[GameQuery], newQuery : Option[GameQuery]): Seq[GameQuery] = {
+
+    val fixedQueries : Map[String, GameQuery] =
+      (newQuery.map(Seq(_)).getOrElse(Seq()) ++ existing).reverse.map(q => (q.site,q.copy(allResults = queryResults(q.site)))).toMap
+
+    val defaultQueries: Map[String, GameQuery] = {
+      def entry(site: String) = {
+        (site, GameQuery(queries(site), site, queryResults(site), BestMatcher.chooseBestMatch(steamEntry.name, queryResults(site), identity[String])))
+      }
+
+      (entry(Keye.toString) :: entry(FK.toString) :: entry(Gol.toString) :: Nil).toMap
+    }
+
+    (defaultQueries ++ fixedQueries).values.toSeq
+  }
+
   def fetchSearch(userId: Long, steamId: Long, query: String, site: String): Action[AnyContent] = Action.async {
     for {
       steamEntry <- tables.getSteamEntryById(steamId)
-      _ <- tables.changeQueryData(userId, steamId, GameQuery(query, site, Seq(), None), Left(query))
-      definedQueries <- tables.getQueryData(userId, steamId)
-      queries <- queries(steamEntry, definedQueries)
+      (queries, existing) <- getQueries(userId, Seq((site, query)), steamEntry, tables)
+      queryResults <- getQueryResults(steamEntry, queries)
+      bestMatch =  BestMatcher.chooseBestMatch(steamEntry.name, queryResults(site), identity[String])
+      newQuery = GameQuery(query, site, queryResults(site), bestMatch)
+      _ <- tables.changeQueryData(userId, steamId, newQuery, Left(query))
+      response = constructResponse(steamEntry, queries, queryResults, existing, Some(newQuery))
     } yield {
-      Ok(Json.toJson(GameOptions(steamEntry, queries)))
+      Ok(Json.toJson(GameOptions(steamEntry, response)))
     }
   }
 
-  private def queries(steamEntry: SteamEntry, definedQueries : Seq[GameQuery]): Future[Seq[GameQuery]] = {
-    val queriesMap = definedQueries.map(q => (q.site, q)).toMap
-
-    def getQuery(currentSite: String): String = queriesMap.get(currentSite).map(_.query).getOrElse(steamEntry.name)
-
-    def createQuery(currentSite: String, results : Seq[String]) : GameQuery =
-      queriesMap.get(currentSite).map(_.copy(allResults = results)).getOrElse(GameQuery(getQuery(currentSite), currentSite, results, None))
+  private def getQueries(userId: Long, newQueries : Seq[(String, String)], steamEntry: SteamEntry, tables: Tables): Future[(Map[String, String], Seq[GameQuery])] = {
+    val defaultQueries = (Keye.toString, steamEntry.name) :: (FK.toString, steamEntry.name) :: (Gol.toString, steamEntry.name) :: Nil
 
     for {
-      keyeNames <- KeyePricesFetcher.getSuggestions(getQuery(Keye.toString), tables, keyeRetriever.retrieve)
-      fkNames <- FKPricesFetcher.getSuggestions(getQuery(FK.toString), tables, fkRetriever.retrieve)
-      golNames <- GolPricesFetcher.getSuggestions(getQuery(Gol.toString), tables, golRetriever.retrieve)
+      existing <- tables.getQueryData(userId, steamEntry.steamId)
     } yield {
-      createQuery(FK.toString, fkNames.map(_.name)) :: createQuery(Keye.toString, keyeNames.map(_.name)) :: createQuery(Gol.toString, golNames.map(_.name)) :: Nil
+      val existingQueries = existing.map(q => (q.site, q.query))
+      ((defaultQueries ++ existingQueries ++ newQueries).toMap, existing)
     }
+
+
+  }
+
+  private def getQueryResults(steamEntry: SteamEntry, queries: Map[String,String]): Future[Map[String, Seq[String]]] = {
+
+    for {
+      keyeNames <- KeyePricesFetcher.getSuggestions(queries(Keye.toString), tables, keyeRetriever.retrieve)
+      fkNames <- FKPricesFetcher.getSuggestions(queries(FK.toString), tables, fkRetriever.retrieve)
+      golNames <- GolPricesFetcher.getSuggestions(queries(Gol.toString), tables, golRetriever.retrieve)
+    } yield {
+      ((FK.toString, fkNames.map(_.name)) :: (Keye.toString, keyeNames.map(_.name)) :: (Gol.toString, golNames.map(_.name)) :: Nil).toMap
+    }
+
   }
 
 }
