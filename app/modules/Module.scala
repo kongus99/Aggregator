@@ -1,7 +1,7 @@
 package modules
 
 import actors.ScheduleActor
-import actors.ScheduleActor.{RefreshGog, RefreshPrices, RefreshSteam}
+import actors.ScheduleActor.{RefreshGames, RefreshPrices}
 import akka.actor.{ActorRef, ActorSystem}
 import com.google.inject.name.Named
 import com.google.inject.{AbstractModule, Inject, Singleton}
@@ -19,7 +19,6 @@ class Module extends AbstractModule with AkkaGuiceSupport {
 
 @Singleton
 class RefreshScheduler @Inject()(system: ActorSystem, @Named("ScheduleActor") scheduleActor: ActorRef) {
-  system.scheduler.schedule(FiniteDuration(1, SECONDS), FiniteDuration(15, MINUTES), scheduleActor, RefreshSteam())
-  system.scheduler.schedule(FiniteDuration(1, SECONDS), FiniteDuration(15, MINUTES), scheduleActor, RefreshGog())
+  system.scheduler.schedule(FiniteDuration(1, SECONDS), FiniteDuration(15, MINUTES), scheduleActor, RefreshGames())
   system.scheduler.schedule(FiniteDuration(10, SECONDS), FiniteDuration(60, MINUTES), scheduleActor, RefreshPrices())
 }

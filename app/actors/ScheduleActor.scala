@@ -1,7 +1,7 @@
 package actors
 
 import actors.MyWebSocketActor.RefreshUserData
-import actors.ScheduleActor.{RefreshGog, RefreshPrices, RefreshSteam}
+import actors.ScheduleActor.{RefreshGames, RefreshPrices}
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import com.google.inject.Inject
 import model.{Tables, User}
@@ -14,9 +14,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 
 object ScheduleActor {
 
-  case class RefreshSteam()
-
-  case class RefreshGog()
+  case class RefreshGames()
 
   case class RefreshPrices()
 
@@ -28,16 +26,14 @@ class ScheduleActor @Inject()(system : ActorSystem, client: WSClient, configurat
   val priceActors: Array[ActorRef] = (1 to 2).map(_ => system.actorOf(Props(classOf[PriceRefreshActor], client, tables, exec))).toArray
 
   override def receive: Receive = {
-    case _: RefreshSteam =>
+    case _: RefreshGames =>
       Await.result(refreshUsers(steamActors, SteamRefreshActor.RunRefresh.apply), FiniteDuration(5, MINUTES))
-      system.actorSelection("akka://application/user/*") ! RefreshUserData()
-      println("Refreshed steam")
-    case _: RefreshGog =>
       Await.result(refreshUsers(gogActors, GogRefreshActor.RunRefresh.apply), FiniteDuration(5, MINUTES))
-      println("Refreshed gog")
+      system.actorSelection("akka://application/user/*") ! RefreshUserData()
+      println("Refreshed games")
     case _: RefreshPrices =>
       Await.result(refreshPrices(), FiniteDuration(5, MINUTES))
-      println("refreshed prices")
+      println("Refreshed prices")
   }
 
   private def refreshUsers(actors: Array[ActorRef], refresh: (User) => Any): Future[Unit] = {
