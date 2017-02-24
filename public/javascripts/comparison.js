@@ -10065,9 +10065,9 @@ var _user$project$Model$User = F4(
 	function (a, b, c, d) {
 		return {id: a, username1: b, steamAlternate: c, username2: d};
 	});
-var _user$project$Model$GogEntry = F4(
-	function (a, b, c, d) {
-		return {title: a, gogId: b, price: c, discounted: d};
+var _user$project$Model$GogEntry = F5(
+	function (a, b, c, d, e) {
+		return {title: a, link: b, gogId: c, price: d, discounted: e};
 	});
 var _user$project$Model$SteamEntry = F5(
 	function (a, b, c, d, e) {
@@ -10322,7 +10322,7 @@ var _user$project$GameEntry$getLink = function (gameEntry) {
 		A2(
 			_elm_lang$core$Maybe$map,
 			function (g) {
-				return '';
+				return g.link;
 			},
 			_elm_lang$core$List$head(gameEntry.gog)));
 };
@@ -10537,10 +10537,11 @@ var _user$project$Router$decodedGameOptionsEntry = A3(
 		_elm_lang$core$Json_Decode$field,
 		'queries',
 		_elm_lang$core$Json_Decode$array(_user$project$Router$decodedGameQueryEntry)));
-var _user$project$Router$decodedGogEntry = A5(
-	_elm_lang$core$Json_Decode$map4,
+var _user$project$Router$decodedGogEntry = A6(
+	_elm_lang$core$Json_Decode$map5,
 	_user$project$Model$GogEntry,
 	A2(_elm_lang$core$Json_Decode$field, 'title', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'link', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'gogId', _elm_lang$core$Json_Decode$int),
 	A2(
 		_elm_lang$core$Json_Decode$field,

@@ -27,7 +27,7 @@ type alias User =
 
 
 type alias GogEntry =
-    { title : String, gogId : Int, price : Maybe Float, discounted : Maybe Float }
+    { title : String, link : String, gogId : Int, price : Maybe Float, discounted : Maybe Float }
 
 
 type alias SteamEntry =

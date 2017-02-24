@@ -51,6 +51,8 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
   class GogData(tag: Tag) extends Table[GogEntry](tag, "GOG_DATA") {
     def gogId = column[Long]("GOG_DATA_GOG_ID", O.PrimaryKey)
 
+    def link = column[String]("GOG_DATA_LINK")
+
     def title = column[String]("GOG_DATA_TITLE")
 
     def price = column[Option[BigDecimal]]("GOG_DATA_PRICE", O.SqlType("DECIMAL(6,2)"))
@@ -59,10 +61,10 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def * : ProvenShape[GogEntry] = {
 
-      val apply: (Long, String, Option[BigDecimal], Option[BigDecimal]) => GogEntry = (gogId, title, price, discountedPrice) => GogEntry(title, gogId, price, discountedPrice, owned = true)
+      val apply: (Long, String, String, Option[BigDecimal], Option[BigDecimal]) => GogEntry = (gogId, link, title, price, discountedPrice) => GogEntry(title, link, gogId, price, discountedPrice, owned = false)
 
-      val unapply: GogEntry => Option[(Long, String, Option[BigDecimal], Option[BigDecimal])] = g => Some(g.gogId, g.title, g.price, g.discounted)
-      (gogId, title, price, discountedPrice) <>(apply.tupled, unapply)
+      val unapply: GogEntry => Option[(Long, String, String, Option[BigDecimal], Option[BigDecimal])] = g => Some(g.gogId, g.link, g.title, g.price, g.discounted)
+      (gogId, link, title, price, discountedPrice) <>(apply.tupled, unapply)
     }
 
   }

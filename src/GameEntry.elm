@@ -48,7 +48,7 @@ getLink gameEntry =
         steamLink =
             List.head gameEntry.steam |> Maybe.map (\g -> g.link) |> Maybe.withDefault ""
     in
-        List.head gameEntry.gog |> Maybe.map (\g -> "") |> Maybe.withDefault steamLink
+        List.head gameEntry.gog |> Maybe.map (\g -> g.link) |> Maybe.withDefault steamLink
 
 
 getSteamId : GameEntry -> Maybe Int

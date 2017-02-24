@@ -119,7 +119,7 @@ decodedUserEntry =
 
 
 decodedGogEntry =
-    map4 GogEntry (field "title" string) (field "gogId" int) (field "price" (maybe float)) (field "discounted" (maybe float))
+    map5 GogEntry (field "title" string) (field "link" string) (field "gogId" int) (field "price" (maybe float)) (field "discounted" (maybe float))
 
 
 decodedSteamEntry =
