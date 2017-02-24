@@ -27,7 +27,7 @@ class PriceRefreshActor (client: WSClient, tables: Tables, implicit val exec: Ex
   private def refreshPrices(entries : Seq[SteamEntry]): Future[Any] = {
     for {
       prices <- PriceEntry.getPrices(tables, entries, golRetriever.retrieve, fkRetriever.retrieve, keyeRetriever.retrieve)
-      refreshed <- tables.replacePrices(prices.values.flatten.toSeq)
+      refreshed <- tables.replacePrices(entries.map(_.steamId).toSet, prices.values.flatten.toSeq)
     } yield {
       refreshed
     }

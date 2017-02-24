@@ -219,8 +219,8 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     db.run(gameQueryData += new GameQueryEntity(userId, steamId, insertData)).recoverWith({ case _: Exception => db.run(updateQuery)})
   }
 
-  def replacePrices(prices: Seq[PriceEntry]): Future[_] = {
-    val deleteOldPrices = priceData.filter(_.steamId.inSet(prices.map(_.steamId))).delete
+  def replacePrices(steamIds : Set[Long], prices: Seq[PriceEntry]): Future[_] = {
+    val deleteOldPrices = priceData.filter(_.steamId.inSet(steamIds)).delete
     val addNewPrices = priceData ++= prices
     db.run((deleteOldPrices >> addNewPrices).transactionally)
   }
