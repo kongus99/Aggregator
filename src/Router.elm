@@ -123,7 +123,7 @@ decodedGogEntry =
 
 
 decodedSteamEntry =
-    map4 SteamEntry (field "name" string) (field "steamId" int) (field "price" (maybe float)) (field "discounted" (maybe float))
+    map5 SteamEntry (field "name" string) (field "steamId" int) (field "link" string) (field "price" (maybe float)) (field "discounted" (maybe float))
 
 
 decodedPriceEntry =

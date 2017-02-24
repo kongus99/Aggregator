@@ -12061,9 +12061,9 @@ var _user$project$Model$GogEntry = F4(
 	function (a, b, c, d) {
 		return {title: a, gogId: b, price: c, discounted: d};
 	});
-var _user$project$Model$SteamEntry = F4(
-	function (a, b, c, d) {
-		return {name: a, steamId: b, price: c, discounted: d};
+var _user$project$Model$SteamEntry = F5(
+	function (a, b, c, d, e) {
+		return {name: a, steamId: b, link: c, price: d, discounted: e};
 	});
 var _user$project$Model$PriceEntry = F5(
 	function (a, b, c, d, e) {
@@ -12298,6 +12298,26 @@ var _user$project$GameEntry$getSteamId = function (gameEntry) {
 		},
 		_elm_lang$core$List$head(gameEntry.steam));
 };
+var _user$project$GameEntry$getLink = function (gameEntry) {
+	var steamLink = A2(
+		_elm_lang$core$Maybe$withDefault,
+		'',
+		A2(
+			_elm_lang$core$Maybe$map,
+			function (g) {
+				return g.link;
+			},
+			_elm_lang$core$List$head(gameEntry.steam)));
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		steamLink,
+		A2(
+			_elm_lang$core$Maybe$map,
+			function (g) {
+				return '';
+			},
+			_elm_lang$core$List$head(gameEntry.gog)));
+};
 var _user$project$GameEntry$getName = function (gameEntry) {
 	var steamName = A2(
 		_elm_lang$core$Maybe$withDefault,
@@ -12487,11 +12507,12 @@ var _user$project$Router$decodedPriceEntry = A6(
 	A2(_elm_lang$core$Json_Decode$field, 'host', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'link', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'price', _elm_lang$core$Json_Decode$float));
-var _user$project$Router$decodedSteamEntry = A5(
-	_elm_lang$core$Json_Decode$map4,
+var _user$project$Router$decodedSteamEntry = A6(
+	_elm_lang$core$Json_Decode$map5,
 	_user$project$Model$SteamEntry,
 	A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'steamId', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'link', _elm_lang$core$Json_Decode$string),
 	A2(
 		_elm_lang$core$Json_Decode$field,
 		'price',
@@ -13512,12 +13533,17 @@ var _user$project$MainPage$gameTableRow = function (e) {
 				{
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$span,
+						_elm_lang$html$Html$a,
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class(
-								_user$project$MainPage$toStyle(e)),
-							_1: {ctor: '[]'}
+							_0: _elm_lang$html$Html_Attributes$href(
+								_user$project$GameEntry$getLink(e)),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class(
+									_user$project$MainPage$toStyle(e)),
+								_1: {ctor: '[]'}
+							}
 						},
 						{
 							ctor: '::',

@@ -8,7 +8,9 @@ import play.api.libs.json.{JsPath, Json, Reads, Writes}
 
 import scala.collection.immutable.Seq
 
-case class SteamEntry(name: String, steamId: Long, price: Option[BigDecimal] = None, discounted: Option[BigDecimal]= None, owned : Boolean)
+case class SteamEntry(name: String, steamId: Long, price: Option[BigDecimal] = None, discounted: Option[BigDecimal]= None, owned : Boolean){
+  val link = s"http://store.steampowered.com/app/$steamId"
+}
 
 object SteamEntry {
   private val regExp = "var rgGames = (.+);".r
@@ -17,8 +19,9 @@ object SteamEntry {
   implicit val steamWrites: Writes[SteamEntry] = (
     (JsPath \ "name").write[String] and
       (JsPath \ "steamId").write[Long] and
+      (JsPath \ "link").write[String] and
       (JsPath \ "price").write[Option[BigDecimal]]and
-      (JsPath \ "discounted").write[Option[BigDecimal]]) ((e) => (e.name, e.steamId, e.price, e.discounted))
+      (JsPath \ "discounted").write[Option[BigDecimal]]) ((e) => (e.name, e.steamId, e.link, e.price, e.discounted))
 
   def parse(owned: String, wishList : String, converter : CurrencyConverter): Seq[SteamEntry] =
     parseOwned(owned) ++ parseWishList(wishList, converter)

@@ -15,6 +15,7 @@ module GameEntry
         , updateGameOnFilter
         , toggleDiscountedFilter
         , getSteamId
+        , getLink
         )
 
 import Model exposing (..)
@@ -39,6 +40,15 @@ getName gameEntry =
             List.head gameEntry.steam |> Maybe.map (\g -> g.name) |> Maybe.withDefault ""
     in
         List.head gameEntry.gog |> Maybe.map (\g -> g.title) |> Maybe.withDefault steamName
+
+
+getLink : GameEntry -> String
+getLink gameEntry =
+    let
+        steamLink =
+            List.head gameEntry.steam |> Maybe.map (\g -> g.link) |> Maybe.withDefault ""
+    in
+        List.head gameEntry.gog |> Maybe.map (\g -> "") |> Maybe.withDefault steamLink
 
 
 getSteamId : GameEntry -> Maybe Int

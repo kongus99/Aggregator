@@ -177,7 +177,7 @@ gameTableTitle =
 
 gameTableRow e =
     tr []
-        [ th [] [ span [ class <| toStyle e ] [ text <| getName e ], gameOptionsButton e ]
+        [ th [] [ a [ href <| getLink e, class <| toStyle e ] [ text <| getName e ], gameOptionsButton e ]
         , td [ class "text-right" ] [ text <| pricesToString (getPrice e) ]
         , td [] (additionalPrices e.prices)
         ]
