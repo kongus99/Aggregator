@@ -208,16 +208,18 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
   }
 
   def getQueryData(userId : Long, steamId : Long) : Future[Seq[GameQuery]] = {
-    db.run(gameQueryData.filter(e => e.steamId === steamId && e.userId === userId).result).map(_.map(_.gameQuery))
+    val query = for {e <- gameQueryData if e.steamId === steamId && e.userId === userId} yield e
+    for {result <- db.run(query.result)} yield result.map(_.gameQuery)
   }
 
   def getQueryData(site : String, steamIds : Set[Long]) : Future[Map[Long, Seq[(Long, GameQuery)]]] = {
-    db.run(gameQueryData.filter(e => e.site === site && e.steamId.inSet(steamIds)).result).map(_.groupBy(r => r.steamId).mapValues(_.map(r => (r.userId, r.gameQuery))))
+    val query = for {e <- gameQueryData if e.site === site && e.steamId.inSet(steamIds)} yield e
+    for {result <- db.run(query.result)} yield result.groupBy(_.steamId).mapValues(_.map(r => (r.userId, r.gameQuery)))
   }
 
   def changeQueryData(userId : Long, steamId : Long, insertData : GameQuery, queryOrSelected : Either[String, Option[String]]) : Future[Int] = {
-    val q = for { e <- gameQueryData if e.steamId === steamId && e.userId === userId && e.site === insertData.site } yield e
-    lazy val updateQuery = queryOrSelected.fold(l => q.map(d => (d.query, d.selectedResult)).update((l, None)), q.map(_.selectedResult).update(_))
+    val query = for { e <- gameQueryData if e.steamId === steamId && e.userId === userId && e.site === insertData.site } yield e
+    lazy val updateQuery = queryOrSelected.fold(l => query.map(d => (d.query, d.selectedResult)).update((l, None)), query.map(_.selectedResult).update(_))
     db.run(gameQueryData += new GameQueryEntity(userId, steamId, insertData)).recoverWith({ case _: Exception => db.run(updateQuery)})
   }
 
@@ -287,22 +289,28 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     db.run(userData.filter(_.id === userId).map(_.steamAlternate).update(steamAlternate).andThen(userData.filter(_.id === userId).result.headOption))
   }
 
-  def replaceGogData(user : Option[User], data : Seq[GogEntry]): Future[_] =
-    user.map(u => {
-      val ids = data.map(_.gogId).toSet
-      val newOwnership = data.map(g => (g.gogId, u.id.get, g.owned))
-      val oldDataIdsQuery = gogData.filter(_.gogId.inSet(ids)).map(_.gogId)
-      def insertNewData(oldDataIds : Seq[Long]) = {
-        val newData = data.filter(d => !oldDataIds.contains(d.gogId))
-        def updates(gogE : GogEntry) = (for { g <- gogData if g.gogId === gogE.gogId} yield (g.price, g.discountedPrice)).update((gogE.price, gogE.discounted))
-        val priceUpdates = DBIO.sequence(data.filter(_.price.isDefined).map(updates))
-        (gogData ++= newData).andThen(priceUpdates)
-      }
+  def replaceGogData(user : Option[User], data : Seq[GogEntry]): Future[_] = {
+    def insertNewData(oldDataIds: Seq[Long]) = {
+      val newData = data.filter(d => !oldDataIds.contains(d.gogId))
 
-      lazy val  deleteOldOwnership = gogOwnershipData.filter(_.userId === u.id.get).delete
-      lazy val  addNewOwnership = gogOwnershipData ++= newOwnership
-      db.run((oldDataIdsQuery.result.flatMap(insertNewData) >> deleteOldOwnership >> addNewOwnership).transactionally)
-    }).getOrElse(Future{true})
+      def updates(gogE: GogEntry) = (for {g <- gogData if g.gogId === gogE.gogId} yield (g.price, g.discountedPrice)).update((gogE.price, gogE.discounted))
+
+      val priceUpdates = DBIO.sequence(data.filter(_.price.isDefined).map(updates))
+      (gogData ++= newData).andThen(priceUpdates)
+    }
+
+    val action = for {
+      u <- user
+      ids = data.map(_.gogId).toSet
+      newOwnership = data.map(g => (g.gogId, u.id.get, g.owned))
+      oldDataIdsQuery = gogData.filter(_.gogId.inSet(ids)).map(_.gogId).result
+      deleteOldOwnership = gogOwnershipData.filter(_.userId === u.id.get).delete
+      addNewOwnership = gogOwnershipData ++= newOwnership
+    } yield {
+      (oldDataIdsQuery.flatMap(insertNewData) >> deleteOldOwnership >> addNewOwnership).transactionally
+    }
+    action.map(db.run).getOrElse(Future(true))
+  }
 
   def getGogEntries(user: Option[User], sources: Option[Boolean]): Future[Seq[GogEntry]] = {
     def condition(e: GogOwnershipData, g : GogData): Rep[Boolean] = {
@@ -324,22 +332,28 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
   def getSteamEntryById(steamId : Long): Future[SteamEntry] = db.run(steamData.filter(_.steamId === steamId).result.head)
 
-  def replaceSteamData(user : Option[User], data : Seq[SteamEntry]): Future[_] =
-    user.map(u => {
-      val ids = data.map(_.steamId).toSet
-      val newOwnership = data.map(g => (g.steamId, u.id.get, g.owned))
-      val oldDataIdsQuery = steamData.filter(_.steamId.inSet(ids)).map(_.steamId)
-      def insertNewData(oldDataIds : Seq[Long]) = {
-        val newData = data.filter(d => !oldDataIds.contains(d.steamId))
-        def updates(steamE : SteamEntry) = (for { s <- steamData if s.steamId === steamE.steamId} yield (s.price, s.discountedPrice)).update((steamE.price, steamE.discounted))
-        val priceUpdates = DBIO.sequence(data.filter(_.price.isDefined).map(updates))
-        (steamData ++= newData).andThen(priceUpdates)
-      }
+  def replaceSteamData(user : Option[User], data : Seq[SteamEntry]): Future[_] = {
+    def insertNewData(oldDataIds: Seq[Long]) = {
+      val newData = data.filter(d => !oldDataIds.contains(d.steamId))
 
-      lazy val  deleteOldOwnership = steamOwnershipData.filter(_.userId === u.id.get).delete
-      lazy val  addNewOwnership = steamOwnershipData ++= newOwnership
-      db.run((oldDataIdsQuery.result.flatMap(insertNewData) >> deleteOldOwnership >> addNewOwnership).transactionally)
-    }).getOrElse(Future{true})
+      def updates(steamE: SteamEntry) = (for {s <- steamData if s.steamId === steamE.steamId} yield (s.price, s.discountedPrice)).update((steamE.price, steamE.discounted))
+
+      val priceUpdates = DBIO.sequence(data.filter(_.price.isDefined).map(updates))
+      (steamData ++= newData).andThen(priceUpdates)
+    }
+
+    val action = for {
+      u <- user
+      ids = data.map(_.steamId).toSet
+      newOwnership = data.map(g => (g.steamId, u.id.get, g.owned))
+      oldDataIdsQuery = steamData.filter(_.steamId.inSet(ids)).map(_.steamId).result
+      deleteOldOwnership = steamOwnershipData.filter(_.userId === u.id.get).delete
+      addNewOwnership = steamOwnershipData ++= newOwnership
+    } yield {
+      (oldDataIdsQuery.flatMap(insertNewData) >> deleteOldOwnership >> addNewOwnership).transactionally
+    }
+    action.map(db.run).getOrElse(Future(true))
+  }
 
   lazy val get: AnyVal = {
     def start() = {
