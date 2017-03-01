@@ -8,8 +8,12 @@ import play.api.libs.json.{JsPath, Json, Reads, Writes}
 
 import scala.collection.immutable.Seq
 
-case class SteamEntry(name: String, steamId: Long, price: Option[BigDecimal] = None, discounted: Option[BigDecimal]= None, owned : Boolean){
+case class SteamEntry(name: String, steamId: Long, price: Option[BigDecimal] = None, discounted: Option[BigDecimal]= None, owned : Boolean) extends ShopEntry{
   val link = s"http://store.steampowered.com/app/$steamId"
+
+  override def id: Long = steamId
+
+  override def title: String = name
 }
 
 object SteamEntry {

@@ -5,7 +5,9 @@ import model.CurrencyConverter
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-case class GogEntry(title: String, link : String, gogId: Long, price: Option[BigDecimal] = None, discounted: Option[BigDecimal] = None, owned : Boolean)
+case class GogEntry(title: String, link : String, gogId: Long, price: Option[BigDecimal] = None, discounted: Option[BigDecimal] = None, owned : Boolean) extends ShopEntry {
+  override def id: Long = gogId
+}
 
 object GogEntry {
   private val regExp = "var gogData = (.+);".r

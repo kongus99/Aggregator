@@ -10,6 +10,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class UrlAddress(url: String, headers : Seq[(String, String)] = Seq())
 
+trait ShopEntry {
+  def id: Long
+  def title: String
+  def link : String
+  def price: Option[BigDecimal]
+  def discounted: Option[BigDecimal]
+  def owned : Boolean
+}
+
 case class GameEntry(gog: Seq[GogEntry], steam: Seq[SteamEntry], prices : Seq[PriceEntry] = Seq()) {
   val name: String = gog.headOption.map(_.title).getOrElse(steam.head.name)
 }
@@ -68,5 +77,4 @@ object GameEntry {
   }
 }
 
-//TODO : column filters - high
 //TODO : DLC - eliminate entries, move to separate table? - low
