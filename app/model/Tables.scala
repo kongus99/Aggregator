@@ -18,11 +18,15 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 @Singleton
 class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: ExecutionContext) {
 
-  case class OwnershipData(id : Long, userId : Long, owned : Boolean)
+  private case class OwnershipData(id : Long, userId : Long, owned : Boolean)
 
   val dbConfig: DatabaseConfig[JdbcProfile] = dbConfigProvider.get[JdbcProfile]
 
   import dbConfig.driver.api._
+
+  private trait IdAccessor {
+    def accessId: Rep[Long]
+  }
 
   val db = dbConfig.db
 
@@ -51,7 +55,7 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     override def * : ProvenShape[User] = (id.?, steamLogin, steamAlternate, gogLogin) <> ((User.apply _).tupled, User.unapply)
   }
 
-  class GogData(tag: Tag) extends Table[GogEntry](tag, "GOG_DATA") {
+  class GogData(tag: Tag) extends Table[GogEntry](tag, "GOG_DATA") with IdAccessor{
     def gogId = column[Long]("GOG_DATA_GOG_ID", O.PrimaryKey)
 
     def link = column[String]("GOG_DATA_LINK")
@@ -70,10 +74,12 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
       (gogId, link, title, price, discountedPrice) <>(apply.tupled, unapply)
     }
 
+    override def accessId: Rep[Long] = gogId
+
   }
 
-  class GogOwnershipData(tag: Tag) extends Table[OwnershipData](tag, "GOG_OWNERSHIP_DATA") {
-    def gogId = column[Long]("GOG_OWNERSHIP_DATA_GOG_ID")
+  class GogOwnershipData(tag: Tag) extends Table[OwnershipData](tag, "GOG_OWNERSHIP_DATA") with IdAccessor{
+    def gogId: Rep[Long] = column[Long]("GOG_OWNERSHIP_DATA_GOG_ID")
 
     def userId = column[Long]("GOG_OWNERSHIP_DATA_USER_ID")
 
@@ -86,9 +92,11 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     def userFk = foreignKey("USER_DATA_FK", userId, userData)(_.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Cascade)
 
     def * : ProvenShape[OwnershipData] = (gogId, userId, owned) <> ((OwnershipData.apply _).tupled, OwnershipData.unapply)
+
+    override def accessId : Rep[Long] = userId
   }
 
-  class SteamData(tag: Tag) extends Table[SteamEntry](tag, "STEAM_DATA") {
+  class SteamData(tag: Tag) extends Table[SteamEntry](tag, "STEAM_DATA") with IdAccessor{
     def steamId = column[Long]("STEAM_DATA_STEAM_ID", O.PrimaryKey)
 
     def name = column[String]("STEAM_DATA_NAME")
@@ -104,9 +112,11 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
       val unapply: (SteamEntry) => Option[(Long, String, Option[BigDecimal], Option[BigDecimal])] = s => Some((s.steamId, s.name, s.price, s.discounted))
       (steamId, name, price, discountedPrice) <>(apply.tupled, unapply)
     }
+
+    override def accessId: Rep[Long] = steamId
   }
 
-  class SteamOwnershipData(tag: Tag) extends Table[OwnershipData](tag, "STEAM_OWNERSHIP_DATA") {
+  class SteamOwnershipData(tag: Tag) extends Table[OwnershipData](tag, "STEAM_OWNERSHIP_DATA") with IdAccessor {
 
     def steamId = column[Long]("STEAM_OWNERSHIP_DATA_STEAM_ID")
 
@@ -121,6 +131,8 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     def userFk = foreignKey("USER_DATA_FK", userId, userData)(_.id, onUpdate=ForeignKeyAction.Restrict, onDelete=ForeignKeyAction.Cascade)
 
     def * : ProvenShape[OwnershipData] = (steamId, userId, owned) <> ((OwnershipData.apply _).tupled, OwnershipData.unapply)
+
+    override def accessId: Rep[Long] = userId
   }
 
   class MatchData(tag: Tag) extends Table[MatchEntry](tag, "MATCH_DATA") {
@@ -301,34 +313,36 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
   def getSteamEntryById(steamId : Long): Future[SteamEntry] = db.run(steamData.filter(_.steamId === steamId).result.head)
 
-  private def upsertPrices[T <: Table[Q], Q <: ShopEntry](t : TableQuery[T], updates : Q => DBIOAction[Int, NoStream, Write], idFunction : T =>  Rep[Long], data : Seq[Q]) : DBIOAction[Seq[Int], _, _]= {
-    val ids = data.map(_.id).toSet
-    val oldDataIdsQuery = t.filter(idFunction(_).inSet(ids)).map(idFunction(_)).result
-    oldDataIdsQuery.flatMap(oldDataIds => {
-      val newData = data.filter(d => !oldDataIds.contains(d.id))
-      val priceUpdates = DBIO.sequence(data.filter(_.price.isDefined).map(updates))
-      (t ++= newData) >> priceUpdates
-    })
-  }
-
-
-  private def replaceOwnership[Q <: ShopEntry, T <: Table[OwnershipData]](ownershipTable: TableQuery[T], userIdFunction : T =>  Rep[Long], u: User, data : Seq[Q]) =
-    ownershipTable.filter(userIdFunction(_) === u.id.get).delete >> (ownershipTable ++= data.map(g => OwnershipData(g.id, u.id.get, g.owned)))
-
   def replaceSteamData(user : Option[User], data : Seq[SteamEntry]): Future[_] = {
     def updates(steamE: SteamEntry) = (for {s <- steamData if s.steamId === steamE.steamId} yield (s.price, s.discountedPrice)).update((steamE.price, steamE.discounted))
-    val action = user.map(u => (
-      upsertPrices(steamData, updates, (s : SteamData) => s.steamId, data) >>
-        replaceOwnership(steamOwnershipData, (s : SteamOwnershipData) => s.userId, u, data)).transactionally)
-    action.map(db.run).getOrElse(Future(true))
+    replaceData(steamData, steamOwnershipData, updates)(user, data)
   }
 
   def replaceGogData(user : Option[User], data : Seq[GogEntry]): Future[_] = {
     def updates(gogE: GogEntry) = (for {g <- gogData if g.gogId === gogE.gogId} yield (g.price, g.discountedPrice)).update((gogE.price, gogE.discounted))
-    val action = user.map(u => (
-      upsertPrices(gogData, updates, (g : GogData) => g.gogId, data) >>
-        replaceOwnership(gogOwnershipData, (s : GogOwnershipData) => s.userId, u, data)).transactionally)
-    action.map(db.run).getOrElse(Future(true))
+    replaceData(gogData, gogOwnershipData, updates)(user, data)
+  }
+
+  private def replaceData[Q <: ShopEntry, V <: Table[OwnershipData] with IdAccessor, T <: Table[Q] with IdAccessor]
+    (dataQuery: TableQuery[T], ownershipQuery: TableQuery[V], updates : Q => DBIOAction[Int, NoStream, Write])
+    (user : Option[User], data : Seq[Q]) = {
+    if (user.isDefined) {
+      val u = user.get
+
+      val replaceOwnership =
+        ownershipQuery.filter(_.accessId === u.id.get).delete >> (ownershipQuery ++= data.map(g => OwnershipData(g.id, u.id.get, g.owned)))
+
+      val upsertPrices = {
+        val ids = data.map(_.id).toSet
+        val oldDataIdsQuery = dataQuery.filter(_.accessId.inSet(ids)).map(_.accessId).result
+        oldDataIdsQuery.flatMap(oldDataIds => {
+          val newData = data.filter(d => !oldDataIds.contains(d.id))
+          val priceUpdates = DBIO.sequence(data.filter(_.price.isDefined).map(updates))
+          (dataQuery ++= newData) >> priceUpdates
+        })
+      }
+      db.run((upsertPrices >> replaceOwnership).transactionally)
+    } else Future(true)
   }
 
 
