@@ -31,7 +31,7 @@ class GogRefreshActor (client: WSClient, tables: Tables, configuration: Configur
       rates <- ratesRetriever.retrieve("").map(CurrencyConverter.parseFromXml)
       owned <- gogRetriever.retrieve(getGogPageNumber)
       wishlist <- user.gogLogin.map(l => gogWishListRetriever.retrieveWithUser(useAlternate = false)(l)("/wishlist")).getOrElse(Future(""))
-      refreshed <- tables.replaceGogData(Some(user), GogEntry.parse(owned, wishlist, rates))
+      refreshed <- tables.replaceGogData(user, GogEntry.parse(owned, wishlist, rates))
     } yield {
       refreshed
     }

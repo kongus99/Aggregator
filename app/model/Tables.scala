@@ -18,13 +18,13 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 @Singleton
 class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: ExecutionContext) {
 
-  private case class OwnershipData(id : Long, userId : Long, owned : Boolean)
+  case class OwnershipData(id : Long, userId : Long, owned : Boolean)
 
   val dbConfig: DatabaseConfig[JdbcProfile] = dbConfigProvider.get[JdbcProfile]
 
   import dbConfig.driver.api._
 
-  private trait IdAccessor {
+  trait IdAccessor {
     def accessId: Rep[Long]
   }
 
@@ -313,36 +313,31 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
   def getSteamEntryById(steamId : Long): Future[SteamEntry] = db.run(steamData.filter(_.steamId === steamId).result.head)
 
-  def replaceSteamData(user : Option[User], data : Seq[SteamEntry]): Future[_] = {
+  def replaceSteamData(user : User, data : Seq[SteamEntry]): Future[_] = {
     def updates(steamE: SteamEntry) = (for {s <- steamData if s.steamId === steamE.steamId} yield (s.price, s.discountedPrice)).update((steamE.price, steamE.discounted))
-    replaceData(steamData, steamOwnershipData, updates)(user, data)
+    replaceData(steamData, steamOwnershipData, updates, data)(user)
   }
 
-  def replaceGogData(user : Option[User], data : Seq[GogEntry]): Future[_] = {
+  def replaceGogData(user : User, data : Seq[GogEntry]): Future[_] = {
     def updates(gogE: GogEntry) = (for {g <- gogData if g.gogId === gogE.gogId} yield (g.price, g.discountedPrice)).update((gogE.price, gogE.discounted))
-    replaceData(gogData, gogOwnershipData, updates)(user, data)
+    replaceData(gogData, gogOwnershipData, updates, data)(user)
   }
 
   private def replaceData[Q <: ShopEntry, V <: Table[OwnershipData] with IdAccessor, T <: Table[Q] with IdAccessor]
-    (dataQuery: TableQuery[T], ownershipQuery: TableQuery[V], updates : Q => DBIOAction[Int, NoStream, Write])
-    (user : Option[User], data : Seq[Q]) = {
-    if (user.isDefined) {
-      val u = user.get
+    (dataQuery: TableQuery[T], ownershipQuery: TableQuery[V], updates : Q => DBIOAction[Int, NoStream, Write], data : Seq[Q])(u : User) = {
+    val replaceOwnership =
+      ownershipQuery.filter(_.accessId === u.id.get).delete >> (ownershipQuery ++= data.map(g => OwnershipData(g.id, u.id.get, g.owned)))
 
-      val replaceOwnership =
-        ownershipQuery.filter(_.accessId === u.id.get).delete >> (ownershipQuery ++= data.map(g => OwnershipData(g.id, u.id.get, g.owned)))
-
-      val upsertPrices = {
-        val ids = data.map(_.id).toSet
-        val oldDataIdsQuery = dataQuery.filter(_.accessId.inSet(ids)).map(_.accessId).result
-        oldDataIdsQuery.flatMap(oldDataIds => {
-          val newData = data.filter(d => !oldDataIds.contains(d.id))
-          val priceUpdates = DBIO.sequence(data.filter(_.price.isDefined).map(updates))
-          (dataQuery ++= newData) >> priceUpdates
-        })
-      }
-      db.run((upsertPrices >> replaceOwnership).transactionally)
-    } else Future(true)
+    val upsertPrices = {
+      val ids = data.map(_.id).toSet
+      val oldDataIdsQuery = dataQuery.filter(_.accessId.inSet(ids)).map(_.accessId).result
+      oldDataIdsQuery.flatMap(oldDataIds => {
+        val newData = data.filter(d => !oldDataIds.contains(d.id))
+        val priceUpdates = DBIO.sequence(data.filter(_.price.isDefined).map(updates))
+        (dataQuery ++= newData) >> priceUpdates
+      })
+    }
+    db.run((upsertPrices >> replaceOwnership).transactionally)
   }
 
 

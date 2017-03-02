@@ -28,7 +28,7 @@ class SteamRefreshActor (client: WSClient, tables: Tables, implicit val exec: Ex
       rates <- ratesRetriever.retrieve("").map(CurrencyConverter.parseFromXml)
       owned <- user.steamLogin.map(l => steamRetriever.retrieveWithUser(user.steamAlternate)(l)("/games/?tab=all")).getOrElse(Future(""))
       wishlist <- user.steamLogin.map(l => steamRetriever.retrieveWithUser(user.steamAlternate)(l)("/wishlist")).getOrElse(Future(""))
-      refreshed <- tables.replaceSteamData(Some(user), SteamEntry.parse(owned, wishlist, rates))
+      refreshed <- tables.replaceSteamData(user, SteamEntry.parse(owned, wishlist, rates))
     } yield {
       refreshed
     }
