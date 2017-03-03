@@ -19,25 +19,10 @@ import List.Extra as Lists
 initProgram : String -> ( Model, Cmd Msg )
 initProgram address =
     let
-        url =
-            Erl.parse address
-
-        parseInt value =
-            String.toInt value |> Result.toMaybe |> Maybe.withDefault 0
-
-        userId =
-            Erl.getQueryValuesForKey "userId" url |> List.head |> Maybe.map parseInt |> Maybe.withDefault 0
-
-        sources =
-            Erl.getQueryValuesForKey "sources" url |> List.head |> Maybe.map sourcesFromString |> Maybe.withDefault WishList
-
-        host =
-            (url.host |> String.join ".") ++ ":" ++ toString url.port_
-
         model =
-            { initialModel | sources = sources, userId = userId, host = host }
+            Erl.parse address |> initModel
     in
-        ( model, getResponse <| Router.getUserGames [ ( "sources", toString model.sources ), ( "userId", toString model.userId ) ] )
+        ( model, refreshGames model )
 
 
 main =
@@ -68,6 +53,39 @@ initialModel =
     Model WishList Nothing 1 GameEntry.emptyFilters "" (GameOptionsDialog.emptyModel DialogClose DialogMessage)
 
 
+initModel : Erl.Url -> Model
+initModel url =
+    let
+        parseInt value =
+            String.toInt value |> Result.toMaybe |> Maybe.withDefault 1
+
+        userId =
+            Erl.getQueryValuesForKey "userId" url |> List.head |> Maybe.map parseInt |> Maybe.withDefault 1
+
+        sources =
+            Erl.getQueryValuesForKey "sources" url |> List.head |> Maybe.map sourcesFromString |> Maybe.withDefault WishList
+
+        host =
+            (url.host |> String.join ".") ++ ":" ++ toString url.port_
+    in
+        { initialModel | sources = sources, userId = userId, host = host }
+
+
+refreshGames : Model -> Cmd Msg
+refreshGames model =
+    let
+        extractedParams =
+            [ ( "sources", toString model.sources ), ( "userId", toString model.userId ) ]
+
+        refreshGames =
+            extractedParams |> Router.getUserGames |> Http.send (Router.resolveResponse ReceiveRefresh RefreshError)
+
+        adjustAddress =
+            extractedParams |> Router.mainPageUrl |> elmAddressChange
+    in
+        Cmd.batch [ refreshGames, adjustAddress ]
+
+
 
 -- UPDATE
 
@@ -92,7 +110,11 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ChangeSources s ->
-            ( { model | filters = resetFilterLists model.filters, sources = s, message = Nothing }, getResponse <| Router.getUserGames [ ( "sources", toString s ), ( "userId", toString model.userId ) ] )
+            let
+                newModel =
+                    { model | filters = resetFilterLists model.filters, sources = s, message = Nothing }
+            in
+                ( newModel, refreshGames newModel )
 
         ReceiveRefresh entries ->
             ( { model | filters = updateFilterLists entries model.filters, message = Nothing }, Cmd.none )
@@ -116,7 +138,7 @@ update msg model =
             ( { model | filters = toggleDiscountedFilter isDiscounted model.filters, message = Nothing }, Cmd.none )
 
         ServerRefreshRequest msg ->
-            ( { model | filters = resetFilterLists model.filters, message = Nothing }, getResponse <| Router.getUserGames [ ( "sources", toString model.sources ), ( "userId", toString model.userId ) ] )
+            ( { model | filters = resetFilterLists model.filters, message = Nothing }, refreshGames model )
 
         DialogOpen steamId ->
             ( model, GameOptionsDialog.fetch model.userId steamId DialogData RefreshError )
@@ -243,11 +265,6 @@ discountedInput isDiscounted =
     div [ class "checkbox" ]
         [ label [] [ input [ type_ "checkbox", name "Discounted", checked isDiscounted, onCheck DiscountedFilterChange ] [], text "Discounted" ]
         ]
-
-
-getResponse : ( Http.Request (List GameEntry), String ) -> Cmd Msg
-getResponse ( request, address ) =
-    Cmd.batch [ Http.send (Router.resolveResponse ReceiveRefresh RefreshError) request, elmAddressChange address ]
 
 
 gamesOn list =

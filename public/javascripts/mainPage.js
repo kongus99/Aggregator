@@ -12448,31 +12448,15 @@ var _user$project$Router$resolveResponse = F3(
 	});
 var _user$project$Router$generateAddress = F2(
 	function (resourceName, params) {
-		var joinParameters = function (params) {
-			return A2(
-				_elm_lang$core$String$join,
-				'&&',
-				A2(
-					_elm_lang$core$List$map,
-					function (_p1) {
-						var _p2 = _p1;
-						return A2(
-							_elm_lang$core$Basics_ops['++'],
-							_p2._0,
-							A2(_elm_lang$core$Basics_ops['++'], '=', _p2._1));
-					},
-					params));
-		};
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			'/',
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				resourceName,
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					'?',
-					joinParameters(params))));
+		var folder = F2(
+			function (_p1, u) {
+				var _p2 = _p1;
+				return A3(_sporto$erl$Erl$setQuery, _p2._0, _p2._1, u);
+			});
+		var defaultUrl = _sporto$erl$Erl$parse(
+			A2(_elm_lang$core$Basics_ops['++'], '/', resourceName));
+		return _sporto$erl$Erl$toString(
+			A3(_elm_lang$core$List$foldl, folder, defaultUrl, params));
 	});
 var _user$project$Router$decodedGameQueryEntry = A5(
 	_elm_lang$core$Json_Decode$map4,
@@ -12580,7 +12564,6 @@ var _user$project$Router$refreshSocketUrl = function (host) {
 		'ws://',
 		A2(_elm_lang$core$Basics_ops['++'], host, '/refreshSocket'));
 };
-var _user$project$Router$mainPageUrl = '/main';
 var _user$project$Router$Addresses = F4(
 	function (a, b, c, d) {
 		return {login: a, main: b, gameOptions: c, comparison: d};
@@ -12594,13 +12577,12 @@ var _user$project$Router$login = A3(
 	_user$project$Router$generateAddress('login/fetch'),
 	_user$project$Router$generateAddress('login/createUpdate'),
 	_user$project$Router$generateAddress('login/steamAlternate'));
-var _user$project$Router$Main = F3(
-	function (a, b, c) {
-		return {refreshGames: a, fetch: b, page: c};
+var _user$project$Router$Main = F2(
+	function (a, b) {
+		return {fetch: a, page: b};
 	});
-var _user$project$Router$main_ = A3(
+var _user$project$Router$main_ = A2(
 	_user$project$Router$Main,
-	_user$project$Router$generateAddress('main/refresh'),
 	_user$project$Router$generateAddress('main/fetch'),
 	_user$project$Router$generateAddress('main'));
 var _user$project$Router$Options = F3(
@@ -12642,25 +12624,11 @@ var _user$project$Router$updateSteamAlternate = function (params) {
 		_elm_lang$http$Http$emptyBody,
 		_user$project$Router$decodedUserEntry);
 };
-var _user$project$Router$refreshUserGames = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.main.refreshGames(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$routes.main.page(params)
-	};
-};
 var _user$project$Router$getUserGames = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.main.fetch(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-		_1: _user$project$Router$routes.main.page(params)
-	};
+	return A2(
+		_elm_lang$http$Http$get,
+		_user$project$Router$routes.main.fetch(params),
+		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry));
 };
 var _user$project$Router$fetchGameOptions = function (params) {
 	return A2(
@@ -12697,6 +12665,9 @@ var _user$project$Router$comparisonData = function (params) {
 			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedComparisonEntry)),
 		_1: _user$project$Router$routes.comparison.page(params)
 	};
+};
+var _user$project$Router$mainPageUrl = function (params) {
+	return _user$project$Router$routes.main.page(params);
 };
 
 var _user$project$GameOptionsDialog$onEnter = function (msg) {
@@ -13477,6 +13448,41 @@ var _user$project$MainPage$initialModel = A6(
 	_user$project$GameEntry$emptyFilters,
 	'',
 	A2(_user$project$GameOptionsDialog$emptyModel, _user$project$MainPage$DialogClose, _user$project$MainPage$DialogMessage));
+var _user$project$MainPage$initModel = function (url) {
+	var host = A2(
+		_elm_lang$core$Basics_ops['++'],
+		A2(_elm_lang$core$String$join, '.', url.host),
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			':',
+			_elm_lang$core$Basics$toString(url.port_)));
+	var sources = A2(
+		_elm_lang$core$Maybe$withDefault,
+		_user$project$Model$WishList,
+		A2(
+			_elm_lang$core$Maybe$map,
+			_user$project$MainPage$sourcesFromString,
+			_elm_lang$core$List$head(
+				A2(_sporto$erl$Erl$getQueryValuesForKey, 'sources', url))));
+	var parseInt = function (value) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			1,
+			_elm_lang$core$Result$toMaybe(
+				_elm_lang$core$String$toInt(value)));
+	};
+	var userId = A2(
+		_elm_lang$core$Maybe$withDefault,
+		1,
+		A2(
+			_elm_lang$core$Maybe$map,
+			parseInt,
+			_elm_lang$core$List$head(
+				A2(_sporto$erl$Erl$getQueryValuesForKey, 'userId', url))));
+	return _elm_lang$core$Native_Utils.update(
+		_user$project$MainPage$initialModel,
+		{sources: sources, userId: userId, host: host});
+};
 var _user$project$MainPage$DialogData = function (a) {
 	return {ctor: 'DialogData', _0: a};
 };
@@ -13745,115 +13751,66 @@ var _user$project$MainPage$RefreshError = function (a) {
 var _user$project$MainPage$ReceiveRefresh = function (a) {
 	return {ctor: 'ReceiveRefresh', _0: a};
 };
-var _user$project$MainPage$getResponse = function (_p3) {
-	var _p4 = _p3;
+var _user$project$MainPage$refreshGames = function (model) {
+	var extractedParams = {
+		ctor: '::',
+		_0: {
+			ctor: '_Tuple2',
+			_0: 'sources',
+			_1: _elm_lang$core$Basics$toString(model.sources)
+		},
+		_1: {
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'userId',
+				_1: _elm_lang$core$Basics$toString(model.userId)
+			},
+			_1: {ctor: '[]'}
+		}
+	};
+	var refreshGames = A2(
+		_elm_lang$http$Http$send,
+		A2(_user$project$Router$resolveResponse, _user$project$MainPage$ReceiveRefresh, _user$project$MainPage$RefreshError),
+		_user$project$Router$getUserGames(extractedParams));
+	var adjustAddress = _user$project$MainPage$elmAddressChange(
+		_user$project$Router$mainPageUrl(extractedParams));
 	return _elm_lang$core$Platform_Cmd$batch(
 		{
 			ctor: '::',
-			_0: A2(
-				_elm_lang$http$Http$send,
-				A2(_user$project$Router$resolveResponse, _user$project$MainPage$ReceiveRefresh, _user$project$MainPage$RefreshError),
-				_p4._0),
+			_0: refreshGames,
 			_1: {
 				ctor: '::',
-				_0: _user$project$MainPage$elmAddressChange(_p4._1),
+				_0: adjustAddress,
 				_1: {ctor: '[]'}
 			}
 		});
 };
 var _user$project$MainPage$initProgram = function (address) {
-	var parseInt = function (value) {
-		return A2(
-			_elm_lang$core$Maybe$withDefault,
-			0,
-			_elm_lang$core$Result$toMaybe(
-				_elm_lang$core$String$toInt(value)));
-	};
-	var url = _sporto$erl$Erl$parse(address);
-	var userId = A2(
-		_elm_lang$core$Maybe$withDefault,
-		0,
-		A2(
-			_elm_lang$core$Maybe$map,
-			parseInt,
-			_elm_lang$core$List$head(
-				A2(_sporto$erl$Erl$getQueryValuesForKey, 'userId', url))));
-	var sources = A2(
-		_elm_lang$core$Maybe$withDefault,
-		_user$project$Model$WishList,
-		A2(
-			_elm_lang$core$Maybe$map,
-			_user$project$MainPage$sourcesFromString,
-			_elm_lang$core$List$head(
-				A2(_sporto$erl$Erl$getQueryValuesForKey, 'sources', url))));
-	var host = A2(
-		_elm_lang$core$Basics_ops['++'],
-		A2(_elm_lang$core$String$join, '.', url.host),
-		A2(
-			_elm_lang$core$Basics_ops['++'],
-			':',
-			_elm_lang$core$Basics$toString(url.port_)));
-	var model = _elm_lang$core$Native_Utils.update(
-		_user$project$MainPage$initialModel,
-		{sources: sources, userId: userId, host: host});
+	var model = _user$project$MainPage$initModel(
+		_sporto$erl$Erl$parse(address));
 	return {
 		ctor: '_Tuple2',
 		_0: model,
-		_1: _user$project$MainPage$getResponse(
-			_user$project$Router$getUserGames(
-				{
-					ctor: '::',
-					_0: {
-						ctor: '_Tuple2',
-						_0: 'sources',
-						_1: _elm_lang$core$Basics$toString(model.sources)
-					},
-					_1: {
-						ctor: '::',
-						_0: {
-							ctor: '_Tuple2',
-							_0: 'userId',
-							_1: _elm_lang$core$Basics$toString(model.userId)
-						},
-						_1: {ctor: '[]'}
-					}
-				}))
+		_1: _user$project$MainPage$refreshGames(model)
 	};
 };
 var _user$project$MainPage$update = F2(
 	function (msg, model) {
-		var _p5 = msg;
-		switch (_p5.ctor) {
+		var _p3 = msg;
+		switch (_p3.ctor) {
 			case 'ChangeSources':
-				var _p6 = _p5._0;
+				var newModel = _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						filters: _user$project$GameEntry$resetFilterLists(model.filters),
+						sources: _p3._0,
+						message: _elm_lang$core$Maybe$Nothing
+					});
 				return {
 					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							filters: _user$project$GameEntry$resetFilterLists(model.filters),
-							sources: _p6,
-							message: _elm_lang$core$Maybe$Nothing
-						}),
-					_1: _user$project$MainPage$getResponse(
-						_user$project$Router$getUserGames(
-							{
-								ctor: '::',
-								_0: {
-									ctor: '_Tuple2',
-									_0: 'sources',
-									_1: _elm_lang$core$Basics$toString(_p6)
-								},
-								_1: {
-									ctor: '::',
-									_0: {
-										ctor: '_Tuple2',
-										_0: 'userId',
-										_1: _elm_lang$core$Basics$toString(model.userId)
-									},
-									_1: {ctor: '[]'}
-								}
-							}))
+					_0: newModel,
+					_1: _user$project$MainPage$refreshGames(newModel)
 				};
 			case 'ReceiveRefresh':
 				return {
@@ -13861,7 +13818,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							filters: A2(_user$project$GameEntry$updateFilterLists, _p5._0, model.filters),
+							filters: A2(_user$project$GameEntry$updateFilterLists, _p3._0, model.filters),
 							message: _elm_lang$core$Maybe$Nothing
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
@@ -13874,7 +13831,7 @@ var _user$project$MainPage$update = F2(
 						{
 							filters: _user$project$GameEntry$resetFilterLists(model.filters),
 							message: _elm_lang$core$Maybe$Just(
-								_elm_lang$core$Basics$toString(_p5._0))
+								_elm_lang$core$Basics$toString(_p3._0))
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -13884,7 +13841,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							filters: A2(_user$project$GameEntry$updateNameFilter, _p5._0, model.filters),
+							filters: A2(_user$project$GameEntry$updateNameFilter, _p3._0, model.filters),
 							message: _elm_lang$core$Maybe$Nothing
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
@@ -13898,7 +13855,7 @@ var _user$project$MainPage$update = F2(
 							filters: A2(
 								_user$project$GameEntry$updateLowFilter,
 								_elm_lang$core$Result$toMaybe(
-									_elm_lang$core$String$toFloat(_p5._0)),
+									_elm_lang$core$String$toFloat(_p3._0)),
 								model.filters),
 							message: _elm_lang$core$Maybe$Nothing
 						}),
@@ -13913,7 +13870,7 @@ var _user$project$MainPage$update = F2(
 							filters: A2(
 								_user$project$GameEntry$updateHighFilter,
 								_elm_lang$core$Result$toMaybe(
-									_elm_lang$core$String$toFloat(_p5._0)),
+									_elm_lang$core$String$toFloat(_p3._0)),
 								model.filters),
 							message: _elm_lang$core$Maybe$Nothing
 						}),
@@ -13925,7 +13882,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							filters: A2(_user$project$GameEntry$updateGameOnFilter, _p5._0, model.filters),
+							filters: A2(_user$project$GameEntry$updateGameOnFilter, _p3._0, model.filters),
 							message: _elm_lang$core$Maybe$Nothing
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
@@ -13936,7 +13893,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							filters: A2(_user$project$GameEntry$toggleDiscountedFilter, _p5._0, model.filters),
+							filters: A2(_user$project$GameEntry$toggleDiscountedFilter, _p3._0, model.filters),
 							message: _elm_lang$core$Maybe$Nothing
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
@@ -13950,31 +13907,13 @@ var _user$project$MainPage$update = F2(
 							filters: _user$project$GameEntry$resetFilterLists(model.filters),
 							message: _elm_lang$core$Maybe$Nothing
 						}),
-					_1: _user$project$MainPage$getResponse(
-						_user$project$Router$getUserGames(
-							{
-								ctor: '::',
-								_0: {
-									ctor: '_Tuple2',
-									_0: 'sources',
-									_1: _elm_lang$core$Basics$toString(model.sources)
-								},
-								_1: {
-									ctor: '::',
-									_0: {
-										ctor: '_Tuple2',
-										_0: 'userId',
-										_1: _elm_lang$core$Basics$toString(model.userId)
-									},
-									_1: {ctor: '[]'}
-								}
-							}))
+					_1: _user$project$MainPage$refreshGames(model)
 				};
 			case 'DialogOpen':
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: A4(_user$project$GameOptionsDialog$fetch, model.userId, _p5._0, _user$project$MainPage$DialogData, _user$project$MainPage$RefreshError)
+					_1: A4(_user$project$GameOptionsDialog$fetch, model.userId, _p3._0, _user$project$MainPage$DialogData, _user$project$MainPage$RefreshError)
 				};
 			case 'DialogData':
 				return {
@@ -13982,7 +13921,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							options: A3(_user$project$GameOptionsDialog$model, _user$project$MainPage$DialogClose, _user$project$MainPage$DialogMessage, _p5._0)
+							options: A3(_user$project$GameOptionsDialog$model, _user$project$MainPage$DialogClose, _user$project$MainPage$DialogMessage, _p3._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -13997,7 +13936,7 @@ var _user$project$MainPage$update = F2(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			default:
-				var updated = A3(_user$project$GameOptionsDialog$update, model.userId, _p5._0, model.options);
+				var updated = A3(_user$project$GameOptionsDialog$update, model.userId, _p3._0, model.options);
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(

@@ -1,10 +1,11 @@
-module Router exposing (refreshUserGames, getUserGames, toggleSelected, comparisonData, resolveResponse, fetchUser, createUpdateUser, updateSteamAlternate, mainPageUrl, refreshSocketUrl, fetchGameOptions, saveSelectedSearchResult, fetchNewSearchResults)
+module Router exposing (getUserGames, toggleSelected, comparisonData, resolveResponse, fetchUser, createUpdateUser, updateSteamAlternate, mainPageUrl, refreshSocketUrl, fetchGameOptions, saveSelectedSearchResult, fetchNewSearchResults)
 
 import Http
 import Json.Decode as Json exposing (..)
 import Model exposing (..)
 import GameEntry exposing (GameEntry)
 import String
+import Erl
 
 
 --METHODS
@@ -22,12 +23,8 @@ updateSteamAlternate params =
     Http.post (routes.login.steamAlternate params) Http.emptyBody decodedUserEntry
 
 
-refreshUserGames params =
-    ( Http.get (routes.main.refreshGames params) (list decodedGameEntry), routes.main.page params )
-
-
 getUserGames params =
-    ( Http.get (routes.main.fetch params) (list decodedGameEntry), routes.main.page params )
+    Http.get (routes.main.fetch params) (list decodedGameEntry)
 
 
 fetchGameOptions params =
@@ -67,7 +64,7 @@ type alias Login =
 
 
 type alias Main =
-    { refreshGames : UrlGenerator, fetch : UrlGenerator, page : UrlGenerator }
+    { fetch : UrlGenerator, page : UrlGenerator }
 
 
 type alias Options =
@@ -83,7 +80,7 @@ login =
 
 
 main_ =
-    Main (generateAddress "main/refresh") (generateAddress "main/fetch") (generateAddress "main")
+    Main (generateAddress "main/fetch") (generateAddress "main")
 
 
 gameOptions =
@@ -102,10 +99,12 @@ routes =
 --URLS
 
 
-mainPageUrl =
-    "/main"
+mainPageUrl : List ( String, String ) -> String
+mainPageUrl params =
+    routes.main.page params
 
 
+refreshSocketUrl : String -> String
 refreshSocketUrl host =
     "ws://" ++ host ++ "/refreshSocket"
 
@@ -154,12 +153,16 @@ decodedGameQueryEntry =
 -- HELPERS
 
 
+generateAddress : String -> List ( String, String ) -> String
 generateAddress resourceName params =
     let
-        joinParameters params =
-            String.join "&&" (List.map (\( k, v ) -> k ++ "=" ++ v) params)
+        defaultUrl =
+            Erl.parse ("/" ++ resourceName)
+
+        folder ( k, v ) u =
+            Erl.setQuery k v u
     in
-        "/" ++ resourceName ++ "?" ++ (joinParameters params)
+        List.foldl folder defaultUrl params |> Erl.toString
 
 
 resolveResponse : (a -> c) -> (b -> c) -> Result b a -> c

@@ -159,7 +159,7 @@ mainPageLink model =
         Maybe.withDefault []
             (Maybe.map
                 (\_ ->
-                    [ form [ method "get", action Router.mainPageUrl ]
+                    [ form [ method "get", Router.mainPageUrl [] |> action ]
                         [ input [ type_ "hidden", name "sources", value <| toString WishList ] []
                         , input [ type_ "hidden", name "userId", value <| toString userId ] []
                         , button [ type_ "submit" ] [ text "Continue" ]
