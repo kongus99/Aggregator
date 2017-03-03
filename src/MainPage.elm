@@ -73,7 +73,11 @@ initModel url =
 
 extractedParams : Model -> List ( String, String )
 extractedParams model =
-    [ ( "sources", toString model.sources ), ( "userId", toString model.userId ) ]
+    [ ( "sources", toString model.sources )
+    , ( "userId", toString model.userId )
+    , ( "discounted", toString model.filters.isDiscounted )
+    , ( "gameOn", Maybe.map toString model.filters.gameOn |> Maybe.withDefault "" )
+    ]
 
 
 adjustAddress : Model -> Cmd Msg
@@ -132,10 +136,18 @@ update msg model =
             ( { model | filters = updateHighFilter (String.toFloat priceString |> Result.toMaybe) model.filters, message = Nothing }, Cmd.none )
 
         GameOnFilterChange gameOn ->
-            ( { model | filters = updateGameOnFilter gameOn model.filters, message = Nothing }, Cmd.none )
+            let
+                newModel =
+                    { model | filters = updateGameOnFilter gameOn model.filters, message = Nothing }
+            in
+                ( newModel, adjustAddress newModel )
 
         DiscountedFilterChange isDiscounted ->
-            ( { model | filters = toggleDiscountedFilter isDiscounted model.filters, message = Nothing }, Cmd.none )
+            let
+                newModel =
+                    { model | filters = toggleDiscountedFilter isDiscounted model.filters, message = Nothing }
+            in
+                ( newModel, adjustAddress newModel )
 
         ServerRefreshRequest msg ->
             ( { model | filters = resetFilterLists model.filters, message = Nothing }, refreshGames model )

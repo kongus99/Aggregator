@@ -13442,7 +13442,26 @@ var _user$project$MainPage$extractedParams = function (model) {
 				_0: 'userId',
 				_1: _elm_lang$core$Basics$toString(model.userId)
 			},
-			_1: {ctor: '[]'}
+			_1: {
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'discounted',
+					_1: _elm_lang$core$Basics$toString(model.filters.isDiscounted)
+				},
+				_1: {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'gameOn',
+						_1: A2(
+							_elm_lang$core$Maybe$withDefault,
+							'',
+							A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$toString, model.filters.gameOn))
+					},
+					_1: {ctor: '[]'}
+				}
+			}
 		}
 	};
 };
@@ -13873,26 +13892,28 @@ var _user$project$MainPage$update = F2(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'GameOnFilterChange':
+				var newModel = _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						filters: A2(_user$project$GameEntry$updateGameOnFilter, _p3._0, model.filters),
+						message: _elm_lang$core$Maybe$Nothing
+					});
 				return {
 					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							filters: A2(_user$project$GameEntry$updateGameOnFilter, _p3._0, model.filters),
-							message: _elm_lang$core$Maybe$Nothing
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
+					_0: newModel,
+					_1: _user$project$MainPage$adjustAddress(newModel)
 				};
 			case 'DiscountedFilterChange':
+				var newModel = _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						filters: A2(_user$project$GameEntry$toggleDiscountedFilter, _p3._0, model.filters),
+						message: _elm_lang$core$Maybe$Nothing
+					});
 				return {
 					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							filters: A2(_user$project$GameEntry$toggleDiscountedFilter, _p3._0, model.filters),
-							message: _elm_lang$core$Maybe$Nothing
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
+					_0: newModel,
+					_1: _user$project$MainPage$adjustAddress(newModel)
 				};
 			case 'ServerRefreshRequest':
 				return {
