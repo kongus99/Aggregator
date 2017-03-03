@@ -71,19 +71,19 @@ initModel url =
         { initialModel | sources = sources, userId = userId, host = host }
 
 
+extractedParams : Model -> List ( String, String )
+extractedParams model =
+    [ ( "sources", toString model.sources ), ( "userId", toString model.userId ) ]
+
+
+adjustAddress : Model -> Cmd Msg
+adjustAddress model =
+    extractedParams model |> Router.mainPageUrl |> elmAddressChange
+
+
 refreshGames : Model -> Cmd Msg
 refreshGames model =
-    let
-        extractedParams =
-            [ ( "sources", toString model.sources ), ( "userId", toString model.userId ) ]
-
-        refreshGames =
-            extractedParams |> Router.getUserGames |> Http.send (Router.resolveResponse ReceiveRefresh RefreshError)
-
-        adjustAddress =
-            extractedParams |> Router.mainPageUrl |> elmAddressChange
-    in
-        Cmd.batch [ refreshGames, adjustAddress ]
+    extractedParams model |> Router.getUserGames |> Http.send (Router.resolveResponse ReceiveRefresh RefreshError)
 
 
 
@@ -117,7 +117,7 @@ update msg model =
                 ( newModel, refreshGames newModel )
 
         ReceiveRefresh entries ->
-            ( { model | filters = updateFilterLists entries model.filters, message = Nothing }, Cmd.none )
+            ( { model | filters = updateFilterLists entries model.filters, message = Nothing }, adjustAddress model )
 
         RefreshError err ->
             ( { model | filters = resetFilterLists model.filters, message = Just <| toString err }, Cmd.none )

@@ -13427,11 +13427,35 @@ var _user$project$MainPage$messageText = function (model) {
 			},
 			model.message));
 };
+var _user$project$MainPage$extractedParams = function (model) {
+	return {
+		ctor: '::',
+		_0: {
+			ctor: '_Tuple2',
+			_0: 'sources',
+			_1: _elm_lang$core$Basics$toString(model.sources)
+		},
+		_1: {
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'userId',
+				_1: _elm_lang$core$Basics$toString(model.userId)
+			},
+			_1: {ctor: '[]'}
+		}
+	};
+};
 var _user$project$MainPage$elmAddressChange = _elm_lang$core$Native_Platform.outgoingPort(
 	'elmAddressChange',
 	function (v) {
 		return v;
 	});
+var _user$project$MainPage$adjustAddress = function (model) {
+	return _user$project$MainPage$elmAddressChange(
+		_user$project$Router$mainPageUrl(
+			_user$project$MainPage$extractedParams(model)));
+};
 var _user$project$MainPage$Model = F6(
 	function (a, b, c, d, e, f) {
 		return {sources: a, message: b, userId: c, filters: d, host: e, options: f};
@@ -13752,39 +13776,11 @@ var _user$project$MainPage$ReceiveRefresh = function (a) {
 	return {ctor: 'ReceiveRefresh', _0: a};
 };
 var _user$project$MainPage$refreshGames = function (model) {
-	var extractedParams = {
-		ctor: '::',
-		_0: {
-			ctor: '_Tuple2',
-			_0: 'sources',
-			_1: _elm_lang$core$Basics$toString(model.sources)
-		},
-		_1: {
-			ctor: '::',
-			_0: {
-				ctor: '_Tuple2',
-				_0: 'userId',
-				_1: _elm_lang$core$Basics$toString(model.userId)
-			},
-			_1: {ctor: '[]'}
-		}
-	};
-	var refreshGames = A2(
+	return A2(
 		_elm_lang$http$Http$send,
 		A2(_user$project$Router$resolveResponse, _user$project$MainPage$ReceiveRefresh, _user$project$MainPage$RefreshError),
-		_user$project$Router$getUserGames(extractedParams));
-	var adjustAddress = _user$project$MainPage$elmAddressChange(
-		_user$project$Router$mainPageUrl(extractedParams));
-	return _elm_lang$core$Platform_Cmd$batch(
-		{
-			ctor: '::',
-			_0: refreshGames,
-			_1: {
-				ctor: '::',
-				_0: adjustAddress,
-				_1: {ctor: '[]'}
-			}
-		});
+		_user$project$Router$getUserGames(
+			_user$project$MainPage$extractedParams(model)));
 };
 var _user$project$MainPage$initProgram = function (address) {
 	var model = _user$project$MainPage$initModel(
@@ -13821,7 +13817,7 @@ var _user$project$MainPage$update = F2(
 							filters: A2(_user$project$GameEntry$updateFilterLists, _p3._0, model.filters),
 							message: _elm_lang$core$Maybe$Nothing
 						}),
-					_1: _elm_lang$core$Platform_Cmd$none
+					_1: _user$project$MainPage$adjustAddress(model)
 				};
 			case 'RefreshError':
 				return {
