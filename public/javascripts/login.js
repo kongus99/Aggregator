@@ -9664,6 +9664,50 @@ var _user$project$Model$Both = {ctor: 'Both'};
 var _user$project$Model$WishList = {ctor: 'WishList'};
 var _user$project$Model$Owned = {ctor: 'Owned'};
 
+var _user$project$Parser$parseGameOn = function (value) {
+	var _p0 = value;
+	switch (_p0) {
+		case 'Gog':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Gog);
+		case 'Steam':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Steam);
+		default:
+			return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _user$project$Parser$parseSources = function (value) {
+	var _p1 = value;
+	switch (_p1) {
+		case 'Owned':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Owned);
+		case 'WishList':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$WishList);
+		case 'Both':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Both);
+		default:
+			return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _user$project$Parser$parseBool = function (value) {
+	var _p2 = _elm_lang$core$String$toLower(value);
+	switch (_p2) {
+		case 'true':
+			return _elm_lang$core$Maybe$Just(true);
+		case 'false':
+			return _elm_lang$core$Maybe$Just(false);
+		default:
+			return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _user$project$Parser$parseFloat = function (value) {
+	return _elm_lang$core$Result$toMaybe(
+		_elm_lang$core$String$toFloat(value));
+};
+var _user$project$Parser$parseInt = function (value) {
+	return _elm_lang$core$Result$toMaybe(
+		_elm_lang$core$String$toInt(value));
+};
+
 var _user$project$GameEntry$discountedIfAvailable = function (prices) {
 	var selectFromPair = function (_p0) {
 		var _p1 = _p0;
@@ -9691,6 +9735,72 @@ var _user$project$GameEntry$applyGameOnFilter = F2(
 				},
 				gameOn));
 	});
+var _user$project$GameEntry$serializeFilters = function (filters) {
+	return A2(
+		_elm_lang$core$List$map,
+		function (_p3) {
+			var _p4 = _p3;
+			return {
+				ctor: '_Tuple2',
+				_0: _p4._0,
+				_1: A2(_elm_lang$core$Maybe$withDefault, '', _p4._1)
+			};
+		},
+		A2(
+			_elm_lang$core$List$filter,
+			function (_p5) {
+				var _p6 = _p5;
+				return !_elm_lang$core$Native_Utils.eq(_p6._1, _elm_lang$core$Maybe$Nothing);
+			},
+			{
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'discounted',
+					_1: _elm_lang$core$Maybe$Just(
+						_elm_lang$core$Basics$toString(filters.isDiscounted))
+				},
+				_1: {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'gameOn',
+						_1: A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$toString, filters.gameOn)
+					},
+					_1: {
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'name',
+							_1: _elm_lang$core$Maybe$Just(filters.name)
+						},
+						_1: {
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'lowPrice',
+								_1: A2(
+									_elm_lang$core$Maybe$map,
+									_elm_lang$core$Basics$toString,
+									_elm_lang$core$Tuple$first(filters.prices))
+							},
+							_1: {
+								ctor: '::',
+								_0: {
+									ctor: '_Tuple2',
+									_0: 'highPrice',
+									_1: A2(
+										_elm_lang$core$Maybe$map,
+										_elm_lang$core$Basics$toString,
+										_elm_lang$core$Tuple$second(filters.prices))
+								},
+								_1: {ctor: '[]'}
+							}
+						}
+					}
+				}
+			}));
+};
 var _user$project$GameEntry$resetFilterLists = function (filters) {
 	return _elm_lang$core$Native_Utils.update(
 		filters,
@@ -9733,9 +9843,9 @@ var _user$project$GameEntry$pricesToString = function (prices) {
 							A2(_user$project$GameEntry$roundToString, 2, discount)))));
 		});
 	var convertToText = F2(
-		function (percentage, _p3) {
-			var _p4 = _p3;
-			var _p5 = _p4._0;
+		function (percentage, _p7) {
+			var _p8 = _p7;
+			var _p9 = _p8._0;
 			return _elm_lang$core$Basics$isNaN(
 				_elm_lang$core$Basics$toFloat(percentage)) ? '0' : ((_elm_lang$core$Native_Utils.cmp(percentage, 0) > 0) ? A2(
 				_elm_lang$core$Maybe$withDefault,
@@ -9743,17 +9853,17 @@ var _user$project$GameEntry$pricesToString = function (prices) {
 				A3(
 					_elm_lang$core$Maybe$map2,
 					formatDiscount(percentage),
-					_p5,
-					_p4._1)) : A2(
+					_p9,
+					_p8._1)) : A2(
 				_elm_lang$core$Maybe$withDefault,
 				'',
 				A2(
 					_elm_lang$core$Maybe$map,
 					_user$project$GameEntry$roundToString(2),
-					_p5)));
+					_p9)));
 		});
-	var calculatePercentage = function (_p6) {
-		var _p7 = _p6;
+	var calculatePercentage = function (_p10) {
+		var _p11 = _p10;
 		return A2(
 			_elm_lang$core$Maybe$withDefault,
 			0,
@@ -9763,8 +9873,8 @@ var _user$project$GameEntry$pricesToString = function (prices) {
 					function (p, d) {
 						return _elm_lang$core$Basics$round(((p - d) / p) * 100);
 					}),
-				_p7._0,
-				_p7._1));
+				_p11._0,
+				_p11._1));
 	};
 	var discountPercentage = A2(_elm_lang$core$Maybe$map, calculatePercentage, prices);
 	return A2(
@@ -9785,9 +9895,9 @@ var _user$project$GameEntry$getPrice = function (gameEntry) {
 			return {ctor: '_Tuple2', _0: s.price, _1: s.discounted};
 		},
 		_elm_lang$core$List$head(gameEntry.steam));
-	var _p8 = gogPrice;
-	if (_p8.ctor === 'Just') {
-		return _elm_lang$core$Maybe$Just(_p8._0);
+	var _p12 = gogPrice;
+	if (_p12.ctor === 'Just') {
+		return _elm_lang$core$Maybe$Just(_p12._0);
 	} else {
 		return steamPrice;
 	}
@@ -9810,8 +9920,8 @@ var _user$project$GameEntry$applyDiscountedFilter = F2(
 		return (!isDiscounted) ? entries : A2(_elm_lang$core$List$filter, filterDiscounted, entries);
 	});
 var _user$project$GameEntry$applyPriceFilter = F2(
-	function (_p9, entries) {
-		var _p10 = _p9;
+	function (_p13, entries) {
+		var _p14 = _p13;
 		var filterByHigh = F2(
 			function (highPrice, entry) {
 				return A2(
@@ -9849,7 +9959,7 @@ var _user$project$GameEntry$applyPriceFilter = F2(
 						filterByLow(p),
 						entries);
 				},
-				_p10._0));
+				_p14._0));
 		return A2(
 			_elm_lang$core$Maybe$withDefault,
 			lowFiltered,
@@ -9861,7 +9971,7 @@ var _user$project$GameEntry$applyPriceFilter = F2(
 						filterByHigh(p),
 						lowFiltered);
 				},
-				_p10._1));
+				_p14._1));
 	});
 var _user$project$GameEntry$getSteamId = function (gameEntry) {
 	return A2(
@@ -10001,14 +10111,44 @@ var _user$project$GameEntry$Filters = F6(
 	function (a, b, c, d, e, f) {
 		return {isDiscounted: a, gameOn: b, name: c, prices: d, original: e, result: f};
 	});
-var _user$project$GameEntry$emptyFilters = A6(
-	_user$project$GameEntry$Filters,
-	false,
-	_elm_lang$core$Maybe$Nothing,
-	'',
-	{ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
-	{ctor: '[]'},
-	{ctor: '[]'});
+var _user$project$GameEntry$parseFilters = function (url) {
+	var highPrice = A2(
+		_elm_lang$core$Maybe$andThen,
+		_user$project$Parser$parseFloat,
+		_elm_lang$core$List$head(
+			A2(_sporto$erl$Erl$getQueryValuesForKey, 'highPrice', url)));
+	var lowPrice = A2(
+		_elm_lang$core$Maybe$andThen,
+		_user$project$Parser$parseFloat,
+		_elm_lang$core$List$head(
+			A2(_sporto$erl$Erl$getQueryValuesForKey, 'lowPrice', url)));
+	var name = A2(
+		_elm_lang$core$Maybe$withDefault,
+		'',
+		_elm_lang$core$List$head(
+			A2(_sporto$erl$Erl$getQueryValuesForKey, 'name', url)));
+	var gameOn = A2(
+		_elm_lang$core$Maybe$andThen,
+		_user$project$Parser$parseGameOn,
+		_elm_lang$core$List$head(
+			A2(_sporto$erl$Erl$getQueryValuesForKey, 'gameOn', url)));
+	var discounted = A2(
+		_elm_lang$core$Maybe$withDefault,
+		false,
+		A2(
+			_elm_lang$core$Maybe$andThen,
+			_user$project$Parser$parseBool,
+			_elm_lang$core$List$head(
+				A2(_sporto$erl$Erl$getQueryValuesForKey, 'discounted', url))));
+	return A6(
+		_user$project$GameEntry$Filters,
+		discounted,
+		gameOn,
+		name,
+		{ctor: '_Tuple2', _0: lowPrice, _1: highPrice},
+		{ctor: '[]'},
+		{ctor: '[]'});
+};
 
 var _user$project$Router$resolveResponse = F3(
 	function (successResolver, errorResolver, response) {

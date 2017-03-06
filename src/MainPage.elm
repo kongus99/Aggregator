@@ -1,6 +1,7 @@
 port module MainPage exposing (..)
 
 import GameOptionsDialog
+import Parser
 import Html exposing (Html, button, br, input, div, text, span, table, tr, th, td, select, option, a, label, thead, tbody, p, h2, h3)
 import Html.Attributes exposing (checked, class, href, name, placeholder, selected, style, type_, value)
 import Html.Events exposing (onClick, on, targetValue, onInput, onCheck)
@@ -49,35 +50,28 @@ type alias Model =
     { sources : GameSources, message : Maybe String, userId : Int, filters : Filters, host : String, options : GameOptionsDialog.Model Msg }
 
 
-initialModel =
-    Model WishList Nothing 1 GameEntry.emptyFilters "" (GameOptionsDialog.emptyModel DialogClose DialogMessage)
+initialModel sources userId host filters =
+    Model WishList Nothing 1 filters "" (GameOptionsDialog.emptyModel DialogClose DialogMessage)
 
 
 initModel : Erl.Url -> Model
 initModel url =
     let
-        parseInt value =
-            String.toInt value |> Result.toMaybe |> Maybe.withDefault 1
-
         userId =
-            Erl.getQueryValuesForKey "userId" url |> List.head |> Maybe.map parseInt |> Maybe.withDefault 1
+            Erl.getQueryValuesForKey "userId" url |> List.head |> Maybe.andThen Parser.parseInt |> Maybe.withDefault 1
 
         sources =
-            Erl.getQueryValuesForKey "sources" url |> List.head |> Maybe.map sourcesFromString |> Maybe.withDefault WishList
+            Erl.getQueryValuesForKey "sources" url |> List.head |> Maybe.andThen Parser.parseSources |> Maybe.withDefault WishList
 
         host =
             (url.host |> String.join ".") ++ ":" ++ toString url.port_
     in
-        { initialModel | sources = sources, userId = userId, host = host }
+        initialModel sources userId host (GameEntry.parseFilters url)
 
 
 extractedParams : Model -> List ( String, String )
 extractedParams model =
-    [ ( "sources", toString model.sources )
-    , ( "userId", toString model.userId )
-    , ( "discounted", toString model.filters.isDiscounted )
-    , ( "gameOn", Maybe.map toString model.filters.gameOn |> Maybe.withDefault "" )
-    ]
+    List.append [ ( "sources", toString model.sources ), ( "userId", toString model.userId ) ] (serializeFilters model.filters)
 
 
 adjustAddress : Model -> Cmd Msg
@@ -127,13 +121,25 @@ update msg model =
             ( { model | filters = resetFilterLists model.filters, message = Just <| toString err }, Cmd.none )
 
         NameFilterChange name ->
-            ( { model | filters = updateNameFilter name model.filters, message = Nothing }, Cmd.none )
+            let
+                newModel =
+                    { model | filters = updateNameFilter name model.filters, message = Nothing }
+            in
+                ( newModel, adjustAddress newModel )
 
         LowPriceFilterChange priceString ->
-            ( { model | filters = updateLowFilter (String.toFloat priceString |> Result.toMaybe) model.filters, message = Nothing }, Cmd.none )
+            let
+                newModel =
+                    { model | filters = updateLowFilter (Parser.parseFloat priceString) model.filters, message = Nothing }
+            in
+                ( newModel, adjustAddress newModel )
 
         HighPriceFilterChange priceString ->
-            ( { model | filters = updateHighFilter (String.toFloat priceString |> Result.toMaybe) model.filters, message = Nothing }, Cmd.none )
+            let
+                newModel =
+                    { model | filters = updateHighFilter (Parser.parseFloat priceString) model.filters, message = Nothing }
+            in
+                ( newModel, adjustAddress newModel )
 
         GameOnFilterChange gameOn ->
             let
@@ -225,22 +231,10 @@ gameOptionsButton entry =
         List.head entry.steam |> Maybe.map (\_ -> dialogButton entry) |> Maybe.withDefault (div [] [])
 
 
-sourcesFromString value =
-    case value of
-        "Owned" ->
-            Owned
-
-        "WishList" ->
-            WishList
-
-        _ ->
-            Both
-
-
 sourcesSelect sources =
     let
         change s =
-            ChangeSources <| sourcesFromString s
+            Parser.parseSources s |> Maybe.withDefault Both |> ChangeSources
     in
         select [ class "form-control", onSelect change ]
             [ option [ selected (sources == Owned), value <| toString Owned ] [ text <| toString Owned ]
@@ -249,22 +243,10 @@ sourcesSelect sources =
             ]
 
 
-gameOnFromString value =
-    case value of
-        "Gog" ->
-            Just Gog
-
-        "Steam" ->
-            Just Steam
-
-        _ ->
-            Nothing
-
-
 gameOnSelect maybeGameOn =
     let
         change s =
-            GameOnFilterChange <| gameOnFromString s
+            Parser.parseGameOn s |> GameOnFilterChange
     in
         select [ class "form-control", onSelect change ]
             [ option [ selected (maybeGameOn == Nothing), value "" ] [ text "" ]

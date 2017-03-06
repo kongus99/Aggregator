@@ -8,7 +8,6 @@ module GameEntry
         , getName
         , pricesToString
         , roundToString
-        , emptyFilters
         , updateNameFilter
         , updateLowFilter
         , updateHighFilter
@@ -16,8 +15,12 @@ module GameEntry
         , toggleDiscountedFilter
         , getSteamId
         , getLink
+        , serializeFilters
+        , parseFilters
         )
 
+import Erl
+import Parser
 import Model exposing (..)
 
 
@@ -27,10 +30,6 @@ type alias GameEntry =
 
 type alias Filters =
     { isDiscounted : Bool, gameOn : Maybe GameOn, name : String, prices : ( Maybe Float, Maybe Float ), original : List GameEntry, result : List GameEntry }
-
-
-emptyFilters =
-    Filters False Nothing "" ( Nothing, Nothing ) [] []
 
 
 getName : GameEntry -> String
@@ -156,6 +155,39 @@ applyFilters filters =
                 |> applyPriceFilter filters.prices
     in
         { filters | result = result }
+
+
+parseFilters : Erl.Url -> Filters
+parseFilters url =
+    let
+        discounted =
+            Erl.getQueryValuesForKey "discounted" url |> List.head |> Maybe.andThen Parser.parseBool |> Maybe.withDefault False
+
+        gameOn =
+            Erl.getQueryValuesForKey "gameOn" url |> List.head |> Maybe.andThen Parser.parseGameOn
+
+        name =
+            Erl.getQueryValuesForKey "name" url |> List.head |> Maybe.withDefault ""
+
+        lowPrice =
+            Erl.getQueryValuesForKey "lowPrice" url |> List.head |> Maybe.andThen Parser.parseFloat
+
+        highPrice =
+            Erl.getQueryValuesForKey "highPrice" url |> List.head |> Maybe.andThen Parser.parseFloat
+    in
+        Filters discounted gameOn name ( lowPrice, highPrice ) [] []
+
+
+serializeFilters : Filters -> List ( String, String )
+serializeFilters filters =
+    [ ( "discounted", toString filters.isDiscounted |> Just )
+    , ( "gameOn", Maybe.map toString filters.gameOn )
+    , ( "name", filters.name |> Just )
+    , ( "lowPrice", Tuple.first filters.prices |> Maybe.map toString )
+    , ( "highPrice", Tuple.second filters.prices |> Maybe.map toString )
+    ]
+        |> List.filter (\( l, r ) -> r /= Nothing)
+        |> List.map (\( l, r ) -> ( l, Maybe.withDefault "" r ))
 
 
 applyDiscountedFilter : Bool -> List GameEntry -> List GameEntry

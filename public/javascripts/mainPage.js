@@ -12091,6 +12091,50 @@ var _user$project$Model$Both = {ctor: 'Both'};
 var _user$project$Model$WishList = {ctor: 'WishList'};
 var _user$project$Model$Owned = {ctor: 'Owned'};
 
+var _user$project$Parser$parseGameOn = function (value) {
+	var _p0 = value;
+	switch (_p0) {
+		case 'Gog':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Gog);
+		case 'Steam':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Steam);
+		default:
+			return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _user$project$Parser$parseSources = function (value) {
+	var _p1 = value;
+	switch (_p1) {
+		case 'Owned':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Owned);
+		case 'WishList':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$WishList);
+		case 'Both':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Both);
+		default:
+			return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _user$project$Parser$parseBool = function (value) {
+	var _p2 = _elm_lang$core$String$toLower(value);
+	switch (_p2) {
+		case 'true':
+			return _elm_lang$core$Maybe$Just(true);
+		case 'false':
+			return _elm_lang$core$Maybe$Just(false);
+		default:
+			return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _user$project$Parser$parseFloat = function (value) {
+	return _elm_lang$core$Result$toMaybe(
+		_elm_lang$core$String$toFloat(value));
+};
+var _user$project$Parser$parseInt = function (value) {
+	return _elm_lang$core$Result$toMaybe(
+		_elm_lang$core$String$toInt(value));
+};
+
 var _user$project$GameEntry$discountedIfAvailable = function (prices) {
 	var selectFromPair = function (_p0) {
 		var _p1 = _p0;
@@ -12118,6 +12162,72 @@ var _user$project$GameEntry$applyGameOnFilter = F2(
 				},
 				gameOn));
 	});
+var _user$project$GameEntry$serializeFilters = function (filters) {
+	return A2(
+		_elm_lang$core$List$map,
+		function (_p3) {
+			var _p4 = _p3;
+			return {
+				ctor: '_Tuple2',
+				_0: _p4._0,
+				_1: A2(_elm_lang$core$Maybe$withDefault, '', _p4._1)
+			};
+		},
+		A2(
+			_elm_lang$core$List$filter,
+			function (_p5) {
+				var _p6 = _p5;
+				return !_elm_lang$core$Native_Utils.eq(_p6._1, _elm_lang$core$Maybe$Nothing);
+			},
+			{
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'discounted',
+					_1: _elm_lang$core$Maybe$Just(
+						_elm_lang$core$Basics$toString(filters.isDiscounted))
+				},
+				_1: {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'gameOn',
+						_1: A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$toString, filters.gameOn)
+					},
+					_1: {
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'name',
+							_1: _elm_lang$core$Maybe$Just(filters.name)
+						},
+						_1: {
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'lowPrice',
+								_1: A2(
+									_elm_lang$core$Maybe$map,
+									_elm_lang$core$Basics$toString,
+									_elm_lang$core$Tuple$first(filters.prices))
+							},
+							_1: {
+								ctor: '::',
+								_0: {
+									ctor: '_Tuple2',
+									_0: 'highPrice',
+									_1: A2(
+										_elm_lang$core$Maybe$map,
+										_elm_lang$core$Basics$toString,
+										_elm_lang$core$Tuple$second(filters.prices))
+								},
+								_1: {ctor: '[]'}
+							}
+						}
+					}
+				}
+			}));
+};
 var _user$project$GameEntry$resetFilterLists = function (filters) {
 	return _elm_lang$core$Native_Utils.update(
 		filters,
@@ -12160,9 +12270,9 @@ var _user$project$GameEntry$pricesToString = function (prices) {
 							A2(_user$project$GameEntry$roundToString, 2, discount)))));
 		});
 	var convertToText = F2(
-		function (percentage, _p3) {
-			var _p4 = _p3;
-			var _p5 = _p4._0;
+		function (percentage, _p7) {
+			var _p8 = _p7;
+			var _p9 = _p8._0;
 			return _elm_lang$core$Basics$isNaN(
 				_elm_lang$core$Basics$toFloat(percentage)) ? '0' : ((_elm_lang$core$Native_Utils.cmp(percentage, 0) > 0) ? A2(
 				_elm_lang$core$Maybe$withDefault,
@@ -12170,17 +12280,17 @@ var _user$project$GameEntry$pricesToString = function (prices) {
 				A3(
 					_elm_lang$core$Maybe$map2,
 					formatDiscount(percentage),
-					_p5,
-					_p4._1)) : A2(
+					_p9,
+					_p8._1)) : A2(
 				_elm_lang$core$Maybe$withDefault,
 				'',
 				A2(
 					_elm_lang$core$Maybe$map,
 					_user$project$GameEntry$roundToString(2),
-					_p5)));
+					_p9)));
 		});
-	var calculatePercentage = function (_p6) {
-		var _p7 = _p6;
+	var calculatePercentage = function (_p10) {
+		var _p11 = _p10;
 		return A2(
 			_elm_lang$core$Maybe$withDefault,
 			0,
@@ -12190,8 +12300,8 @@ var _user$project$GameEntry$pricesToString = function (prices) {
 					function (p, d) {
 						return _elm_lang$core$Basics$round(((p - d) / p) * 100);
 					}),
-				_p7._0,
-				_p7._1));
+				_p11._0,
+				_p11._1));
 	};
 	var discountPercentage = A2(_elm_lang$core$Maybe$map, calculatePercentage, prices);
 	return A2(
@@ -12212,9 +12322,9 @@ var _user$project$GameEntry$getPrice = function (gameEntry) {
 			return {ctor: '_Tuple2', _0: s.price, _1: s.discounted};
 		},
 		_elm_lang$core$List$head(gameEntry.steam));
-	var _p8 = gogPrice;
-	if (_p8.ctor === 'Just') {
-		return _elm_lang$core$Maybe$Just(_p8._0);
+	var _p12 = gogPrice;
+	if (_p12.ctor === 'Just') {
+		return _elm_lang$core$Maybe$Just(_p12._0);
 	} else {
 		return steamPrice;
 	}
@@ -12237,8 +12347,8 @@ var _user$project$GameEntry$applyDiscountedFilter = F2(
 		return (!isDiscounted) ? entries : A2(_elm_lang$core$List$filter, filterDiscounted, entries);
 	});
 var _user$project$GameEntry$applyPriceFilter = F2(
-	function (_p9, entries) {
-		var _p10 = _p9;
+	function (_p13, entries) {
+		var _p14 = _p13;
 		var filterByHigh = F2(
 			function (highPrice, entry) {
 				return A2(
@@ -12276,7 +12386,7 @@ var _user$project$GameEntry$applyPriceFilter = F2(
 						filterByLow(p),
 						entries);
 				},
-				_p10._0));
+				_p14._0));
 		return A2(
 			_elm_lang$core$Maybe$withDefault,
 			lowFiltered,
@@ -12288,7 +12398,7 @@ var _user$project$GameEntry$applyPriceFilter = F2(
 						filterByHigh(p),
 						lowFiltered);
 				},
-				_p10._1));
+				_p14._1));
 	});
 var _user$project$GameEntry$getSteamId = function (gameEntry) {
 	return A2(
@@ -12428,14 +12538,44 @@ var _user$project$GameEntry$Filters = F6(
 	function (a, b, c, d, e, f) {
 		return {isDiscounted: a, gameOn: b, name: c, prices: d, original: e, result: f};
 	});
-var _user$project$GameEntry$emptyFilters = A6(
-	_user$project$GameEntry$Filters,
-	false,
-	_elm_lang$core$Maybe$Nothing,
-	'',
-	{ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
-	{ctor: '[]'},
-	{ctor: '[]'});
+var _user$project$GameEntry$parseFilters = function (url) {
+	var highPrice = A2(
+		_elm_lang$core$Maybe$andThen,
+		_user$project$Parser$parseFloat,
+		_elm_lang$core$List$head(
+			A2(_sporto$erl$Erl$getQueryValuesForKey, 'highPrice', url)));
+	var lowPrice = A2(
+		_elm_lang$core$Maybe$andThen,
+		_user$project$Parser$parseFloat,
+		_elm_lang$core$List$head(
+			A2(_sporto$erl$Erl$getQueryValuesForKey, 'lowPrice', url)));
+	var name = A2(
+		_elm_lang$core$Maybe$withDefault,
+		'',
+		_elm_lang$core$List$head(
+			A2(_sporto$erl$Erl$getQueryValuesForKey, 'name', url)));
+	var gameOn = A2(
+		_elm_lang$core$Maybe$andThen,
+		_user$project$Parser$parseGameOn,
+		_elm_lang$core$List$head(
+			A2(_sporto$erl$Erl$getQueryValuesForKey, 'gameOn', url)));
+	var discounted = A2(
+		_elm_lang$core$Maybe$withDefault,
+		false,
+		A2(
+			_elm_lang$core$Maybe$andThen,
+			_user$project$Parser$parseBool,
+			_elm_lang$core$List$head(
+				A2(_sporto$erl$Erl$getQueryValuesForKey, 'discounted', url))));
+	return A6(
+		_user$project$GameEntry$Filters,
+		discounted,
+		gameOn,
+		name,
+		{ctor: '_Tuple2', _0: lowPrice, _1: highPrice},
+		{ctor: '[]'},
+		{ctor: '[]'});
+};
 
 var _user$project$Router$resolveResponse = F3(
 	function (successResolver, errorResolver, response) {
@@ -13302,28 +13442,6 @@ var _user$project$MainPage$gamesOn = function (list) {
 		},
 		list);
 };
-var _user$project$MainPage$gameOnFromString = function (value) {
-	var _p0 = value;
-	switch (_p0) {
-		case 'Gog':
-			return _elm_lang$core$Maybe$Just(_user$project$Model$Gog);
-		case 'Steam':
-			return _elm_lang$core$Maybe$Just(_user$project$Model$Steam);
-		default:
-			return _elm_lang$core$Maybe$Nothing;
-	}
-};
-var _user$project$MainPage$sourcesFromString = function (value) {
-	var _p1 = value;
-	switch (_p1) {
-		case 'Owned':
-			return _user$project$Model$Owned;
-		case 'WishList':
-			return _user$project$Model$WishList;
-		default:
-			return _user$project$Model$Both;
-	}
-};
 var _user$project$MainPage$gameTableTitle = A2(
 	_elm_lang$html$Html$tr,
 	{ctor: '[]'},
@@ -13428,42 +13546,26 @@ var _user$project$MainPage$messageText = function (model) {
 			model.message));
 };
 var _user$project$MainPage$extractedParams = function (model) {
-	return {
-		ctor: '::',
-		_0: {
-			ctor: '_Tuple2',
-			_0: 'sources',
-			_1: _elm_lang$core$Basics$toString(model.sources)
-		},
-		_1: {
+	return A2(
+		_elm_lang$core$List$append,
+		{
 			ctor: '::',
 			_0: {
 				ctor: '_Tuple2',
-				_0: 'userId',
-				_1: _elm_lang$core$Basics$toString(model.userId)
+				_0: 'sources',
+				_1: _elm_lang$core$Basics$toString(model.sources)
 			},
 			_1: {
 				ctor: '::',
 				_0: {
 					ctor: '_Tuple2',
-					_0: 'discounted',
-					_1: _elm_lang$core$Basics$toString(model.filters.isDiscounted)
+					_0: 'userId',
+					_1: _elm_lang$core$Basics$toString(model.userId)
 				},
-				_1: {
-					ctor: '::',
-					_0: {
-						ctor: '_Tuple2',
-						_0: 'gameOn',
-						_1: A2(
-							_elm_lang$core$Maybe$withDefault,
-							'',
-							A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$toString, model.filters.gameOn))
-					},
-					_1: {ctor: '[]'}
-				}
+				_1: {ctor: '[]'}
 			}
-		}
-	};
+		},
+		_user$project$GameEntry$serializeFilters(model.filters));
 };
 var _user$project$MainPage$elmAddressChange = _elm_lang$core$Native_Platform.outgoingPort(
 	'elmAddressChange',
@@ -13483,14 +13585,17 @@ var _user$project$MainPage$DialogMessage = function (a) {
 	return {ctor: 'DialogMessage', _0: a};
 };
 var _user$project$MainPage$DialogClose = {ctor: 'DialogClose'};
-var _user$project$MainPage$initialModel = A6(
-	_user$project$MainPage$Model,
-	_user$project$Model$WishList,
-	_elm_lang$core$Maybe$Nothing,
-	1,
-	_user$project$GameEntry$emptyFilters,
-	'',
-	A2(_user$project$GameOptionsDialog$emptyModel, _user$project$MainPage$DialogClose, _user$project$MainPage$DialogMessage));
+var _user$project$MainPage$initialModel = F4(
+	function (sources, userId, host, filters) {
+		return A6(
+			_user$project$MainPage$Model,
+			_user$project$Model$WishList,
+			_elm_lang$core$Maybe$Nothing,
+			1,
+			filters,
+			'',
+			A2(_user$project$GameOptionsDialog$emptyModel, _user$project$MainPage$DialogClose, _user$project$MainPage$DialogMessage));
+	});
 var _user$project$MainPage$initModel = function (url) {
 	var host = A2(
 		_elm_lang$core$Basics_ops['++'],
@@ -13503,28 +13608,24 @@ var _user$project$MainPage$initModel = function (url) {
 		_elm_lang$core$Maybe$withDefault,
 		_user$project$Model$WishList,
 		A2(
-			_elm_lang$core$Maybe$map,
-			_user$project$MainPage$sourcesFromString,
+			_elm_lang$core$Maybe$andThen,
+			_user$project$Parser$parseSources,
 			_elm_lang$core$List$head(
 				A2(_sporto$erl$Erl$getQueryValuesForKey, 'sources', url))));
-	var parseInt = function (value) {
-		return A2(
-			_elm_lang$core$Maybe$withDefault,
-			1,
-			_elm_lang$core$Result$toMaybe(
-				_elm_lang$core$String$toInt(value)));
-	};
 	var userId = A2(
 		_elm_lang$core$Maybe$withDefault,
 		1,
 		A2(
-			_elm_lang$core$Maybe$map,
-			parseInt,
+			_elm_lang$core$Maybe$andThen,
+			_user$project$Parser$parseInt,
 			_elm_lang$core$List$head(
 				A2(_sporto$erl$Erl$getQueryValuesForKey, 'userId', url))));
-	return _elm_lang$core$Native_Utils.update(
+	return A4(
 		_user$project$MainPage$initialModel,
-		{sources: sources, userId: userId, host: host});
+		sources,
+		userId,
+		host,
+		_user$project$GameEntry$parseFilters(url));
 };
 var _user$project$MainPage$DialogData = function (a) {
 	return {ctor: 'DialogData', _0: a};
@@ -13566,7 +13667,7 @@ var _user$project$MainPage$gameOptionsButton = function (entry) {
 			{ctor: '[]'}),
 		A2(
 			_elm_lang$core$Maybe$map,
-			function (_p2) {
+			function (_p0) {
 				return dialogButton(entry);
 			},
 			_elm_lang$core$List$head(entry.steam)));
@@ -13696,7 +13797,7 @@ var _user$project$MainPage$GameOnFilterChange = function (a) {
 var _user$project$MainPage$gameOnSelect = function (maybeGameOn) {
 	var change = function (s) {
 		return _user$project$MainPage$GameOnFilterChange(
-			_user$project$MainPage$gameOnFromString(s));
+			_user$project$Parser$parseGameOn(s));
 	};
 	return A2(
 		_elm_lang$html$Html$select,
@@ -13812,14 +13913,14 @@ var _user$project$MainPage$initProgram = function (address) {
 };
 var _user$project$MainPage$update = F2(
 	function (msg, model) {
-		var _p3 = msg;
-		switch (_p3.ctor) {
+		var _p1 = msg;
+		switch (_p1.ctor) {
 			case 'ChangeSources':
 				var newModel = _elm_lang$core$Native_Utils.update(
 					model,
 					{
 						filters: _user$project$GameEntry$resetFilterLists(model.filters),
-						sources: _p3._0,
+						sources: _p1._0,
 						message: _elm_lang$core$Maybe$Nothing
 					});
 				return {
@@ -13833,7 +13934,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							filters: A2(_user$project$GameEntry$updateFilterLists, _p3._0, model.filters),
+							filters: A2(_user$project$GameEntry$updateFilterLists, _p1._0, model.filters),
 							message: _elm_lang$core$Maybe$Nothing
 						}),
 					_1: _user$project$MainPage$adjustAddress(model)
@@ -13846,56 +13947,57 @@ var _user$project$MainPage$update = F2(
 						{
 							filters: _user$project$GameEntry$resetFilterLists(model.filters),
 							message: _elm_lang$core$Maybe$Just(
-								_elm_lang$core$Basics$toString(_p3._0))
+								_elm_lang$core$Basics$toString(_p1._0))
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'NameFilterChange':
+				var newModel = _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						filters: A2(_user$project$GameEntry$updateNameFilter, _p1._0, model.filters),
+						message: _elm_lang$core$Maybe$Nothing
+					});
 				return {
 					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							filters: A2(_user$project$GameEntry$updateNameFilter, _p3._0, model.filters),
-							message: _elm_lang$core$Maybe$Nothing
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
+					_0: newModel,
+					_1: _user$project$MainPage$adjustAddress(newModel)
 				};
 			case 'LowPriceFilterChange':
+				var newModel = _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						filters: A2(
+							_user$project$GameEntry$updateLowFilter,
+							_user$project$Parser$parseFloat(_p1._0),
+							model.filters),
+						message: _elm_lang$core$Maybe$Nothing
+					});
 				return {
 					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							filters: A2(
-								_user$project$GameEntry$updateLowFilter,
-								_elm_lang$core$Result$toMaybe(
-									_elm_lang$core$String$toFloat(_p3._0)),
-								model.filters),
-							message: _elm_lang$core$Maybe$Nothing
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
+					_0: newModel,
+					_1: _user$project$MainPage$adjustAddress(newModel)
 				};
 			case 'HighPriceFilterChange':
+				var newModel = _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						filters: A2(
+							_user$project$GameEntry$updateHighFilter,
+							_user$project$Parser$parseFloat(_p1._0),
+							model.filters),
+						message: _elm_lang$core$Maybe$Nothing
+					});
 				return {
 					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							filters: A2(
-								_user$project$GameEntry$updateHighFilter,
-								_elm_lang$core$Result$toMaybe(
-									_elm_lang$core$String$toFloat(_p3._0)),
-								model.filters),
-							message: _elm_lang$core$Maybe$Nothing
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
+					_0: newModel,
+					_1: _user$project$MainPage$adjustAddress(newModel)
 				};
 			case 'GameOnFilterChange':
 				var newModel = _elm_lang$core$Native_Utils.update(
 					model,
 					{
-						filters: A2(_user$project$GameEntry$updateGameOnFilter, _p3._0, model.filters),
+						filters: A2(_user$project$GameEntry$updateGameOnFilter, _p1._0, model.filters),
 						message: _elm_lang$core$Maybe$Nothing
 					});
 				return {
@@ -13907,7 +14009,7 @@ var _user$project$MainPage$update = F2(
 				var newModel = _elm_lang$core$Native_Utils.update(
 					model,
 					{
-						filters: A2(_user$project$GameEntry$toggleDiscountedFilter, _p3._0, model.filters),
+						filters: A2(_user$project$GameEntry$toggleDiscountedFilter, _p1._0, model.filters),
 						message: _elm_lang$core$Maybe$Nothing
 					});
 				return {
@@ -13930,7 +14032,7 @@ var _user$project$MainPage$update = F2(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: A4(_user$project$GameOptionsDialog$fetch, model.userId, _p3._0, _user$project$MainPage$DialogData, _user$project$MainPage$RefreshError)
+					_1: A4(_user$project$GameOptionsDialog$fetch, model.userId, _p1._0, _user$project$MainPage$DialogData, _user$project$MainPage$RefreshError)
 				};
 			case 'DialogData':
 				return {
@@ -13938,7 +14040,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							options: A3(_user$project$GameOptionsDialog$model, _user$project$MainPage$DialogClose, _user$project$MainPage$DialogMessage, _p3._0)
+							options: A3(_user$project$GameOptionsDialog$model, _user$project$MainPage$DialogClose, _user$project$MainPage$DialogMessage, _p1._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -13953,7 +14055,7 @@ var _user$project$MainPage$update = F2(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			default:
-				var updated = A3(_user$project$GameOptionsDialog$update, model.userId, _p3._0, model.options);
+				var updated = A3(_user$project$GameOptionsDialog$update, model.userId, _p1._0, model.options);
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -13971,7 +14073,10 @@ var _user$project$MainPage$ChangeSources = function (a) {
 var _user$project$MainPage$sourcesSelect = function (sources) {
 	var change = function (s) {
 		return _user$project$MainPage$ChangeSources(
-			_user$project$MainPage$sourcesFromString(s));
+			A2(
+				_elm_lang$core$Maybe$withDefault,
+				_user$project$Model$Both,
+				_user$project$Parser$parseSources(s)));
 	};
 	return A2(
 		_elm_lang$html$Html$select,
