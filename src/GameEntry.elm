@@ -17,6 +17,7 @@ module GameEntry
         , getLink
         , serializeFilters
         , parseFilters
+        , clearFilters
         )
 
 import Erl
@@ -30,6 +31,10 @@ type alias GameEntry =
 
 type alias Filters =
     { isDiscounted : Bool, gameOn : Maybe GameOn, name : String, prices : ( Maybe Float, Maybe Float ), original : List GameEntry, result : List GameEntry }
+
+
+clearFilters filters =
+    applyFilters <| Filters False Nothing "" ( Nothing, Nothing ) filters.original []
 
 
 getName : GameEntry -> String

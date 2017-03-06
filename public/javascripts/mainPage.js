@@ -12538,6 +12538,17 @@ var _user$project$GameEntry$Filters = F6(
 	function (a, b, c, d, e, f) {
 		return {isDiscounted: a, gameOn: b, name: c, prices: d, original: e, result: f};
 	});
+var _user$project$GameEntry$clearFilters = function (filters) {
+	return _user$project$GameEntry$applyFilters(
+		A6(
+			_user$project$GameEntry$Filters,
+			false,
+			_elm_lang$core$Maybe$Nothing,
+			'',
+			{ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
+			filters.original,
+			{ctor: '[]'}));
+};
 var _user$project$GameEntry$parseFilters = function (url) {
 	var highPrice = A2(
 		_elm_lang$core$Maybe$andThen,
@@ -13736,6 +13747,7 @@ var _user$project$MainPage$subscriptions = function (model) {
 		_user$project$Router$refreshSocketUrl(model.host),
 		_user$project$MainPage$ServerRefreshRequest);
 };
+var _user$project$MainPage$ResetFilters = {ctor: 'ResetFilters'};
 var _user$project$MainPage$DiscountedFilterChange = function (a) {
 	return {ctor: 'DiscountedFilterChange', _0: a};
 };
@@ -14002,6 +14014,18 @@ var _user$project$MainPage$update = F2(
 					model,
 					{
 						filters: A2(_user$project$GameEntry$toggleDiscountedFilter, _p1._0, model.filters),
+						message: _elm_lang$core$Maybe$Nothing
+					});
+				return {
+					ctor: '_Tuple2',
+					_0: newModel,
+					_1: _user$project$MainPage$adjustAddress(newModel)
+				};
+			case 'ResetFilters':
+				var newModel = _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						filters: _user$project$GameEntry$clearFilters(model.filters),
 						message: _elm_lang$core$Maybe$Nothing
 					});
 				return {
@@ -14321,7 +14345,31 @@ var _user$project$MainPage$view = function (model) {
 						_0: A2(
 							_elm_lang$html$Html$th,
 							{ctor: '[]'},
-							{ctor: '[]'}),
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$button,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Events$onClick(_user$project$MainPage$ResetFilters),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('glyphicon glyphicon-remove btn btn-default'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$style(
+													{
+														ctor: '::',
+														_0: {ctor: '_Tuple2', _0: 'float', _1: 'right'},
+														_1: {ctor: '[]'}
+													}),
+												_1: {ctor: '[]'}
+											}
+										}
+									},
+									{ctor: '[]'}),
+								_1: {ctor: '[]'}
+							}),
 						_1: {
 							ctor: '::',
 							_0: A2(

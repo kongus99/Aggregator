@@ -10111,6 +10111,17 @@ var _user$project$GameEntry$Filters = F6(
 	function (a, b, c, d, e, f) {
 		return {isDiscounted: a, gameOn: b, name: c, prices: d, original: e, result: f};
 	});
+var _user$project$GameEntry$clearFilters = function (filters) {
+	return _user$project$GameEntry$applyFilters(
+		A6(
+			_user$project$GameEntry$Filters,
+			false,
+			_elm_lang$core$Maybe$Nothing,
+			'',
+			{ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
+			filters.original,
+			{ctor: '[]'}));
+};
 var _user$project$GameEntry$parseFilters = function (url) {
 	var highPrice = A2(
 		_elm_lang$core$Maybe$andThen,

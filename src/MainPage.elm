@@ -97,6 +97,7 @@ type Msg
     | HighPriceFilterChange String
     | GameOnFilterChange (Maybe GameOn)
     | DiscountedFilterChange Bool
+    | ResetFilters
     | ServerRefreshRequest String
     | DialogOpen (Maybe Int)
     | DialogData GameOptions
@@ -155,6 +156,13 @@ update msg model =
             in
                 ( newModel, adjustAddress newModel )
 
+        ResetFilters ->
+            let
+                newModel =
+                    { model | filters = clearFilters model.filters, message = Nothing }
+            in
+                ( newModel, adjustAddress newModel )
+
         ServerRefreshRequest msg ->
             ( { model | filters = resetFilterLists model.filters, message = Nothing }, refreshGames model )
 
@@ -197,7 +205,7 @@ view model =
                 , input [ placeholder "Highest price", class "form-control", type_ "text", onInput HighPriceFilterChange, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.second model.filters.prices ] []
                 ]
             ]
-        , th [] []
+        , th [] [ button [ onClick ResetFilters, class "glyphicon glyphicon-remove btn btn-default", style [ ( "float", "right" ) ] ] [] ]
         , tbody [] (List.map gameTableRow model.filters.result)
         , GameOptionsDialog.view model.options
         ]
