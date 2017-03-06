@@ -13434,14 +13434,6 @@ var _user$project$MainPage$additionalPrices = function (priceEntries) {
 	};
 	return A2(_elm_lang$core$List$map, price, priceEntries);
 };
-var _user$project$MainPage$gamesOn = function (list) {
-	return A2(
-		_elm_lang$core$List$map,
-		function (e) {
-			return _elm_lang$core$Native_Utils.eq(e, 'Gog') ? _user$project$Model$Gog : _user$project$Model$Steam;
-		},
-		list);
-};
 var _user$project$MainPage$gameTableTitle = A2(
 	_elm_lang$html$Html$tr,
 	{ctor: '[]'},

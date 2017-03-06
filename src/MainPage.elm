@@ -261,17 +261,6 @@ discountedInput isDiscounted =
         ]
 
 
-gamesOn list =
-    List.map
-        (\e ->
-            if e == "Gog" then
-                Gog
-            else
-                Steam
-        )
-        list
-
-
 additionalPrices priceEntries =
     let
         price e =
