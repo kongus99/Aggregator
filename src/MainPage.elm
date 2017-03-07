@@ -115,12 +115,13 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    table [ class "table table-striped table-bordered" ]
-        [ thead [] [ gameTableTitle ]
-        , Filters.view model.filters |> Html.map FiltersMessage
-        , tbody [] (List.map gameTableRow model.filters.result)
-        , GameOptionsDialog.view model.options
-        ]
+    table [ class "table table-striped table-bordered" ] <|
+        List.concat
+            [ [ gameTableTitle ]
+            , Filters.view model.filters |> List.map (Html.map FiltersMessage)
+            , [ gameTableRows model.filters.result ]
+            , [ GameOptionsDialog.view model.options ]
+            ]
 
 
 messageText model =
@@ -128,11 +129,17 @@ messageText model =
 
 
 gameTableTitle =
-    tr []
-        [ th [] [ text "Game - ", span [ class "cell_Steam" ] [ text " Steam" ], span [ class "cell_Gog" ] [ text " Gog" ], span [ class "cell_Both" ] [ text " Both" ] ]
-        , th [] [ text "Price(PLN)" ]
-        , th [] [ text "Additional prices(PLN)" ]
+    thead []
+        [ tr []
+            [ th [] [ text "Game - ", span [ class "cell_Steam" ] [ text " Steam" ], span [ class "cell_Gog" ] [ text " Gog" ], span [ class "cell_Both" ] [ text " Both" ] ]
+            , th [] [ text "Price(PLN)" ]
+            , th [] [ text "Additional prices(PLN)" ]
+            ]
         ]
+
+
+gameTableRows list =
+    tbody [] <| List.map gameTableRow list
 
 
 gameTableRow e =

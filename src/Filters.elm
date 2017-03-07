@@ -27,11 +27,6 @@ type alias Model =
     { userId : Int, sources : GameSources, isDiscounted : Bool, gameOn : Maybe GameOn, name : String, prices : ( Maybe Float, Maybe Float ), original : List GameEntry, result : List GameEntry, err : Maybe Http.Error }
 
 
-reset : Model -> Model
-reset model =
-    apply { model | result = [], original = [] }
-
-
 replace : List GameEntry -> Model -> Model
 replace list model =
     apply { model | original = list }
@@ -163,7 +158,6 @@ type Msg
     | ChangeSources String
     | ReceiveEntries (List GameEntry)
     | ReceiveError Http.Error
-    | Refresh String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -189,11 +183,8 @@ update msg model =
 
         ChangeSources s ->
             let
-                resetModel =
-                    reset model
-
                 newModel =
-                    { resetModel | sources = (Parser.parseSources s |> Maybe.withDefault Both) }
+                    apply { model | result = [], original = [], sources = (Parser.parseSources s |> Maybe.withDefault Both) }
             in
                 newModel ! [ refreshGames newModel ]
 
@@ -201,14 +192,12 @@ update msg model =
             replace entries model |> updateAddressInNewModel
 
         ReceiveError err ->
-            let
-                resetModel =
-                    reset model
-            in
-                { resetModel | err = Just err } ! []
+            { model | err = Just err } ! []
 
-        Refresh s ->
-            reset model ! [ refreshGames model ]
+
+refresh : String -> Model -> ( Model, Cmd Msg )
+refresh s model =
+    ( model, refreshGames model )
 
 
 updateAddressInNewModel model =
@@ -225,34 +214,28 @@ refreshGames model =
     serialize model |> Router.getUserGames |> Http.send (Router.resolveResponse ReceiveEntries ReceiveError)
 
 
-refresh s model =
-    update (Refresh s) model
-
-
 
 -- VIEW
 
 
-view : Model -> Html Msg
+view : Model -> List (Html Msg)
 view model =
-    div
-        []
-        [ th [ class "form-inline" ]
-            [ div [ class "form-group" ]
-                [ discountedInput model
-                , input [ placeholder "Name", class "form-control", type_ "text", onInput ChangeName, value model.name ] []
-                , sourcesSelect model
-                , gameOnSelect model
-                ]
+    [ th [ class "form-inline" ]
+        [ div [ class "form-group" ]
+            [ discountedInput model
+            , input [ placeholder "Name", class "form-control", type_ "text", onInput ChangeName, value model.name ] []
+            , sourcesSelect model
+            , gameOnSelect model
             ]
-        , th [ class "form-inline" ]
-            [ div [ class "form-group" ]
-                [ input [ placeholder "Lowest price", class "form-control", type_ "text", onInput ChangeLow, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.first model.prices ] []
-                , input [ placeholder "Highest price", class "form-control", type_ "text", onInput ChangeHigh, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.second model.prices ] []
-                ]
-            ]
-        , th [] [ button [ onClick Clear, class "glyphicon glyphicon-remove btn btn-default", style [ ( "float", "right" ) ] ] [] ]
         ]
+    , th [ class "form-inline" ]
+        [ div [ class "form-group" ]
+            [ input [ placeholder "Lowest price", class "form-control", type_ "text", onInput ChangeLow, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.first model.prices ] []
+            , input [ placeholder "Highest price", class "form-control", type_ "text", onInput ChangeHigh, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.second model.prices ] []
+            ]
+        ]
+    , th [] [ button [ onClick Clear, class "glyphicon glyphicon-remove btn btn-default", style [ ( "float", "right" ) ] ] [] ]
+    ]
 
 
 gameOnSelect model =
