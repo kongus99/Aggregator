@@ -1,40 +1,19 @@
 module GameEntry
     exposing
         ( GameEntry
-        , Filters
         , getPrice
-        , resetFilterLists
-        , updateFilterLists
         , getName
         , pricesToString
         , roundToString
-        , updateNameFilter
-        , updateLowFilter
-        , updateHighFilter
-        , updateGameOnFilter
-        , toggleDiscountedFilter
         , getSteamId
         , getLink
-        , serializeFilters
-        , parseFilters
-        , clearFilters
         )
 
-import Erl
-import Parser
 import Model exposing (..)
 
 
 type alias GameEntry =
     { gog : List GogEntry, steam : List SteamEntry, prices : List PriceEntry }
-
-
-type alias Filters =
-    { isDiscounted : Bool, gameOn : Maybe GameOn, name : String, prices : ( Maybe Float, Maybe Float ), original : List GameEntry, result : List GameEntry }
-
-
-clearFilters filters =
-    applyFilters <| Filters False Nothing "" ( Nothing, Nothing ) filters.original []
 
 
 getName : GameEntry -> String
@@ -113,142 +92,3 @@ roundToString precision number =
             String.dropLeft (String.length total) integerRepresentation
     in
         total ++ "." ++ fraction
-
-
-resetFilterLists : Filters -> Filters
-resetFilterLists filters =
-    { filters | result = [], original = [] }
-
-
-updateFilterLists : List GameEntry -> Filters -> Filters
-updateFilterLists list filters =
-    applyFilters { filters | original = list }
-
-
-updateNameFilter : String -> Filters -> Filters
-updateNameFilter name filters =
-    applyFilters { filters | name = name }
-
-
-updateLowFilter : Maybe Float -> Filters -> Filters
-updateLowFilter low filters =
-    applyFilters { filters | prices = ( low, Tuple.second filters.prices ) }
-
-
-updateHighFilter : Maybe Float -> Filters -> Filters
-updateHighFilter high filters =
-    applyFilters { filters | prices = ( Tuple.first filters.prices, high ) }
-
-
-updateGameOnFilter : Maybe GameOn -> Filters -> Filters
-updateGameOnFilter on filters =
-    applyFilters { filters | gameOn = on }
-
-
-toggleDiscountedFilter : Bool -> Filters -> Filters
-toggleDiscountedFilter isDiscounted filters =
-    applyFilters { filters | isDiscounted = isDiscounted }
-
-
-applyFilters : Filters -> Filters
-applyFilters filters =
-    let
-        result =
-            applyDiscountedFilter filters.isDiscounted filters.original
-                |> applyGameOnFilter filters.gameOn
-                |> applyNameFilter filters.name
-                |> applyPriceFilter filters.prices
-    in
-        { filters | result = result }
-
-
-parseFilters : Erl.Url -> Filters
-parseFilters url =
-    let
-        discounted =
-            Erl.getQueryValuesForKey "discounted" url |> List.head |> Maybe.andThen Parser.parseBool |> Maybe.withDefault False
-
-        gameOn =
-            Erl.getQueryValuesForKey "gameOn" url |> List.head |> Maybe.andThen Parser.parseGameOn
-
-        name =
-            Erl.getQueryValuesForKey "name" url |> List.head |> Maybe.withDefault ""
-
-        lowPrice =
-            Erl.getQueryValuesForKey "lowPrice" url |> List.head |> Maybe.andThen Parser.parseFloat
-
-        highPrice =
-            Erl.getQueryValuesForKey "highPrice" url |> List.head |> Maybe.andThen Parser.parseFloat
-    in
-        Filters discounted gameOn name ( lowPrice, highPrice ) [] []
-
-
-serializeFilters : Filters -> List ( String, String )
-serializeFilters filters =
-    [ ( "discounted", toString filters.isDiscounted |> Just )
-    , ( "gameOn", Maybe.map toString filters.gameOn )
-    , ( "name", filters.name |> Just )
-    , ( "lowPrice", Tuple.first filters.prices |> Maybe.map toString )
-    , ( "highPrice", Tuple.second filters.prices |> Maybe.map toString )
-    ]
-        |> List.filter (\( l, r ) -> r /= Nothing)
-        |> List.map (\( l, r ) -> ( l, Maybe.withDefault "" r ))
-
-
-applyDiscountedFilter : Bool -> List GameEntry -> List GameEntry
-applyDiscountedFilter isDiscounted entries =
-    let
-        filterDiscounted e =
-            Maybe.map (\p -> not (Tuple.second p == Nothing)) (getPrice e) |> Maybe.withDefault False
-    in
-        if not isDiscounted then
-            entries
-        else
-            List.filter filterDiscounted entries
-
-
-applyGameOnFilter : Maybe GameOn -> List GameEntry -> List GameEntry
-applyGameOnFilter gameOn entries =
-    let
-        isOn on entry =
-            if on == Steam && List.isEmpty entry.steam || on == Gog && List.isEmpty entry.gog then
-                False
-            else
-                True
-    in
-        Maybe.map (\g -> List.filter (isOn g) entries) gameOn |> Maybe.withDefault entries
-
-
-applyNameFilter : String -> List GameEntry -> List GameEntry
-applyNameFilter name entries =
-    if String.isEmpty name then
-        entries
-    else
-        List.filter (\e -> getName e |> String.toLower |> String.contains (String.toLower name)) entries
-
-
-applyPriceFilter : ( Maybe Float, Maybe Float ) -> List GameEntry -> List GameEntry
-applyPriceFilter ( lowPrice, highPrice ) entries =
-    let
-        filterByLow lowPrice entry =
-            getPrice entry |> discountedIfAvailable |> Maybe.map (\e -> e >= lowPrice) |> Maybe.withDefault False
-
-        filterByHigh highPrice entry =
-            getPrice entry |> discountedIfAvailable |> Maybe.map (\e -> e <= highPrice) |> Maybe.withDefault False
-
-        lowFiltered =
-            Maybe.map (\p -> List.filter (filterByLow p) entries) lowPrice |> Maybe.withDefault entries
-    in
-        Maybe.map (\p -> List.filter (filterByHigh p) lowFiltered) highPrice |> Maybe.withDefault lowFiltered
-
-
-discountedIfAvailable : Maybe ( Maybe Float, Maybe Float ) -> Maybe Float
-discountedIfAvailable prices =
-    let
-        selectFromPair ( f, s ) =
-            if s == Nothing then
-                f
-            else
-                s
-    in
-        Maybe.andThen selectFromPair prices

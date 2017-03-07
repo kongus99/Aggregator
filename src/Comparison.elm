@@ -4,6 +4,7 @@ import AllDict exposing (AllDict)
 import Html exposing (Html, button, div, text, span, table, tr, th, td, select, option, input)
 import Html.Attributes exposing (class, selected, value, type_, checked)
 import Html.Events exposing (onClick, on, targetValue)
+import HtmlHelpers exposing (onSelect)
 import Http
 import Json.Decode as Json exposing (string, map3, field, decodeString)
 import Task
@@ -201,8 +202,3 @@ getResponse params =
             Router.comparisonData params
     in
         Cmd.batch [ Http.send (Router.resolveResponse ReceiveData DataError) request, elmAddressChange address ]
-
-
-onSelect : (String -> a) -> Html.Attribute a
-onSelect msg =
-    on "change" (Json.map msg targetValue)

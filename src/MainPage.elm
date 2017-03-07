@@ -1,5 +1,6 @@
 port module MainPage exposing (..)
 
+import Filters
 import GameOptionsDialog
 import Parser
 import Html exposing (Html, button, br, input, div, text, span, table, tr, th, td, select, option, a, label, thead, tbody, p, h2, h3)
@@ -20,10 +21,16 @@ import List.Extra as Lists
 initProgram : String -> ( Model, Cmd Msg )
 initProgram address =
     let
-        model =
-            Erl.parse address |> initModel
+        url =
+            Erl.parse address
+
+        host =
+            (url.host |> String.join ".") ++ ":" ++ toString url.port_
+
+        ( filters, cmd ) =
+            Filters.parse url |> Filters.refresh ""
     in
-        ( model, refreshGames model )
+        ( initialModel host filters, Cmd.map FiltersMessage cmd )
 
 
 main =
@@ -32,9 +39,6 @@ main =
 
 
 -- PORTS
-
-
-port elmAddressChange : String -> Cmd msg
 
 
 subscriptions : Model -> Sub Msg
@@ -47,41 +51,11 @@ subscriptions model =
 
 
 type alias Model =
-    { sources : GameSources, message : Maybe String, userId : Int, filters : Filters, host : String, options : GameOptionsDialog.Model Msg }
+    { sources : GameSources, message : Maybe String, userId : Int, filters : Filters.Model, host : String, options : GameOptionsDialog.Model Msg }
 
 
-initialModel sources userId host filters =
+initialModel host filters =
     Model WishList Nothing 1 filters "" (GameOptionsDialog.emptyModel DialogClose DialogMessage)
-
-
-initModel : Erl.Url -> Model
-initModel url =
-    let
-        userId =
-            Erl.getQueryValuesForKey "userId" url |> List.head |> Maybe.andThen Parser.parseInt |> Maybe.withDefault 1
-
-        sources =
-            Erl.getQueryValuesForKey "sources" url |> List.head |> Maybe.andThen Parser.parseSources |> Maybe.withDefault WishList
-
-        host =
-            (url.host |> String.join ".") ++ ":" ++ toString url.port_
-    in
-        initialModel sources userId host (GameEntry.parseFilters url)
-
-
-extractedParams : Model -> List ( String, String )
-extractedParams model =
-    List.append [ ( "sources", toString model.sources ), ( "userId", toString model.userId ) ] (serializeFilters model.filters)
-
-
-adjustAddress : Model -> Cmd Msg
-adjustAddress model =
-    extractedParams model |> Router.mainPageUrl |> elmAddressChange
-
-
-refreshGames : Model -> Cmd Msg
-refreshGames model =
-    extractedParams model |> Router.getUserGames |> Http.send (Router.resolveResponse ReceiveRefresh RefreshError)
 
 
 
@@ -89,98 +63,50 @@ refreshGames model =
 
 
 type Msg
-    = ChangeSources GameSources
-    | ReceiveRefresh (List GameEntry)
-    | RefreshError Http.Error
-    | NameFilterChange String
-    | LowPriceFilterChange String
-    | HighPriceFilterChange String
-    | GameOnFilterChange (Maybe GameOn)
-    | DiscountedFilterChange Bool
-    | ResetFilters
-    | ServerRefreshRequest String
+    = ServerRefreshRequest String
     | DialogOpen (Maybe Int)
     | DialogData GameOptions
     | DialogClose
     | DialogMessage GameOptionsDialog.Msg
+    | FiltersMessage Filters.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ChangeSources s ->
+        ServerRefreshRequest s ->
             let
-                newModel =
-                    { model | filters = resetFilterLists model.filters, sources = s, message = Nothing }
+                ( newFilters, cmd ) =
+                    Filters.refresh s model.filters
             in
-                ( newModel, refreshGames newModel )
-
-        ReceiveRefresh entries ->
-            ( { model | filters = updateFilterLists entries model.filters, message = Nothing }, adjustAddress model )
-
-        RefreshError err ->
-            ( { model | filters = resetFilterLists model.filters, message = Just <| toString err }, Cmd.none )
-
-        NameFilterChange name ->
-            let
-                newModel =
-                    { model | filters = updateNameFilter name model.filters, message = Nothing }
-            in
-                ( newModel, adjustAddress newModel )
-
-        LowPriceFilterChange priceString ->
-            let
-                newModel =
-                    { model | filters = updateLowFilter (Parser.parseFloat priceString) model.filters, message = Nothing }
-            in
-                ( newModel, adjustAddress newModel )
-
-        HighPriceFilterChange priceString ->
-            let
-                newModel =
-                    { model | filters = updateHighFilter (Parser.parseFloat priceString) model.filters, message = Nothing }
-            in
-                ( newModel, adjustAddress newModel )
-
-        GameOnFilterChange gameOn ->
-            let
-                newModel =
-                    { model | filters = updateGameOnFilter gameOn model.filters, message = Nothing }
-            in
-                ( newModel, adjustAddress newModel )
-
-        DiscountedFilterChange isDiscounted ->
-            let
-                newModel =
-                    { model | filters = toggleDiscountedFilter isDiscounted model.filters, message = Nothing }
-            in
-                ( newModel, adjustAddress newModel )
-
-        ResetFilters ->
-            let
-                newModel =
-                    { model | filters = clearFilters model.filters, message = Nothing }
-            in
-                ( newModel, adjustAddress newModel )
-
-        ServerRefreshRequest msg ->
-            ( { model | filters = resetFilterLists model.filters, message = Nothing }, refreshGames model )
+                ( { model | filters = newFilters, message = newFilters.err |> Maybe.map toString }, Cmd.map FiltersMessage cmd )
 
         DialogOpen steamId ->
-            ( model, GameOptionsDialog.fetch model.userId steamId DialogData RefreshError )
+            ( model, Cmd.none )
 
+        --            ( model, GameOptionsDialog.fetch model.userId steamId DialogData RefreshError )
         DialogData options ->
-            ( { model | options = GameOptionsDialog.model DialogClose DialogMessage options }, Cmd.none )
+            ( model, Cmd.none )
 
+        --            ( { model | options = GameOptionsDialog.model DialogClose DialogMessage options }, Cmd.none )
         DialogClose ->
-            ( { model | options = GameOptionsDialog.emptyModel DialogClose DialogMessage }, Cmd.none )
+            ( model, Cmd.none )
 
+        --            ( { model | options = GameOptionsDialog.emptyModel DialogClose DialogMessage }, Cmd.none )
         DialogMessage msg ->
+            ( model, Cmd.none )
+
+        --            let
+        --                ( options, cmd ) =
+        --                    GameOptionsDialog.update model.userId msg model.options
+        --            in
+        --                ( { model | options = options }, cmd )
+        FiltersMessage msg ->
             let
-                updated =
-                    GameOptionsDialog.update model.userId msg model.options
+                ( newFilters, cmd ) =
+                    Filters.update msg model.filters
             in
-                ( { model | options = Tuple.first updated }, Tuple.second updated )
+                ( { model | filters = newFilters, message = newFilters.err |> Maybe.map toString }, Cmd.map FiltersMessage cmd )
 
 
 
@@ -191,21 +117,7 @@ view : Model -> Html Msg
 view model =
     table [ class "table table-striped table-bordered" ]
         [ thead [] [ gameTableTitle ]
-        , th [ class "form-inline" ]
-            [ div [ class "form-group" ]
-                [ discountedInput model.filters.isDiscounted
-                , input [ placeholder "Name", class "form-control", type_ "text", onInput NameFilterChange, value model.filters.name ] []
-                , sourcesSelect model.sources
-                , gameOnSelect model.filters.gameOn
-                ]
-            ]
-        , th [ class "form-inline" ]
-            [ div [ class "form-group" ]
-                [ input [ placeholder "Lowest price", class "form-control", type_ "text", onInput LowPriceFilterChange, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.first model.filters.prices ] []
-                , input [ placeholder "Highest price", class "form-control", type_ "text", onInput HighPriceFilterChange, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.second model.filters.prices ] []
-                ]
-            ]
-        , th [] [ button [ onClick ResetFilters, class "glyphicon glyphicon-remove btn btn-default", style [ ( "float", "right" ) ] ] [] ]
+        , Filters.view model.filters |> Html.map FiltersMessage
         , tbody [] (List.map gameTableRow model.filters.result)
         , GameOptionsDialog.view model.options
         ]
@@ -239,36 +151,6 @@ gameOptionsButton entry =
         List.head entry.steam |> Maybe.map (\_ -> dialogButton entry) |> Maybe.withDefault (div [] [])
 
 
-sourcesSelect sources =
-    let
-        change s =
-            Parser.parseSources s |> Maybe.withDefault Both |> ChangeSources
-    in
-        select [ class "form-control", onSelect change ]
-            [ option [ selected (sources == Owned), value <| toString Owned ] [ text <| toString Owned ]
-            , option [ selected (sources == WishList), value <| toString WishList ] [ text <| toString WishList ]
-            , option [ selected (sources == Both), value <| toString Both ] [ text <| toString Both ]
-            ]
-
-
-gameOnSelect maybeGameOn =
-    let
-        change s =
-            Parser.parseGameOn s |> GameOnFilterChange
-    in
-        select [ class "form-control", onSelect change ]
-            [ option [ selected (maybeGameOn == Nothing), value "" ] [ text "" ]
-            , option [ selected (maybeGameOn == Just Steam), value <| toString Steam ] [ text <| toString Steam ]
-            , option [ selected (maybeGameOn == Just Gog), value <| toString Gog ] [ text <| toString Gog ]
-            ]
-
-
-discountedInput isDiscounted =
-    div [ class "checkbox" ]
-        [ label [] [ input [ type_ "checkbox", name "Discounted", checked isDiscounted, onCheck DiscountedFilterChange ] [], text "Discounted" ]
-        ]
-
-
 additionalPrices priceEntries =
     let
         price e =
@@ -295,8 +177,3 @@ toStyle gameEntry =
             "cell_Gog"
         else
             "cell_Steam"
-
-
-onSelect : (String -> a) -> Html.Attribute a
-onSelect msg =
-    on "change" (Json.map msg targetValue)
