@@ -1,4 +1,4 @@
-port module Filters exposing (Model, parse, Msg, update, refresh, view)
+module Filters exposing (Model, parse, Msg, update, refresh, view, serialize)
 
 import Html exposing (Html, button, div, input, label, option, select, text, th)
 import Html.Attributes exposing (checked, class, name, placeholder, selected, style, type_, value)
@@ -11,13 +11,6 @@ import Erl
 import Parser
 import Router
 import WebSocket
-
-
--- SUBSCRIPTIONS
-
-
-port elmAddressChange : String -> Cmd msg
-
 
 
 -- MODEL
@@ -164,32 +157,32 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Clear ->
-            apply (Model model.userId model.sources False Nothing "" ( Nothing, Nothing ) model.original [] Nothing) |> updateAddressInNewModel
+            apply (Model model.userId model.sources False Nothing "" ( Nothing, Nothing ) model.original [] Nothing) ! []
 
         ChangeName name ->
-            apply { model | name = name } |> updateAddressInNewModel
+            apply { model | name = name } ! []
 
         ChangeLow low ->
-            apply { model | prices = ( Parser.parseFloat low, Tuple.second model.prices ) } |> updateAddressInNewModel
+            apply { model | prices = ( Parser.parseFloat low, Tuple.second model.prices ) } ! []
 
         ChangeHigh high ->
-            apply { model | prices = ( Tuple.first model.prices, Parser.parseFloat high ) } |> updateAddressInNewModel
+            apply { model | prices = ( Tuple.first model.prices, Parser.parseFloat high ) } ! []
 
         ChangeGameOn on ->
-            apply { model | gameOn = (Parser.parseGameOn on) } |> updateAddressInNewModel
+            apply { model | gameOn = (Parser.parseGameOn on) } ! []
 
         ChangeDiscounted isDiscounted ->
-            apply { model | isDiscounted = isDiscounted } |> updateAddressInNewModel
+            apply { model | isDiscounted = isDiscounted } ! []
 
         ChangeSources s ->
             let
                 newModel =
                     apply { model | result = [], original = [], sources = (Parser.parseSources s |> Maybe.withDefault Both) }
             in
-                newModel ! [ refreshGames newModel ]
+                newModel ! [ sendRefresh newModel ]
 
         ReceiveEntries entries ->
-            replace entries model |> updateAddressInNewModel
+            replace entries model ! []
 
         ReceiveError err ->
             { model | err = Just err } ! []
@@ -197,20 +190,11 @@ update msg model =
 
 refresh : String -> Model -> ( Model, Cmd Msg )
 refresh s model =
-    ( model, refreshGames model )
+    ( model, sendRefresh model )
 
 
-updateAddressInNewModel model =
-    model ! [ adjustAddress model ]
-
-
-adjustAddress : Model -> Cmd Msg
-adjustAddress model =
-    serialize model |> Router.mainPageUrl |> elmAddressChange
-
-
-refreshGames : Model -> Cmd Msg
-refreshGames model =
+sendRefresh : Model -> Cmd Msg
+sendRefresh model =
     serialize model |> Router.getUserGames |> Http.send (Router.resolveResponse ReceiveEntries ReceiveError)
 
 

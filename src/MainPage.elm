@@ -46,6 +46,9 @@ subscriptions model =
     WebSocket.listen (Router.refreshSocketUrl model.host) ServerRefreshRequest
 
 
+port elmAddressChange : String -> Cmd msg
+
+
 
 -- MODEL
 
@@ -105,8 +108,14 @@ update msg model =
             let
                 ( newFilters, cmd ) =
                     Filters.update msg model.filters
+
+                newModel =
+                    { model | filters = newFilters, message = newFilters.err |> Maybe.map toString }
+
+                adjustAddress model =
+                    Filters.serialize model.filters |> Router.mainPageUrl |> elmAddressChange
             in
-                ( { model | filters = newFilters, message = newFilters.err |> Maybe.map toString }, Cmd.map FiltersMessage cmd )
+                newModel ! [ Cmd.map FiltersMessage cmd, adjustAddress newModel ]
 
 
 

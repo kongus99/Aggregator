@@ -12738,26 +12738,6 @@ var _user$project$Filters$replace = F2(
 				model,
 				{original: list}));
 	});
-var _user$project$Filters$elmAddressChange = _elm_lang$core$Native_Platform.outgoingPort(
-	'elmAddressChange',
-	function (v) {
-		return v;
-	});
-var _user$project$Filters$adjustAddress = function (model) {
-	return _user$project$Filters$elmAddressChange(
-		_user$project$Router$mainPageUrl(
-			_user$project$Filters$serialize(model)));
-};
-var _user$project$Filters$updateAddressInNewModel = function (model) {
-	return A2(
-		_elm_lang$core$Platform_Cmd_ops['!'],
-		model,
-		{
-			ctor: '::',
-			_0: _user$project$Filters$adjustAddress(model),
-			_1: {ctor: '[]'}
-		});
-};
 var _user$project$Filters$Model = F9(
 	function (a, b, c, d, e, f, g, h, i) {
 		return {userId: a, sources: b, isDiscounted: c, gameOn: d, name: e, prices: f, original: g, result: h, err: i};
@@ -12837,7 +12817,8 @@ var _user$project$Filters$update = F2(
 		var _p9 = msg;
 		switch (_p9.ctor) {
 			case 'Clear':
-				return _user$project$Filters$updateAddressInNewModel(
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
 					_user$project$Filters$apply(
 						A9(
 							_user$project$Filters$Model,
@@ -12849,15 +12830,19 @@ var _user$project$Filters$update = F2(
 							{ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
 							model.original,
 							{ctor: '[]'},
-							_elm_lang$core$Maybe$Nothing)));
+							_elm_lang$core$Maybe$Nothing)),
+					{ctor: '[]'});
 			case 'ChangeName':
-				return _user$project$Filters$updateAddressInNewModel(
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
 					_user$project$Filters$apply(
 						_elm_lang$core$Native_Utils.update(
 							model,
-							{name: _p9._0})));
+							{name: _p9._0})),
+					{ctor: '[]'});
 			case 'ChangeLow':
-				return _user$project$Filters$updateAddressInNewModel(
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
 					_user$project$Filters$apply(
 						_elm_lang$core$Native_Utils.update(
 							model,
@@ -12867,9 +12852,11 @@ var _user$project$Filters$update = F2(
 									_0: _user$project$Parser$parseFloat(_p9._0),
 									_1: _elm_lang$core$Tuple$second(model.prices)
 								}
-							})));
+							})),
+					{ctor: '[]'});
 			case 'ChangeHigh':
-				return _user$project$Filters$updateAddressInNewModel(
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
 					_user$project$Filters$apply(
 						_elm_lang$core$Native_Utils.update(
 							model,
@@ -12879,21 +12866,26 @@ var _user$project$Filters$update = F2(
 									_0: _elm_lang$core$Tuple$first(model.prices),
 									_1: _user$project$Parser$parseFloat(_p9._0)
 								}
-							})));
+							})),
+					{ctor: '[]'});
 			case 'ChangeGameOn':
-				return _user$project$Filters$updateAddressInNewModel(
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
 					_user$project$Filters$apply(
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
 								gameOn: _user$project$Parser$parseGameOn(_p9._0)
-							})));
+							})),
+					{ctor: '[]'});
 			case 'ChangeDiscounted':
-				return _user$project$Filters$updateAddressInNewModel(
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
 					_user$project$Filters$apply(
 						_elm_lang$core$Native_Utils.update(
 							model,
-							{isDiscounted: _p9._0})));
+							{isDiscounted: _p9._0})),
+					{ctor: '[]'});
 			case 'ChangeSources':
 				var newModel = _user$project$Filters$apply(
 					_elm_lang$core$Native_Utils.update(
@@ -12915,8 +12907,10 @@ var _user$project$Filters$update = F2(
 						_1: {ctor: '[]'}
 					});
 			case 'ReceiveEntries':
-				return _user$project$Filters$updateAddressInNewModel(
-					A2(_user$project$Filters$replace, _p9._0, model));
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					A2(_user$project$Filters$replace, _p9._0, model),
+					{ctor: '[]'});
 			default:
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -14075,6 +14069,11 @@ var _user$project$MainPage$messageText = function (model) {
 			},
 			model.message));
 };
+var _user$project$MainPage$elmAddressChange = _elm_lang$core$Native_Platform.outgoingPort(
+	'elmAddressChange',
+	function (v) {
+		return v;
+	});
 var _user$project$MainPage$Model = F6(
 	function (a, b, c, d, e, f) {
 		return {sources: a, message: b, userId: c, filters: d, host: e, options: f};
@@ -14109,19 +14108,32 @@ var _user$project$MainPage$update = F2(
 			case 'DialogMessage':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			default:
+				var adjustAddress = function (model) {
+					return _user$project$MainPage$elmAddressChange(
+						_user$project$Router$mainPageUrl(
+							_user$project$Filters$serialize(model.filters)));
+				};
 				var _p2 = A2(_user$project$Filters$update, _p0._0, model.filters);
 				var newFilters = _p2._0;
 				var cmd = _p2._1;
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							filters: newFilters,
-							message: A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$toString, newFilters.err)
-						}),
-					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$MainPage$FiltersMessage, cmd)
-				};
+				var newModel = _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						filters: newFilters,
+						message: A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$toString, newFilters.err)
+					});
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					newModel,
+					{
+						ctor: '::',
+						_0: A2(_elm_lang$core$Platform_Cmd$map, _user$project$MainPage$FiltersMessage, cmd),
+						_1: {
+							ctor: '::',
+							_0: adjustAddress(newModel),
+							_1: {ctor: '[]'}
+						}
+					});
 		}
 	});
 var _user$project$MainPage$DialogMessage = function (a) {
