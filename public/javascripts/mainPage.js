@@ -13864,13 +13864,13 @@ var _user$project$GameOptionsDialog$dialogBody = function (options) {
 		});
 };
 var _user$project$GameOptionsDialog$view = F3(
-	function (wrapper, msg, model) {
+	function (wrapper, close, model) {
 		return _krisajenkins$elm_dialog$Dialog$view(
 			A2(
 				_elm_lang$core$Maybe$map,
 				function (o) {
 					return {
-						closeMessage: _elm_lang$core$Maybe$Just(msg),
+						closeMessage: _elm_lang$core$Maybe$Just(close),
 						containerClass: _elm_lang$core$Maybe$Just('game-options-class'),
 						header: _elm_lang$core$Maybe$Just(
 							_user$project$GameOptionsDialog$dialogHeader(o)),

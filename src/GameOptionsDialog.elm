@@ -2,16 +2,13 @@ module GameOptionsDialog exposing (model, emptyModel, view, fetch, Model, Msg, u
 
 import Array exposing (Array)
 import Dialog
-import Html exposing (Attribute, Html, br, div, h2, h3, h4, input, label, option, p, select, table, tbody, td, text, th, thead, tr)
-import Html.Attributes exposing (attribute, checked, class, name, type_, value)
+import Html exposing (Attribute, Html, div, h4, input, label, table, tbody, td, text, th, thead, tr)
+import Html.Attributes exposing (checked, class, name, type_, value)
 import Html.Events exposing (keyCode, on, onClick, onInput)
 import Http
 import Json.Decode as Json
 import Model exposing (GameOptions, GameQuery)
-import Process
 import Router
-import Task
-import Time exposing (second)
 
 
 -- MODEL
