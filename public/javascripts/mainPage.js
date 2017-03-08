@@ -12805,7 +12805,7 @@ var _user$project$Filters$ReceiveError = function (a) {
 var _user$project$Filters$ReceiveEntries = function (a) {
 	return {ctor: 'ReceiveEntries', _0: a};
 };
-var _user$project$Filters$refreshGames = function (model) {
+var _user$project$Filters$sendRefresh = function (model) {
 	return A2(
 		_elm_lang$http$Http$send,
 		A2(_user$project$Router$resolveResponse, _user$project$Filters$ReceiveEntries, _user$project$Filters$ReceiveError),
@@ -12903,7 +12903,7 @@ var _user$project$Filters$update = F2(
 					newModel,
 					{
 						ctor: '::',
-						_0: _user$project$Filters$refreshGames(newModel),
+						_0: _user$project$Filters$sendRefresh(newModel),
 						_1: {ctor: '[]'}
 					});
 			case 'ReceiveEntries':
@@ -12927,7 +12927,7 @@ var _user$project$Filters$refresh = F2(
 		return {
 			ctor: '_Tuple2',
 			_0: model,
-			_1: _user$project$Filters$refreshGames(model)
+			_1: _user$project$Filters$sendRefresh(model)
 		};
 	});
 var _user$project$Filters$ChangeSources = function (a) {
@@ -13556,23 +13556,17 @@ var _user$project$GameOptionsDialog$updateQuery = F3(
 				gameOptions: A2(_elm_lang$core$Maybe$map, updateOptions, model.gameOptions)
 			});
 	});
-var _user$project$GameOptionsDialog$Model = F4(
-	function (a, b, c, d) {
-		return {message: a, closeMsg: b, wrapper: c, gameOptions: d};
+var _user$project$GameOptionsDialog$Model = F2(
+	function (a, b) {
+		return {message: a, gameOptions: b};
 	});
-var _user$project$GameOptionsDialog$model = F3(
-	function (closeMsg, wrapper, options) {
-		return A4(
-			_user$project$GameOptionsDialog$Model,
-			_elm_lang$core$Maybe$Nothing,
-			closeMsg,
-			wrapper,
-			_elm_lang$core$Maybe$Just(options));
-	});
-var _user$project$GameOptionsDialog$emptyModel = F2(
-	function (closeMsg, wrapper) {
-		return A4(_user$project$GameOptionsDialog$Model, _elm_lang$core$Maybe$Nothing, closeMsg, wrapper, _elm_lang$core$Maybe$Nothing);
-	});
+var _user$project$GameOptionsDialog$model = function (options) {
+	return A2(
+		_user$project$GameOptionsDialog$Model,
+		_elm_lang$core$Maybe$Nothing,
+		_elm_lang$core$Maybe$Just(options));
+};
+var _user$project$GameOptionsDialog$emptyModel = A2(_user$project$GameOptionsDialog$Model, _elm_lang$core$Maybe$Nothing, _elm_lang$core$Maybe$Nothing);
 var _user$project$GameOptionsDialog$DialogError = function (a) {
 	return {ctor: 'DialogError', _0: a};
 };
@@ -13582,24 +13576,21 @@ var _user$project$GameOptionsDialog$NewResults = function (a) {
 var _user$project$GameOptionsDialog$newResults = F3(
 	function (userId, serialized, model) {
 		return A2(
-			_elm_lang$core$Platform_Cmd$map,
-			model.wrapper,
-			A2(
-				_elm_lang$http$Http$send,
-				A2(_user$project$Router$resolveResponse, _user$project$GameOptionsDialog$NewResults, _user$project$GameOptionsDialog$DialogError),
-				_user$project$Router$fetchNewSearchResults(
-					A2(
-						_elm_lang$core$List$append,
-						{
-							ctor: '::',
-							_0: {
-								ctor: '_Tuple2',
-								_0: 'userId',
-								_1: _elm_lang$core$Basics$toString(userId)
-							},
-							_1: serialized
+			_elm_lang$http$Http$send,
+			A2(_user$project$Router$resolveResponse, _user$project$GameOptionsDialog$NewResults, _user$project$GameOptionsDialog$DialogError),
+			_user$project$Router$fetchNewSearchResults(
+				A2(
+					_elm_lang$core$List$append,
+					{
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'userId',
+							_1: _elm_lang$core$Basics$toString(userId)
 						},
-						_user$project$GameOptionsDialog$serializeSteamId(model)))));
+						_1: serialized
+					},
+					_user$project$GameOptionsDialog$serializeSteamId(model))));
 	});
 var _user$project$GameOptionsDialog$GetNewResults = function (a) {
 	return {ctor: 'GetNewResults', _0: a};
@@ -13614,24 +13605,21 @@ var _user$project$GameOptionsDialog$Switched = function (a) {
 var _user$project$GameOptionsDialog$saveSwitched = F3(
 	function (userId, serialized, model) {
 		return A2(
-			_elm_lang$core$Platform_Cmd$map,
-			model.wrapper,
-			A2(
-				_elm_lang$http$Http$send,
-				A2(_user$project$Router$resolveResponse, _user$project$GameOptionsDialog$Switched, _user$project$GameOptionsDialog$DialogError),
-				_user$project$Router$saveSelectedSearchResult(
-					A2(
-						_elm_lang$core$List$append,
-						{
-							ctor: '::',
-							_0: {
-								ctor: '_Tuple2',
-								_0: 'userId',
-								_1: _elm_lang$core$Basics$toString(userId)
-							},
-							_1: serialized
+			_elm_lang$http$Http$send,
+			A2(_user$project$Router$resolveResponse, _user$project$GameOptionsDialog$Switched, _user$project$GameOptionsDialog$DialogError),
+			_user$project$Router$saveSelectedSearchResult(
+				A2(
+					_elm_lang$core$List$append,
+					{
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'userId',
+							_1: _elm_lang$core$Basics$toString(userId)
 						},
-						_user$project$GameOptionsDialog$serializeSteamId(model)))));
+						_1: serialized
+					},
+					_user$project$GameOptionsDialog$serializeSteamId(model))));
 	});
 var _user$project$GameOptionsDialog$update = F3(
 	function (userId, msg, model) {
@@ -13875,26 +13863,27 @@ var _user$project$GameOptionsDialog$dialogBody = function (options) {
 			_1: {ctor: '[]'}
 		});
 };
-var _user$project$GameOptionsDialog$view = function (model) {
-	return _krisajenkins$elm_dialog$Dialog$view(
-		A2(
-			_elm_lang$core$Maybe$map,
-			function (o) {
-				return {
-					closeMessage: _elm_lang$core$Maybe$Just(model.closeMsg),
-					containerClass: _elm_lang$core$Maybe$Just('game-options-class'),
-					header: _elm_lang$core$Maybe$Just(
-						_user$project$GameOptionsDialog$dialogHeader(o)),
-					body: _elm_lang$core$Maybe$Just(
-						A2(
-							_elm_lang$html$Html$map,
-							model.wrapper,
-							_user$project$GameOptionsDialog$dialogBody(o))),
-					footer: A2(_elm_lang$core$Maybe$map, _elm_lang$html$Html$text, model.message)
-				};
-			},
-			model.gameOptions));
-};
+var _user$project$GameOptionsDialog$view = F3(
+	function (wrapper, msg, model) {
+		return _krisajenkins$elm_dialog$Dialog$view(
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (o) {
+					return {
+						closeMessage: _elm_lang$core$Maybe$Just(msg),
+						containerClass: _elm_lang$core$Maybe$Just('game-options-class'),
+						header: _elm_lang$core$Maybe$Just(
+							_user$project$GameOptionsDialog$dialogHeader(o)),
+						body: _elm_lang$core$Maybe$Just(
+							A2(
+								_elm_lang$html$Html$map,
+								wrapper,
+								_user$project$GameOptionsDialog$dialogBody(o))),
+						footer: A2(_elm_lang$core$Maybe$map, _elm_lang$html$Html$text, model.message)
+					};
+				},
+				model.gameOptions));
+	});
 
 var _user$project$MainPage$toStyle = function (gameEntry) {
 	var onSteam = _elm_lang$core$Native_Utils.cmp(
@@ -14078,17 +14067,52 @@ var _user$project$MainPage$Model = F6(
 	function (a, b, c, d, e, f) {
 		return {sources: a, message: b, userId: c, filters: d, host: e, options: f};
 	});
+var _user$project$MainPage$initialModel = F2(
+	function (host, filters) {
+		return A6(_user$project$MainPage$Model, _user$project$Model$WishList, _elm_lang$core$Maybe$Nothing, 1, filters, '', _user$project$GameOptionsDialog$emptyModel);
+	});
 var _user$project$MainPage$FiltersMessage = function (a) {
 	return {ctor: 'FiltersMessage', _0: a};
 };
+var _user$project$MainPage$initProgram = function (address) {
+	var url = _sporto$erl$Erl$parse(address);
+	var host = A2(
+		_elm_lang$core$Basics_ops['++'],
+		A2(_elm_lang$core$String$join, '.', url.host),
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			':',
+			_elm_lang$core$Basics$toString(url.port_)));
+	var _p0 = A2(
+		_user$project$Filters$refresh,
+		'',
+		_user$project$Filters$parse(url));
+	var filters = _p0._0;
+	var cmd = _p0._1;
+	return {
+		ctor: '_Tuple2',
+		_0: A2(_user$project$MainPage$initialModel, host, filters),
+		_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$MainPage$FiltersMessage, cmd)
+	};
+};
+var _user$project$MainPage$DialogMessage = function (a) {
+	return {ctor: 'DialogMessage', _0: a};
+};
+var _user$project$MainPage$GeneralError = function (a) {
+	return {ctor: 'GeneralError', _0: a};
+};
+var _user$project$MainPage$DialogClose = {ctor: 'DialogClose'};
+var _user$project$MainPage$DialogData = function (a) {
+	return {ctor: 'DialogData', _0: a};
+};
 var _user$project$MainPage$update = F2(
 	function (msg, model) {
-		var _p0 = msg;
-		switch (_p0.ctor) {
+		var _p1 = msg;
+		switch (_p1.ctor) {
 			case 'ServerRefreshRequest':
-				var _p1 = A2(_user$project$Filters$refresh, _p0._0, model.filters);
-				var newFilters = _p1._0;
-				var cmd = _p1._1;
+				var _p2 = A2(_user$project$Filters$refresh, _p1._0, model.filters);
+				var newFilters = _p2._0;
+				var cmd = _p2._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -14100,22 +14124,60 @@ var _user$project$MainPage$update = F2(
 					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$MainPage$FiltersMessage, cmd)
 				};
 			case 'DialogOpen':
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: A4(_user$project$GameOptionsDialog$fetch, model.userId, _p1._0, _user$project$MainPage$DialogData, _user$project$MainPage$GeneralError)
+				};
 			case 'DialogData':
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							options: _user$project$GameOptionsDialog$model(_p1._0)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 			case 'DialogClose':
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{options: _user$project$GameOptionsDialog$emptyModel}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'GeneralError':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							message: _elm_lang$core$Maybe$Just(
+								_elm_lang$core$Basics$toString(_p1._0))
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 			case 'DialogMessage':
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				var _p3 = A3(_user$project$GameOptionsDialog$update, model.userId, _p1._0, model.options);
+				var options = _p3._0;
+				var cmd = _p3._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{options: options}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$MainPage$DialogMessage, cmd)
+				};
 			default:
 				var adjustAddress = function (model) {
 					return _user$project$MainPage$elmAddressChange(
 						_user$project$Router$mainPageUrl(
 							_user$project$Filters$serialize(model.filters)));
 				};
-				var _p2 = A2(_user$project$Filters$update, _p0._0, model.filters);
-				var newFilters = _p2._0;
-				var cmd = _p2._1;
+				var _p4 = A2(_user$project$Filters$update, _p1._0, model.filters);
+				var newFilters = _p4._0;
+				var cmd = _p4._1;
 				var newModel = _elm_lang$core$Native_Utils.update(
 					model,
 					{
@@ -14136,45 +14198,6 @@ var _user$project$MainPage$update = F2(
 					});
 		}
 	});
-var _user$project$MainPage$DialogMessage = function (a) {
-	return {ctor: 'DialogMessage', _0: a};
-};
-var _user$project$MainPage$DialogClose = {ctor: 'DialogClose'};
-var _user$project$MainPage$initialModel = F2(
-	function (host, filters) {
-		return A6(
-			_user$project$MainPage$Model,
-			_user$project$Model$WishList,
-			_elm_lang$core$Maybe$Nothing,
-			1,
-			filters,
-			'',
-			A2(_user$project$GameOptionsDialog$emptyModel, _user$project$MainPage$DialogClose, _user$project$MainPage$DialogMessage));
-	});
-var _user$project$MainPage$initProgram = function (address) {
-	var url = _sporto$erl$Erl$parse(address);
-	var host = A2(
-		_elm_lang$core$Basics_ops['++'],
-		A2(_elm_lang$core$String$join, '.', url.host),
-		A2(
-			_elm_lang$core$Basics_ops['++'],
-			':',
-			_elm_lang$core$Basics$toString(url.port_)));
-	var _p3 = A2(
-		_user$project$Filters$refresh,
-		'',
-		_user$project$Filters$parse(url));
-	var filters = _p3._0;
-	var cmd = _p3._1;
-	return {
-		ctor: '_Tuple2',
-		_0: A2(_user$project$MainPage$initialModel, host, filters),
-		_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$MainPage$FiltersMessage, cmd)
-	};
-};
-var _user$project$MainPage$DialogData = function (a) {
-	return {ctor: 'DialogData', _0: a};
-};
 var _user$project$MainPage$DialogOpen = function (a) {
 	return {ctor: 'DialogOpen', _0: a};
 };
@@ -14212,7 +14235,7 @@ var _user$project$MainPage$gameOptionsButton = function (entry) {
 			{ctor: '[]'}),
 		A2(
 			_elm_lang$core$Maybe$map,
-			function (_p4) {
+			function (_p5) {
 				return dialogButton(entry);
 			},
 			_elm_lang$core$List$head(entry.steam)));
@@ -14319,7 +14342,7 @@ var _user$project$MainPage$view = function (model) {
 							ctor: '::',
 							_0: {
 								ctor: '::',
-								_0: _user$project$GameOptionsDialog$view(model.options),
+								_0: A3(_user$project$GameOptionsDialog$view, _user$project$MainPage$DialogMessage, _user$project$MainPage$DialogClose, model.options),
 								_1: {ctor: '[]'}
 							},
 							_1: {ctor: '[]'}

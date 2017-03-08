@@ -54,11 +54,11 @@ port elmAddressChange : String -> Cmd msg
 
 
 type alias Model =
-    { sources : GameSources, message : Maybe String, userId : Int, filters : Filters.Model, host : String, options : GameOptionsDialog.Model Msg }
+    { sources : GameSources, message : Maybe String, userId : Int, filters : Filters.Model, host : String, options : GameOptionsDialog.Model }
 
 
 initialModel host filters =
-    Model WishList Nothing 1 filters "" (GameOptionsDialog.emptyModel DialogClose DialogMessage)
+    Model WishList Nothing 1 filters "" GameOptionsDialog.emptyModel
 
 
 
@@ -70,6 +70,7 @@ type Msg
     | DialogOpen (Maybe Int)
     | DialogData GameOptions
     | DialogClose
+    | GeneralError Http.Error
     | DialogMessage GameOptionsDialog.Msg
     | FiltersMessage Filters.Msg
 
@@ -85,25 +86,24 @@ update msg model =
                 ( { model | filters = newFilters, message = newFilters.err |> Maybe.map toString }, Cmd.map FiltersMessage cmd )
 
         DialogOpen steamId ->
-            ( model, Cmd.none )
+            ( model, GameOptionsDialog.fetch model.userId steamId DialogData GeneralError )
 
-        --            ( model, GameOptionsDialog.fetch model.userId steamId DialogData RefreshError )
         DialogData options ->
-            ( model, Cmd.none )
+            ( { model | options = GameOptionsDialog.model options }, Cmd.none )
 
-        --            ( { model | options = GameOptionsDialog.model DialogClose DialogMessage options }, Cmd.none )
         DialogClose ->
-            ( model, Cmd.none )
+            ( { model | options = GameOptionsDialog.emptyModel }, Cmd.none )
 
-        --            ( { model | options = GameOptionsDialog.emptyModel DialogClose DialogMessage }, Cmd.none )
+        GeneralError err ->
+            ( { model | message = toString err |> Just }, Cmd.none )
+
         DialogMessage msg ->
-            ( model, Cmd.none )
+            let
+                ( options, cmd ) =
+                    GameOptionsDialog.update model.userId msg model.options
+            in
+                ( { model | options = options }, Cmd.map DialogMessage cmd )
 
-        --            let
-        --                ( options, cmd ) =
-        --                    GameOptionsDialog.update model.userId msg model.options
-        --            in
-        --                ( { model | options = options }, cmd )
         FiltersMessage msg ->
             let
                 ( newFilters, cmd ) =
@@ -129,7 +129,7 @@ view model =
             [ [ gameTableTitle ]
             , Filters.view model.filters |> List.map (Html.map FiltersMessage)
             , [ gameTableRows model.filters.result ]
-            , [ GameOptionsDialog.view model.options ]
+            , [ GameOptionsDialog.view DialogMessage DialogClose model.options ]
             ]
 
 

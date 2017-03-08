@@ -17,18 +17,18 @@ import Time exposing (second)
 -- MODEL
 
 
-type alias Model msg =
-    { message : Maybe String, closeMsg : msg, wrapper : Msg -> msg, gameOptions : Maybe GameOptions }
+type alias Model =
+    { message : Maybe String, gameOptions : Maybe GameOptions }
 
 
-model : msg -> (Msg -> msg) -> GameOptions -> Model msg
-model closeMsg wrapper options =
-    Model Nothing closeMsg wrapper (Just options)
+model : GameOptions -> Model
+model options =
+    Model Nothing (Just options)
 
 
-emptyModel : msg -> (Msg -> msg) -> Model msg
-emptyModel closeMsg wrapper =
-    Model Nothing closeMsg wrapper Nothing
+emptyModel : Model
+emptyModel =
+    Model Nothing Nothing
 
 
 
@@ -54,7 +54,7 @@ updateArray n f a =
             Array.set n (f element) a
 
 
-updateQuery : Int -> (GameQuery -> GameQuery) -> Model msg -> Model msg
+updateQuery : Int -> (GameQuery -> GameQuery) -> Model -> Model
 updateQuery queryIndex queryUpdate model =
     let
         updateQueries queries =
@@ -66,17 +66,17 @@ updateQuery queryIndex queryUpdate model =
         { model | gameOptions = Maybe.map updateOptions model.gameOptions }
 
 
-serializeSelectedQuery : Int -> (GameQuery -> List ( String, String )) -> Model msg -> List ( String, String )
+serializeSelectedQuery : Int -> (GameQuery -> List ( String, String )) -> Model -> List ( String, String )
 serializeSelectedQuery queryIndex querySerializer model =
     Maybe.andThen (\o -> Array.get queryIndex o.queries) model.gameOptions |> Maybe.map querySerializer |> Maybe.withDefault []
 
 
-serializeSteamId : Model msg -> List ( String, String )
+serializeSteamId : Model -> List ( String, String )
 serializeSteamId model =
     model.gameOptions |> Maybe.map (\o -> [ ( "steamId", toString o.entry.steamId ) ]) |> Maybe.withDefault []
 
 
-update : Int -> Msg -> Model msg -> ( Model msg, Cmd msg )
+update : Int -> Msg -> Model -> ( Model, Cmd Msg )
 update userId msg model =
     case msg of
         SwitchTo queryIndex newSelectedResult ->
@@ -145,29 +145,27 @@ saveSwitched userId serialized model =
     List.append (( "userId", toString userId ) :: serialized) (serializeSteamId model)
         |> Router.saveSelectedSearchResult
         |> Http.send (Router.resolveResponse Switched DialogError)
-        |> Cmd.map model.wrapper
 
 
 newResults userId serialized model =
     List.append (( "userId", toString userId ) :: serialized) (serializeSteamId model)
         |> Router.fetchNewSearchResults
         |> Http.send (Router.resolveResponse NewResults DialogError)
-        |> Cmd.map model.wrapper
 
 
 
 -- VIEW
 
 
-view : Model msg -> Html msg
-view model =
+view : (Msg -> msg) -> msg -> Model -> Html msg
+view wrapper close model =
     Dialog.view <|
         Maybe.map
             (\o ->
-                { closeMessage = Just model.closeMsg
+                { closeMessage = Just close
                 , containerClass = Just "game-options-class"
                 , header = Just <| dialogHeader o
-                , body = Just <| Html.map model.wrapper (dialogBody o)
+                , body = Just <| Html.map wrapper (dialogBody o)
                 , footer = Maybe.map text model.message
                 }
             )
@@ -217,7 +215,7 @@ tableRow index gameQuery =
         ]
 
 
-queryResult : Maybe String -> (String -> msg) -> Int -> String -> Html msg
+queryResult : Maybe String -> (String -> Msg) -> Int -> String -> Html Msg
 queryResult selectedResult msg index currentResult =
     div [ class "radio" ]
         [ label []
