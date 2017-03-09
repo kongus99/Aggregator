@@ -2,7 +2,7 @@ module Login exposing (..)
 
 import Html exposing (Html, button, div, text, form, br, input, span, label)
 import Html.Attributes exposing (action, type_, name, style, method, value, checked, disabled, class)
-import Html.Events exposing (onClick, onSubmit, onInput, onCheck)
+import Html.Events exposing (onBlur, onCheck, onClick, onFocus, onInput, onSubmit)
 import Model exposing (..)
 import Router exposing (routes, mainPageUrl)
 import Http
@@ -50,8 +50,11 @@ type Msg
     | CreateUpdateUser
     | UserFetched User
     | UsersFetched (List User)
-    | SteamUsernameChange SteamUsername
-    | GogUsernameChange GogUserName
+    | SteamChange SteamUsername
+    | GogChange GogUserName
+    | LoseFocus
+    | SteamGainFocus
+    | GogGainFocus
     | SteamAlternateChange Bool
     | ResponseError Http.Error
 
@@ -78,11 +81,20 @@ update msg model =
         UsersFetched u ->
             ( { model | possibleUsers = u, message = "" }, Cmd.none )
 
-        SteamUsernameChange u ->
+        SteamChange u ->
             updateEnteredUser model routes.login.fetchSteam (\u -> \username -> { u | steamUsername = Just username }) u
 
-        GogUsernameChange u ->
+        GogChange u ->
             updateEnteredUser model routes.login.fetchGog (\u -> \username -> { u | gogUsername = Just username }) u
+
+        LoseFocus ->
+            ( { model | message = "", possibleUsers = [] }, Cmd.none )
+
+        SteamGainFocus ->
+            ( { model | message = "" }, sendUsersRequest routes.login.fetchSteam model.enteredUser (Maybe.withDefault "" model.enteredUser.steamUsername) )
+
+        GogGainFocus ->
+            ( { model | message = "" }, sendUsersRequest routes.login.fetchGog model.enteredUser (Maybe.withDefault "" model.enteredUser.gogUsername) )
 
         SteamAlternateChange c ->
             let
@@ -115,14 +127,15 @@ updateEnteredUser model method update username =
     let
         newUser =
             update model.enteredUser username
-
-        cmd =
-            if String.length username > 1 then
-                serializeUser newUser |> method |> (getResponse UsersFetched)
-            else
-                Cmd.none
     in
-        ( { model | enteredUser = newUser, message = "" }, cmd )
+        ( { model | enteredUser = newUser, message = "" }, sendUsersRequest method newUser username )
+
+
+sendUsersRequest method user username =
+    if String.length username > 1 then
+        serializeUser user |> method |> (getResponse UsersFetched)
+    else
+        Cmd.none
 
 
 getResponse : (a -> Msg) -> Http.Request a -> Cmd Msg
@@ -156,12 +169,57 @@ usernameForm model =
     in
         [ form [ onSubmit SetUser ]
             [ span [] [ text model.message ]
-            , div [ class "form-group" ] [ label [] [ text "Steam username:", br [] [], text loadedSteamUsername, br [] [], input [ type_ "text", name "username1", onInput SteamUsernameChange, value enteredSteamUsername ] [] ] ]
-            , div [ class "form-group" ] [ label [] [ text "Alternate Steam login:", br [] [], text <| toString loadedSteamAlternate, br [] [], input [ type_ "checkbox", name "Alternate", disabled <| model.loadedUser == Nothing, checked enteredSteamAlternate, onCheck SteamAlternateChange ] [] ] ]
-            , div [ class "form-group" ] [ label [] [ text "Gog username:", br [] [], text loadedGogUsername, br [] [], input [ type_ "text", name "username2", onInput GogUsernameChange, value enteredGogUsername ] [] ] ]
+            , steamInput loadedSteamUsername enteredSteamUsername
+            , alternateSteamInput (model.loadedUser == Nothing) loadedSteamAlternate enteredSteamAlternate
+            , gogInput loadedGogUsername enteredGogUsername
             , div [ class "form-group" ] [ input [ type_ "submit", style [ ( "display", "none" ) ] ] [] ]
             ]
         , br [] []
+        ]
+
+
+alternateSteamInput dis loaded entered =
+    div [ class "form-group" ]
+        [ label []
+            [ text "Alternate Steam login:"
+            , br [] []
+            , text <| toString loaded
+            , br [] []
+            , input
+                [ type_ "checkbox"
+                , disabled dis
+                , checked entered
+                , onCheck SteamAlternateChange
+                ]
+                []
+            ]
+        ]
+
+
+steamInput loaded entered =
+    usernameInput "Steam username:" SteamChange SteamGainFocus loaded entered
+
+
+gogInput loaded entered =
+    usernameInput "Gog username:" GogChange GogGainFocus loaded entered
+
+
+usernameInput name inputMsg focusMsg loaded entered =
+    div [ class "form-group" ]
+        [ label []
+            [ text name
+            , br [] []
+            , text loaded
+            , br [] []
+            , input
+                [ type_ "text"
+                , onInput inputMsg
+                , onFocus focusMsg
+                , onBlur LoseFocus
+                , value entered
+                ]
+                []
+            ]
         ]
 
 

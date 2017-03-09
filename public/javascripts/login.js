@@ -10212,31 +10212,176 @@ var _user$project$Login$getResponse = F2(
 var _user$project$Login$SteamAlternateChange = function (a) {
 	return {ctor: 'SteamAlternateChange', _0: a};
 };
-var _user$project$Login$GogUsernameChange = function (a) {
-	return {ctor: 'GogUsernameChange', _0: a};
+var _user$project$Login$alternateSteamInput = F3(
+	function (dis, loaded, entered) {
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('form-group'),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$label,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Alternate Steam login:'),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$br,
+								{ctor: '[]'},
+								{ctor: '[]'}),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(
+									_elm_lang$core$Basics$toString(loaded)),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$br,
+										{ctor: '[]'},
+										{ctor: '[]'}),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$input,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$type_('checkbox'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$disabled(dis),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$checked(entered),
+														_1: {
+															ctor: '::',
+															_0: _elm_lang$html$Html_Events$onCheck(_user$project$Login$SteamAlternateChange),
+															_1: {ctor: '[]'}
+														}
+													}
+												}
+											},
+											{ctor: '[]'}),
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						}
+					}),
+				_1: {ctor: '[]'}
+			});
+	});
+var _user$project$Login$GogGainFocus = {ctor: 'GogGainFocus'};
+var _user$project$Login$SteamGainFocus = {ctor: 'SteamGainFocus'};
+var _user$project$Login$LoseFocus = {ctor: 'LoseFocus'};
+var _user$project$Login$usernameInput = F5(
+	function (name, inputMsg, focusMsg, loaded, entered) {
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('form-group'),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$label,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(name),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$br,
+								{ctor: '[]'},
+								{ctor: '[]'}),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(loaded),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$br,
+										{ctor: '[]'},
+										{ctor: '[]'}),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$input,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$type_('text'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onInput(inputMsg),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Events$onFocus(focusMsg),
+														_1: {
+															ctor: '::',
+															_0: _elm_lang$html$Html_Events$onBlur(_user$project$Login$LoseFocus),
+															_1: {
+																ctor: '::',
+																_0: _elm_lang$html$Html_Attributes$value(entered),
+																_1: {ctor: '[]'}
+															}
+														}
+													}
+												}
+											},
+											{ctor: '[]'}),
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						}
+					}),
+				_1: {ctor: '[]'}
+			});
+	});
+var _user$project$Login$GogChange = function (a) {
+	return {ctor: 'GogChange', _0: a};
 };
-var _user$project$Login$SteamUsernameChange = function (a) {
-	return {ctor: 'SteamUsernameChange', _0: a};
+var _user$project$Login$gogInput = F2(
+	function (loaded, entered) {
+		return A5(_user$project$Login$usernameInput, 'Gog username:', _user$project$Login$GogChange, _user$project$Login$GogGainFocus, loaded, entered);
+	});
+var _user$project$Login$SteamChange = function (a) {
+	return {ctor: 'SteamChange', _0: a};
 };
+var _user$project$Login$steamInput = F2(
+	function (loaded, entered) {
+		return A5(_user$project$Login$usernameInput, 'Steam username:', _user$project$Login$SteamChange, _user$project$Login$SteamGainFocus, loaded, entered);
+	});
 var _user$project$Login$UsersFetched = function (a) {
 	return {ctor: 'UsersFetched', _0: a};
 };
-var _user$project$Login$updateEnteredUser = F4(
-	function (model, method, update, username) {
-		var newUser = A2(update, model.enteredUser, username);
-		var cmd = (_elm_lang$core$Native_Utils.cmp(
+var _user$project$Login$sendUsersRequest = F3(
+	function (method, user, username) {
+		return (_elm_lang$core$Native_Utils.cmp(
 			_elm_lang$core$String$length(username),
 			1) > 0) ? A2(
 			_user$project$Login$getResponse,
 			_user$project$Login$UsersFetched,
 			method(
-				_user$project$Login$serializeUser(newUser))) : _elm_lang$core$Platform_Cmd$none;
+				_user$project$Login$serializeUser(user))) : _elm_lang$core$Platform_Cmd$none;
+	});
+var _user$project$Login$updateEnteredUser = F4(
+	function (model, method, update, username) {
+		var newUser = A2(update, model.enteredUser, username);
 		return {
 			ctor: '_Tuple2',
 			_0: _elm_lang$core$Native_Utils.update(
 				model,
 				{enteredUser: newUser, message: ''}),
-			_1: cmd
+			_1: A3(_user$project$Login$sendUsersRequest, method, newUser, username)
 		};
 	});
 var _user$project$Login$UserFetched = function (a) {
@@ -10289,7 +10434,7 @@ var _user$project$Login$update = F2(
 						{possibleUsers: _p5._0, message: ''}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			case 'SteamUsernameChange':
+			case 'SteamChange':
 				return A4(
 					_user$project$Login$updateEnteredUser,
 					model,
@@ -10303,7 +10448,7 @@ var _user$project$Login$update = F2(
 								});
 						}),
 					_p5._0);
-			case 'GogUsernameChange':
+			case 'GogChange':
 				return A4(
 					_user$project$Login$updateEnteredUser,
 					model,
@@ -10317,6 +10462,41 @@ var _user$project$Login$update = F2(
 								});
 						}),
 					_p5._0);
+			case 'LoseFocus':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							message: '',
+							possibleUsers: {ctor: '[]'}
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'SteamGainFocus':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{message: ''}),
+					_1: A3(
+						_user$project$Login$sendUsersRequest,
+						_user$project$Router$routes.login.fetchSteam,
+						model.enteredUser,
+						A2(_elm_lang$core$Maybe$withDefault, '', model.enteredUser.steamUsername))
+				};
+			case 'GogGainFocus':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{message: ''}),
+					_1: A3(
+						_user$project$Login$sendUsersRequest,
+						_user$project$Router$routes.login.fetchGog,
+						model.enteredUser,
+						A2(_elm_lang$core$Maybe$withDefault, '', model.enteredUser.gogUsername))
+				};
 			case 'SteamAlternateChange':
 				var _p10 = _p5._0;
 				var changeAlternate = function (args) {
@@ -10478,196 +10658,17 @@ var _user$project$Login$usernameForm = function (model) {
 					}),
 				_1: {
 					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('form-group'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$label,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text('Steam username:'),
-									_1: {
-										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$br,
-											{ctor: '[]'},
-											{ctor: '[]'}),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$html$Html$text(loadedSteamUsername),
-											_1: {
-												ctor: '::',
-												_0: A2(
-													_elm_lang$html$Html$br,
-													{ctor: '[]'},
-													{ctor: '[]'}),
-												_1: {
-													ctor: '::',
-													_0: A2(
-														_elm_lang$html$Html$input,
-														{
-															ctor: '::',
-															_0: _elm_lang$html$Html_Attributes$type_('text'),
-															_1: {
-																ctor: '::',
-																_0: _elm_lang$html$Html_Attributes$name('username1'),
-																_1: {
-																	ctor: '::',
-																	_0: _elm_lang$html$Html_Events$onInput(_user$project$Login$SteamUsernameChange),
-																	_1: {
-																		ctor: '::',
-																		_0: _elm_lang$html$Html_Attributes$value(enteredSteamUsername),
-																		_1: {ctor: '[]'}
-																	}
-																}
-															}
-														},
-														{ctor: '[]'}),
-													_1: {ctor: '[]'}
-												}
-											}
-										}
-									}
-								}),
-							_1: {ctor: '[]'}
-						}),
+					_0: A2(_user$project$Login$steamInput, loadedSteamUsername, enteredSteamUsername),
 					_1: {
 						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$div,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('form-group'),
-								_1: {ctor: '[]'}
-							},
-							{
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$label,
-									{ctor: '[]'},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('Alternate Steam login:'),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$br,
-												{ctor: '[]'},
-												{ctor: '[]'}),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$html$Html$text(
-													_elm_lang$core$Basics$toString(loadedSteamAlternate)),
-												_1: {
-													ctor: '::',
-													_0: A2(
-														_elm_lang$html$Html$br,
-														{ctor: '[]'},
-														{ctor: '[]'}),
-													_1: {
-														ctor: '::',
-														_0: A2(
-															_elm_lang$html$Html$input,
-															{
-																ctor: '::',
-																_0: _elm_lang$html$Html_Attributes$type_('checkbox'),
-																_1: {
-																	ctor: '::',
-																	_0: _elm_lang$html$Html_Attributes$name('Alternate'),
-																	_1: {
-																		ctor: '::',
-																		_0: _elm_lang$html$Html_Attributes$disabled(
-																			_elm_lang$core$Native_Utils.eq(model.loadedUser, _elm_lang$core$Maybe$Nothing)),
-																		_1: {
-																			ctor: '::',
-																			_0: _elm_lang$html$Html_Attributes$checked(enteredSteamAlternate),
-																			_1: {
-																				ctor: '::',
-																				_0: _elm_lang$html$Html_Events$onCheck(_user$project$Login$SteamAlternateChange),
-																				_1: {ctor: '[]'}
-																			}
-																		}
-																	}
-																}
-															},
-															{ctor: '[]'}),
-														_1: {ctor: '[]'}
-													}
-												}
-											}
-										}
-									}),
-								_1: {ctor: '[]'}
-							}),
+						_0: A3(
+							_user$project$Login$alternateSteamInput,
+							_elm_lang$core$Native_Utils.eq(model.loadedUser, _elm_lang$core$Maybe$Nothing),
+							loadedSteamAlternate,
+							enteredSteamAlternate),
 						_1: {
 							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('form-group'),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$label,
-										{ctor: '[]'},
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html$text('Gog username:'),
-											_1: {
-												ctor: '::',
-												_0: A2(
-													_elm_lang$html$Html$br,
-													{ctor: '[]'},
-													{ctor: '[]'}),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$html$Html$text(loadedGogUsername),
-													_1: {
-														ctor: '::',
-														_0: A2(
-															_elm_lang$html$Html$br,
-															{ctor: '[]'},
-															{ctor: '[]'}),
-														_1: {
-															ctor: '::',
-															_0: A2(
-																_elm_lang$html$Html$input,
-																{
-																	ctor: '::',
-																	_0: _elm_lang$html$Html_Attributes$type_('text'),
-																	_1: {
-																		ctor: '::',
-																		_0: _elm_lang$html$Html_Attributes$name('username2'),
-																		_1: {
-																			ctor: '::',
-																			_0: _elm_lang$html$Html_Events$onInput(_user$project$Login$GogUsernameChange),
-																			_1: {
-																				ctor: '::',
-																				_0: _elm_lang$html$Html_Attributes$value(enteredGogUsername),
-																				_1: {ctor: '[]'}
-																			}
-																		}
-																	}
-																},
-																{ctor: '[]'}),
-															_1: {ctor: '[]'}
-														}
-													}
-												}
-											}
-										}),
-									_1: {ctor: '[]'}
-								}),
+							_0: A2(_user$project$Login$gogInput, loadedGogUsername, enteredGogUsername),
 							_1: {
 								ctor: '::',
 								_0: A2(
