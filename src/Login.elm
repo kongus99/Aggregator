@@ -4,7 +4,7 @@ import Html exposing (Html, button, div, text, form, br, input, span, label)
 import Html.Attributes exposing (action, type_, name, style, method, value, checked, disabled, class)
 import Html.Events exposing (onClick, onSubmit, onInput, onCheck)
 import Model exposing (..)
-import Router exposing (fetchUser, createUpdateUser, mainPageUrl, updateSteamAlternate)
+import Router exposing (routes, mainPageUrl)
 import Http
 
 
@@ -22,7 +22,7 @@ main =
 
 
 type alias Model =
-    { loadedUser : Maybe User, enteredUser : User, message : String }
+    { loadedUser : Maybe User, enteredUser : User, possibleUsers : List User, message : String }
 
 
 serializeUser : User -> List ( String, String )
@@ -32,9 +32,13 @@ serializeUser u =
         |> List.map (\( p1, p2 ) -> ( p1, Maybe.withDefault "" p2 ))
 
 
+emptyUser =
+    User Nothing (Just "") False (Just "")
+
+
 initialModel : Model
 initialModel =
-    Model Nothing (User Nothing (Just "") False (Just "")) ""
+    Model Nothing emptyUser [] ""
 
 
 
@@ -42,9 +46,10 @@ initialModel =
 
 
 type Msg
-    = FetchUser
+    = SetUser
     | CreateUpdateUser
     | UserFetched User
+    | UsersFetched (List User)
     | SteamUsernameChange SteamUsername
     | GogUsernameChange GogUserName
     | SteamAlternateChange Bool
@@ -54,34 +59,30 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        FetchUser ->
-            ( { model | message = "" }, serializeUser model.enteredUser |> fetchUser |> getResponse )
+        SetUser ->
+            let
+                loaded =
+                    List.head model.possibleUsers
+
+                entered =
+                    Maybe.withDefault model.enteredUser loaded
+            in
+                ( { model | loadedUser = loaded, enteredUser = entered, message = "" }, Cmd.none )
 
         CreateUpdateUser ->
-            ( { model | message = "" }, serializeUser model.enteredUser |> createUpdateUser |> getResponse )
+            ( { model | message = "" }, serializeUser model.enteredUser |> routes.login.createUpdate |> (getResponse UserFetched) )
 
         UserFetched u ->
             ( { model | loadedUser = Just u, enteredUser = u, message = "" }, Cmd.none )
 
-        SteamUsernameChange u ->
-            let
-                oldUser =
-                    model.enteredUser
+        UsersFetched u ->
+            ( { model | possibleUsers = u, message = "" }, Cmd.none )
 
-                newUser =
-                    { oldUser | steamUsername = Just u }
-            in
-                ( { model | enteredUser = newUser, message = "" }, Cmd.none )
+        SteamUsernameChange u ->
+            updateEnteredUser model routes.login.fetchSteam (\u -> \username -> { u | steamUsername = Just username }) u
 
         GogUsernameChange u ->
-            let
-                oldUser =
-                    model.enteredUser
-
-                newUser =
-                    { oldUser | gogUsername = Just u }
-            in
-                ( { model | enteredUser = newUser, message = "" }, Cmd.none )
+            updateEnteredUser model routes.login.fetchGog (\u -> \username -> { u | gogUsername = Just username }) u
 
         SteamAlternateChange c ->
             let
@@ -100,16 +101,33 @@ update msg model =
                                 ( p1, p2 )
                         )
                         args
+
+                sendUpdate u =
+                    serializeUser u |> changeAlternate |> routes.login.steamAlternate |> (getResponse UserFetched)
             in
-                ( { model | enteredUser = newUser, message = "" }, Maybe.map (\u -> serializeUser u |> changeAlternate |> updateSteamAlternate |> getResponse) model.loadedUser |> Maybe.withDefault Cmd.none )
+                ( { model | enteredUser = newUser, message = "" }, Maybe.map sendUpdate model.loadedUser |> Maybe.withDefault Cmd.none )
 
         ResponseError err ->
             ( { model | loadedUser = Nothing, message = toString err }, Cmd.none )
 
 
-getResponse : Http.Request User -> Cmd Msg
-getResponse request =
-    Http.send (Router.resolveResponse UserFetched ResponseError) request
+updateEnteredUser model method update username =
+    let
+        newUser =
+            update model.enteredUser username
+
+        cmd =
+            if String.length username > 1 then
+                serializeUser newUser |> method |> (getResponse UsersFetched)
+            else
+                Cmd.none
+    in
+        ( { model | enteredUser = newUser, message = "" }, cmd )
+
+
+getResponse : (a -> Msg) -> Http.Request a -> Cmd Msg
+getResponse msg request =
+    Http.send (Router.resolveResponse msg ResponseError) request
 
 
 
@@ -136,7 +154,7 @@ usernameForm model =
         ( enteredSteamUsername, enteredGogUsername, enteredSteamAlternate ) =
             userData (Just model.enteredUser)
     in
-        [ form [ onSubmit FetchUser ]
+        [ form [ onSubmit SetUser ]
             [ span [] [ text model.message ]
             , div [ class "form-group" ] [ label [] [ text "Steam username:", br [] [], text loadedSteamUsername, br [] [], input [ type_ "text", name "username1", onInput SteamUsernameChange, value enteredSteamUsername ] [] ] ]
             , div [ class "form-group" ] [ label [] [ text "Alternate Steam login:", br [] [], text <| toString loadedSteamAlternate, br [] [], input [ type_ "checkbox", name "Alternate", disabled <| model.loadedUser == Nothing, checked enteredSteamAlternate, onCheck SteamAlternateChange ] [] ] ]

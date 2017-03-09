@@ -9941,15 +9941,38 @@ var _user$project$Router$Addresses = F4(
 	function (a, b, c, d) {
 		return {login: a, main: b, gameOptions: c, comparison: d};
 	});
-var _user$project$Router$Login = F3(
-	function (a, b, c) {
-		return {fetch: a, createUpdate: b, steamAlternate: c};
+var _user$project$Router$Login = F4(
+	function (a, b, c, d) {
+		return {fetchSteam: a, fetchGog: b, createUpdate: c, steamAlternate: d};
 	});
-var _user$project$Router$login = A3(
+var _user$project$Router$login = A4(
 	_user$project$Router$Login,
-	_user$project$Router$generateAddress('login/fetch'),
-	_user$project$Router$generateAddress('login/createUpdate'),
-	_user$project$Router$generateAddress('login/steamAlternate'));
+	function (x) {
+		return A2(
+			_elm_lang$http$Http$get,
+			A2(_user$project$Router$generateAddress, 'login/fetchSteam', x),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedUserEntry));
+	},
+	function (x) {
+		return A2(
+			_elm_lang$http$Http$get,
+			A2(_user$project$Router$generateAddress, 'login/fetchGog', x),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedUserEntry));
+	},
+	function (x) {
+		return A3(
+			_elm_lang$http$Http$post,
+			A2(_user$project$Router$generateAddress, 'login/createUpdate', x),
+			_elm_lang$http$Http$emptyBody,
+			_user$project$Router$decodedUserEntry);
+	},
+	function (x) {
+		return A3(
+			_elm_lang$http$Http$post,
+			A2(_user$project$Router$generateAddress, 'login/steamAlternate', x),
+			_elm_lang$http$Http$emptyBody,
+			_user$project$Router$decodedUserEntry);
+	});
 var _user$project$Router$Main = F2(
 	function (a, b) {
 		return {fetch: a, page: b};
@@ -9977,26 +10000,6 @@ var _user$project$Router$comparison = A3(
 	_user$project$Router$generateAddress('comparison/data'),
 	_user$project$Router$generateAddress('comparison'));
 var _user$project$Router$routes = A4(_user$project$Router$Addresses, _user$project$Router$login, _user$project$Router$main_, _user$project$Router$gameOptions, _user$project$Router$comparison);
-var _user$project$Router$fetchUser = function (params) {
-	return A2(
-		_elm_lang$http$Http$get,
-		_user$project$Router$routes.login.fetch(params),
-		_user$project$Router$decodedUserEntry);
-};
-var _user$project$Router$createUpdateUser = function (params) {
-	return A3(
-		_elm_lang$http$Http$post,
-		_user$project$Router$routes.login.createUpdate(params),
-		_elm_lang$http$Http$emptyBody,
-		_user$project$Router$decodedUserEntry);
-};
-var _user$project$Router$updateSteamAlternate = function (params) {
-	return A3(
-		_elm_lang$http$Http$post,
-		_user$project$Router$routes.login.steamAlternate(params),
-		_elm_lang$http$Http$emptyBody,
-		_user$project$Router$decodedUserEntry);
-};
 var _user$project$Router$getUserGames = function (params) {
 	return A2(
 		_elm_lang$http$Http$get,
@@ -10135,6 +10138,12 @@ var _user$project$Login$mainPageLink = function (model) {
 			},
 			model.loadedUser));
 };
+var _user$project$Login$emptyUser = A4(
+	_user$project$Model$User,
+	_elm_lang$core$Maybe$Nothing,
+	_elm_lang$core$Maybe$Just(''),
+	false,
+	_elm_lang$core$Maybe$Just(''));
 var _user$project$Login$serializeUser = function (u) {
 	return A2(
 		_elm_lang$core$List$map,
@@ -10180,23 +10189,26 @@ var _user$project$Login$serializeUser = function (u) {
 				}
 			}));
 };
-var _user$project$Login$Model = F3(
-	function (a, b, c) {
-		return {loadedUser: a, enteredUser: b, message: c};
+var _user$project$Login$Model = F4(
+	function (a, b, c, d) {
+		return {loadedUser: a, enteredUser: b, possibleUsers: c, message: d};
 	});
-var _user$project$Login$initialModel = A3(
+var _user$project$Login$initialModel = A4(
 	_user$project$Login$Model,
 	_elm_lang$core$Maybe$Nothing,
-	A4(
-		_user$project$Model$User,
-		_elm_lang$core$Maybe$Nothing,
-		_elm_lang$core$Maybe$Just(''),
-		false,
-		_elm_lang$core$Maybe$Just('')),
+	_user$project$Login$emptyUser,
+	{ctor: '[]'},
 	'');
 var _user$project$Login$ResponseError = function (a) {
 	return {ctor: 'ResponseError', _0: a};
 };
+var _user$project$Login$getResponse = F2(
+	function (msg, request) {
+		return A2(
+			_elm_lang$http$Http$send,
+			A2(_user$project$Router$resolveResponse, msg, _user$project$Login$ResponseError),
+			request);
+	});
 var _user$project$Login$SteamAlternateChange = function (a) {
 	return {ctor: 'SteamAlternateChange', _0: a};
 };
@@ -10206,28 +10218,43 @@ var _user$project$Login$GogUsernameChange = function (a) {
 var _user$project$Login$SteamUsernameChange = function (a) {
 	return {ctor: 'SteamUsernameChange', _0: a};
 };
+var _user$project$Login$UsersFetched = function (a) {
+	return {ctor: 'UsersFetched', _0: a};
+};
+var _user$project$Login$updateEnteredUser = F4(
+	function (model, method, update, username) {
+		var newUser = A2(update, model.enteredUser, username);
+		var cmd = (_elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$String$length(username),
+			1) > 0) ? A2(
+			_user$project$Login$getResponse,
+			_user$project$Login$UsersFetched,
+			method(
+				_user$project$Login$serializeUser(newUser))) : _elm_lang$core$Platform_Cmd$none;
+		return {
+			ctor: '_Tuple2',
+			_0: _elm_lang$core$Native_Utils.update(
+				model,
+				{enteredUser: newUser, message: ''}),
+			_1: cmd
+		};
+	});
 var _user$project$Login$UserFetched = function (a) {
 	return {ctor: 'UserFetched', _0: a};
-};
-var _user$project$Login$getResponse = function (request) {
-	return A2(
-		_elm_lang$http$Http$send,
-		A2(_user$project$Router$resolveResponse, _user$project$Login$UserFetched, _user$project$Login$ResponseError),
-		request);
 };
 var _user$project$Login$update = F2(
 	function (msg, model) {
 		var _p5 = msg;
 		switch (_p5.ctor) {
-			case 'FetchUser':
+			case 'SetUser':
+				var loaded = _elm_lang$core$List$head(model.possibleUsers);
+				var entered = A2(_elm_lang$core$Maybe$withDefault, model.enteredUser, loaded);
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{message: ''}),
-					_1: _user$project$Login$getResponse(
-						_user$project$Router$fetchUser(
-							_user$project$Login$serializeUser(model.enteredUser)))
+						{loadedUser: loaded, enteredUser: entered, message: ''}),
+					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'CreateUpdateUser':
 				return {
@@ -10235,8 +10262,10 @@ var _user$project$Login$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{message: ''}),
-					_1: _user$project$Login$getResponse(
-						_user$project$Router$createUpdateUser(
+					_1: A2(
+						_user$project$Login$getResponse,
+						_user$project$Login$UserFetched,
+						_user$project$Router$routes.login.createUpdate(
 							_user$project$Login$serializeUser(model.enteredUser)))
 				};
 			case 'UserFetched':
@@ -10252,34 +10281,42 @@ var _user$project$Login$update = F2(
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
+			case 'UsersFetched':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{possibleUsers: _p5._0, message: ''}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 			case 'SteamUsernameChange':
-				var oldUser = model.enteredUser;
-				var newUser = _elm_lang$core$Native_Utils.update(
-					oldUser,
-					{
-						steamUsername: _elm_lang$core$Maybe$Just(_p5._0)
-					});
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{enteredUser: newUser, message: ''}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
+				return A4(
+					_user$project$Login$updateEnteredUser,
+					model,
+					_user$project$Router$routes.login.fetchSteam,
+					F2(
+						function (u, username) {
+							return _elm_lang$core$Native_Utils.update(
+								u,
+								{
+									steamUsername: _elm_lang$core$Maybe$Just(username)
+								});
+						}),
+					_p5._0);
 			case 'GogUsernameChange':
-				var oldUser = model.enteredUser;
-				var newUser = _elm_lang$core$Native_Utils.update(
-					oldUser,
-					{
-						gogUsername: _elm_lang$core$Maybe$Just(_p5._0)
-					});
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{enteredUser: newUser, message: ''}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
+				return A4(
+					_user$project$Login$updateEnteredUser,
+					model,
+					_user$project$Router$routes.login.fetchGog,
+					F2(
+						function (u, username) {
+							return _elm_lang$core$Native_Utils.update(
+								u,
+								{
+									gogUsername: _elm_lang$core$Maybe$Just(username)
+								});
+						}),
+					_p5._0);
 			case 'SteamAlternateChange':
 				var _p10 = _p5._0;
 				var changeAlternate = function (args) {
@@ -10297,6 +10334,14 @@ var _user$project$Login$update = F2(
 						},
 						args);
 				};
+				var sendUpdate = function (u) {
+					return A2(
+						_user$project$Login$getResponse,
+						_user$project$Login$UserFetched,
+						_user$project$Router$routes.login.steamAlternate(
+							changeAlternate(
+								_user$project$Login$serializeUser(u))));
+				};
 				var oldUser = model.enteredUser;
 				var newUser = _elm_lang$core$Native_Utils.update(
 					oldUser,
@@ -10309,15 +10354,7 @@ var _user$project$Login$update = F2(
 					_1: A2(
 						_elm_lang$core$Maybe$withDefault,
 						_elm_lang$core$Platform_Cmd$none,
-						A2(
-							_elm_lang$core$Maybe$map,
-							function (u) {
-								return _user$project$Login$getResponse(
-									_user$project$Router$updateSteamAlternate(
-										changeAlternate(
-											_user$project$Login$serializeUser(u))));
-							},
-							model.loadedUser))
+						A2(_elm_lang$core$Maybe$map, sendUpdate, model.loadedUser))
 				};
 			default:
 				return {
@@ -10377,7 +10414,7 @@ var _user$project$Login$createUpdateButton = function (model) {
 			},
 			model.loadedUser));
 };
-var _user$project$Login$FetchUser = {ctor: 'FetchUser'};
+var _user$project$Login$SetUser = {ctor: 'SetUser'};
 var _user$project$Login$usernameForm = function (model) {
 	var userData = function (maybeUser) {
 		return {
@@ -10426,7 +10463,7 @@ var _user$project$Login$usernameForm = function (model) {
 			_elm_lang$html$Html$form,
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html_Events$onSubmit(_user$project$Login$FetchUser),
+				_0: _elm_lang$html$Html_Events$onSubmit(_user$project$Login$SetUser),
 				_1: {ctor: '[]'}
 			},
 			{

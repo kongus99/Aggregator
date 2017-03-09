@@ -25,11 +25,19 @@ class LoginController @Inject()(client: WSClient, configuration: Configuration, 
     }
   }
 
-  def fetch(steamUsername: Option[String], gogUsername: Option[String]) = Action.async {
+  def fetchBySteam(steamUsername: String) = Action.async {
     for{
-      u <- tables.getUserByLogin(steamUsername, gogUsername)
+      users <- tables.getBySteamLogin(steamUsername)
     } yield{
-      Ok(Json.toJson(u))
+      Ok(Json.toJson(users))
+    }
+  }
+
+  def fetchByGog(gogUsername: String) = Action.async {
+    for{
+      users <- tables.getByGogLogin(gogUsername)
+    } yield{
+      Ok(Json.toJson(users))
     }
   }
 

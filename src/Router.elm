@@ -1,6 +1,6 @@
-module Router exposing (getUserGames, toggleSelected, comparisonData, resolveResponse, fetchUser, createUpdateUser, updateSteamAlternate, mainPageUrl, refreshSocketUrl, fetchGameOptions, saveSelectedSearchResult, fetchNewSearchResults)
+module Router exposing (routes, MethodGenerator, getUserGames, toggleSelected, comparisonData, resolveResponse, mainPageUrl, refreshSocketUrl, fetchGameOptions, saveSelectedSearchResult, fetchNewSearchResults)
 
-import Http
+import Http exposing (Request)
 import Json.Decode as Json exposing (..)
 import Model exposing (..)
 import GameEntry exposing (GameEntry)
@@ -9,18 +9,6 @@ import Erl
 
 
 --METHODS
-
-
-fetchUser params =
-    Http.get (routes.login.fetch params) decodedUserEntry
-
-
-createUpdateUser params =
-    Http.post (routes.login.createUpdate params) Http.emptyBody decodedUserEntry
-
-
-updateSteamAlternate params =
-    Http.post (routes.login.steamAlternate params) Http.emptyBody decodedUserEntry
 
 
 getUserGames params =
@@ -55,12 +43,20 @@ type alias UrlGenerator =
     List ( String, String ) -> String
 
 
+type alias MethodGenerator a =
+    List ( String, String ) -> Request a
+
+
+
+--String -> Body -> Decode.Decoder a -> Request a
+
+
 type alias Addresses =
     { login : Login, main : Main, gameOptions : Options, comparison : Comparison }
 
 
 type alias Login =
-    { fetch : UrlGenerator, createUpdate : UrlGenerator, steamAlternate : UrlGenerator }
+    { fetchSteam : MethodGenerator (List User), fetchGog : MethodGenerator (List User), createUpdate : MethodGenerator User, steamAlternate : MethodGenerator User }
 
 
 type alias Main =
@@ -76,7 +72,11 @@ type alias Comparison =
 
 
 login =
-    Login (generateAddress "login/fetch") (generateAddress "login/createUpdate") (generateAddress "login/steamAlternate")
+    Login
+        (\x -> Http.get (generateAddress "login/fetchSteam" x) (list decodedUserEntry))
+        (\x -> Http.get (generateAddress "login/fetchGog" x) (list decodedUserEntry))
+        (\x -> Http.post (generateAddress "login/createUpdate" x) Http.emptyBody decodedUserEntry)
+        (\x -> Http.post (generateAddress "login/steamAlternate" x) Http.emptyBody decodedUserEntry)
 
 
 main_ =

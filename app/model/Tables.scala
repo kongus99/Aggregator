@@ -284,11 +284,10 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
   def getAllUsers: Future[Seq[User]] =
     db.run(userData.result)
 
-  def getUserByLogin(steamLogin : Option[String], gogLogin : Option[String]) : Future[Option[User]] = {
-    def getBySteamLogin(l : String) = db.run(userData.filter(_.steamLogin.like("%" + l + "%")).result.headOption)
-    def getByGogLogin(l : String) = db.run(userData.filter(_.gogLogin.like("%" + l + "%")).result.headOption)
-    steamLogin.map(getBySteamLogin).getOrElse(gogLogin.map(getByGogLogin).getOrElse(Future{None}))
-  }
+  def getByGogLogin(l : String): Future[Seq[User]] = db.run(userData.filter(_.gogLogin.like("%" + l + "%")).result)
+
+  def getBySteamLogin(l : String): Future[Seq[User]] = db.run(userData.filter(_.steamLogin.like("%" + l + "%")).result)
+
 
   def getSteamUser(username: String) : Future[Option[User]] = db.run(userData.filter(_.steamLogin.like(username)).result.headOption)
 

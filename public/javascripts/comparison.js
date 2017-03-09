@@ -10976,15 +10976,38 @@ var _user$project$Router$Addresses = F4(
 	function (a, b, c, d) {
 		return {login: a, main: b, gameOptions: c, comparison: d};
 	});
-var _user$project$Router$Login = F3(
-	function (a, b, c) {
-		return {fetch: a, createUpdate: b, steamAlternate: c};
+var _user$project$Router$Login = F4(
+	function (a, b, c, d) {
+		return {fetchSteam: a, fetchGog: b, createUpdate: c, steamAlternate: d};
 	});
-var _user$project$Router$login = A3(
+var _user$project$Router$login = A4(
 	_user$project$Router$Login,
-	_user$project$Router$generateAddress('login/fetch'),
-	_user$project$Router$generateAddress('login/createUpdate'),
-	_user$project$Router$generateAddress('login/steamAlternate'));
+	function (x) {
+		return A2(
+			_elm_lang$http$Http$get,
+			A2(_user$project$Router$generateAddress, 'login/fetchSteam', x),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedUserEntry));
+	},
+	function (x) {
+		return A2(
+			_elm_lang$http$Http$get,
+			A2(_user$project$Router$generateAddress, 'login/fetchGog', x),
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedUserEntry));
+	},
+	function (x) {
+		return A3(
+			_elm_lang$http$Http$post,
+			A2(_user$project$Router$generateAddress, 'login/createUpdate', x),
+			_elm_lang$http$Http$emptyBody,
+			_user$project$Router$decodedUserEntry);
+	},
+	function (x) {
+		return A3(
+			_elm_lang$http$Http$post,
+			A2(_user$project$Router$generateAddress, 'login/steamAlternate', x),
+			_elm_lang$http$Http$emptyBody,
+			_user$project$Router$decodedUserEntry);
+	});
 var _user$project$Router$Main = F2(
 	function (a, b) {
 		return {fetch: a, page: b};
@@ -11012,26 +11035,6 @@ var _user$project$Router$comparison = A3(
 	_user$project$Router$generateAddress('comparison/data'),
 	_user$project$Router$generateAddress('comparison'));
 var _user$project$Router$routes = A4(_user$project$Router$Addresses, _user$project$Router$login, _user$project$Router$main_, _user$project$Router$gameOptions, _user$project$Router$comparison);
-var _user$project$Router$fetchUser = function (params) {
-	return A2(
-		_elm_lang$http$Http$get,
-		_user$project$Router$routes.login.fetch(params),
-		_user$project$Router$decodedUserEntry);
-};
-var _user$project$Router$createUpdateUser = function (params) {
-	return A3(
-		_elm_lang$http$Http$post,
-		_user$project$Router$routes.login.createUpdate(params),
-		_elm_lang$http$Http$emptyBody,
-		_user$project$Router$decodedUserEntry);
-};
-var _user$project$Router$updateSteamAlternate = function (params) {
-	return A3(
-		_elm_lang$http$Http$post,
-		_user$project$Router$routes.login.steamAlternate(params),
-		_elm_lang$http$Http$emptyBody,
-		_user$project$Router$decodedUserEntry);
-};
 var _user$project$Router$getUserGames = function (params) {
 	return A2(
 		_elm_lang$http$Http$get,

@@ -7,7 +7,8 @@ GET         /                                        controllers.LoginController
 GET         /refreshSocket                           controllers.RefreshController.socket
 #LOGIN
 GET         /login                                   controllers.LoginController.init
-GET         /login/fetch                             controllers.LoginController.fetch(steamUsername : Option[String], gogUsername : Option[String])
+GET         /login/fetchSteam                        controllers.LoginController.fetchBySteam(steamUsername : String)
+GET         /login/fetchGog                          controllers.LoginController.fetchByGog(gogUsername : String)
 POST        /login/createUpdate                      controllers.LoginController.createUpdate(steamUsername : Option[String], gogUsername : Option[String])
 POST        /login/steamAlternate                    controllers.LoginController.steamAlternate(userId : Long, steamAlternate : Boolean)
 #MAIN
@@ -15,7 +16,7 @@ GET         /main                                    controllers.MainController.
 GET         /main/fetch                              controllers.MainController.getUserGames(userId : Long, sources : services.GameSources.GameSources)
 #OPTIONS
 GET         /gameOptions/fetch                       controllers.GameOptionsController.fetch(userId : Long, steamId : Long)
-GET         /gameOptions/fetchSearchResults           controllers.GameOptionsController.fetchSearch(userId : Long, steamId : Long , query : String, site : String)
+GET         /gameOptions/fetchSearchResults          controllers.GameOptionsController.fetchSearch(userId : Long, steamId : Long , query : String, site : String)
 POST        /gameOptions/changeSelectedSearch        controllers.GameOptionsController.changeSearch(userId : Long, steamId : Long, site : String, selectedResult : Option[String])
 #COMPARISON
 GET         /comparison                              controllers.ComparisonController.main
