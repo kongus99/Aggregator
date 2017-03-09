@@ -27,17 +27,9 @@ type alias Model =
 
 serializeUser : User -> List ( String, String )
 serializeUser u =
-    [ ( "steamUsername", getSteamUserName u ), ( "steamAlternate", String.toLower <| toString u.steamAlternate ), ( "gogUsername", getGogUserName u ) ]
-
-
-getSteamUserName : User -> String
-getSteamUserName user =
-    Maybe.withDefault "" user.steamUsername
-
-
-getGogUserName : User -> String
-getGogUserName user =
-    Maybe.withDefault "" user.gogUsername
+    [ ( "steamUsername", u.steamUsername ), ( "steamAlternate", toString u.steamAlternate |> String.toLower |> Just ), ( "gogUsername", u.gogUsername ), ( "userId", Maybe.map toString u.id ) ]
+        |> List.filter (\( p1, p2 ) -> not (p2 == Nothing))
+        |> List.map (\( p1, p2 ) -> ( p1, Maybe.withDefault "" p2 ))
 
 
 initialModel : Model
@@ -99,13 +91,17 @@ update msg model =
                 newUser =
                     { oldUser | steamAlternate = c }
 
-                userId =
-                    (Maybe.andThen (\u -> u.id) model.loadedUser)
-
-                cmd =
-                    Maybe.withDefault Cmd.none <| Maybe.map (\id -> [ ( "userId", toString id ), ( "steamAlternate", String.toLower <| toString c ) ] |> updateSteamAlternate |> getResponse) userId
+                changeAlternate args =
+                    List.map
+                        (\( p1, p2 ) ->
+                            if p1 == "steamAlternate" then
+                                ( p1, toString c |> String.toLower )
+                            else
+                                ( p1, p2 )
+                        )
+                        args
             in
-                ( { model | enteredUser = newUser, message = "" }, cmd )
+                ( { model | enteredUser = newUser, message = "" }, Maybe.map (\u -> serializeUser u |> changeAlternate |> updateSteamAlternate |> getResponse) model.loadedUser |> Maybe.withDefault Cmd.none )
 
         ResponseError err ->
             ( { model | loadedUser = Nothing, message = toString err }, Cmd.none )
@@ -131,20 +127,20 @@ createUpdateButton model =
 
 usernameForm model =
     let
-        loadedSteamUsername =
-            (Maybe.withDefault "" <| Maybe.map getSteamUserName model.loadedUser)
+        userData maybeUser =
+            ( Maybe.andThen .steamUsername maybeUser |> Maybe.withDefault "", Maybe.andThen .gogUsername maybeUser |> Maybe.withDefault "", Maybe.map .steamAlternate maybeUser |> Maybe.withDefault False )
 
-        loadedGogUsername =
-            (Maybe.withDefault "" <| Maybe.map getGogUserName model.loadedUser)
+        ( loadedSteamUsername, loadedGogUsername, loadedSteamAlternate ) =
+            userData model.loadedUser
 
-        loadedSteamAlternate =
-            (Maybe.withDefault "" <| Maybe.map (\u -> toString u.steamAlternate) model.loadedUser)
+        ( enteredSteamUsername, enteredGogUsername, enteredSteamAlternate ) =
+            userData (Just model.enteredUser)
     in
         [ form [ onSubmit FetchUser ]
             [ span [] [ text model.message ]
-            , div [ class "form-group" ] [ label [] [ text "Steam username:", br [] [], text loadedSteamUsername, br [] [], input [ type_ "text", name "username1", onInput SteamUsernameChange, value <| getSteamUserName model.enteredUser ] [] ] ]
-            , div [ class "form-group" ] [ label [] [ text "Alternate Steam login:", br [] [], text loadedSteamAlternate, br [] [], input [ type_ "checkbox", name "Alternate", disabled <| model.loadedUser == Nothing, checked model.enteredUser.steamAlternate, onCheck SteamAlternateChange ] [] ] ]
-            , div [ class "form-group" ] [ label [] [ text "Gog username:", br [] [], text loadedGogUsername, br [] [], input [ type_ "text", name "username2", onInput GogUsernameChange, value <| getGogUserName model.enteredUser ] [] ] ]
+            , div [ class "form-group" ] [ label [] [ text "Steam username:", br [] [], text loadedSteamUsername, br [] [], input [ type_ "text", name "username1", onInput SteamUsernameChange, value enteredSteamUsername ] [] ] ]
+            , div [ class "form-group" ] [ label [] [ text "Alternate Steam login:", br [] [], text <| toString loadedSteamAlternate, br [] [], input [ type_ "checkbox", name "Alternate", disabled <| model.loadedUser == Nothing, checked enteredSteamAlternate, onCheck SteamAlternateChange ] [] ] ]
+            , div [ class "form-group" ] [ label [] [ text "Gog username:", br [] [], text loadedGogUsername, br [] [], input [ type_ "text", name "username2", onInput GogUsernameChange, value enteredGogUsername ] [] ] ]
             , div [ class "form-group" ] [ input [ type_ "submit", style [ ( "display", "none" ) ] ] [] ]
             ]
         , br [] []
