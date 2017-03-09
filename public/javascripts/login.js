@@ -9628,7 +9628,7 @@ var _sporto$erl$Erl$Url = function (a) {
 
 var _user$project$Model$User = F4(
 	function (a, b, c, d) {
-		return {id: a, username1: b, steamAlternate: c, username2: d};
+		return {id: a, steamUsername: b, steamAlternate: c, gogUsername: d};
 	});
 var _user$project$Model$GogEntry = F5(
 	function (a, b, c, d, e) {
@@ -10136,10 +10136,10 @@ var _user$project$Login$mainPageLink = function (model) {
 			model.loadedUser));
 };
 var _user$project$Login$getGogUserName = function (user) {
-	return A2(_elm_lang$core$Maybe$withDefault, '', user.username2);
+	return A2(_elm_lang$core$Maybe$withDefault, '', user.gogUsername);
 };
 var _user$project$Login$getSteamUserName = function (user) {
-	return A2(_elm_lang$core$Maybe$withDefault, '', user.username1);
+	return A2(_elm_lang$core$Maybe$withDefault, '', user.steamUsername);
 };
 var _user$project$Login$serializeUser = function (u) {
 	return {
@@ -10246,7 +10246,7 @@ var _user$project$Login$update = F2(
 				var newUser = _elm_lang$core$Native_Utils.update(
 					oldUser,
 					{
-						username1: _elm_lang$core$Maybe$Just(_p1._0)
+						steamUsername: _elm_lang$core$Maybe$Just(_p1._0)
 					});
 				return {
 					ctor: '_Tuple2',
@@ -10260,7 +10260,7 @@ var _user$project$Login$update = F2(
 				var newUser = _elm_lang$core$Native_Utils.update(
 					oldUser,
 					{
-						username2: _elm_lang$core$Maybe$Just(_p1._0)
+						gogUsername: _elm_lang$core$Maybe$Just(_p1._0)
 					});
 				return {
 					ctor: '_Tuple2',

@@ -10663,7 +10663,7 @@ var _user$project$HtmlHelpers$onSelect = function (msg) {
 
 var _user$project$Model$User = F4(
 	function (a, b, c, d) {
-		return {id: a, username1: b, steamAlternate: c, username2: d};
+		return {id: a, steamUsername: b, steamAlternate: c, gogUsername: d};
 	});
 var _user$project$Model$GogEntry = F5(
 	function (a, b, c, d, e) {

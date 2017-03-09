@@ -32,12 +32,12 @@ serializeUser u =
 
 getSteamUserName : User -> String
 getSteamUserName user =
-    Maybe.withDefault "" user.username1
+    Maybe.withDefault "" user.steamUsername
 
 
 getGogUserName : User -> String
 getGogUserName user =
-    Maybe.withDefault "" user.username2
+    Maybe.withDefault "" user.gogUsername
 
 
 initialModel : Model
@@ -77,7 +77,7 @@ update msg model =
                     model.enteredUser
 
                 newUser =
-                    { oldUser | username1 = Just u }
+                    { oldUser | steamUsername = Just u }
             in
                 ( { model | enteredUser = newUser, message = "" }, Cmd.none )
 
@@ -87,7 +87,7 @@ update msg model =
                     model.enteredUser
 
                 newUser =
-                    { oldUser | username2 = Just u }
+                    { oldUser | gogUsername = Just u }
             in
                 ( { model | enteredUser = newUser, message = "" }, Cmd.none )
 

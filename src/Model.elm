@@ -23,7 +23,7 @@ type alias GogUserName =
 
 
 type alias User =
-    { id : Maybe Int, username1 : Maybe SteamUsername, steamAlternate : Bool, username2 : Maybe GogUserName }
+    { id : Maybe Int, steamUsername : Maybe SteamUsername, steamAlternate : Bool, gogUsername : Maybe GogUserName }
 
 
 type alias GogEntry =
