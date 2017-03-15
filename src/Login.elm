@@ -6,6 +6,7 @@ import Dom
 import Html exposing (Html, button, div, text, form, br, input, span, label)
 import Html.Attributes exposing (action, checked, class, classList, disabled, id, method, name, style, type_, value)
 import Html.Events exposing (keyCode, onBlur, onCheck, onClick, onFocus, onInput, onSubmit, onWithOptions)
+import LoginData exposing (LoginData)
 import Model exposing (..)
 import Router exposing (routes, mainPageUrl)
 import Http
@@ -31,10 +32,6 @@ subscriptions model =
 -- MODEL
 
 
-type alias LoginData =
-    { loadedUser : Maybe User, typedUser : User, selectedUser : Int, possibleUsers : Array User }
-
-
 type alias Model =
     { data : LoginData, message : String, autoState : Autocomplete.State, activeInput : Maybe GameOn, showHowMany : Int }
 
@@ -46,38 +43,15 @@ serializeUser u =
         |> List.map (\( p1, p2 ) -> ( p1, Maybe.withDefault "" p2 ))
 
 
-emptyUser : User
-emptyUser =
-    User Nothing (Just "") False (Just "")
-
-
-updateLoginData : (LoginData -> LoginData) -> Model -> Model
-updateLoginData updater model =
-    { model | data = updater model.data }
-
-
 initialModel : Model
 initialModel =
-    Model (LoginData Nothing emptyUser -1 Array.empty) "" Autocomplete.empty Nothing 5
-
-
-idGetter : Maybe GameOn -> User -> String
-idGetter activeInput user =
-    activeInput
-        |> Maybe.andThen
-            (\i ->
-                if i == Steam then
-                    user.steamUsername
-                else
-                    user.gogUsername
-            )
-        |> Maybe.withDefault ""
+    Model LoginData.emptyLoginData "" Autocomplete.empty Nothing 5
 
 
 updateConfig : Maybe GameOn -> Autocomplete.UpdateConfig Msg User
 updateConfig activeInput =
     Autocomplete.updateConfig
-        { toId = (idGetter activeInput)
+        { toId = (LoginData.idGetter activeInput)
         , onKeyDown =
             \code maybeId ->
                 if code == 38 || code == 40 then
@@ -110,7 +84,6 @@ type Msg
     | GogChange GogUserName
     | SteamGainFocus
     | GogGainFocus
-    | FocusLost
     | SteamAlternateChange Bool
     | ResponseError Http.Error
     | NoOp
@@ -125,24 +98,17 @@ update msg model =
 
         SelectUser name ->
             let
-                y =
-                    Debug.log "yyy" name
-
-                index =
-                    model.data.possibleUsers |> Array.toIndexedList |> List.filter (\( i, u ) -> idGetter model.activeInput u == name) |> List.head |> Maybe.map Tuple.first |> Maybe.withDefault -1
-
-                maybeUser =
-                    model.data.possibleUsers |> Array.get index |> Debug.log "xxx"
+                newData =
+                    LoginData.selectUser model.activeInput name model.data
             in
-                ({ model | message = "", activeInput = Nothing } |> updateLoginData (\data -> { data | loadedUser = maybeUser, typedUser = maybeUser |> Maybe.withDefault data.typedUser, selectedUser = index }))
-                    ! []
+                { model | message = "", activeInput = Nothing, data = newData } ! []
 
         PreviewUser name ->
             let
-                index =
-                    model.data.possibleUsers |> Array.toIndexedList |> List.filter (\( i, u ) -> idGetter model.activeInput u == name) |> List.head |> Maybe.map Tuple.first |> Maybe.withDefault -1
+                newData =
+                    LoginData.previewUser model.activeInput name model.data
             in
-                ({ model | message = "" } |> updateLoginData (\data -> { data | selectedUser = index })) ! []
+                { model | message = "", data = newData } ! []
 
         SetAutoState autoMsg ->
             let
@@ -163,24 +129,16 @@ update msg model =
             { model | message = "" } ! [ serializeUser u |> routes.login.createUpdate |> (getResponse UserFetched) ]
 
         UserFetched u ->
-            ({ model | message = "" } |> updateLoginData (\data -> { data | loadedUser = Just u, typedUser = u, selectedUser = -1, possibleUsers = Array.fromList [] })) ! []
+            { model | message = "", data = LoginData.setUser u model.data } ! []
 
         UsersFetched users ->
-            ({ model | message = "" } |> updateLoginData (\data -> { data | selectedUser = 0, possibleUsers = Array.fromList users })) ! []
+            { model | message = "", data = LoginData.setPossibleUsers users model.data } ! []
 
         SteamChange u ->
-            let
-                newModel =
-                    { model | message = "" } |> updateLoginData (\data -> { data | typedUser = (\user -> { user | steamUsername = Just u }) data.typedUser })
-            in
-                newModel ! [ sendUsersRequest routes.login.fetchSteam newModel.data.typedUser u ]
+            { model | message = "", data = LoginData.updateSteamUsername u model.data } ! []
 
         GogChange u ->
-            let
-                newModel =
-                    { model | message = "" } |> updateLoginData (\data -> { data | typedUser = (\user -> { user | gogUsername = Just u }) data.typedUser })
-            in
-                newModel ! [ sendUsersRequest routes.login.fetchGog newModel.data.typedUser u ]
+            { model | message = "", data = LoginData.updateGogUsername u model.data } ! []
 
         SteamGainFocus ->
             { model
@@ -204,9 +162,6 @@ update msg model =
             }
                 ! [ sendUsersRequest routes.login.fetchGog model.data.typedUser (Maybe.withDefault "" model.data.typedUser.gogUsername) ]
 
-        FocusLost ->
-            { model | message = "", activeInput = Nothing } ! []
-
         SteamAlternateChange c ->
             let
                 oldUser =
@@ -229,7 +184,7 @@ update msg model =
                     serializeUser u |> changeAlternate |> routes.login.steamAlternate |> (getResponse UserFetched)
 
                 newModel =
-                    { model | message = "" } |> updateLoginData (\data -> { data | typedUser = newUser })
+                    { model | message = "", data = LoginData.setUser newUser model.data }
             in
                 newModel ! [ Maybe.map sendUpdate newModel.data.loadedUser |> Maybe.withDefault Cmd.none ]
 
@@ -241,7 +196,7 @@ update msg model =
 
 
 sendUsersRequest method user username =
-    if String.length username == 2 then
+    if String.length username == 0 then
         serializeUser user |> method |> (getResponse UsersFetched)
     else
         Cmd.none
@@ -262,13 +217,13 @@ viewConfig activeInput =
         customizedLi keySelected mouseSelected user =
             { attributes =
                 [ classList [ ( "autocomplete-item", True ), ( "key-selected", keySelected || mouseSelected ) ]
-                , id (idGetter activeInput user)
+                , id (LoginData.idGetter activeInput user)
                 ]
-            , children = [ Html.text (idGetter activeInput user) ]
+            , children = [ Html.text (LoginData.idGetter activeInput user) ]
             }
     in
         Autocomplete.viewConfig
-            { toId = (idGetter activeInput)
+            { toId = (LoginData.idGetter activeInput)
             , ul = [ class "autocomplete-list" ]
             , li = customizedLi
             }
