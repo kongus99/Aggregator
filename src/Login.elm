@@ -33,7 +33,7 @@ subscriptions model =
 
 
 type alias Model =
-    { data : LoginData, message : String, autoState : Autocomplete.State, activeInput : Maybe GameOn, showHowMany : Int }
+    { data : LoginData, message : String, autoState : Autocomplete.State, showHowMany : Int }
 
 
 serializeUser : User -> List ( String, String )
@@ -45,7 +45,7 @@ serializeUser u =
 
 initialModel : Model
 initialModel =
-    Model LoginData.emptyLoginData "" Autocomplete.empty Nothing 5
+    Model LoginData.emptyLoginData "" Autocomplete.empty 5
 
 
 updateConfig : Maybe GameOn -> Autocomplete.UpdateConfig Msg User
@@ -99,7 +99,7 @@ update msg model =
         SetAutoState autoMsg ->
             let
                 ( newState, maybeMsg ) =
-                    Autocomplete.update (updateConfig model.activeInput) autoMsg model.showHowMany model.autoState (Array.toList model.data.possibleUsers)
+                    Autocomplete.update (updateConfig model.data.activeUsername) autoMsg model.showHowMany model.autoState (Array.toList model.data.possibleUsers)
 
                 newModel =
                     { model | autoState = newState }
@@ -112,13 +112,14 @@ update msg model =
                         update updateMsg newModel
 
         SelectUser name ->
-            { model | message = "", activeInput = Nothing, data = LoginData.selectUser model.activeInput name model.data } ! []
+            { model | message = "", data = LoginData.selectUser name model.data } ! []
 
         PreviewUser name ->
-            { model | message = "", data = LoginData.previewUser model.activeInput name model.data } ! []
+            { model | message = "", data = LoginData.previewUser name model.data } ! []
 
         CreateUpdateUser u ->
-            { model | message = "" } ! [ serializeUser u |> routes.login.createUpdate |> (getResponse UserFetched) ]
+            { model | message = "" }
+                ! [ serializeUser u |> routes.login.createUpdate |> (getResponse UserFetched) ]
 
         UserFetched u ->
             { model | message = "", data = LoginData.setUser u model.data } ! []
@@ -133,25 +134,11 @@ update msg model =
             { model | message = "", data = LoginData.updateGogUsername u model.data } ! []
 
         SteamGainFocus ->
-            { model
-                | message = ""
-                , activeInput =
-                    if not model.data.userLoaded then
-                        Just Steam
-                    else
-                        Nothing
-            }
+            { model | message = "", data = LoginData.changeActiveUsername Steam model.data }
                 ! [ sendUsersRequest routes.login.fetchSteam model.data.user (Maybe.withDefault "" model.data.user.steamUsername) ]
 
         GogGainFocus ->
-            { model
-                | message = ""
-                , activeInput =
-                    if not model.data.userLoaded then
-                        Just Gog
-                    else
-                        Nothing
-            }
+            { model | message = "", data = LoginData.changeActiveUsername Gog model.data }
                 ! [ sendUsersRequest routes.login.fetchGog model.data.user (Maybe.withDefault "" model.data.user.gogUsername) ]
 
         SteamAlternateChange c ->
@@ -269,11 +256,11 @@ alternateSteamInput data =
 
 
 steamInput model typed =
-    usernameInput model (model.activeInput == Just Steam) "Steam username:" SteamChange SteamGainFocus typed
+    usernameInput model (model.data.activeUsername == Just Steam) "Steam username:" SteamChange SteamGainFocus typed
 
 
 gogInput model typed =
-    usernameInput model (model.activeInput == Just Gog) "Gog username:" GogChange GogGainFocus typed
+    usernameInput model (model.data.activeUsername == Just Gog) "Gog username:" GogChange GogGainFocus typed
 
 
 usernameInput model show name inputMsg focusMsg typed =
@@ -318,7 +305,7 @@ usernameInput model show name inputMsg focusMsg typed =
                     ]
                     []
                 , if show then
-                    Html.map SetAutoState (Autocomplete.view (viewConfig model.activeInput) model.showHowMany model.autoState (Array.toList model.data.possibleUsers))
+                    Html.map SetAutoState (Autocomplete.view (viewConfig model.data.activeUsername) model.showHowMany model.autoState (Array.toList model.data.possibleUsers))
                   else
                     div [] []
                 ]

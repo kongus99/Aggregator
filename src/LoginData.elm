@@ -1,11 +1,11 @@
-module LoginData exposing (LoginData, emptyLoginData, idGetter, selectUser, previewUser, setUser, setPossibleUsers, updateSteamUsername, updateGogUsername)
+module LoginData exposing (LoginData, emptyLoginData, idGetter, selectUser, previewUser, setUser, setPossibleUsers, updateSteamUsername, updateGogUsername, changeActiveUsername)
 
 import Array exposing (Array)
 import Model exposing (GameOn(Steam), User)
 
 
 type alias LoginData =
-    { userLoaded : Bool, user : User, selectedUser : Int, possibleUsers : Array User }
+    { userLoaded : Bool, user : User, selectedUser : Int, possibleUsers : Array User, activeUsername : Maybe GameOn }
 
 
 emptyUser : User
@@ -15,7 +15,7 @@ emptyUser =
 
 emptyLoginData : LoginData
 emptyLoginData =
-    LoginData False emptyUser -1 Array.empty
+    LoginData False emptyUser -1 Array.empty Nothing
 
 
 idGetter : Maybe GameOn -> User -> String
@@ -31,13 +31,13 @@ idGetter activeInput user =
         |> Maybe.withDefault ""
 
 
-selectUser : Maybe GameOn -> String -> LoginData -> LoginData
-selectUser whichLogin name data =
+selectUser : String -> LoginData -> LoginData
+selectUser name data =
     let
         index =
             data.possibleUsers
                 |> Array.toIndexedList
-                |> List.filter (\( i, u ) -> idGetter whichLogin u == name)
+                |> List.filter (\( i, u ) -> idGetter data.activeUsername u == name)
                 |> List.head
                 |> Maybe.map Tuple.first
                 |> Maybe.withDefault -1
@@ -46,14 +46,14 @@ selectUser whichLogin name data =
             data.possibleUsers
                 |> Array.get index
     in
-        { data | userLoaded = True, user = maybeUser |> Maybe.withDefault data.user, selectedUser = index }
+        { data | userLoaded = True, user = maybeUser |> Maybe.withDefault data.user, selectedUser = index, activeUsername = Nothing }
 
 
-previewUser : Maybe GameOn -> String -> LoginData -> LoginData
-previewUser whichLogin name data =
+previewUser : String -> LoginData -> LoginData
+previewUser name data =
     let
         index =
-            data.possibleUsers |> Array.toIndexedList |> List.filter (\( i, u ) -> idGetter whichLogin u == name) |> List.head |> Maybe.map Tuple.first |> Maybe.withDefault -1
+            data.possibleUsers |> Array.toIndexedList |> List.filter (\( i, u ) -> idGetter data.activeUsername u == name) |> List.head |> Maybe.map Tuple.first |> Maybe.withDefault -1
     in
         { data | selectedUser = index }
 
@@ -76,3 +76,14 @@ updateSteamUsername name data =
 updateGogUsername : String -> LoginData -> LoginData
 updateGogUsername name data =
     { data | user = (\user -> { user | gogUsername = Just name }) data.user }
+
+
+changeActiveUsername : GameOn -> LoginData -> LoginData
+changeActiveUsername active data =
+    { data
+        | activeUsername =
+            if data.userLoaded then
+                Nothing
+            else
+                Just active
+    }

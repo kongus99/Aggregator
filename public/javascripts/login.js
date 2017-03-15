@@ -14675,6 +14675,14 @@ var _user$project$GameEntry$GameEntry = F3(
 		return {gog: a, steam: b, prices: c};
 	});
 
+var _user$project$LoginData$changeActiveUsername = F2(
+	function (active, data) {
+		return _elm_lang$core$Native_Utils.update(
+			data,
+			{
+				activeUsername: data.userLoaded ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(active)
+			});
+	});
 var _user$project$LoginData$updateGogUsername = F2(
 	function (name, data) {
 		return _elm_lang$core$Native_Utils.update(
@@ -14736,8 +14744,8 @@ var _user$project$LoginData$idGetter = F2(
 				},
 				activeInput));
 	});
-var _user$project$LoginData$selectUser = F3(
-	function (whichLogin, name, data) {
+var _user$project$LoginData$selectUser = F2(
+	function (name, data) {
 		var index = A2(
 			_elm_lang$core$Maybe$withDefault,
 			-1,
@@ -14750,7 +14758,7 @@ var _user$project$LoginData$selectUser = F3(
 						function (_p0) {
 							var _p1 = _p0;
 							return _elm_lang$core$Native_Utils.eq(
-								A2(_user$project$LoginData$idGetter, whichLogin, _p1._1),
+								A2(_user$project$LoginData$idGetter, data.activeUsername, _p1._1),
 								name);
 						},
 						_elm_lang$core$Array$toIndexedList(data.possibleUsers)))));
@@ -14760,11 +14768,12 @@ var _user$project$LoginData$selectUser = F3(
 			{
 				userLoaded: true,
 				user: A2(_elm_lang$core$Maybe$withDefault, data.user, maybeUser),
-				selectedUser: index
+				selectedUser: index,
+				activeUsername: _elm_lang$core$Maybe$Nothing
 			});
 	});
-var _user$project$LoginData$previewUser = F3(
-	function (whichLogin, name, data) {
+var _user$project$LoginData$previewUser = F2(
+	function (name, data) {
 		var index = A2(
 			_elm_lang$core$Maybe$withDefault,
 			-1,
@@ -14777,7 +14786,7 @@ var _user$project$LoginData$previewUser = F3(
 						function (_p2) {
 							var _p3 = _p2;
 							return _elm_lang$core$Native_Utils.eq(
-								A2(_user$project$LoginData$idGetter, whichLogin, _p3._1),
+								A2(_user$project$LoginData$idGetter, data.activeUsername, _p3._1),
 								name);
 						},
 						_elm_lang$core$Array$toIndexedList(data.possibleUsers)))));
@@ -14791,11 +14800,11 @@ var _user$project$LoginData$emptyUser = A4(
 	_elm_lang$core$Maybe$Just(''),
 	false,
 	_elm_lang$core$Maybe$Just(''));
-var _user$project$LoginData$LoginData = F4(
-	function (a, b, c, d) {
-		return {userLoaded: a, user: b, selectedUser: c, possibleUsers: d};
+var _user$project$LoginData$LoginData = F5(
+	function (a, b, c, d, e) {
+		return {userLoaded: a, user: b, selectedUser: c, possibleUsers: d, activeUsername: e};
 	});
-var _user$project$LoginData$emptyLoginData = A4(_user$project$LoginData$LoginData, false, _user$project$LoginData$emptyUser, -1, _elm_lang$core$Array$empty);
+var _user$project$LoginData$emptyLoginData = A5(_user$project$LoginData$LoginData, false, _user$project$LoginData$emptyUser, -1, _elm_lang$core$Array$empty, _elm_lang$core$Maybe$Nothing);
 
 var _user$project$Router$resolveResponse = F3(
 	function (successResolver, errorResolver, response) {
@@ -15209,11 +15218,11 @@ var _user$project$Login$serializeUser = function (u) {
 				}
 			}));
 };
-var _user$project$Login$Model = F5(
-	function (a, b, c, d, e) {
-		return {data: a, message: b, autoState: c, activeInput: d, showHowMany: e};
+var _user$project$Login$Model = F4(
+	function (a, b, c, d) {
+		return {data: a, message: b, autoState: c, showHowMany: d};
 	});
-var _user$project$Login$initialModel = A5(_user$project$Login$Model, _user$project$LoginData$emptyLoginData, '', _thebritican$elm_autocomplete$Autocomplete$empty, _elm_lang$core$Maybe$Nothing, 5);
+var _user$project$Login$initialModel = A4(_user$project$Login$Model, _user$project$LoginData$emptyLoginData, '', _thebritican$elm_autocomplete$Autocomplete$empty, 5);
 var _user$project$Login$Wrap = function (a) {
 	return {ctor: 'Wrap', _0: a};
 };
@@ -15435,7 +15444,7 @@ var _user$project$Login$usernameInput = F6(
 										_user$project$Login$SetAutoState,
 										A4(
 											_thebritican$elm_autocomplete$Autocomplete$view,
-											_user$project$Login$viewConfig(model.activeInput),
+											_user$project$Login$viewConfig(model.data.activeUsername),
 											model.showHowMany,
 											model.autoState,
 											_elm_lang$core$Array$toList(model.data.possibleUsers))) : A2(
@@ -15456,7 +15465,7 @@ var _user$project$Login$steamInput = F2(
 			_user$project$Login$usernameInput,
 			model,
 			_elm_lang$core$Native_Utils.eq(
-				model.activeInput,
+				model.data.activeUsername,
 				_elm_lang$core$Maybe$Just(_user$project$Model$Steam)),
 			'Steam username:',
 			_user$project$Login$SteamChange,
@@ -15469,7 +15478,7 @@ var _user$project$Login$gogInput = F2(
 			_user$project$Login$usernameInput,
 			model,
 			_elm_lang$core$Native_Utils.eq(
-				model.activeInput,
+				model.data.activeUsername,
 				_elm_lang$core$Maybe$Just(_user$project$Model$Gog)),
 			'Gog username:',
 			_user$project$Login$GogChange,
@@ -15651,7 +15660,7 @@ var _user$project$Login$update = F2(
 				case 'SetAutoState':
 					var _p9 = A5(
 						_thebritican$elm_autocomplete$Autocomplete$update,
-						_user$project$Login$updateConfig(model.activeInput),
+						_user$project$Login$updateConfig(model.data.activeUsername),
 						_p8._0,
 						model.showHowMany,
 						model.autoState,
@@ -15681,8 +15690,7 @@ var _user$project$Login$update = F2(
 							model,
 							{
 								message: '',
-								activeInput: _elm_lang$core$Maybe$Nothing,
-								data: A3(_user$project$LoginData$selectUser, model.activeInput, _p8._0, model.data)
+								data: A2(_user$project$LoginData$selectUser, _p8._0, model.data)
 							}),
 						{ctor: '[]'});
 				case 'PreviewUser':
@@ -15692,7 +15700,7 @@ var _user$project$Login$update = F2(
 							model,
 							{
 								message: '',
-								data: A3(_user$project$LoginData$previewUser, model.activeInput, _p8._0, model.data)
+								data: A2(_user$project$LoginData$previewUser, _p8._0, model.data)
 							}),
 						{ctor: '[]'});
 				case 'CreateUpdateUser':
@@ -15757,7 +15765,7 @@ var _user$project$Login$update = F2(
 							model,
 							{
 								message: '',
-								activeInput: (!model.data.userLoaded) ? _elm_lang$core$Maybe$Just(_user$project$Model$Steam) : _elm_lang$core$Maybe$Nothing
+								data: A2(_user$project$LoginData$changeActiveUsername, _user$project$Model$Steam, model.data)
 							}),
 						{
 							ctor: '::',
@@ -15775,7 +15783,7 @@ var _user$project$Login$update = F2(
 							model,
 							{
 								message: '',
-								activeInput: (!model.data.userLoaded) ? _elm_lang$core$Maybe$Just(_user$project$Model$Gog) : _elm_lang$core$Maybe$Nothing
+								data: A2(_user$project$LoginData$changeActiveUsername, _user$project$Model$Gog, model.data)
 							}),
 						{
 							ctor: '::',
