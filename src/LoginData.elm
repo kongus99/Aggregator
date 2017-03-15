@@ -5,7 +5,7 @@ import Model exposing (GameOn(Steam), User)
 
 
 type alias LoginData =
-    { loadedUser : Maybe User, typedUser : User, selectedUser : Int, possibleUsers : Array User }
+    { userLoaded : Bool, user : User, selectedUser : Int, possibleUsers : Array User }
 
 
 emptyUser : User
@@ -13,8 +13,9 @@ emptyUser =
     User Nothing (Just "") False (Just "")
 
 
+emptyLoginData : LoginData
 emptyLoginData =
-    LoginData Nothing emptyUser -1 Array.empty
+    LoginData False emptyUser -1 Array.empty
 
 
 idGetter : Maybe GameOn -> User -> String
@@ -30,6 +31,7 @@ idGetter activeInput user =
         |> Maybe.withDefault ""
 
 
+selectUser : Maybe GameOn -> String -> LoginData -> LoginData
 selectUser whichLogin name data =
     let
         index =
@@ -44,9 +46,10 @@ selectUser whichLogin name data =
             data.possibleUsers
                 |> Array.get index
     in
-        { data | loadedUser = maybeUser, typedUser = maybeUser |> Maybe.withDefault data.typedUser, selectedUser = index }
+        { data | userLoaded = True, user = maybeUser |> Maybe.withDefault data.user, selectedUser = index }
 
 
+previewUser : Maybe GameOn -> String -> LoginData -> LoginData
 previewUser whichLogin name data =
     let
         index =
@@ -55,17 +58,21 @@ previewUser whichLogin name data =
         { data | selectedUser = index }
 
 
+setUser : User -> LoginData -> LoginData
 setUser u data =
-    { data | loadedUser = Just u, typedUser = u, selectedUser = -1, possibleUsers = Array.fromList [] }
+    { data | userLoaded = True, user = u, selectedUser = -1, possibleUsers = Array.fromList [] }
 
 
+setPossibleUsers : List User -> LoginData -> LoginData
 setPossibleUsers users data =
     { data | selectedUser = 0, possibleUsers = Array.fromList users }
 
 
+updateSteamUsername : String -> LoginData -> LoginData
 updateSteamUsername name data =
-    { data | typedUser = (\user -> { user | steamUsername = Just name }) data.typedUser }
+    { data | user = (\user -> { user | steamUsername = Just name }) data.user }
 
 
+updateGogUsername : String -> LoginData -> LoginData
 updateGogUsername name data =
-    { data | typedUser = (\user -> { user | gogUsername = Just name }) data.typedUser }
+    { data | user = (\user -> { user | gogUsername = Just name }) data.user }

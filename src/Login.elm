@@ -96,20 +96,6 @@ update msg model =
         Wrap toTop ->
             ( model, Cmd.none )
 
-        SelectUser name ->
-            let
-                newData =
-                    LoginData.selectUser model.activeInput name model.data
-            in
-                { model | message = "", activeInput = Nothing, data = newData } ! []
-
-        PreviewUser name ->
-            let
-                newData =
-                    LoginData.previewUser model.activeInput name model.data
-            in
-                { model | message = "", data = newData } ! []
-
         SetAutoState autoMsg ->
             let
                 ( newState, maybeMsg ) =
@@ -124,6 +110,12 @@ update msg model =
 
                     Just updateMsg ->
                         update updateMsg newModel
+
+        SelectUser name ->
+            { model | message = "", activeInput = Nothing, data = LoginData.selectUser model.activeInput name model.data } ! []
+
+        PreviewUser name ->
+            { model | message = "", data = LoginData.previewUser model.activeInput name model.data } ! []
 
         CreateUpdateUser u ->
             { model | message = "" } ! [ serializeUser u |> routes.login.createUpdate |> (getResponse UserFetched) ]
@@ -144,28 +136,28 @@ update msg model =
             { model
                 | message = ""
                 , activeInput =
-                    if model.data.loadedUser == Nothing then
+                    if not model.data.userLoaded then
                         Just Steam
                     else
                         Nothing
             }
-                ! [ sendUsersRequest routes.login.fetchSteam model.data.typedUser (Maybe.withDefault "" model.data.typedUser.steamUsername) ]
+                ! [ sendUsersRequest routes.login.fetchSteam model.data.user (Maybe.withDefault "" model.data.user.steamUsername) ]
 
         GogGainFocus ->
             { model
                 | message = ""
                 , activeInput =
-                    if model.data.loadedUser == Nothing then
+                    if not model.data.userLoaded then
                         Just Gog
                     else
                         Nothing
             }
-                ! [ sendUsersRequest routes.login.fetchGog model.data.typedUser (Maybe.withDefault "" model.data.typedUser.gogUsername) ]
+                ! [ sendUsersRequest routes.login.fetchGog model.data.user (Maybe.withDefault "" model.data.user.gogUsername) ]
 
         SteamAlternateChange c ->
             let
                 oldUser =
-                    model.data.typedUser
+                    model.data.user
 
                 newUser =
                     { oldUser | steamAlternate = c }
@@ -180,13 +172,13 @@ update msg model =
                         )
                         args
 
-                sendUpdate u =
-                    serializeUser u |> changeAlternate |> routes.login.steamAlternate |> (getResponse UserFetched)
+                sendUpdate _ =
+                    serializeUser model.data.user |> changeAlternate |> routes.login.steamAlternate |> (getResponse UserFetched)
 
                 newModel =
                     { model | message = "", data = LoginData.setUser newUser model.data }
             in
-                newModel ! [ Maybe.map sendUpdate newModel.data.loadedUser |> Maybe.withDefault Cmd.none ]
+                newModel ! [ Maybe.map sendUpdate newModel.data.user.id |> Maybe.withDefault Cmd.none ]
 
         ResponseError err ->
             { model | message = toString err } ! []
@@ -235,7 +227,10 @@ view model =
 
 
 createUpdateButton model =
-    model.data.loadedUser |> Maybe.map (\_ -> [ form [] [ button [ type_ "button", onClick <| CreateUpdateUser model.data.typedUser ] [ text "Create/Update" ], br [] [] ] ]) |> Maybe.withDefault []
+    if model.data.userLoaded then
+        []
+    else
+        [ form [] [ button [ type_ "button", onClick <| CreateUpdateUser model.data.user ] [ text "Create/Update" ], br [] [] ] ]
 
 
 usernameForm model =
@@ -243,34 +238,29 @@ usernameForm model =
         userData maybeUser =
             ( maybeUser |> Maybe.andThen .steamUsername |> Maybe.withDefault "", maybeUser |> Maybe.andThen .gogUsername |> Maybe.withDefault "", maybeUser |> Maybe.map .steamAlternate |> Maybe.withDefault False )
 
-        ( loadedSteamUsername, loadedGogUsername, loadedSteamAlternate ) =
-            userData model.data.loadedUser
-
         ( typedSteamUsername, typedGogUsername, typedSteamAlternate ) =
-            userData (Just model.data.typedUser)
+            userData (Just model.data.user)
     in
         [ form [ onSubmit NoOp ]
             [ span [] [ text model.message ]
-            , steamInput model loadedSteamUsername typedSteamUsername
-            , alternateSteamInput (model.data.loadedUser == Nothing) loadedSteamAlternate typedSteamAlternate
-            , gogInput model loadedGogUsername typedGogUsername
+            , steamInput model typedSteamUsername
+            , alternateSteamInput model.data
+            , gogInput model typedGogUsername
             , div [ class "form-group" ] [ input [ type_ "submit", style [ ( "display", "none" ) ] ] [] ]
             ]
         , br [] []
         ]
 
 
-alternateSteamInput dis loaded typed =
+alternateSteamInput data =
     div [ class "form-group" ]
         [ label []
             [ text "Alternate Steam login:"
             , br [] []
-            , text <| toString loaded
-            , br [] []
             , input
                 [ type_ "checkbox"
-                , disabled dis
-                , checked typed
+                , disabled (not data.userLoaded)
+                , checked data.user.steamAlternate
                 , onCheck SteamAlternateChange
                 ]
                 []
@@ -278,15 +268,15 @@ alternateSteamInput dis loaded typed =
         ]
 
 
-steamInput model loaded typed =
-    usernameInput model (model.activeInput == Just Steam) "Steam username:" SteamChange SteamGainFocus loaded typed
+steamInput model typed =
+    usernameInput model (model.activeInput == Just Steam) "Steam username:" SteamChange SteamGainFocus typed
 
 
-gogInput model loaded typed =
-    usernameInput model (model.activeInput == Just Gog) "Gog username:" GogChange GogGainFocus loaded typed
+gogInput model typed =
+    usernameInput model (model.activeInput == Just Gog) "Gog username:" GogChange GogGainFocus typed
 
 
-usernameInput model show name inputMsg focusMsg loaded typed =
+usernameInput model show name inputMsg focusMsg typed =
     let
         options =
             { preventDefault = True, stopPropagation = False }
@@ -317,11 +307,9 @@ usernameInput model show name inputMsg focusMsg loaded typed =
             [ label []
                 [ text name
                 , br [] []
-                , text loaded
-                , br [] []
                 , input
                     [ type_ "text"
-                    , disabled (not <| model.data.loadedUser == Nothing)
+                    , disabled model.data.userLoaded
                     , id <| inputId focusMsg
                     , onInput inputMsg
                     , onFocus focusMsg
@@ -342,19 +330,14 @@ inputId focusMsg =
 
 
 mainPageLink model =
-    let
-        userId =
-            Maybe.withDefault 1 <| Maybe.andThen (\u -> u.id) model.data.loadedUser
-    in
-        Maybe.withDefault []
-            (Maybe.map
-                (\_ ->
-                    [ form [ method "get", Router.mainPageUrl [] |> action ]
-                        [ input [ type_ "hidden", name "sources", value <| toString WishList ] []
-                        , input [ type_ "hidden", name "userId", value <| toString userId ] []
-                        , button [ type_ "submit" ] [ text "Continue" ]
-                        ]
+    model.data.user.id
+        |> Maybe.map
+            (\userId ->
+                [ form [ method "get", Router.mainPageUrl [] |> action ]
+                    [ input [ type_ "hidden", name "sources", value <| toString WishList ] []
+                    , input [ type_ "hidden", name "userId", value <| toString userId ] []
+                    , button [ type_ "submit" ] [ text "Continue" ]
                     ]
-                )
-                model.data.loadedUser
+                ]
             )
+        |> Maybe.withDefault []

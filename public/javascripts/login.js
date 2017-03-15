@@ -14680,13 +14680,13 @@ var _user$project$LoginData$updateGogUsername = F2(
 		return _elm_lang$core$Native_Utils.update(
 			data,
 			{
-				typedUser: function (user) {
+				user: function (user) {
 					return _elm_lang$core$Native_Utils.update(
 						user,
 						{
 							gogUsername: _elm_lang$core$Maybe$Just(name)
 						});
-				}(data.typedUser)
+				}(data.user)
 			});
 	});
 var _user$project$LoginData$updateSteamUsername = F2(
@@ -14694,13 +14694,13 @@ var _user$project$LoginData$updateSteamUsername = F2(
 		return _elm_lang$core$Native_Utils.update(
 			data,
 			{
-				typedUser: function (user) {
+				user: function (user) {
 					return _elm_lang$core$Native_Utils.update(
 						user,
 						{
 							steamUsername: _elm_lang$core$Maybe$Just(name)
 						});
-				}(data.typedUser)
+				}(data.user)
 			});
 	});
 var _user$project$LoginData$setPossibleUsers = F2(
@@ -14717,8 +14717,8 @@ var _user$project$LoginData$setUser = F2(
 		return _elm_lang$core$Native_Utils.update(
 			data,
 			{
-				loadedUser: _elm_lang$core$Maybe$Just(u),
-				typedUser: u,
+				userLoaded: true,
+				user: u,
 				selectedUser: -1,
 				possibleUsers: _elm_lang$core$Array$fromList(
 					{ctor: '[]'})
@@ -14758,8 +14758,8 @@ var _user$project$LoginData$selectUser = F3(
 		return _elm_lang$core$Native_Utils.update(
 			data,
 			{
-				loadedUser: maybeUser,
-				typedUser: A2(_elm_lang$core$Maybe$withDefault, data.typedUser, maybeUser),
+				userLoaded: true,
+				user: A2(_elm_lang$core$Maybe$withDefault, data.user, maybeUser),
 				selectedUser: index
 			});
 	});
@@ -14793,9 +14793,9 @@ var _user$project$LoginData$emptyUser = A4(
 	_elm_lang$core$Maybe$Just(''));
 var _user$project$LoginData$LoginData = F4(
 	function (a, b, c, d) {
-		return {loadedUser: a, typedUser: b, selectedUser: c, possibleUsers: d};
+		return {userLoaded: a, user: b, selectedUser: c, possibleUsers: d};
 	});
-var _user$project$LoginData$emptyLoginData = A4(_user$project$LoginData$LoginData, _elm_lang$core$Maybe$Nothing, _user$project$LoginData$emptyUser, -1, _elm_lang$core$Array$empty);
+var _user$project$LoginData$emptyLoginData = A4(_user$project$LoginData$LoginData, false, _user$project$LoginData$emptyUser, -1, _elm_lang$core$Array$empty);
 
 var _user$project$Router$resolveResponse = F3(
 	function (successResolver, errorResolver, response) {
@@ -15034,21 +15034,12 @@ var _user$project$Router$mainPageUrl = function (params) {
 };
 
 var _user$project$Login$mainPageLink = function (model) {
-	var userId = A2(
-		_elm_lang$core$Maybe$withDefault,
-		1,
-		A2(
-			_elm_lang$core$Maybe$andThen,
-			function (u) {
-				return u.id;
-			},
-			model.data.loadedUser));
 	return A2(
 		_elm_lang$core$Maybe$withDefault,
 		{ctor: '[]'},
 		A2(
 			_elm_lang$core$Maybe$map,
-			function (_p0) {
+			function (userId) {
 				return {
 					ctor: '::',
 					_0: A2(
@@ -15123,7 +15114,7 @@ var _user$project$Login$mainPageLink = function (model) {
 					_1: {ctor: '[]'}
 				};
 			},
-			model.data.loadedUser));
+			model.data.user.id));
 };
 var _user$project$Login$inputId = function (focusMsg) {
 	return A2(
@@ -15176,19 +15167,19 @@ var _user$project$Login$viewConfig = function (activeInput) {
 var _user$project$Login$serializeUser = function (u) {
 	return A2(
 		_elm_lang$core$List$map,
-		function (_p1) {
-			var _p2 = _p1;
+		function (_p0) {
+			var _p1 = _p0;
 			return {
 				ctor: '_Tuple2',
-				_0: _p2._0,
-				_1: A2(_elm_lang$core$Maybe$withDefault, '', _p2._1)
+				_0: _p1._0,
+				_1: A2(_elm_lang$core$Maybe$withDefault, '', _p1._1)
 			};
 		},
 		A2(
 			_elm_lang$core$List$filter,
-			function (_p3) {
-				var _p4 = _p3;
-				return !_elm_lang$core$Native_Utils.eq(_p4._1, _elm_lang$core$Maybe$Nothing);
+			function (_p2) {
+				var _p3 = _p2;
+				return !_elm_lang$core$Native_Utils.eq(_p3._1, _elm_lang$core$Maybe$Nothing);
 			},
 			{
 				ctor: '::',
@@ -15240,70 +15231,57 @@ var _user$project$Login$getResponse = F2(
 var _user$project$Login$SteamAlternateChange = function (a) {
 	return {ctor: 'SteamAlternateChange', _0: a};
 };
-var _user$project$Login$alternateSteamInput = F3(
-	function (dis, loaded, typed) {
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('form-group'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$label,
-					{ctor: '[]'},
-					{
+var _user$project$Login$alternateSteamInput = function (data) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('form-group'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$label,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Alternate Steam login:'),
+					_1: {
 						ctor: '::',
-						_0: _elm_lang$html$Html$text('Alternate Steam login:'),
+						_0: A2(
+							_elm_lang$html$Html$br,
+							{ctor: '[]'},
+							{ctor: '[]'}),
 						_1: {
 							ctor: '::',
 							_0: A2(
-								_elm_lang$html$Html$br,
-								{ctor: '[]'},
-								{ctor: '[]'}),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html$text(
-									_elm_lang$core$Basics$toString(loaded)),
-								_1: {
+								_elm_lang$html$Html$input,
+								{
 									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$br,
-										{ctor: '[]'},
-										{ctor: '[]'}),
+									_0: _elm_lang$html$Html_Attributes$type_('checkbox'),
 									_1: {
 										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$input,
-											{
+										_0: _elm_lang$html$Html_Attributes$disabled(!data.userLoaded),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$checked(data.user.steamAlternate),
+											_1: {
 												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$type_('checkbox'),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$disabled(dis),
-													_1: {
-														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$checked(typed),
-														_1: {
-															ctor: '::',
-															_0: _elm_lang$html$Html_Events$onCheck(_user$project$Login$SteamAlternateChange),
-															_1: {ctor: '[]'}
-														}
-													}
-												}
-											},
-											{ctor: '[]'}),
-										_1: {ctor: '[]'}
+												_0: _elm_lang$html$Html_Events$onCheck(_user$project$Login$SteamAlternateChange),
+												_1: {ctor: '[]'}
+											}
+										}
 									}
-								}
-							}
+								},
+								{ctor: '[]'}),
+							_1: {ctor: '[]'}
 						}
-					}),
-				_1: {ctor: '[]'}
-			});
-	});
+					}
+				}),
+			_1: {ctor: '[]'}
+		});
+};
 var _user$project$Login$GogGainFocus = {ctor: 'GogGainFocus'};
 var _user$project$Login$SteamGainFocus = {ctor: 'SteamGainFocus'};
 var _user$project$Login$GogChange = function (a) {
@@ -15332,49 +15310,41 @@ var _user$project$Login$CreateUpdateUser = function (a) {
 	return {ctor: 'CreateUpdateUser', _0: a};
 };
 var _user$project$Login$createUpdateButton = function (model) {
-	return A2(
-		_elm_lang$core$Maybe$withDefault,
-		{ctor: '[]'},
-		A2(
-			_elm_lang$core$Maybe$map,
-			function (_p5) {
-				return {
+	return model.data.userLoaded ? {ctor: '[]'} : {
+		ctor: '::',
+		_0: A2(
+			_elm_lang$html$Html$form,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$button,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$type_('button'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onClick(
+								_user$project$Login$CreateUpdateUser(model.data.user)),
+							_1: {ctor: '[]'}
+						}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Create/Update'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$form,
+						_elm_lang$html$Html$br,
 						{ctor: '[]'},
-						{
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$button,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$type_('button'),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html_Events$onClick(
-											_user$project$Login$CreateUpdateUser(model.data.typedUser)),
-										_1: {ctor: '[]'}
-									}
-								},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text('Create/Update'),
-									_1: {ctor: '[]'}
-								}),
-							_1: {
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$br,
-									{ctor: '[]'},
-									{ctor: '[]'}),
-								_1: {ctor: '[]'}
-							}
-						}),
+						{ctor: '[]'}),
 					_1: {ctor: '[]'}
-				};
-			},
-			model.data.loadedUser));
+				}
+			}),
+		_1: {ctor: '[]'}
+	};
 };
 var _user$project$Login$SetAutoState = function (a) {
 	return {ctor: 'SetAutoState', _0: a};
@@ -15382,14 +15352,14 @@ var _user$project$Login$SetAutoState = function (a) {
 var _user$project$Login$subscriptions = function (model) {
 	return A2(_elm_lang$core$Platform_Sub$map, _user$project$Login$SetAutoState, _thebritican$elm_autocomplete$Autocomplete$subscription);
 };
-var _user$project$Login$usernameInput = F7(
-	function (model, show, name, inputMsg, focusMsg, loaded, typed) {
+var _user$project$Login$usernameInput = F6(
+	function (model, show, name, inputMsg, focusMsg, typed) {
 		var fromResult = function (result) {
-			var _p6 = result;
-			if (_p6.ctor === 'Ok') {
-				return _elm_lang$core$Json_Decode$succeed(_p6._0);
+			var _p4 = result;
+			if (_p4.ctor === 'Ok') {
+				return _elm_lang$core$Json_Decode$succeed(_p4._0);
 			} else {
-				return _elm_lang$core$Json_Decode$fail(_p6._0);
+				return _elm_lang$core$Json_Decode$fail(_p4._0);
 			}
 		};
 		var dec = A2(
@@ -15425,66 +15395,54 @@ var _user$project$Login$usernameInput = F7(
 								{ctor: '[]'}),
 							_1: {
 								ctor: '::',
-								_0: _elm_lang$html$Html$text(loaded),
-								_1: {
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$br,
-										{ctor: '[]'},
-										{ctor: '[]'}),
-									_1: {
+								_0: A2(
+									_elm_lang$html$Html$input,
+									{
 										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$input,
-											{
+										_0: _elm_lang$html$Html_Attributes$type_('text'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$disabled(model.data.userLoaded),
+											_1: {
 												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$type_('text'),
+												_0: _elm_lang$html$Html_Attributes$id(
+													_user$project$Login$inputId(focusMsg)),
 												_1: {
 													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$disabled(
-														!_elm_lang$core$Native_Utils.eq(model.data.loadedUser, _elm_lang$core$Maybe$Nothing)),
+													_0: _elm_lang$html$Html_Events$onInput(inputMsg),
 													_1: {
 														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$id(
-															_user$project$Login$inputId(focusMsg)),
+														_0: _elm_lang$html$Html_Events$onFocus(focusMsg),
 														_1: {
 															ctor: '::',
-															_0: _elm_lang$html$Html_Events$onInput(inputMsg),
+															_0: _elm_lang$html$Html_Attributes$value(typed),
 															_1: {
 																ctor: '::',
-																_0: _elm_lang$html$Html_Events$onFocus(focusMsg),
-																_1: {
-																	ctor: '::',
-																	_0: _elm_lang$html$Html_Attributes$value(typed),
-																	_1: {
-																		ctor: '::',
-																		_0: A3(_elm_lang$html$Html_Events$onWithOptions, 'keydown', options, dec),
-																		_1: {ctor: '[]'}
-																	}
-																}
+																_0: A3(_elm_lang$html$Html_Events$onWithOptions, 'keydown', options, dec),
+																_1: {ctor: '[]'}
 															}
 														}
 													}
 												}
-											},
-											{ctor: '[]'}),
-										_1: {
-											ctor: '::',
-											_0: show ? A2(
-												_elm_lang$html$Html$map,
-												_user$project$Login$SetAutoState,
-												A4(
-													_thebritican$elm_autocomplete$Autocomplete$view,
-													_user$project$Login$viewConfig(model.activeInput),
-													model.showHowMany,
-													model.autoState,
-													_elm_lang$core$Array$toList(model.data.possibleUsers))) : A2(
-												_elm_lang$html$Html$div,
-												{ctor: '[]'},
-												{ctor: '[]'}),
-											_1: {ctor: '[]'}
+											}
 										}
-									}
+									},
+									{ctor: '[]'}),
+								_1: {
+									ctor: '::',
+									_0: show ? A2(
+										_elm_lang$html$Html$map,
+										_user$project$Login$SetAutoState,
+										A4(
+											_thebritican$elm_autocomplete$Autocomplete$view,
+											_user$project$Login$viewConfig(model.activeInput),
+											model.showHowMany,
+											model.autoState,
+											_elm_lang$core$Array$toList(model.data.possibleUsers))) : A2(
+										_elm_lang$html$Html$div,
+										{ctor: '[]'},
+										{ctor: '[]'}),
+									_1: {ctor: '[]'}
 								}
 							}
 						}
@@ -15492,9 +15450,9 @@ var _user$project$Login$usernameInput = F7(
 				_1: {ctor: '[]'}
 			});
 	});
-var _user$project$Login$steamInput = F3(
-	function (model, loaded, typed) {
-		return A7(
+var _user$project$Login$steamInput = F2(
+	function (model, typed) {
+		return A6(
 			_user$project$Login$usernameInput,
 			model,
 			_elm_lang$core$Native_Utils.eq(
@@ -15503,12 +15461,11 @@ var _user$project$Login$steamInput = F3(
 			'Steam username:',
 			_user$project$Login$SteamChange,
 			_user$project$Login$SteamGainFocus,
-			loaded,
 			typed);
 	});
-var _user$project$Login$gogInput = F3(
-	function (model, loaded, typed) {
-		return A7(
+var _user$project$Login$gogInput = F2(
+	function (model, typed) {
+		return A6(
 			_user$project$Login$usernameInput,
 			model,
 			_elm_lang$core$Native_Utils.eq(
@@ -15517,7 +15474,6 @@ var _user$project$Login$gogInput = F3(
 			'Gog username:',
 			_user$project$Login$GogChange,
 			_user$project$Login$GogGainFocus,
-			loaded,
 			typed);
 	});
 var _user$project$Login$usernameForm = function (model) {
@@ -15553,15 +15509,11 @@ var _user$project$Login$usernameForm = function (model) {
 					maybeUser))
 		};
 	};
-	var _p7 = userData(model.data.loadedUser);
-	var loadedSteamUsername = _p7._0;
-	var loadedGogUsername = _p7._1;
-	var loadedSteamAlternate = _p7._2;
-	var _p8 = userData(
-		_elm_lang$core$Maybe$Just(model.data.typedUser));
-	var typedSteamUsername = _p8._0;
-	var typedGogUsername = _p8._1;
-	var typedSteamAlternate = _p8._2;
+	var _p5 = userData(
+		_elm_lang$core$Maybe$Just(model.data.user));
+	var typedSteamUsername = _p5._0;
+	var typedGogUsername = _p5._1;
+	var typedSteamAlternate = _p5._2;
 	return {
 		ctor: '::',
 		_0: A2(
@@ -15583,17 +15535,13 @@ var _user$project$Login$usernameForm = function (model) {
 					}),
 				_1: {
 					ctor: '::',
-					_0: A3(_user$project$Login$steamInput, model, loadedSteamUsername, typedSteamUsername),
+					_0: A2(_user$project$Login$steamInput, model, typedSteamUsername),
 					_1: {
 						ctor: '::',
-						_0: A3(
-							_user$project$Login$alternateSteamInput,
-							_elm_lang$core$Native_Utils.eq(model.data.loadedUser, _elm_lang$core$Maybe$Nothing),
-							loadedSteamAlternate,
-							typedSteamAlternate),
+						_0: _user$project$Login$alternateSteamInput(model.data),
 						_1: {
 							ctor: '::',
-							_0: A3(_user$project$Login$gogInput, model, loadedGogUsername, typedGogUsername),
+							_0: A2(_user$project$Login$gogInput, model, typedGogUsername),
 							_1: {
 								ctor: '::',
 								_0: A2(
@@ -15679,10 +15627,10 @@ var _user$project$Login$updateConfig = function (activeInput) {
 				}),
 			onTooLow: _elm_lang$core$Maybe$Nothing,
 			onTooHigh: _elm_lang$core$Maybe$Nothing,
-			onMouseEnter: function (_p9) {
+			onMouseEnter: function (_p6) {
 				return _elm_lang$core$Maybe$Nothing;
 			},
-			onMouseLeave: function (_p10) {
+			onMouseLeave: function (_p7) {
 				return _elm_lang$core$Maybe$Nothing;
 			},
 			onMouseClick: function (id) {
@@ -15696,52 +15644,57 @@ var _user$project$Login$update = F2(
 	function (msg, model) {
 		update:
 		while (true) {
-			var _p11 = msg;
-			switch (_p11.ctor) {
+			var _p8 = msg;
+			switch (_p8.ctor) {
 				case 'Wrap':
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				case 'SelectUser':
-					var newData = A3(_user$project$LoginData$selectUser, model.activeInput, _p11._0, model.data);
-					return A2(
-						_elm_lang$core$Platform_Cmd_ops['!'],
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{message: '', activeInput: _elm_lang$core$Maybe$Nothing, data: newData}),
-						{ctor: '[]'});
-				case 'PreviewUser':
-					var newData = A3(_user$project$LoginData$previewUser, model.activeInput, _p11._0, model.data);
-					return A2(
-						_elm_lang$core$Platform_Cmd_ops['!'],
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{message: '', data: newData}),
-						{ctor: '[]'});
 				case 'SetAutoState':
-					var _p12 = A5(
+					var _p9 = A5(
 						_thebritican$elm_autocomplete$Autocomplete$update,
 						_user$project$Login$updateConfig(model.activeInput),
-						_p11._0,
+						_p8._0,
 						model.showHowMany,
 						model.autoState,
 						_elm_lang$core$Array$toList(model.data.possibleUsers));
-					var newState = _p12._0;
-					var maybeMsg = _p12._1;
+					var newState = _p9._0;
+					var maybeMsg = _p9._1;
 					var newModel = _elm_lang$core$Native_Utils.update(
 						model,
 						{autoState: newState});
-					var _p13 = maybeMsg;
-					if (_p13.ctor === 'Nothing') {
+					var _p10 = maybeMsg;
+					if (_p10.ctor === 'Nothing') {
 						return A2(
 							_elm_lang$core$Platform_Cmd_ops['!'],
 							newModel,
 							{ctor: '[]'});
 					} else {
-						var _v5 = _p13._0,
+						var _v5 = _p10._0,
 							_v6 = newModel;
 						msg = _v5;
 						model = _v6;
 						continue update;
 					}
+				case 'SelectUser':
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								message: '',
+								activeInput: _elm_lang$core$Maybe$Nothing,
+								data: A3(_user$project$LoginData$selectUser, model.activeInput, _p8._0, model.data)
+							}),
+						{ctor: '[]'});
+				case 'PreviewUser':
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								message: '',
+								data: A3(_user$project$LoginData$previewUser, model.activeInput, _p8._0, model.data)
+							}),
+						{ctor: '[]'});
 				case 'CreateUpdateUser':
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
@@ -15754,7 +15707,7 @@ var _user$project$Login$update = F2(
 								_user$project$Login$getResponse,
 								_user$project$Login$UserFetched,
 								_user$project$Router$routes.login.createUpdate(
-									_user$project$Login$serializeUser(_p11._0))),
+									_user$project$Login$serializeUser(_p8._0))),
 							_1: {ctor: '[]'}
 						});
 				case 'UserFetched':
@@ -15764,7 +15717,7 @@ var _user$project$Login$update = F2(
 							model,
 							{
 								message: '',
-								data: A2(_user$project$LoginData$setUser, _p11._0, model.data)
+								data: A2(_user$project$LoginData$setUser, _p8._0, model.data)
 							}),
 						{ctor: '[]'});
 				case 'UsersFetched':
@@ -15774,7 +15727,7 @@ var _user$project$Login$update = F2(
 							model,
 							{
 								message: '',
-								data: A2(_user$project$LoginData$setPossibleUsers, _p11._0, model.data)
+								data: A2(_user$project$LoginData$setPossibleUsers, _p8._0, model.data)
 							}),
 						{ctor: '[]'});
 				case 'SteamChange':
@@ -15784,7 +15737,7 @@ var _user$project$Login$update = F2(
 							model,
 							{
 								message: '',
-								data: A2(_user$project$LoginData$updateSteamUsername, _p11._0, model.data)
+								data: A2(_user$project$LoginData$updateSteamUsername, _p8._0, model.data)
 							}),
 						{ctor: '[]'});
 				case 'GogChange':
@@ -15794,7 +15747,7 @@ var _user$project$Login$update = F2(
 							model,
 							{
 								message: '',
-								data: A2(_user$project$LoginData$updateGogUsername, _p11._0, model.data)
+								data: A2(_user$project$LoginData$updateGogUsername, _p8._0, model.data)
 							}),
 						{ctor: '[]'});
 				case 'SteamGainFocus':
@@ -15804,15 +15757,15 @@ var _user$project$Login$update = F2(
 							model,
 							{
 								message: '',
-								activeInput: _elm_lang$core$Native_Utils.eq(model.data.loadedUser, _elm_lang$core$Maybe$Nothing) ? _elm_lang$core$Maybe$Just(_user$project$Model$Steam) : _elm_lang$core$Maybe$Nothing
+								activeInput: (!model.data.userLoaded) ? _elm_lang$core$Maybe$Just(_user$project$Model$Steam) : _elm_lang$core$Maybe$Nothing
 							}),
 						{
 							ctor: '::',
 							_0: A3(
 								_user$project$Login$sendUsersRequest,
 								_user$project$Router$routes.login.fetchSteam,
-								model.data.typedUser,
-								A2(_elm_lang$core$Maybe$withDefault, '', model.data.typedUser.steamUsername)),
+								model.data.user,
+								A2(_elm_lang$core$Maybe$withDefault, '', model.data.user.steamUsername)),
 							_1: {ctor: '[]'}
 						});
 				case 'GogGainFocus':
@@ -15822,46 +15775,46 @@ var _user$project$Login$update = F2(
 							model,
 							{
 								message: '',
-								activeInput: _elm_lang$core$Native_Utils.eq(model.data.loadedUser, _elm_lang$core$Maybe$Nothing) ? _elm_lang$core$Maybe$Just(_user$project$Model$Gog) : _elm_lang$core$Maybe$Nothing
+								activeInput: (!model.data.userLoaded) ? _elm_lang$core$Maybe$Just(_user$project$Model$Gog) : _elm_lang$core$Maybe$Nothing
 							}),
 						{
 							ctor: '::',
 							_0: A3(
 								_user$project$Login$sendUsersRequest,
 								_user$project$Router$routes.login.fetchGog,
-								model.data.typedUser,
-								A2(_elm_lang$core$Maybe$withDefault, '', model.data.typedUser.gogUsername)),
+								model.data.user,
+								A2(_elm_lang$core$Maybe$withDefault, '', model.data.user.gogUsername)),
 							_1: {ctor: '[]'}
 						});
 				case 'SteamAlternateChange':
-					var _p17 = _p11._0;
+					var _p15 = _p8._0;
 					var changeAlternate = function (args) {
 						return A2(
 							_elm_lang$core$List$map,
-							function (_p14) {
-								var _p15 = _p14;
-								var _p16 = _p15._0;
-								return _elm_lang$core$Native_Utils.eq(_p16, 'steamAlternate') ? {
+							function (_p11) {
+								var _p12 = _p11;
+								var _p13 = _p12._0;
+								return _elm_lang$core$Native_Utils.eq(_p13, 'steamAlternate') ? {
 									ctor: '_Tuple2',
-									_0: _p16,
+									_0: _p13,
 									_1: _elm_lang$core$String$toLower(
-										_elm_lang$core$Basics$toString(_p17))
-								} : {ctor: '_Tuple2', _0: _p16, _1: _p15._1};
+										_elm_lang$core$Basics$toString(_p15))
+								} : {ctor: '_Tuple2', _0: _p13, _1: _p12._1};
 							},
 							args);
 					};
-					var sendUpdate = function (u) {
+					var sendUpdate = function (_p14) {
 						return A2(
 							_user$project$Login$getResponse,
 							_user$project$Login$UserFetched,
 							_user$project$Router$routes.login.steamAlternate(
 								changeAlternate(
-									_user$project$Login$serializeUser(u))));
+									_user$project$Login$serializeUser(model.data.user))));
 					};
-					var oldUser = model.data.typedUser;
+					var oldUser = model.data.user;
 					var newUser = _elm_lang$core$Native_Utils.update(
 						oldUser,
-						{steamAlternate: _p17});
+						{steamAlternate: _p15});
 					var newModel = _elm_lang$core$Native_Utils.update(
 						model,
 						{
@@ -15876,7 +15829,7 @@ var _user$project$Login$update = F2(
 							_0: A2(
 								_elm_lang$core$Maybe$withDefault,
 								_elm_lang$core$Platform_Cmd$none,
-								A2(_elm_lang$core$Maybe$map, sendUpdate, newModel.data.loadedUser)),
+								A2(_elm_lang$core$Maybe$map, sendUpdate, newModel.data.user.id)),
 							_1: {ctor: '[]'}
 						});
 				case 'ResponseError':
@@ -15885,7 +15838,7 @@ var _user$project$Login$update = F2(
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								message: _elm_lang$core$Basics$toString(_p11._0)
+								message: _elm_lang$core$Basics$toString(_p8._0)
 							}),
 						{ctor: '[]'});
 				default:
