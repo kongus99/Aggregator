@@ -101,7 +101,7 @@ mainPageUrl params =
 
 refreshSocketUrl : String -> String
 refreshSocketUrl host =
-    "ws://" ++ host ++ "/refreshSocket"
+    "ws://" ++ host ++ "/refreshsocket"
 
 
 

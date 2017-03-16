@@ -269,14 +269,14 @@ alternateSteamInput data =
 
 
 steamInput model typed =
-    usernameInput model (model.data.activeUsername == Just Steam) "Steam username:" SteamChange SteamGainFocus typed
+    usernameInput model (Just Steam) "Steam username:" SteamChange SteamGainFocus typed
 
 
 gogInput model typed =
-    usernameInput model (model.data.activeUsername == Just Gog) "Gog username:" GogChange GogGainFocus typed
+    usernameInput model (Just Gog) "Gog username:" GogChange GogGainFocus typed
 
 
-usernameInput model show name inputMsg focusMsg typed =
+usernameInput model activeInput name inputMsg focusMsg typed =
     let
         filteredUsers =
             LoginData.filterUsers model.data
@@ -288,23 +288,18 @@ usernameInput model show name inputMsg focusMsg typed =
                 , input
                     [ type_ "text"
                     , disabled model.data.userLoaded
-                    , id <| inputId focusMsg
                     , onInput inputMsg
                     , onFocus focusMsg
                     , value typed
                     , autocomplete False
                     ]
                     []
-                , if show && not (List.isEmpty filteredUsers) then
+                , if model.data.activeUsername == activeInput && not (List.isEmpty filteredUsers) then
                     Html.map SetAutoState (Autocomplete.view (viewConfig model.data.activeUsername) model.showHowMany model.autoState filteredUsers)
                   else
                     div [] []
                 ]
             ]
-
-
-inputId focusMsg =
-    "input_ " ++ toString focusMsg
 
 
 mainPageLink model =

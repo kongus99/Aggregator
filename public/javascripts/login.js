@@ -11172,12 +11172,6 @@ var _user$project$Login$mainPageLink = function (model) {
 			},
 			model.data.user.id));
 };
-var _user$project$Login$inputId = function (focusMsg) {
-	return A2(
-		_elm_lang$core$Basics_ops['++'],
-		'input_ ',
-		_elm_lang$core$Basics$toString(focusMsg));
-};
 var _user$project$Login$viewConfig = function (activeInput) {
 	var customizedLi = F3(
 		function (keySelected, mouseSelected, user) {
@@ -11410,7 +11404,7 @@ var _user$project$Login$subscriptions = function (model) {
 	return A2(_elm_lang$core$Platform_Sub$map, _user$project$Login$SetAutoState, _thebritican$elm_autocomplete$Autocomplete$subscription);
 };
 var _user$project$Login$usernameInput = F6(
-	function (model, show, name, inputMsg, focusMsg, typed) {
+	function (model, activeInput, name, inputMsg, focusMsg, typed) {
 		var filteredUsers = _user$project$LoginData$filterUsers(model.data);
 		return A2(
 			_elm_lang$html$Html$div,
@@ -11445,22 +11439,17 @@ var _user$project$Login$usernameInput = F6(
 											_0: _elm_lang$html$Html_Attributes$disabled(model.data.userLoaded),
 											_1: {
 												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$id(
-													_user$project$Login$inputId(focusMsg)),
+												_0: _elm_lang$html$Html_Events$onInput(inputMsg),
 												_1: {
 													ctor: '::',
-													_0: _elm_lang$html$Html_Events$onInput(inputMsg),
+													_0: _elm_lang$html$Html_Events$onFocus(focusMsg),
 													_1: {
 														ctor: '::',
-														_0: _elm_lang$html$Html_Events$onFocus(focusMsg),
+														_0: _elm_lang$html$Html_Attributes$value(typed),
 														_1: {
 															ctor: '::',
-															_0: _elm_lang$html$Html_Attributes$value(typed),
-															_1: {
-																ctor: '::',
-																_0: _elm_lang$html$Html_Attributes$autocomplete(false),
-																_1: {ctor: '[]'}
-															}
+															_0: _elm_lang$html$Html_Attributes$autocomplete(false),
+															_1: {ctor: '[]'}
 														}
 													}
 												}
@@ -11470,7 +11459,7 @@ var _user$project$Login$usernameInput = F6(
 									{ctor: '[]'}),
 								_1: {
 									ctor: '::',
-									_0: (show && (!_elm_lang$core$List$isEmpty(filteredUsers))) ? A2(
+									_0: (_elm_lang$core$Native_Utils.eq(model.data.activeUsername, activeInput) && (!_elm_lang$core$List$isEmpty(filteredUsers))) ? A2(
 										_elm_lang$html$Html$map,
 										_user$project$Login$SetAutoState,
 										A4(
@@ -11495,9 +11484,7 @@ var _user$project$Login$steamInput = F2(
 		return A6(
 			_user$project$Login$usernameInput,
 			model,
-			_elm_lang$core$Native_Utils.eq(
-				model.data.activeUsername,
-				_elm_lang$core$Maybe$Just(_user$project$Model$Steam)),
+			_elm_lang$core$Maybe$Just(_user$project$Model$Steam),
 			'Steam username:',
 			_user$project$Login$SteamChange,
 			_user$project$Login$SteamGainFocus,
@@ -11508,9 +11495,7 @@ var _user$project$Login$gogInput = F2(
 		return A6(
 			_user$project$Login$usernameInput,
 			model,
-			_elm_lang$core$Native_Utils.eq(
-				model.data.activeUsername,
-				_elm_lang$core$Maybe$Just(_user$project$Model$Gog)),
+			_elm_lang$core$Maybe$Just(_user$project$Model$Gog),
 			'Gog username:',
 			_user$project$Login$GogChange,
 			_user$project$Login$GogGainFocus,
