@@ -15223,6 +15223,7 @@ var _user$project$Login$Model = F4(
 		return {data: a, message: b, autoState: c, showHowMany: d};
 	});
 var _user$project$Login$initialModel = A4(_user$project$Login$Model, _user$project$LoginData$emptyLoginData, '', _thebritican$elm_autocomplete$Autocomplete$empty, 5);
+var _user$project$Login$Reset = {ctor: 'Reset'};
 var _user$project$Login$Wrap = function (a) {
 	return {ctor: 'Wrap', _0: a};
 };
@@ -15632,10 +15633,12 @@ var _user$project$Login$updateConfig = function (activeInput) {
 			toId: _user$project$LoginData$idGetter(activeInput),
 			onKeyDown: F2(
 				function (code, maybeId) {
-					return (_elm_lang$core$Native_Utils.eq(code, 38) || _elm_lang$core$Native_Utils.eq(code, 40)) ? A2(_elm_lang$core$Maybe$map, _user$project$Login$PreviewUser, maybeId) : (_elm_lang$core$Native_Utils.eq(code, 13) ? A2(_elm_lang$core$Maybe$map, _user$project$Login$SelectUser, maybeId) : _elm_lang$core$Maybe$Nothing);
+					return (_elm_lang$core$Native_Utils.eq(code, 38) || _elm_lang$core$Native_Utils.eq(code, 40)) ? A2(_elm_lang$core$Maybe$map, _user$project$Login$PreviewUser, maybeId) : (_elm_lang$core$Native_Utils.eq(code, 13) ? A2(_elm_lang$core$Maybe$map, _user$project$Login$SelectUser, maybeId) : _elm_lang$core$Maybe$Just(_user$project$Login$Reset));
 				}),
-			onTooLow: _elm_lang$core$Maybe$Nothing,
-			onTooHigh: _elm_lang$core$Maybe$Nothing,
+			onTooLow: _elm_lang$core$Maybe$Just(
+				_user$project$Login$Wrap(true)),
+			onTooHigh: _elm_lang$core$Maybe$Just(
+				_user$project$Login$Wrap(false)),
 			onMouseEnter: function (_p6) {
 				return _elm_lang$core$Maybe$Nothing;
 			},
@@ -15653,10 +15656,35 @@ var _user$project$Login$update = F2(
 	function (msg, model) {
 		update:
 		while (true) {
+			var xxx = A2(_elm_lang$core$Debug$log, 'msg:', msg);
 			var _p8 = msg;
 			switch (_p8.ctor) {
 				case 'Wrap':
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					return _p8._0 ? A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								autoState: A4(
+									_thebritican$elm_autocomplete$Autocomplete$resetToFirstItem,
+									_user$project$Login$updateConfig(model.data.activeUsername),
+									_elm_lang$core$Array$toList(model.data.possibleUsers),
+									model.showHowMany,
+									model.autoState)
+							}),
+						{ctor: '[]'}) : A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								autoState: A4(
+									_thebritican$elm_autocomplete$Autocomplete$resetToLastItem,
+									_user$project$Login$updateConfig(model.data.activeUsername),
+									_elm_lang$core$Array$toList(model.data.possibleUsers),
+									model.showHowMany,
+									model.autoState)
+							}),
+						{ctor: '[]'});
 				case 'SetAutoState':
 					var _p9 = A5(
 						_thebritican$elm_autocomplete$Autocomplete$update,
@@ -15849,10 +15877,22 @@ var _user$project$Login$update = F2(
 								message: _elm_lang$core$Basics$toString(_p8._0)
 							}),
 						{ctor: '[]'});
-				default:
+				case 'NoOp':
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						model,
+						{ctor: '[]'});
+				default:
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								autoState: A2(
+									_thebritican$elm_autocomplete$Autocomplete$reset,
+									_user$project$Login$updateConfig(model.data.activeUsername),
+									model.autoState)
+							}),
 						{ctor: '[]'});
 			}
 		}
@@ -15868,7 +15908,7 @@ var _user$project$Login$main = _elm_lang$html$Html$program(
 var Elm = {};
 Elm['Login'] = Elm['Login'] || {};
 if (typeof _user$project$Login$main !== 'undefined') {
-    _user$project$Login$main(Elm['Login'], 'Login', {"types":{"message":"Login.Msg","aliases":{"Model.GogUserName":{"type":"String","args":[]},"Model.User":{"type":"{ id : Maybe.Maybe Int , steamUsername : Maybe.Maybe Model.SteamUsername , steamAlternate : Bool , gogUsername : Maybe.Maybe Model.GogUserName }","args":[]},"Model.SteamUsername":{"type":"String","args":[]},"Char.KeyCode":{"type":"Int","args":[]},"Http.Response":{"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }","args":["body"]}},"unions":{"Dict.NColor":{"tags":{"Black":[],"BBlack":[],"Red":[],"NBlack":[]},"args":[]},"Http.Error":{"tags":{"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"],"BadUrl":["String"],"NetworkError":[]},"args":[]},"Login.Msg":{"tags":{"Wrap":["Bool"],"UsersFetched":["List Model.User"],"SetAutoState":["Autocomplete.Msg"],"SteamChange":["Model.SteamUsername"],"SteamGainFocus":[],"PreviewUser":["String"],"ResponseError":["Http.Error"],"NoOp":[],"GogChange":["Model.GogUserName"],"SelectUser":["String"],"UserFetched":["Model.User"],"CreateUpdateUser":["Model.User"],"GogGainFocus":[],"SteamAlternateChange":["Bool"]},"args":[]},"Dict.LeafColor":{"tags":{"LBlack":[],"LBBlack":[]},"args":[]},"Maybe.Maybe":{"tags":{"Nothing":[],"Just":["a"]},"args":["a"]},"Dict.Dict":{"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]},"args":["k","v"]},"Autocomplete.Msg":{"tags":{"Msg":["Autocomplete.Autocomplete.Msg"]},"args":[]},"Autocomplete.Autocomplete.Msg":{"tags":{"MouseClick":["String"],"KeyDown":["Char.KeyCode"],"NoOp":[],"MouseEnter":["String"],"MouseLeave":["String"],"WentTooHigh":[],"WentTooLow":[]},"args":[]}}},"versions":{"elm":"0.18.0"}});
+    _user$project$Login$main(Elm['Login'], 'Login', {"types":{"message":"Login.Msg","aliases":{"Model.GogUserName":{"type":"String","args":[]},"Model.User":{"type":"{ id : Maybe.Maybe Int , steamUsername : Maybe.Maybe Model.SteamUsername , steamAlternate : Bool , gogUsername : Maybe.Maybe Model.GogUserName }","args":[]},"Model.SteamUsername":{"type":"String","args":[]},"Char.KeyCode":{"type":"Int","args":[]},"Http.Response":{"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }","args":["body"]}},"unions":{"Dict.NColor":{"tags":{"Black":[],"BBlack":[],"Red":[],"NBlack":[]},"args":[]},"Http.Error":{"tags":{"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"],"BadUrl":["String"],"NetworkError":[]},"args":[]},"Login.Msg":{"tags":{"Wrap":["Bool"],"UsersFetched":["List Model.User"],"SetAutoState":["Autocomplete.Msg"],"Reset":[],"SteamChange":["Model.SteamUsername"],"SteamGainFocus":[],"PreviewUser":["String"],"ResponseError":["Http.Error"],"NoOp":[],"GogChange":["Model.GogUserName"],"SelectUser":["String"],"UserFetched":["Model.User"],"CreateUpdateUser":["Model.User"],"GogGainFocus":[],"SteamAlternateChange":["Bool"]},"args":[]},"Dict.LeafColor":{"tags":{"LBlack":[],"LBBlack":[]},"args":[]},"Maybe.Maybe":{"tags":{"Nothing":[],"Just":["a"]},"args":["a"]},"Dict.Dict":{"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]},"args":["k","v"]},"Autocomplete.Msg":{"tags":{"Msg":["Autocomplete.Autocomplete.Msg"]},"args":[]},"Autocomplete.Autocomplete.Msg":{"tags":{"MouseClick":["String"],"KeyDown":["Char.KeyCode"],"NoOp":[],"MouseEnter":["String"],"MouseLeave":["String"],"WentTooHigh":[],"WentTooLow":[]},"args":[]}}},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])
