@@ -100,19 +100,19 @@ update msg model =
             Wrap toTop ->
                 if toTop then
                     { model
-                        | autoState = Autocomplete.resetToFirstItem (updateConfig model.data.activeUsername) (Array.toList model.data.possibleUsers) model.showHowMany model.autoState
+                        | autoState = Autocomplete.resetToFirstItem (updateConfig model.data.activeUsername) (LoginData.filterUsers model.data) model.showHowMany model.autoState
                     }
                         ! []
                 else
                     { model
-                        | autoState = Autocomplete.resetToLastItem (updateConfig model.data.activeUsername) (Array.toList model.data.possibleUsers) model.showHowMany model.autoState
+                        | autoState = Autocomplete.resetToLastItem (updateConfig model.data.activeUsername) (LoginData.filterUsers model.data) model.showHowMany model.autoState
                     }
                         ! []
 
             SetAutoState autoMsg ->
                 let
                     ( newState, maybeMsg ) =
-                        Autocomplete.update (updateConfig model.data.activeUsername) autoMsg model.showHowMany model.autoState (Array.toList model.data.possibleUsers)
+                        Autocomplete.update (updateConfig model.data.activeUsername) autoMsg model.showHowMany model.autoState (LoginData.filterUsers model.data)
 
                     newModel =
                         { model | autoState = newState }
@@ -292,7 +292,7 @@ usernameInput model show name inputMsg focusMsg typed =
                 ]
                 []
             , if show then
-                Html.map SetAutoState (Autocomplete.view (viewConfig model.data.activeUsername) model.showHowMany model.autoState (Array.toList model.data.possibleUsers))
+                Html.map SetAutoState (Autocomplete.view (viewConfig model.data.activeUsername) model.showHowMany model.autoState (LoginData.filterUsers model.data))
               else
                 div [] []
             ]

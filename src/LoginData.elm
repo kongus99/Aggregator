@@ -1,4 +1,4 @@
-module LoginData exposing (LoginData, emptyLoginData, idGetter, selectUser, setUser, setPossibleUsers, updateSteamUsername, updateGogUsername, changeActiveUsername)
+module LoginData exposing (LoginData, emptyLoginData, idGetter, selectUser, setUser, setPossibleUsers, updateSteamUsername, updateGogUsername, changeActiveUsername, filterUsers)
 
 import Array exposing (Array)
 import Model exposing (GameOn(Steam), User)
@@ -78,3 +78,21 @@ changeActiveUsername active data =
             else
                 Just active
     }
+
+
+filterUsers : LoginData -> List User
+filterUsers data =
+    let
+        gogUsername =
+            data.user.gogUsername |> Maybe.withDefault ""
+
+        matchesGogUsername u =
+            u.gogUsername |> Maybe.map (\n -> String.contains gogUsername n) |> Maybe.withDefault True
+
+        steamUsername =
+            data.user.steamUsername |> Maybe.withDefault ""
+
+        matchesSteamUsername u =
+            u.steamUsername |> Maybe.map (\n -> String.contains steamUsername n) |> Maybe.withDefault True
+    in
+        data.possibleUsers |> Array.filter (\u -> matchesGogUsername u && matchesSteamUsername u) |> Array.toList

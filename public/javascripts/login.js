@@ -14675,6 +14675,39 @@ var _user$project$GameEntry$GameEntry = F3(
 		return {gog: a, steam: b, prices: c};
 	});
 
+var _user$project$LoginData$filterUsers = function (data) {
+	var steamUsername = A2(_elm_lang$core$Maybe$withDefault, '', data.user.steamUsername);
+	var matchesSteamUsername = function (u) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			true,
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (n) {
+					return A2(_elm_lang$core$String$contains, steamUsername, n);
+				},
+				u.steamUsername));
+	};
+	var gogUsername = A2(_elm_lang$core$Maybe$withDefault, '', data.user.gogUsername);
+	var matchesGogUsername = function (u) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			true,
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (n) {
+					return A2(_elm_lang$core$String$contains, gogUsername, n);
+				},
+				u.gogUsername));
+	};
+	return _elm_lang$core$Array$toList(
+		A2(
+			_elm_lang$core$Array$filter,
+			function (u) {
+				return matchesGogUsername(u) && matchesSteamUsername(u);
+			},
+			data.possibleUsers));
+};
 var _user$project$LoginData$changeActiveUsername = F2(
 	function (active, data) {
 		return _elm_lang$core$Native_Utils.update(
@@ -15405,7 +15438,7 @@ var _user$project$Login$usernameInput = F6(
 											_user$project$Login$viewConfig(model.data.activeUsername),
 											model.showHowMany,
 											model.autoState,
-											_elm_lang$core$Array$toList(model.data.possibleUsers))) : A2(
+											_user$project$LoginData$filterUsers(model.data))) : A2(
 										_elm_lang$html$Html$div,
 										{ctor: '[]'},
 										{ctor: '[]'}),
@@ -15622,7 +15655,7 @@ var _user$project$Login$update = F2(
 								autoState: A4(
 									_thebritican$elm_autocomplete$Autocomplete$resetToFirstItem,
 									_user$project$Login$updateConfig(model.data.activeUsername),
-									_elm_lang$core$Array$toList(model.data.possibleUsers),
+									_user$project$LoginData$filterUsers(model.data),
 									model.showHowMany,
 									model.autoState)
 							}),
@@ -15634,7 +15667,7 @@ var _user$project$Login$update = F2(
 								autoState: A4(
 									_thebritican$elm_autocomplete$Autocomplete$resetToLastItem,
 									_user$project$Login$updateConfig(model.data.activeUsername),
-									_elm_lang$core$Array$toList(model.data.possibleUsers),
+									_user$project$LoginData$filterUsers(model.data),
 									model.showHowMany,
 									model.autoState)
 							}),
@@ -15646,7 +15679,7 @@ var _user$project$Login$update = F2(
 						_p7._0,
 						model.showHowMany,
 						model.autoState,
-						_elm_lang$core$Array$toList(model.data.possibleUsers));
+						_user$project$LoginData$filterUsers(model.data));
 					var newState = _p8._0;
 					var maybeMsg = _p8._1;
 					var newModel = _elm_lang$core$Native_Utils.update(
