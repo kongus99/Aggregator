@@ -1,11 +1,11 @@
-module LoginData exposing (LoginData, emptyLoginData, idGetter, selectUser, previewUser, setUser, setPossibleUsers, updateSteamUsername, updateGogUsername, changeActiveUsername)
+module LoginData exposing (LoginData, emptyLoginData, idGetter, selectUser, setUser, setPossibleUsers, updateSteamUsername, updateGogUsername, changeActiveUsername)
 
 import Array exposing (Array)
 import Model exposing (GameOn(Steam), User)
 
 
 type alias LoginData =
-    { userLoaded : Bool, user : User, selectedUser : Int, possibleUsers : Array User, activeUsername : Maybe GameOn }
+    { userLoaded : Bool, user : User, possibleUsers : Array User, activeUsername : Maybe GameOn }
 
 
 emptyUser : User
@@ -15,7 +15,7 @@ emptyUser =
 
 emptyLoginData : LoginData
 emptyLoginData =
-    LoginData False emptyUser -1 Array.empty Nothing
+    LoginData False emptyUser Array.empty Nothing
 
 
 idGetter : Maybe GameOn -> User -> String
@@ -46,26 +46,17 @@ selectUser name data =
             data.possibleUsers
                 |> Array.get index
     in
-        { data | userLoaded = True, user = maybeUser |> Maybe.withDefault data.user, selectedUser = index, activeUsername = Nothing }
-
-
-previewUser : String -> LoginData -> LoginData
-previewUser name data =
-    let
-        index =
-            data.possibleUsers |> Array.toIndexedList |> List.filter (\( i, u ) -> idGetter data.activeUsername u == name) |> List.head |> Maybe.map Tuple.first |> Maybe.withDefault -1
-    in
-        { data | selectedUser = index }
+        { data | userLoaded = True, user = maybeUser |> Maybe.withDefault data.user, activeUsername = Nothing }
 
 
 setUser : User -> LoginData -> LoginData
 setUser u data =
-    { data | userLoaded = True, user = u, selectedUser = -1, possibleUsers = Array.fromList [] }
+    { data | userLoaded = True, user = u, possibleUsers = Array.fromList [] }
 
 
 setPossibleUsers : List User -> LoginData -> LoginData
 setPossibleUsers users data =
-    { data | selectedUser = 0, possibleUsers = Array.fromList users }
+    { data | possibleUsers = Array.fromList users }
 
 
 updateSteamUsername : String -> LoginData -> LoginData

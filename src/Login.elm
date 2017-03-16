@@ -4,7 +4,7 @@ import Array exposing (Array)
 import Autocomplete
 import Dom
 import Html exposing (Html, button, div, text, form, br, input, span, label)
-import Html.Attributes exposing (action, checked, class, classList, disabled, id, method, name, style, type_, value)
+import Html.Attributes exposing (action, autocomplete, checked, class, classList, disabled, id, method, name, style, type_, value)
 import Html.Events exposing (keyCode, onBlur, onCheck, onClick, onFocus, onInput, onSubmit, onWithOptions)
 import LoginData exposing (LoginData)
 import Model exposing (..)
@@ -55,11 +55,11 @@ updateConfig activeInput =
         , onKeyDown =
             \code maybeId ->
                 if code == 38 || code == 40 then
-                    Maybe.map PreviewUser maybeId
+                    Just NoOp
                 else if code == 13 then
                     Maybe.map SelectUser maybeId
                 else
-                    Just <| Reset
+                    Just Reset
         , onTooLow = Just <| Wrap True
         , onTooHigh = Just <| Wrap False
         , onMouseEnter = \_ -> Nothing
@@ -75,7 +75,6 @@ updateConfig activeInput =
 
 type Msg
     = SelectUser String
-    | PreviewUser String
     | SetAutoState Autocomplete.Msg
     | CreateUpdateUser User
     | UserFetched User
@@ -127,9 +126,6 @@ update msg model =
 
             SelectUser name ->
                 { model | message = "", data = LoginData.selectUser name model.data } ! []
-
-            PreviewUser name ->
-                { model | message = "", data = LoginData.previewUser name model.data } ! []
 
             CreateUpdateUser u ->
                 { model | message = "" }
@@ -281,52 +277,26 @@ gogInput model typed =
 
 
 usernameInput model show name inputMsg focusMsg typed =
-    let
-        options =
-            { preventDefault = True, stopPropagation = False }
-
-        dec =
-            (Json.map
-                (\code ->
-                    if code == 38 || code == 40 then
-                        Ok NoOp
-                    else
-                        Err "not handling that key"
-                )
-                keyCode
-            )
-                |> Json.andThen
-                    fromResult
-
-        fromResult : Result String a -> Json.Decoder a
-        fromResult result =
-            case result of
-                Ok val ->
-                    Json.succeed val
-
-                Err reason ->
-                    Json.fail reason
-    in
-        div [ class "form-group" ]
-            [ label []
-                [ text name
-                , br [] []
-                , input
-                    [ type_ "text"
-                    , disabled model.data.userLoaded
-                    , id <| inputId focusMsg
-                    , onInput inputMsg
-                    , onFocus focusMsg
-                    , value typed
-                    , onWithOptions "keydown" options dec
-                    ]
-                    []
-                , if show then
-                    Html.map SetAutoState (Autocomplete.view (viewConfig model.data.activeUsername) model.showHowMany model.autoState (Array.toList model.data.possibleUsers))
-                  else
-                    div [] []
+    div [ class "form-group" ]
+        [ label []
+            [ text name
+            , br [] []
+            , input
+                [ type_ "text"
+                , disabled model.data.userLoaded
+                , id <| inputId focusMsg
+                , onInput inputMsg
+                , onFocus focusMsg
+                , value typed
+                , autocomplete False
                 ]
+                []
+            , if show then
+                Html.map SetAutoState (Autocomplete.view (viewConfig model.data.activeUsername) model.showHowMany model.autoState (Array.toList model.data.possibleUsers))
+              else
+                div [] []
             ]
+        ]
 
 
 inputId focusMsg =
