@@ -1,6 +1,6 @@
-module Router exposing (routes, MethodGenerator, getUserGames, toggleSelected, comparisonData, resolveResponse, mainPageUrl, refreshSocketUrl, fetchGameOptions, saveSelectedSearchResult, fetchNewSearchResults)
+module Router exposing (routes, MethodGenerator, toggleSelected, comparisonData, resolveResponse, refreshSocketUrl, fetchGameOptions, saveSelectedSearchResult, fetchNewSearchResults)
 
-import Http exposing (Request)
+import Http
 import Json.Decode as Json exposing (..)
 import Model exposing (..)
 import GameEntry exposing (GameEntry)
@@ -9,10 +9,6 @@ import Erl
 
 
 --METHODS
-
-
-getUserGames params =
-    Http.get (routes.main.fetch params) (list decodedGameEntry)
 
 
 fetchGameOptions params =
@@ -44,7 +40,7 @@ type alias UrlGenerator =
 
 
 type alias MethodGenerator a =
-    List ( String, String ) -> Request a
+    List ( String, String ) -> { url : String, request : Http.Request a }
 
 
 type alias Addresses =
@@ -56,7 +52,7 @@ type alias Login =
 
 
 type alias Main =
-    { fetch : UrlGenerator, page : UrlGenerator }
+    { fetch : MethodGenerator (List GameEntry), page : MethodGenerator String }
 
 
 type alias Options =
@@ -69,13 +65,15 @@ type alias Comparison =
 
 login =
     Login
-        (\x -> Http.get (generateAddress "login/fetchUsers" x) (list decodedUserEntry))
-        (\x -> Http.post (generateAddress "login/createUpdate" x) Http.emptyBody decodedUserEntry)
-        (\x -> Http.post (generateAddress "login/steamAlternate" x) Http.emptyBody decodedUserEntry)
+        (generateGetMethod "login/fetchUsers" (list decodedUserEntry))
+        (generatePostMethod "login/createUpdate" decodedUserEntry)
+        (generatePostMethod "login/steamAlternate" decodedUserEntry)
 
 
 main_ =
-    Main (generateAddress "main/fetch") (generateAddress "main")
+    Main
+        (generateGetMethod "main/fetch" (list decodedGameEntry))
+        (generateGetMethod "main" string)
 
 
 gameOptions =
@@ -92,11 +90,6 @@ routes =
 
 
 --URLS
-
-
-mainPageUrl : List ( String, String ) -> String
-mainPageUrl params =
-    routes.main.page params
 
 
 refreshSocketUrl : String -> String
@@ -146,6 +139,22 @@ decodedGameQueryEntry =
 
 
 -- HELPERS
+
+
+generateGetMethod base decoder params =
+    let
+        url =
+            generateAddress base params
+    in
+        { url = url, request = Http.get url decoder }
+
+
+generatePostMethod base decoder params =
+    let
+        url =
+            generateAddress base params
+    in
+        { url = url, request = Http.post url Http.emptyBody decoder }
 
 
 generateAddress : String -> List ( String, String ) -> String

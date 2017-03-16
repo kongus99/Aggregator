@@ -12309,6 +12309,22 @@ var _user$project$Router$generateAddress = F2(
 		return _sporto$erl$Erl$toString(
 			A3(_elm_lang$core$List$foldl, folder, defaultUrl, params));
 	});
+var _user$project$Router$generatePostMethod = F3(
+	function (base, decoder, params) {
+		var url = A2(_user$project$Router$generateAddress, base, params);
+		return {
+			url: url,
+			request: A3(_elm_lang$http$Http$post, url, _elm_lang$http$Http$emptyBody, decoder)
+		};
+	});
+var _user$project$Router$generateGetMethod = F3(
+	function (base, decoder, params) {
+		var url = A2(_user$project$Router$generateAddress, base, params);
+		return {
+			url: url,
+			request: A2(_elm_lang$http$Http$get, url, decoder)
+		};
+	});
 var _user$project$Router$decodedGameQueryEntry = A5(
 	_elm_lang$core$Json_Decode$map4,
 	_user$project$Model$GameQuery,
@@ -12413,7 +12429,7 @@ var _user$project$Router$refreshSocketUrl = function (host) {
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
 		'ws://',
-		A2(_elm_lang$core$Basics_ops['++'], host, '/refreshSocket'));
+		A2(_elm_lang$core$Basics_ops['++'], host, '/refreshsocket'));
 };
 var _user$project$Router$Addresses = F4(
 	function (a, b, c, d) {
@@ -12425,34 +12441,23 @@ var _user$project$Router$Login = F3(
 	});
 var _user$project$Router$login = A3(
 	_user$project$Router$Login,
-	function (x) {
-		return A2(
-			_elm_lang$http$Http$get,
-			A2(_user$project$Router$generateAddress, 'login/fetchUsers', x),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedUserEntry));
-	},
-	function (x) {
-		return A3(
-			_elm_lang$http$Http$post,
-			A2(_user$project$Router$generateAddress, 'login/createUpdate', x),
-			_elm_lang$http$Http$emptyBody,
-			_user$project$Router$decodedUserEntry);
-	},
-	function (x) {
-		return A3(
-			_elm_lang$http$Http$post,
-			A2(_user$project$Router$generateAddress, 'login/steamAlternate', x),
-			_elm_lang$http$Http$emptyBody,
-			_user$project$Router$decodedUserEntry);
-	});
+	A2(
+		_user$project$Router$generateGetMethod,
+		'login/fetchUsers',
+		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedUserEntry)),
+	A2(_user$project$Router$generatePostMethod, 'login/createUpdate', _user$project$Router$decodedUserEntry),
+	A2(_user$project$Router$generatePostMethod, 'login/steamAlternate', _user$project$Router$decodedUserEntry));
 var _user$project$Router$Main = F2(
 	function (a, b) {
 		return {fetch: a, page: b};
 	});
 var _user$project$Router$main_ = A2(
 	_user$project$Router$Main,
-	_user$project$Router$generateAddress('main/fetch'),
-	_user$project$Router$generateAddress('main'));
+	A2(
+		_user$project$Router$generateGetMethod,
+		'main/fetch',
+		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+	A2(_user$project$Router$generateGetMethod, 'main', _elm_lang$core$Json_Decode$string));
 var _user$project$Router$Options = F3(
 	function (a, b, c) {
 		return {fetch: a, changeSelectedSearch: b, fetchSearchResults: c};
@@ -12472,12 +12477,6 @@ var _user$project$Router$comparison = A3(
 	_user$project$Router$generateAddress('comparison/data'),
 	_user$project$Router$generateAddress('comparison'));
 var _user$project$Router$routes = A4(_user$project$Router$Addresses, _user$project$Router$login, _user$project$Router$main_, _user$project$Router$gameOptions, _user$project$Router$comparison);
-var _user$project$Router$getUserGames = function (params) {
-	return A2(
-		_elm_lang$http$Http$get,
-		_user$project$Router$routes.main.fetch(params),
-		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry));
-};
 var _user$project$Router$fetchGameOptions = function (params) {
 	return A2(
 		_elm_lang$http$Http$get,
@@ -12513,9 +12512,6 @@ var _user$project$Router$comparisonData = function (params) {
 			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedComparisonEntry)),
 		_1: _user$project$Router$routes.comparison.page(params)
 	};
-};
-var _user$project$Router$mainPageUrl = function (params) {
-	return _user$project$Router$routes.main.page(params);
 };
 
 var _user$project$Filters$discountedIfAvailable = function (prices) {
@@ -12806,8 +12802,11 @@ var _user$project$Filters$sendRefresh = function (model) {
 	return A2(
 		_elm_lang$http$Http$send,
 		A2(_user$project$Router$resolveResponse, _user$project$Filters$ReceiveEntries, _user$project$Filters$ReceiveError),
-		_user$project$Router$getUserGames(
-			_user$project$Filters$serialize(model)));
+		function (_) {
+			return _.request;
+		}(
+			_user$project$Router$routes.main.fetch(
+				_user$project$Filters$serialize(model))));
 };
 var _user$project$Filters$update = F2(
 	function (msg, model) {
@@ -14169,8 +14168,11 @@ var _user$project$MainPage$update = F2(
 			default:
 				var adjustAddress = function (model) {
 					return _user$project$MainPage$elmAddressChange(
-						_user$project$Router$mainPageUrl(
-							_user$project$Filters$serialize(model.filters)));
+						function (_) {
+							return _.url;
+						}(
+							_user$project$Router$routes.main.page(
+								_user$project$Filters$serialize(model.filters))));
 				};
 				var _p4 = A2(_user$project$Filters$update, _p1._0, model.filters);
 				var newFilters = _p4._0;

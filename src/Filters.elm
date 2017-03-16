@@ -9,7 +9,7 @@ import Model exposing (..)
 import GameEntry exposing (GameEntry, getPrice, getName)
 import Erl
 import Parser
-import Router
+import Router exposing (routes)
 import WebSocket
 
 
@@ -195,7 +195,7 @@ refresh s model =
 
 sendRefresh : Model -> Cmd Msg
 sendRefresh model =
-    serialize model |> Router.getUserGames |> Http.send (Router.resolveResponse ReceiveEntries ReceiveError)
+    serialize model |> routes.main.fetch |> .request |> Http.send (Router.resolveResponse ReceiveEntries ReceiveError)
 
 
 

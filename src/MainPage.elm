@@ -113,7 +113,7 @@ update msg model =
                     { model | filters = newFilters, message = newFilters.err |> Maybe.map toString }
 
                 adjustAddress model =
-                    Filters.serialize model.filters |> Router.mainPageUrl |> elmAddressChange
+                    Filters.serialize model.filters |> routes.main.page |> .url |> elmAddressChange
             in
                 newModel ! [ Cmd.map FiltersMessage cmd, adjustAddress newModel ]
 

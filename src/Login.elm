@@ -8,7 +8,7 @@ import Html.Attributes exposing (action, autocomplete, checked, class, classList
 import Html.Events exposing (keyCode, onBlur, onCheck, onClick, onFocus, onInput, onSubmit, onWithOptions)
 import LoginData exposing (LoginData)
 import Model exposing (..)
-import Router exposing (routes, mainPageUrl)
+import Router exposing (routes)
 import Http
 import Json.Decode as Json
 import Task
@@ -129,7 +129,7 @@ update msg model =
 
             CreateUpdateUser u ->
                 { model | message = "" }
-                    ! [ serializeUser u |> routes.login.createUpdate |> (getResponse UserFetched) ]
+                    ! [ serializeUser u |> routes.login.createUpdate |> .request |> (getResponse UserFetched) ]
 
             UserFetched u ->
                 { model | message = "", data = LoginData.setUser u model.data } ! []
@@ -170,7 +170,7 @@ update msg model =
                             args
 
                     sendUpdate _ =
-                        serializeUser model.data.user |> changeAlternate |> routes.login.steamAlternate |> (getResponse UserFetched)
+                        serializeUser model.data.user |> changeAlternate |> routes.login.steamAlternate |> .request |> (getResponse UserFetched)
 
                     newModel =
                         { model | message = "", data = LoginData.setUser newUser model.data }
@@ -189,7 +189,7 @@ update msg model =
 
 sendUsersRequest user username =
     if String.length username == 0 then
-        serializeUser user |> routes.login.fetchUsers |> (getResponse UsersFetched)
+        serializeUser user |> routes.login.fetchUsers |> .request |> (getResponse UsersFetched)
     else
         Cmd.none
 
@@ -306,7 +306,7 @@ mainPageLink model =
     model.data.user.id
         |> Maybe.map
             (\userId ->
-                [ form [ method "get", Router.mainPageUrl [] |> action ]
+                [ form [ method "get", action <| (routes.main.page []).url ]
                     [ input [ type_ "hidden", name "sources", value <| toString WishList ] []
                     , input [ type_ "hidden", name "userId", value <| toString userId ] []
                     , button [ type_ "submit" ] [ text "Continue" ]
