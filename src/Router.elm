@@ -47,16 +47,12 @@ type alias MethodGenerator a =
     List ( String, String ) -> Request a
 
 
-
---String -> Body -> Decode.Decoder a -> Request a
-
-
 type alias Addresses =
     { login : Login, main : Main, gameOptions : Options, comparison : Comparison }
 
 
 type alias Login =
-    { fetchSteam : MethodGenerator (List User), fetchGog : MethodGenerator (List User), createUpdate : MethodGenerator User, steamAlternate : MethodGenerator User }
+    { fetchUsers : MethodGenerator (List User), createUpdate : MethodGenerator User, steamAlternate : MethodGenerator User }
 
 
 type alias Main =
@@ -73,8 +69,7 @@ type alias Comparison =
 
 login =
     Login
-        (\x -> Http.get (generateAddress "login/fetchSteam" x) (list decodedUserEntry))
-        (\x -> Http.get (generateAddress "login/fetchGog" x) (list decodedUserEntry))
+        (\x -> Http.get (generateAddress "login/fetchUsers" x) (list decodedUserEntry))
         (\x -> Http.post (generateAddress "login/createUpdate" x) Http.emptyBody decodedUserEntry)
         (\x -> Http.post (generateAddress "login/steamAlternate" x) Http.emptyBody decodedUserEntry)
 

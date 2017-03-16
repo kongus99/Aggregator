@@ -145,11 +145,11 @@ update msg model =
 
             SteamGainFocus ->
                 { model | message = "", data = LoginData.changeActiveUsername Steam model.data }
-                    ! [ sendUsersRequest routes.login.fetchSteam model.data.user (Maybe.withDefault "" model.data.user.steamUsername) ]
+                    ! [ sendUsersRequest model.data.user (Maybe.withDefault "" model.data.user.steamUsername) ]
 
             GogGainFocus ->
                 { model | message = "", data = LoginData.changeActiveUsername Gog model.data }
-                    ! [ sendUsersRequest routes.login.fetchGog model.data.user (Maybe.withDefault "" model.data.user.gogUsername) ]
+                    ! [ sendUsersRequest model.data.user (Maybe.withDefault "" model.data.user.gogUsername) ]
 
             SteamAlternateChange c ->
                 let
@@ -187,9 +187,9 @@ update msg model =
                 { model | autoState = Autocomplete.reset (updateConfig model.data.activeUsername) model.autoState } ! []
 
 
-sendUsersRequest method user username =
+sendUsersRequest user username =
     if String.length username == 0 then
-        serializeUser user |> method |> (getResponse UsersFetched)
+        serializeUser user |> routes.login.fetchUsers |> (getResponse UsersFetched)
     else
         Cmd.none
 
@@ -277,26 +277,30 @@ gogInput model typed =
 
 
 usernameInput model show name inputMsg focusMsg typed =
-    div [ class "form-group" ]
-        [ label []
-            [ text name
-            , br [] []
-            , input
-                [ type_ "text"
-                , disabled model.data.userLoaded
-                , id <| inputId focusMsg
-                , onInput inputMsg
-                , onFocus focusMsg
-                , value typed
-                , autocomplete False
+    let
+        filteredUsers =
+            LoginData.filterUsers model.data
+    in
+        div [ class "form-group" ]
+            [ label []
+                [ text name
+                , br [] []
+                , input
+                    [ type_ "text"
+                    , disabled model.data.userLoaded
+                    , id <| inputId focusMsg
+                    , onInput inputMsg
+                    , onFocus focusMsg
+                    , value typed
+                    , autocomplete False
+                    ]
+                    []
+                , if show && not (List.isEmpty filteredUsers) then
+                    Html.map SetAutoState (Autocomplete.view (viewConfig model.data.activeUsername) model.showHowMany model.autoState filteredUsers)
+                  else
+                    div [] []
                 ]
-                []
-            , if show then
-                Html.map SetAutoState (Autocomplete.view (viewConfig model.data.activeUsername) model.showHowMany model.autoState (LoginData.filterUsers model.data))
-              else
-                div [] []
             ]
-        ]
 
 
 inputId focusMsg =
