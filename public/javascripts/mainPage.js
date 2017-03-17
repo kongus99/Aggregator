@@ -12464,9 +12464,9 @@ var _user$project$Router$Options = F3(
 	});
 var _user$project$Router$gameOptions = A3(
 	_user$project$Router$Options,
-	_user$project$Router$generateAddress('gameOptions/fetch'),
-	_user$project$Router$generateAddress('gameOptions/changeSelectedSearch'),
-	_user$project$Router$generateAddress('gameOptions/fetchSearchResults'));
+	A2(_user$project$Router$generateGetMethod, 'gameOptions/fetch', _user$project$Router$decodedGameOptionsEntry),
+	A2(_user$project$Router$generatePostMethod, 'gameOptions/changeSelectedSearch', _elm_lang$core$Json_Decode$string),
+	A2(_user$project$Router$generateGetMethod, 'gameOptions/fetchSearchResults', _user$project$Router$decodedGameOptionsEntry));
 var _user$project$Router$Comparison = F3(
 	function (a, b, c) {
 		return {toggleSelected: a, comparisonData: b, page: c};
@@ -12477,25 +12477,6 @@ var _user$project$Router$comparison = A3(
 	_user$project$Router$generateAddress('comparison/data'),
 	_user$project$Router$generateAddress('comparison'));
 var _user$project$Router$routes = A4(_user$project$Router$Addresses, _user$project$Router$login, _user$project$Router$main_, _user$project$Router$gameOptions, _user$project$Router$comparison);
-var _user$project$Router$fetchGameOptions = function (params) {
-	return A2(
-		_elm_lang$http$Http$get,
-		_user$project$Router$routes.gameOptions.fetch(params),
-		_user$project$Router$decodedGameOptionsEntry);
-};
-var _user$project$Router$fetchNewSearchResults = function (params) {
-	return A2(
-		_elm_lang$http$Http$get,
-		_user$project$Router$routes.gameOptions.fetchSearchResults(params),
-		_user$project$Router$decodedGameOptionsEntry);
-};
-var _user$project$Router$saveSelectedSearchResult = function (params) {
-	return A3(
-		_elm_lang$http$Http$post,
-		_user$project$Router$routes.gameOptions.changeSelectedSearch(params),
-		_elm_lang$http$Http$emptyBody,
-		_elm_lang$core$Json_Decode$string);
-};
 var _user$project$Router$toggleSelected = function (params) {
 	return A3(
 		_elm_lang$http$Http$post,
@@ -13463,24 +13444,27 @@ var _user$project$GameOptionsDialog$fetch = F4(
 			return A2(
 				_elm_lang$http$Http$send,
 				A2(_user$project$Router$resolveResponse, mess, err),
-				_user$project$Router$fetchGameOptions(
-					{
-						ctor: '::',
-						_0: {
-							ctor: '_Tuple2',
-							_0: 'userId',
-							_1: _elm_lang$core$Basics$toString(userId)
-						},
-						_1: {
+				function (_) {
+					return _.request;
+				}(
+					_user$project$Router$routes.gameOptions.fetch(
+						{
 							ctor: '::',
 							_0: {
 								ctor: '_Tuple2',
-								_0: 'steamId',
-								_1: _elm_lang$core$Basics$toString(id)
+								_0: 'userId',
+								_1: _elm_lang$core$Basics$toString(userId)
 							},
-							_1: {ctor: '[]'}
-						}
-					}));
+							_1: {
+								ctor: '::',
+								_0: {
+									ctor: '_Tuple2',
+									_0: 'steamId',
+									_1: _elm_lang$core$Basics$toString(id)
+								},
+								_1: {ctor: '[]'}
+							}
+						})));
 		};
 		return A2(
 			_elm_lang$core$Maybe$withDefault,
@@ -13574,19 +13558,22 @@ var _user$project$GameOptionsDialog$newResults = F3(
 		return A2(
 			_elm_lang$http$Http$send,
 			A2(_user$project$Router$resolveResponse, _user$project$GameOptionsDialog$NewResults, _user$project$GameOptionsDialog$DialogError),
-			_user$project$Router$fetchNewSearchResults(
-				A2(
-					_elm_lang$core$List$append,
-					{
-						ctor: '::',
-						_0: {
-							ctor: '_Tuple2',
-							_0: 'userId',
-							_1: _elm_lang$core$Basics$toString(userId)
+			function (_) {
+				return _.request;
+			}(
+				_user$project$Router$routes.gameOptions.fetchSearchResults(
+					A2(
+						_elm_lang$core$List$append,
+						{
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'userId',
+								_1: _elm_lang$core$Basics$toString(userId)
+							},
+							_1: serialized
 						},
-						_1: serialized
-					},
-					_user$project$GameOptionsDialog$serializeSteamId(model))));
+						_user$project$GameOptionsDialog$serializeSteamId(model)))));
 	});
 var _user$project$GameOptionsDialog$GetNewResults = function (a) {
 	return {ctor: 'GetNewResults', _0: a};
@@ -13603,19 +13590,22 @@ var _user$project$GameOptionsDialog$saveSwitched = F3(
 		return A2(
 			_elm_lang$http$Http$send,
 			A2(_user$project$Router$resolveResponse, _user$project$GameOptionsDialog$Switched, _user$project$GameOptionsDialog$DialogError),
-			_user$project$Router$saveSelectedSearchResult(
-				A2(
-					_elm_lang$core$List$append,
-					{
-						ctor: '::',
-						_0: {
-							ctor: '_Tuple2',
-							_0: 'userId',
-							_1: _elm_lang$core$Basics$toString(userId)
+			function (_) {
+				return _.request;
+			}(
+				_user$project$Router$routes.gameOptions.changeSelectedSearch(
+					A2(
+						_elm_lang$core$List$append,
+						{
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'userId',
+								_1: _elm_lang$core$Basics$toString(userId)
+							},
+							_1: serialized
 						},
-						_1: serialized
-					},
-					_user$project$GameOptionsDialog$serializeSteamId(model))));
+						_user$project$GameOptionsDialog$serializeSteamId(model)))));
 	});
 var _user$project$GameOptionsDialog$update = F3(
 	function (userId, msg, model) {
@@ -14073,15 +14063,12 @@ var _user$project$MainPage$FiltersMessage = function (a) {
 var _user$project$MainPage$initProgram = function (address) {
 	var url = _sporto$erl$Erl$parse(address);
 	var host = A2(
-		_elm_lang$core$Debug$log,
-		'host',
+		_elm_lang$core$Basics_ops['++'],
+		A2(_elm_lang$core$String$join, '.', url.host),
 		A2(
 			_elm_lang$core$Basics_ops['++'],
-			A2(_elm_lang$core$String$join, '.', url.host),
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				':',
-				_elm_lang$core$Basics$toString(url.port_))));
+			':',
+			_elm_lang$core$Basics$toString(url.port_)));
 	var _p0 = A2(
 		_user$project$Filters$refresh,
 		'',
@@ -14358,12 +14345,9 @@ var _user$project$MainPage$ServerRefreshRequest = function (a) {
 };
 var _user$project$MainPage$subscriptions = function (model) {
 	return A2(
-		_elm_lang$core$Debug$log,
-		'socket',
-		A2(
-			_elm_lang$websocket$WebSocket$listen,
-			_user$project$Router$refreshSocketUrl(model.host),
-			_user$project$MainPage$ServerRefreshRequest));
+		_elm_lang$websocket$WebSocket$listen,
+		_user$project$Router$refreshSocketUrl(model.host),
+		_user$project$MainPage$ServerRefreshRequest);
 };
 var _user$project$MainPage$main = _elm_lang$html$Html$programWithFlags(
 	{init: _user$project$MainPage$initProgram, view: _user$project$MainPage$view, update: _user$project$MainPage$update, subscriptions: _user$project$MainPage$subscriptions})(_elm_lang$core$Json_Decode$string);

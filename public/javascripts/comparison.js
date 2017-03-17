@@ -11021,9 +11021,9 @@ var _user$project$Router$Options = F3(
 	});
 var _user$project$Router$gameOptions = A3(
 	_user$project$Router$Options,
-	_user$project$Router$generateAddress('gameOptions/fetch'),
-	_user$project$Router$generateAddress('gameOptions/changeSelectedSearch'),
-	_user$project$Router$generateAddress('gameOptions/fetchSearchResults'));
+	A2(_user$project$Router$generateGetMethod, 'gameOptions/fetch', _user$project$Router$decodedGameOptionsEntry),
+	A2(_user$project$Router$generatePostMethod, 'gameOptions/changeSelectedSearch', _elm_lang$core$Json_Decode$string),
+	A2(_user$project$Router$generateGetMethod, 'gameOptions/fetchSearchResults', _user$project$Router$decodedGameOptionsEntry));
 var _user$project$Router$Comparison = F3(
 	function (a, b, c) {
 		return {toggleSelected: a, comparisonData: b, page: c};
@@ -11034,25 +11034,6 @@ var _user$project$Router$comparison = A3(
 	_user$project$Router$generateAddress('comparison/data'),
 	_user$project$Router$generateAddress('comparison'));
 var _user$project$Router$routes = A4(_user$project$Router$Addresses, _user$project$Router$login, _user$project$Router$main_, _user$project$Router$gameOptions, _user$project$Router$comparison);
-var _user$project$Router$fetchGameOptions = function (params) {
-	return A2(
-		_elm_lang$http$Http$get,
-		_user$project$Router$routes.gameOptions.fetch(params),
-		_user$project$Router$decodedGameOptionsEntry);
-};
-var _user$project$Router$fetchNewSearchResults = function (params) {
-	return A2(
-		_elm_lang$http$Http$get,
-		_user$project$Router$routes.gameOptions.fetchSearchResults(params),
-		_user$project$Router$decodedGameOptionsEntry);
-};
-var _user$project$Router$saveSelectedSearchResult = function (params) {
-	return A3(
-		_elm_lang$http$Http$post,
-		_user$project$Router$routes.gameOptions.changeSelectedSearch(params),
-		_elm_lang$http$Http$emptyBody,
-		_elm_lang$core$Json_Decode$string);
-};
 var _user$project$Router$toggleSelected = function (params) {
 	return A3(
 		_elm_lang$http$Http$post,

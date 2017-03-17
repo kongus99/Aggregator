@@ -8,7 +8,7 @@ import Html.Events exposing (keyCode, on, onClick, onInput)
 import Http
 import Json.Decode as Json
 import Model exposing (GameOptions, GameQuery)
-import Router
+import Router exposing (routes)
 
 
 -- MODEL
@@ -133,20 +133,25 @@ fetch : Int -> Maybe Int -> (GameOptions -> c) -> (Http.Error -> c) -> Cmd c
 fetch userId steamId mess err =
     let
         send id =
-            Http.send (Router.resolveResponse mess err) <| Router.fetchGameOptions [ ( "userId", toString userId ), ( "steamId", toString id ) ]
+            [ ( "userId", toString userId ), ( "steamId", toString id ) ]
+                |> routes.gameOptions.fetch
+                |> .request
+                |> Http.send (Router.resolveResponse mess err)
     in
         Maybe.map send steamId |> Maybe.withDefault Cmd.none
 
 
 saveSwitched userId serialized model =
     List.append (( "userId", toString userId ) :: serialized) (serializeSteamId model)
-        |> Router.saveSelectedSearchResult
+        |> routes.gameOptions.changeSelectedSearch
+        |> .request
         |> Http.send (Router.resolveResponse Switched DialogError)
 
 
 newResults userId serialized model =
     List.append (( "userId", toString userId ) :: serialized) (serializeSteamId model)
-        |> Router.fetchNewSearchResults
+        |> routes.gameOptions.fetchSearchResults
+        |> .request
         |> Http.send (Router.resolveResponse NewResults DialogError)
 
 

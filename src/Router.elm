@@ -1,4 +1,4 @@
-module Router exposing (routes, MethodGenerator, toggleSelected, comparisonData, resolveResponse, refreshSocketUrl, fetchGameOptions, saveSelectedSearchResult, fetchNewSearchResults)
+module Router exposing (routes, MethodGenerator, toggleSelected, comparisonData, resolveResponse, refreshSocketUrl)
 
 import Http
 import Json.Decode as Json exposing (..)
@@ -9,18 +9,6 @@ import Erl
 
 
 --METHODS
-
-
-fetchGameOptions params =
-    Http.get (routes.gameOptions.fetch params) decodedGameOptionsEntry
-
-
-fetchNewSearchResults params =
-    Http.get (routes.gameOptions.fetchSearchResults params) decodedGameOptionsEntry
-
-
-saveSelectedSearchResult params =
-    Http.post (routes.gameOptions.changeSelectedSearch params) Http.emptyBody string
 
 
 toggleSelected params =
@@ -56,7 +44,7 @@ type alias Main =
 
 
 type alias Options =
-    { fetch : UrlGenerator, changeSelectedSearch : UrlGenerator, fetchSearchResults : UrlGenerator }
+    { fetch : MethodGenerator GameOptions, changeSelectedSearch : MethodGenerator String, fetchSearchResults : MethodGenerator GameOptions }
 
 
 type alias Comparison =
@@ -77,11 +65,17 @@ main_ =
 
 
 gameOptions =
-    Options (generateAddress "gameOptions/fetch") (generateAddress "gameOptions/changeSelectedSearch") (generateAddress "gameOptions/fetchSearchResults")
+    Options
+        (generateGetMethod "gameOptions/fetch" decodedGameOptionsEntry)
+        (generatePostMethod "gameOptions/changeSelectedSearch" string)
+        (generateGetMethod "gameOptions/fetchSearchResults" decodedGameOptionsEntry)
 
 
 comparison =
-    Comparison (generateAddress "comparison/toggleMatch") (generateAddress "comparison/data") (generateAddress "comparison")
+    Comparison
+        (generateAddress "comparison/toggleMatch")
+        (generateAddress "comparison/data")
+        (generateAddress "comparison")
 
 
 routes =
