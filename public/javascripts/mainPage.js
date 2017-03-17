@@ -12473,27 +12473,13 @@ var _user$project$Router$Comparison = F3(
 	});
 var _user$project$Router$comparison = A3(
 	_user$project$Router$Comparison,
-	_user$project$Router$generateAddress('comparison/toggleMatch'),
-	_user$project$Router$generateAddress('comparison/data'),
-	_user$project$Router$generateAddress('comparison'));
+	A2(_user$project$Router$generatePostMethod, 'comparison/toggleMatch', _elm_lang$core$Json_Decode$string),
+	A2(
+		_user$project$Router$generateGetMethod,
+		'comparison/data',
+		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedComparisonEntry)),
+	A2(_user$project$Router$generateGetMethod, 'comparison', _elm_lang$core$Json_Decode$string));
 var _user$project$Router$routes = A4(_user$project$Router$Addresses, _user$project$Router$login, _user$project$Router$main_, _user$project$Router$gameOptions, _user$project$Router$comparison);
-var _user$project$Router$toggleSelected = function (params) {
-	return A3(
-		_elm_lang$http$Http$post,
-		_user$project$Router$routes.comparison.toggleSelected(params),
-		_elm_lang$http$Http$emptyBody,
-		_elm_lang$core$Json_Decode$string);
-};
-var _user$project$Router$comparisonData = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.comparison.comparisonData(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedComparisonEntry)),
-		_1: _user$project$Router$routes.comparison.page(params)
-	};
-};
 
 var _user$project$Filters$discountedIfAvailable = function (prices) {
 	var selectFromPair = function (_p0) {

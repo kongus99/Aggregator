@@ -193,12 +193,15 @@ metricButtons parameters =
 
 
 postUpdate params =
-    Http.send (Router.resolveResponse ToggleStored DataError) (Router.toggleSelected params)
+    params
+        |> routes.comparison.toggleSelected
+        |> .request
+        |> Http.send (Router.resolveResponse ToggleStored DataError)
 
 
 getResponse params =
     let
-        ( request, address ) =
-            Router.comparisonData params
+        { url, request } =
+            params |> routes.comparison.comparisonData
     in
-        Cmd.batch [ Http.send (Router.resolveResponse ReceiveData DataError) request, elmAddressChange address ]
+        Cmd.batch [ Http.send (Router.resolveResponse ReceiveData DataError) request, elmAddressChange url ]

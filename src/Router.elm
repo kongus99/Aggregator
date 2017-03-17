@@ -1,4 +1,4 @@
-module Router exposing (routes, MethodGenerator, toggleSelected, comparisonData, resolveResponse, refreshSocketUrl)
+module Router exposing (routes, MethodGenerator, resolveResponse, refreshSocketUrl)
 
 import Http
 import Json.Decode as Json exposing (..)
@@ -6,18 +6,6 @@ import Model exposing (..)
 import GameEntry exposing (GameEntry)
 import String
 import Erl
-
-
---METHODS
-
-
-toggleSelected params =
-    Http.post (routes.comparison.toggleSelected params) Http.emptyBody string
-
-
-comparisonData params =
-    ( Http.get (routes.comparison.comparisonData params) (list decodedComparisonEntry), routes.comparison.page params )
-
 
 
 --ROUTES
@@ -48,7 +36,7 @@ type alias Options =
 
 
 type alias Comparison =
-    { toggleSelected : UrlGenerator, comparisonData : UrlGenerator, page : UrlGenerator }
+    { toggleSelected : MethodGenerator String, comparisonData : MethodGenerator (List ComparisonEntry), page : MethodGenerator String }
 
 
 login =
@@ -73,9 +61,9 @@ gameOptions =
 
 comparison =
     Comparison
-        (generateAddress "comparison/toggleMatch")
-        (generateAddress "comparison/data")
-        (generateAddress "comparison")
+        (generatePostMethod "comparison/toggleMatch" string)
+        (generateGetMethod "comparison/data" (list decodedComparisonEntry))
+        (generateGetMethod "comparison" string)
 
 
 routes =

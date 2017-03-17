@@ -11030,27 +11030,13 @@ var _user$project$Router$Comparison = F3(
 	});
 var _user$project$Router$comparison = A3(
 	_user$project$Router$Comparison,
-	_user$project$Router$generateAddress('comparison/toggleMatch'),
-	_user$project$Router$generateAddress('comparison/data'),
-	_user$project$Router$generateAddress('comparison'));
+	A2(_user$project$Router$generatePostMethod, 'comparison/toggleMatch', _elm_lang$core$Json_Decode$string),
+	A2(
+		_user$project$Router$generateGetMethod,
+		'comparison/data',
+		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedComparisonEntry)),
+	A2(_user$project$Router$generateGetMethod, 'comparison', _elm_lang$core$Json_Decode$string));
 var _user$project$Router$routes = A4(_user$project$Router$Addresses, _user$project$Router$login, _user$project$Router$main_, _user$project$Router$gameOptions, _user$project$Router$comparison);
-var _user$project$Router$toggleSelected = function (params) {
-	return A3(
-		_elm_lang$http$Http$post,
-		_user$project$Router$routes.comparison.toggleSelected(params),
-		_elm_lang$http$Http$emptyBody,
-		_elm_lang$core$Json_Decode$string);
-};
-var _user$project$Router$comparisonData = function (params) {
-	return {
-		ctor: '_Tuple2',
-		_0: A2(
-			_elm_lang$http$Http$get,
-			_user$project$Router$routes.comparison.comparisonData(params),
-			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedComparisonEntry)),
-		_1: _user$project$Router$routes.comparison.page(params)
-	};
-};
 
 var _user$project$Comparison$gameOnFromString = function (value) {
 	return _elm_lang$core$Native_Utils.eq(value, 'Steam') ? _user$project$Model$Steam : _user$project$Model$Gog;
@@ -11397,15 +11383,18 @@ var _user$project$Comparison$postUpdate = function (params) {
 	return A2(
 		_elm_lang$http$Http$send,
 		A2(_user$project$Router$resolveResponse, _user$project$Comparison$ToggleStored, _user$project$Comparison$DataError),
-		_user$project$Router$toggleSelected(params));
+		function (_) {
+			return _.request;
+		}(
+			_user$project$Router$routes.comparison.toggleSelected(params)));
 };
 var _user$project$Comparison$ReceiveData = function (a) {
 	return {ctor: 'ReceiveData', _0: a};
 };
 var _user$project$Comparison$getResponse = function (params) {
-	var _p1 = _user$project$Router$comparisonData(params);
-	var request = _p1._0;
-	var address = _p1._1;
+	var _p1 = _user$project$Router$routes.comparison.comparisonData(params);
+	var url = _p1.url;
+	var request = _p1.request;
 	return _elm_lang$core$Platform_Cmd$batch(
 		{
 			ctor: '::',
@@ -11415,7 +11404,7 @@ var _user$project$Comparison$getResponse = function (params) {
 				request),
 			_1: {
 				ctor: '::',
-				_0: _user$project$Comparison$elmAddressChange(address),
+				_0: _user$project$Comparison$elmAddressChange(url),
 				_1: {ctor: '[]'}
 			}
 		});
