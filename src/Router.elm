@@ -39,35 +39,27 @@ type alias Comparison =
     { toggleSelected : MethodGenerator String, comparisonData : MethodGenerator (List ComparisonEntry), page : MethodGenerator String }
 
 
-login =
-    Login
-        (generateGetMethod "login/fetchUsers" (list decodedUserEntry))
-        (generatePostMethod "login/createUpdate" decodedUserEntry)
-        (generatePostMethod "login/steamAlternate" decodedUserEntry)
-
-
-main_ =
-    Main
-        (generateGetMethod "main/fetch" (list decodedGameEntry))
-        (generateGetMethod "main" string)
-
-
-gameOptions =
-    Options
-        (generateGetMethod "gameOptions/fetch" decodedGameOptionsEntry)
-        (generatePostMethod "gameOptions/changeSelectedSearch" string)
-        (generateGetMethod "gameOptions/fetchSearchResults" decodedGameOptionsEntry)
-
-
-comparison =
-    Comparison
-        (generatePostMethod "comparison/toggleMatch" string)
-        (generateGetMethod "comparison/data" (list decodedComparisonEntry))
-        (generateGetMethod "comparison" string)
-
-
 routes =
-    Addresses login main_ gameOptions comparison
+    { login =
+        { fetchUsers = (generateGetMethod "login/fetchUsers" (list decodedUserEntry))
+        , createUpdate = (generatePostMethod "login/createUpdate" decodedUserEntry)
+        , steamAlternate = (generatePostMethod "login/steamAlternate" decodedUserEntry)
+        }
+    , main =
+        { fetch = (generateGetMethod "main/fetch" (list decodedGameEntry))
+        , page = (generateGetMethod "main" string)
+        }
+    , gameOptions =
+        { fetch = (generateGetMethod "gameOptions/fetch" decodedGameOptionsEntry)
+        , changeSelectedSearch = (generatePostMethod "gameOptions/changeSelectedSearch" string)
+        , fetchSearchResults = (generateGetMethod "gameOptions/fetchSearchResults" decodedGameOptionsEntry)
+        }
+    , comparison =
+        { toggleSelected = (generatePostMethod "comparison/toggleMatch" string)
+        , comparisonData = (generateGetMethod "comparison/data" (list decodedComparisonEntry))
+        , page = (generateGetMethod "comparison" string)
+        }
+    }
 
 
 

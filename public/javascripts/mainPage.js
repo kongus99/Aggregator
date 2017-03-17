@@ -12431,6 +12431,36 @@ var _user$project$Router$refreshSocketUrl = function (host) {
 		'ws://',
 		A2(_elm_lang$core$Basics_ops['++'], host, '/refreshsocket'));
 };
+var _user$project$Router$routes = {
+	login: {
+		fetchUsers: A2(
+			_user$project$Router$generateGetMethod,
+			'login/fetchUsers',
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedUserEntry)),
+		createUpdate: A2(_user$project$Router$generatePostMethod, 'login/createUpdate', _user$project$Router$decodedUserEntry),
+		steamAlternate: A2(_user$project$Router$generatePostMethod, 'login/steamAlternate', _user$project$Router$decodedUserEntry)
+	},
+	main: {
+		fetch: A2(
+			_user$project$Router$generateGetMethod,
+			'main/fetch',
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
+		page: A2(_user$project$Router$generateGetMethod, 'main', _elm_lang$core$Json_Decode$string)
+	},
+	gameOptions: {
+		fetch: A2(_user$project$Router$generateGetMethod, 'gameOptions/fetch', _user$project$Router$decodedGameOptionsEntry),
+		changeSelectedSearch: A2(_user$project$Router$generatePostMethod, 'gameOptions/changeSelectedSearch', _elm_lang$core$Json_Decode$string),
+		fetchSearchResults: A2(_user$project$Router$generateGetMethod, 'gameOptions/fetchSearchResults', _user$project$Router$decodedGameOptionsEntry)
+	},
+	comparison: {
+		toggleSelected: A2(_user$project$Router$generatePostMethod, 'comparison/toggleMatch', _elm_lang$core$Json_Decode$string),
+		comparisonData: A2(
+			_user$project$Router$generateGetMethod,
+			'comparison/data',
+			_elm_lang$core$Json_Decode$list(_user$project$Router$decodedComparisonEntry)),
+		page: A2(_user$project$Router$generateGetMethod, 'comparison', _elm_lang$core$Json_Decode$string)
+	}
+};
 var _user$project$Router$Addresses = F4(
 	function (a, b, c, d) {
 		return {login: a, main: b, gameOptions: c, comparison: d};
@@ -12439,47 +12469,18 @@ var _user$project$Router$Login = F3(
 	function (a, b, c) {
 		return {fetchUsers: a, createUpdate: b, steamAlternate: c};
 	});
-var _user$project$Router$login = A3(
-	_user$project$Router$Login,
-	A2(
-		_user$project$Router$generateGetMethod,
-		'login/fetchUsers',
-		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedUserEntry)),
-	A2(_user$project$Router$generatePostMethod, 'login/createUpdate', _user$project$Router$decodedUserEntry),
-	A2(_user$project$Router$generatePostMethod, 'login/steamAlternate', _user$project$Router$decodedUserEntry));
 var _user$project$Router$Main = F2(
 	function (a, b) {
 		return {fetch: a, page: b};
 	});
-var _user$project$Router$main_ = A2(
-	_user$project$Router$Main,
-	A2(
-		_user$project$Router$generateGetMethod,
-		'main/fetch',
-		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry)),
-	A2(_user$project$Router$generateGetMethod, 'main', _elm_lang$core$Json_Decode$string));
 var _user$project$Router$Options = F3(
 	function (a, b, c) {
 		return {fetch: a, changeSelectedSearch: b, fetchSearchResults: c};
 	});
-var _user$project$Router$gameOptions = A3(
-	_user$project$Router$Options,
-	A2(_user$project$Router$generateGetMethod, 'gameOptions/fetch', _user$project$Router$decodedGameOptionsEntry),
-	A2(_user$project$Router$generatePostMethod, 'gameOptions/changeSelectedSearch', _elm_lang$core$Json_Decode$string),
-	A2(_user$project$Router$generateGetMethod, 'gameOptions/fetchSearchResults', _user$project$Router$decodedGameOptionsEntry));
 var _user$project$Router$Comparison = F3(
 	function (a, b, c) {
 		return {toggleSelected: a, comparisonData: b, page: c};
 	});
-var _user$project$Router$comparison = A3(
-	_user$project$Router$Comparison,
-	A2(_user$project$Router$generatePostMethod, 'comparison/toggleMatch', _elm_lang$core$Json_Decode$string),
-	A2(
-		_user$project$Router$generateGetMethod,
-		'comparison/data',
-		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedComparisonEntry)),
-	A2(_user$project$Router$generateGetMethod, 'comparison', _elm_lang$core$Json_Decode$string));
-var _user$project$Router$routes = A4(_user$project$Router$Addresses, _user$project$Router$login, _user$project$Router$main_, _user$project$Router$gameOptions, _user$project$Router$comparison);
 
 var _user$project$Filters$discountedIfAvailable = function (prices) {
 	var selectFromPair = function (_p0) {
