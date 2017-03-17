@@ -14065,7 +14065,7 @@ var _user$project$MainPage$Model = F6(
 	});
 var _user$project$MainPage$initialModel = F2(
 	function (host, filters) {
-		return A6(_user$project$MainPage$Model, _user$project$Model$WishList, _elm_lang$core$Maybe$Nothing, 1, filters, '', _user$project$GameOptionsDialog$emptyModel);
+		return A6(_user$project$MainPage$Model, _user$project$Model$WishList, _elm_lang$core$Maybe$Nothing, 1, filters, host, _user$project$GameOptionsDialog$emptyModel);
 	});
 var _user$project$MainPage$FiltersMessage = function (a) {
 	return {ctor: 'FiltersMessage', _0: a};
@@ -14073,12 +14073,15 @@ var _user$project$MainPage$FiltersMessage = function (a) {
 var _user$project$MainPage$initProgram = function (address) {
 	var url = _sporto$erl$Erl$parse(address);
 	var host = A2(
-		_elm_lang$core$Basics_ops['++'],
-		A2(_elm_lang$core$String$join, '.', url.host),
+		_elm_lang$core$Debug$log,
+		'host',
 		A2(
 			_elm_lang$core$Basics_ops['++'],
-			':',
-			_elm_lang$core$Basics$toString(url.port_)));
+			A2(_elm_lang$core$String$join, '.', url.host),
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				':',
+				_elm_lang$core$Basics$toString(url.port_))));
 	var _p0 = A2(
 		_user$project$Filters$refresh,
 		'',
@@ -14355,9 +14358,12 @@ var _user$project$MainPage$ServerRefreshRequest = function (a) {
 };
 var _user$project$MainPage$subscriptions = function (model) {
 	return A2(
-		_elm_lang$websocket$WebSocket$listen,
-		_user$project$Router$refreshSocketUrl(model.host),
-		_user$project$MainPage$ServerRefreshRequest);
+		_elm_lang$core$Debug$log,
+		'socket',
+		A2(
+			_elm_lang$websocket$WebSocket$listen,
+			_user$project$Router$refreshSocketUrl(model.host),
+			_user$project$MainPage$ServerRefreshRequest));
 };
 var _user$project$MainPage$main = _elm_lang$html$Html$programWithFlags(
 	{init: _user$project$MainPage$initProgram, view: _user$project$MainPage$view, update: _user$project$MainPage$update, subscriptions: _user$project$MainPage$subscriptions})(_elm_lang$core$Json_Decode$string);

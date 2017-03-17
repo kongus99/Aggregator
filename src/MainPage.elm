@@ -58,7 +58,7 @@ type alias Model =
 
 
 initialModel host filters =
-    Model WishList Nothing 1 filters "" GameOptionsDialog.emptyModel
+    Model WishList Nothing 1 filters host GameOptionsDialog.emptyModel
 
 
 
