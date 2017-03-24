@@ -16,6 +16,7 @@ GET         /main/fetch                              controllers.MainController.
 #OPTIONS
 GET         /gameOptions/fetch                       controllers.GameOptionsController.fetch(userId : Long, steamId : Long)
 GET         /gameOptions/fetchSearchResults          controllers.GameOptionsController.fetchSearch(userId : Long, steamId : Long , query : String, site : String)
+POST        /gameOptions/refresh                     controllers.GameOptionsController.refresh(userId : Long, steamId : Long)
 POST        /gameOptions/changeSelectedSearch        controllers.GameOptionsController.changeSearch(userId : Long, steamId : Long, site : String, selectedResult : Option[String])
 #COMPARISON
 GET         /comparison                              controllers.ComparisonController.main

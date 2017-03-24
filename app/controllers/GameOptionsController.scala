@@ -93,4 +93,8 @@ class GameOptionsController @Inject()(tables: Tables, client: WSClient)(implicit
 
   }
 
+  def refresh(userId: Long, steamId: Long): Action[AnyContent] =  Action.async {
+    Future(Ok("Scheduled refresh"))
+  }
+
 }
