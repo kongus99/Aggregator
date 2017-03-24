@@ -12450,7 +12450,8 @@ var _user$project$Router$routes = {
 	gameOptions: {
 		fetch: A2(_user$project$Router$generateGetMethod, 'gameOptions/fetch', _user$project$Router$decodedGameOptionsEntry),
 		changeSelectedSearch: A2(_user$project$Router$generatePostMethod, 'gameOptions/changeSelectedSearch', _elm_lang$core$Json_Decode$string),
-		fetchSearchResults: A2(_user$project$Router$generateGetMethod, 'gameOptions/fetchSearchResults', _user$project$Router$decodedGameOptionsEntry)
+		fetchSearchResults: A2(_user$project$Router$generateGetMethod, 'gameOptions/fetchSearchResults', _user$project$Router$decodedGameOptionsEntry),
+		triggerRefresh: A2(_user$project$Router$generatePostMethod, 'gameOptions/refresh', _elm_lang$core$Json_Decode$string)
 	},
 	comparison: {
 		toggleSelected: A2(_user$project$Router$generatePostMethod, 'comparison/toggleMatch', _elm_lang$core$Json_Decode$string),
@@ -13425,6 +13426,39 @@ var _user$project$GameOptionsDialog$dialogHeader = function (options) {
 			_1: {ctor: '[]'}
 		});
 };
+var _user$project$GameOptionsDialog$refresh = F4(
+	function (userId, model, mess, err) {
+		var send = function (options) {
+			return A2(
+				_elm_lang$http$Http$send,
+				A2(_user$project$Router$resolveResponse, mess, err),
+				function (_) {
+					return _.request;
+				}(
+					_user$project$Router$routes.gameOptions.triggerRefresh(
+						{
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'userId',
+								_1: _elm_lang$core$Basics$toString(userId)
+							},
+							_1: {
+								ctor: '::',
+								_0: {
+									ctor: '_Tuple2',
+									_0: 'steamId',
+									_1: _elm_lang$core$Basics$toString(options.entry.steamId)
+								},
+								_1: {ctor: '[]'}
+							}
+						})));
+		};
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			_elm_lang$core$Platform_Cmd$none,
+			A2(_elm_lang$core$Maybe$map, send, model.gameOptions));
+	});
 var _user$project$GameOptionsDialog$fetch = F4(
 	function (userId, steamId, mess, err) {
 		var send = function (id) {
@@ -14044,6 +14078,9 @@ var _user$project$MainPage$initialModel = F2(
 	function (host, filters) {
 		return A6(_user$project$MainPage$Model, _user$project$Model$WishList, _elm_lang$core$Maybe$Nothing, 1, filters, host, _user$project$GameOptionsDialog$emptyModel);
 	});
+var _user$project$MainPage$Ack = function (a) {
+	return {ctor: 'Ack', _0: a};
+};
 var _user$project$MainPage$FiltersMessage = function (a) {
 	return {ctor: 'FiltersMessage', _0: a};
 };
@@ -14118,7 +14155,7 @@ var _user$project$MainPage$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{options: _user$project$GameOptionsDialog$emptyModel}),
-					_1: _elm_lang$core$Platform_Cmd$none
+					_1: A4(_user$project$GameOptionsDialog$refresh, model.userId, model.options, _user$project$MainPage$Ack, _user$project$MainPage$GeneralError)
 				};
 			case 'GeneralError':
 				return {
@@ -14142,7 +14179,7 @@ var _user$project$MainPage$update = F2(
 						{options: options}),
 					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$MainPage$DialogMessage, cmd)
 				};
-			default:
+			case 'FiltersMessage':
 				var adjustAddress = function (model) {
 					return _user$project$MainPage$elmAddressChange(
 						function (_) {
@@ -14172,6 +14209,11 @@ var _user$project$MainPage$update = F2(
 							_1: {ctor: '[]'}
 						}
 					});
+			default:
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{ctor: '[]'});
 		}
 	});
 var _user$project$MainPage$DialogOpen = function (a) {

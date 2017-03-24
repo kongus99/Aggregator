@@ -53,6 +53,7 @@ routes =
         { fetch = (generateGetMethod "gameOptions/fetch" decodedGameOptionsEntry)
         , changeSelectedSearch = (generatePostMethod "gameOptions/changeSelectedSearch" string)
         , fetchSearchResults = (generateGetMethod "gameOptions/fetchSearchResults" decodedGameOptionsEntry)
+        , triggerRefresh = (generatePostMethod "gameOptions/refresh" string)
         }
     , comparison =
         { toggleSelected = (generatePostMethod "comparison/toggleMatch" string)

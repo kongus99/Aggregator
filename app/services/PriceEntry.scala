@@ -154,10 +154,15 @@ object FKPricesFetcher extends Fetcher{
     } yield {
       def fixPrice(e: PriceEntry, page: String) = {
         val parsed = Jsoup.parse(page)
-        val price = parsed.getElementById("gameinfo").getElementsByClass("price").head.text().split(" ")(0)
-        val activeContent = parsed.getElementById("content").getElementsByClass("active").head
-        val link = activeContent.getElementsByTag("a").head.attr("href")
-        e.copy(link = link, price = BigDecimal(price))
+        val gameInfo = parsed.getElementById("gameinfo")
+        //TODO : remove prices where details asre not available
+        if(gameInfo != null){
+          val price = gameInfo.getElementsByClass("price").head.text().split(" ")(0)
+          val activeContent = parsed.getElementById("content").getElementsByClass("active").head
+          val link = activeContent.getElementsByTag("a").head.attr("href")
+          e.copy(link = link, price = BigDecimal(price))
+        }
+        else e
       }
 
       details.map((fixPrice _).tupled)

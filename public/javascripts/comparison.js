@@ -11007,7 +11007,8 @@ var _user$project$Router$routes = {
 	gameOptions: {
 		fetch: A2(_user$project$Router$generateGetMethod, 'gameOptions/fetch', _user$project$Router$decodedGameOptionsEntry),
 		changeSelectedSearch: A2(_user$project$Router$generatePostMethod, 'gameOptions/changeSelectedSearch', _elm_lang$core$Json_Decode$string),
-		fetchSearchResults: A2(_user$project$Router$generateGetMethod, 'gameOptions/fetchSearchResults', _user$project$Router$decodedGameOptionsEntry)
+		fetchSearchResults: A2(_user$project$Router$generateGetMethod, 'gameOptions/fetchSearchResults', _user$project$Router$decodedGameOptionsEntry),
+		triggerRefresh: A2(_user$project$Router$generatePostMethod, 'gameOptions/refresh', _elm_lang$core$Json_Decode$string)
 	},
 	comparison: {
 		toggleSelected: A2(_user$project$Router$generatePostMethod, 'comparison/toggleMatch', _elm_lang$core$Json_Decode$string),

@@ -1,4 +1,4 @@
-module GameOptionsDialog exposing (model, emptyModel, view, fetch, Model, Msg, update)
+module GameOptionsDialog exposing (model, emptyModel, view, fetch, Model, Msg, update, refresh)
 
 import Array exposing (Array)
 import Dialog
@@ -139,6 +139,18 @@ fetch userId steamId mess err =
                 |> Http.send (Router.resolveResponse mess err)
     in
         Maybe.map send steamId |> Maybe.withDefault Cmd.none
+
+
+refresh : Int -> Model -> (String -> c) -> (Http.Error -> c) -> Cmd c
+refresh userId model mess err =
+    let
+        send options =
+            [ ( "userId", toString userId ), ( "steamId", toString options.entry.steamId ) ]
+                |> routes.gameOptions.triggerRefresh
+                |> .request
+                |> Http.send (Router.resolveResponse mess err)
+    in
+        Maybe.map send model.gameOptions |> Maybe.withDefault Cmd.none
 
 
 saveSwitched userId serialized model =

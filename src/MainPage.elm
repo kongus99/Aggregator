@@ -73,6 +73,7 @@ type Msg
     | GeneralError Http.Error
     | DialogMessage GameOptionsDialog.Msg
     | FiltersMessage Filters.Msg
+    | Ack String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -92,7 +93,7 @@ update msg model =
             ( { model | options = GameOptionsDialog.model options }, Cmd.none )
 
         DialogClose ->
-            ( { model | options = GameOptionsDialog.emptyModel }, Cmd.none )
+            ( { model | options = GameOptionsDialog.emptyModel }, GameOptionsDialog.refresh model.userId model.options Ack GeneralError )
 
         GeneralError err ->
             ( { model | message = toString err |> Just }, Cmd.none )
@@ -116,6 +117,9 @@ update msg model =
                     Filters.serialize model.filters |> routes.main.page |> .url |> elmAddressChange
             in
                 newModel ! [ Cmd.map FiltersMessage cmd, adjustAddress newModel ]
+
+        Ack msg ->
+            model ! []
 
 
 
