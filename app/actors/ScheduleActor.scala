@@ -1,16 +1,15 @@
 package actors
 
-import actors.MyWebSocketActor.RefreshUserData
-import actors.ScheduleActor.{RefreshGames, RefreshPrices}
-import akka.actor.{Actor, ActorRef, ActorSystem, Props}
+
+import actors.ScheduleActor.{RefreshGames, RefreshPrices, UserGamesRefreshed}
+import akka.actor.{Actor, ActorSystem, PoisonPill, Props}
 import com.google.inject.Inject
 import model.{Tables, User}
 import play.api.Configuration
 import play.api.libs.ws.WSClient
 import services._
 
-import scala.concurrent.duration.{FiniteDuration, MINUTES, SECONDS}
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 object ScheduleActor {
 
@@ -18,33 +17,38 @@ object ScheduleActor {
 
   case class RefreshPrices()
 
+  case class UserGamesRefreshed(data : Any)
+
 }
 
 class ScheduleActor @Inject()(system : ActorSystem, client: WSClient, configuration: Configuration, tables: Tables)(implicit exec: ExecutionContext) extends Actor {
-  val steamActors: Array[ActorRef] = (1 to 2).map(_ => system.actorOf(Props(classOf[SteamRefreshActor], client, tables, exec))).toArray
-  val gogActors: Array[ActorRef] = (1 to 2).map(_ => system.actorOf(Props(classOf[GogRefreshActor], client, tables, configuration, exec))).toArray
-  val priceActors: Array[ActorRef] = (1 to 2).map(_ => system.actorOf(Props(classOf[PriceRefreshActor], client, tables, exec))).toArray
+
+  def scheduleGamesRefresh(user : User) = {
+    context.actorOf(Props(classOf[SteamRefreshActor], user, client, tables, exec)) ! SteamRefreshActor.RunRefresh()
+    context.actorOf(Props(classOf[GogRefreshActor], user, client, tables, configuration, exec)) ! GogRefreshActor.RunRefresh()
+  }
+
+  def schedulePricesRefresh(e : Seq[SteamEntry]) : Unit = {
+    context.actorOf(Props(classOf[PriceRefreshActor], e, client, tables, exec)) ! PriceRefreshActor.RunRefresh()
+  }
 
   override def receive: Receive = {
     case _: RefreshGames =>
-      Await.result(refreshUsers(steamActors, SteamRefreshActor.RunRefresh.apply), FiniteDuration(5, MINUTES))
-      Await.result(refreshUsers(gogActors, GogRefreshActor.RunRefresh.apply), FiniteDuration(5, MINUTES))
-      system.actorSelection("akka://application/user/*") ! RefreshUserData()
-      println("Refreshed games")
+      tables.getAllUsers.map(_.foreach(scheduleGamesRefresh))
+//      system.actorSelection("akka://application/user/*") ! RefreshUserData()
     case _: RefreshPrices =>
-      Await.result(refreshPrices(), FiniteDuration(5, MINUTES))
-      println("Refreshed prices")
+      tables.getSteamEntries(None, None).map(entries => entries.grouped(40).foreach(schedulePricesRefresh))
+    case _ : UserGamesRefreshed =>
+      sender() ! PoisonPill
+
   }
 
-  private def refreshUsers(actors: Array[ActorRef], refresh: (User) => Any): Future[Unit] = {
-    def scheduleRefresh(user : User, i : Int) : Unit =
-      system.scheduler.scheduleOnce(FiniteDuration(1, SECONDS), actors(i % actors.length), refresh(user))
-    tables.getAllUsers.map(users => users.zipWithIndex.foreach((scheduleRefresh _).tupled))
-  }
+//  override def supervisionStrategy = OneForOneStrategy() {
+//    case _ => {
+//      waitingFor -= sender()
+//      if (waitingFor.isEmpty) ??? // processing finished
+//      Stop
+//    }
+//  }
 
-  private def refreshPrices(): Future[Unit] = {
-    def scheduleRefresh(e : Seq[SteamEntry], i : Int) : Unit =
-      system.scheduler.scheduleOnce(FiniteDuration(1, SECONDS), priceActors(i % priceActors.length), PriceRefreshActor.RunRefresh(e))
-    tables.getSteamEntries(None, None).map(entries => entries.grouped(20).toSeq.zipWithIndex.foreach((scheduleRefresh _).tupled))
-  }
 }

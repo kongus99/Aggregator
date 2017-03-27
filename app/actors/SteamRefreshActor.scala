@@ -1,26 +1,26 @@
 package actors
 
+import actors.ScheduleActor.UserGamesRefreshed
 import actors.SteamRefreshActor.RunRefresh
 import akka.actor.Actor
 import model.{CurrencyConverter, Tables, User}
 import play.api.libs.ws.WSClient
 import services._
 
-import scala.concurrent.duration.{FiniteDuration, MINUTES}
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 object SteamRefreshActor {
-  case class RunRefresh(user : User)
+  case class RunRefresh()
 }
 
-class SteamRefreshActor (client: WSClient, tables: Tables, implicit val exec: ExecutionContext) extends Actor {
+class SteamRefreshActor (user : User, client: WSClient, tables: Tables, implicit val exec: ExecutionContext) extends Actor {
   val steamRetriever = new SteamPageRetriever(client)
   val ratesRetriever = new ReferenceRatesRetriever(client)
 
   override def receive: Receive = {
-    case r : RunRefresh =>
-      Await.result(refreshSteamGames(r.user), FiniteDuration(5, MINUTES))
-      println("refreshed steam user " + r.user)
+    case _ : RunRefresh =>
+      val s = sender()
+      refreshSteamGames(user).onSuccess({case _ => s ! UserGamesRefreshed(user)})
   }
 
   private def refreshSteamGames(user: User): Future[Any] = {
