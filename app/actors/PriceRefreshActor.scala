@@ -4,6 +4,7 @@ import actors.PriceRefreshActor.RunRefresh
 import actors.ScheduleActor.UserGamesRefreshed
 import akka.actor.Actor
 import model.Tables
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSClient
 import services._
 
@@ -22,14 +23,15 @@ class PriceRefreshActor (entries : Seq[SteamEntry], client: WSClient, tables: Ta
   override def receive: Receive = {
     case _ : RunRefresh =>
       val s = sender()
-      refreshPrices(entries).onSuccess({case _ => s ! UserGamesRefreshed(entries)})
+      refreshPrices(entries).onSuccess({case r => s ! UserGamesRefreshed(r)})
   }
-  private def refreshPrices(entries : Seq[SteamEntry]): Future[Any] = {
+  private def refreshPrices(entries : Seq[SteamEntry]): Future[Option[JsValue]] = {
     for {
       prices <- PriceEntry.getPrices(tables, entries, golRetriever.retrieve, fkRetriever.retrieve, keyeRetriever.retrieve)
-      refreshed <- tables.replacePrices(entries.map(_.steamId).toSet, prices.values.flatten.toSeq)
+      _ <- tables.replacePrices(entries.map(_.steamId).toSet, prices.values.flatten.toSeq)
     } yield {
-      refreshed
+      val pricesSeq = prices.values.flatten
+      if(pricesSeq.isEmpty) None else Some(Json.toJson(prices.values.flatten))
     }
   }
 

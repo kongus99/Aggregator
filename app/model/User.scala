@@ -10,7 +10,7 @@ object User {
 
     import play.api.libs.functional.syntax._
 
-    implicit val steamWrites: Writes[User] = (
+    implicit val userWrites: Writes[User] = (
       (JsPath \ "id").write[Option[Long]] and
         (JsPath \ "steamLogin").write[Option[String]] and
         (JsPath \ "steamAlternate").write[Boolean] and
