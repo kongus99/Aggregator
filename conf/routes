@@ -4,7 +4,7 @@
 #MAIN
 GET         /                                        controllers.LoginController.init
 #SOCKET
-GET         /refreshsocket                           controllers.RefreshController.socket
+GET         /refreshsocket/:userId                    controllers.RefreshController.socket(userId : Long)
 #LOGIN
 GET         /login                                   controllers.LoginController.init
 GET         /login/fetchUsers                        controllers.LoginController.fetchUsers(steamUsername : Option[String], gogUsername : Option[String])

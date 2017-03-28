@@ -28,7 +28,7 @@ class GameRefreshActor (user : User, client: WSClient, tables: Tables, configura
       refreshSteamGames(user)
         .flatMap(_ => refreshGogGames(user))
         .flatMap(_ => GameEntry.generateFromNames(Some(user), GameSources.WishList, tables))
-        .onSuccess({case list => send ! UserGamesRefreshed(Some(Json.toJson(list)))})
+        .onSuccess({case list => send ! UserGamesRefreshed(user.id.get, Json.toJson(list))})
   }
 
   private def refreshSteamGames(user: User): Future[_] = {

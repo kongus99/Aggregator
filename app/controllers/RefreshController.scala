@@ -11,7 +11,7 @@ import play.api.mvc._
 
 class RefreshController @Inject() (implicit system: ActorSystem, materializer: Materializer) {
 
-  def socket = WebSocket.accept[JsValue, JsValue] { _ =>
-    ActorFlow.actorRef(out => MyWebSocketActor.props(out))
+  def socket(userId: Long): WebSocket = WebSocket.accept[JsValue, JsValue] { _ =>
+    ActorFlow.actorRef(out => MyWebSocketActor.props(userId, out))
   }
 }

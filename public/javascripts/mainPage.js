@@ -16200,10 +16200,7 @@ var _user$project$GameEntry$getName = function (gameEntry) {
 };
 var _user$project$GameEntry$update = F2(
 	function (newData, oldData) {
-		return A2(
-			_elm_lang$core$Maybe$withDefault,
-			oldData,
-			A2(_elm_lang$core$Debug$log, 'newData', newData.games));
+		return A2(_elm_lang$core$Maybe$withDefault, oldData, newData.games);
 	});
 var _user$project$GameEntry$GameEntry = F3(
 	function (a, b, c) {
@@ -16409,12 +16406,19 @@ var _user$project$Router$decodeWebSocketResult = function (r) {
 				_elm_lang$core$Json_Decode$list(_user$project$Router$decodedPriceEntry),
 				r)));
 };
-var _user$project$Router$refreshSocketUrl = function (host) {
-	return A2(
-		_elm_lang$core$Basics_ops['++'],
-		'ws://',
-		A2(_elm_lang$core$Basics_ops['++'], host, '/refreshsocket'));
-};
+var _user$project$Router$refreshSocketUrl = F2(
+	function (host, userId) {
+		return A2(
+			_elm_lang$core$Basics_ops['++'],
+			'ws://',
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				host,
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'/refreshsocket/',
+					_elm_lang$core$Basics$toString(userId))));
+	});
 var _user$project$Router$routes = {
 	login: {
 		fetchUsers: A2(
@@ -18363,7 +18367,7 @@ var _user$project$MainPage$ServerRefreshRequest = function (a) {
 var _user$project$MainPage$subscriptions = function (model) {
 	return A2(
 		_elm_lang$websocket$WebSocket$listen,
-		_user$project$Router$refreshSocketUrl(model.host),
+		A2(_user$project$Router$refreshSocketUrl, model.host, model.userId),
 		_user$project$MainPage$ServerRefreshRequest);
 };
 var _user$project$MainPage$main = _elm_lang$html$Html$programWithFlags(

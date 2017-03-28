@@ -1,7 +1,7 @@
 package actors
 
 
-import actors.MyWebSocketActor.RefreshUserData
+import actors.MyWebSocketActor.RefreshUserGames
 import actors.ScheduleActor.{RefreshGames, RefreshPrices, UserGamesRefreshed}
 import akka.actor.{Actor, ActorSystem, PoisonPill, Props}
 import com.google.inject.Inject
@@ -19,7 +19,7 @@ object ScheduleActor {
 
   case class RefreshPrices()
 
-  case class UserGamesRefreshed(data : Option[JsValue])
+  case class UserGamesRefreshed(userId : Long, data : JsValue)
 
 }
 
@@ -40,7 +40,7 @@ class ScheduleActor @Inject()(system : ActorSystem, client: WSClient, configurat
     case _: RefreshPrices =>
       tables.getSteamEntries(None, None).map(entries => entries.grouped(40).foreach(schedulePricesRefresh))
     case r : UserGamesRefreshed =>
-      r.data.foreach(d => system.actorSelection("akka://application/user/*") ! RefreshUserData(d))
+      system.actorSelection("akka://application/user/*") ! RefreshUserGames(r.userId, r.data)
       sender() ! PoisonPill
 
   }

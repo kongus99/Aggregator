@@ -43,7 +43,7 @@ main =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    WebSocket.listen (Router.refreshSocketUrl model.host) ServerRefreshRequest
+    WebSocket.listen (Router.refreshSocketUrl model.host model.userId) ServerRefreshRequest
 
 
 port elmAddressChange : String -> Cmd msg

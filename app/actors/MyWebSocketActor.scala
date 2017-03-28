@@ -1,19 +1,19 @@
 package actors
 
-import actors.MyWebSocketActor.RefreshUserData
+import actors.MyWebSocketActor.RefreshUserGames
 import akka.actor._
 import play.api.libs.json.JsValue
 
 object MyWebSocketActor {
-  def props(out: ActorRef) = Props(new MyWebSocketActor(out))
+  def props(userId : Long, out: ActorRef) = Props(new MyWebSocketActor(userId, out))
 
-  case class RefreshUserData(data : JsValue)
+  case class RefreshUserGames(userId : Long, data : JsValue)
 
 }
 
-class MyWebSocketActor(out: ActorRef) extends Actor {
+class MyWebSocketActor(userId : Long, out: ActorRef) extends Actor {
   def receive() = {
-    case d : RefreshUserData =>
-      out ! d.data
+    case d : RefreshUserGames =>
+      if(userId == d.userId) out ! d.data
   }
 }
