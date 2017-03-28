@@ -52,7 +52,3 @@ type alias GameQuery =
 
 type alias GameOptions =
     { entry : SteamEntry, queries : Array GameQuery }
-
-
-type alias WebSocketRefreshResult =
-    { steamGames : Maybe (List SteamEntry), gogGames : Maybe (List GogEntry), prices : Maybe (List PriceEntry) }

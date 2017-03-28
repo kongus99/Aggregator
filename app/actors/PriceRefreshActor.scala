@@ -23,13 +23,14 @@ class PriceRefreshActor (entries : Seq[SteamEntry], client: WSClient, tables: Ta
   override def receive: Receive = {
     case _ : RunRefresh =>
       val s = sender()
-      refreshPrices(entries).onSuccess({case r => s ! UserGamesRefreshed(r)})
+      refreshPrices().onSuccess({case r => s ! UserGamesRefreshed(r)})
   }
-  private def refreshPrices(entries : Seq[SteamEntry]): Future[Option[JsValue]] = {
+  private def refreshPrices(): Future[Option[JsValue]] = {
     for {
       prices <- PriceEntry.getPrices(tables, entries, golRetriever.retrieve, fkRetriever.retrieve, keyeRetriever.retrieve)
       _ <- tables.replacePrices(entries.map(_.steamId).toSet, prices.values.flatten.toSeq)
     } yield {
+      //TODO : do not flatten - user preferences are lost this way !!!
       val pricesSeq = prices.values.flatten
       if(pricesSeq.isEmpty) None else Some(Json.toJson(prices.values.flatten))
     }

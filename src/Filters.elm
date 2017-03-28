@@ -6,7 +6,7 @@ import Html.Events exposing (on, onCheck, onClick, onInput)
 import HtmlHelpers exposing (onSelect)
 import Http
 import Model exposing (..)
-import GameEntry exposing (GameEntry, getPrice, getName)
+import GameEntry exposing (GameEntry, WebSocketRefreshResult, getName, getPrice)
 import Erl
 import Parser
 import Router exposing (routes)

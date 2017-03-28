@@ -26,8 +26,7 @@ object ScheduleActor {
 class ScheduleActor @Inject()(system : ActorSystem, client: WSClient, configuration: Configuration, tables: Tables)(implicit exec: ExecutionContext) extends Actor {
 
   def scheduleGamesRefresh(user : User) = {
-    context.actorOf(Props(classOf[SteamRefreshActor], user, client, tables, exec)) ! SteamRefreshActor.RunRefresh()
-    context.actorOf(Props(classOf[GogRefreshActor], user, client, tables, configuration, exec)) ! GogRefreshActor.RunRefresh()
+    context.actorOf(Props(classOf[GameRefreshActor], user, client, tables, configuration, exec)) ! GameRefreshActor.RunRefresh()
   }
 
   def schedulePricesRefresh(e : Seq[SteamEntry]) : Unit = {

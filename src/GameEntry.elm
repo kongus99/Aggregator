@@ -8,43 +8,25 @@ module GameEntry
         , getSteamId
         , getLink
         , update
+        , WebSocketRefreshResult
         )
 
-import Dict
+import Dict exposing (Dict)
 import Model exposing (..)
+import Set exposing (Set)
 
 
 type alias GameEntry =
     { gog : List GogEntry, steam : List SteamEntry, prices : List PriceEntry }
 
 
+type alias WebSocketRefreshResult =
+    { games : Maybe (List GameEntry), prices : Maybe (List PriceEntry) }
+
+
 update : WebSocketRefreshResult -> List GameEntry -> List GameEntry
 update newData oldData =
-    oldData
-        |> updateSteamEntries (newData.steamGames |> Maybe.withDefault [])
-
-
-
---    |> updateGogEntries (newData.steamGames |> Maybe.withDefault [])
---    |> updatePriceEntries (newData.steamGames |> Maybe.withDefault [])
-
-
-updateSteamEntries : List SteamEntry -> List GameEntry -> List GameEntry
-updateSteamEntries steamEntries gameEntries =
-    let
-        steamEntriesDict =
-            steamEntries |> List.map (\e -> ( e.steamId, e )) |> Dict.fromList
-
-        updateSteamEntry steamEntry =
-            Dict.get steamEntry.steamId steamEntriesDict |> Maybe.withDefault steamEntry
-
-        updateGameEntry gameEntry =
-            { gameEntry | steam = gameEntry.steam |> List.map updateSteamEntry }
-    in
-        if List.isEmpty steamEntries then
-            gameEntries
-        else
-            List.map updateGameEntry gameEntries
+    newData.games |> Maybe.withDefault oldData
 
 
 getName : GameEntry -> String

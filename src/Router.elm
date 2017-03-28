@@ -3,7 +3,7 @@ module Router exposing (routes, MethodGenerator, resolveResponse, refreshSocketU
 import Http
 import Json.Decode as Json exposing (..)
 import Model exposing (..)
-import GameEntry exposing (GameEntry)
+import GameEntry exposing (GameEntry, WebSocketRefreshResult)
 import String
 import Erl
 
@@ -75,8 +75,7 @@ refreshSocketUrl host =
 decodeWebSocketResult : String -> WebSocketRefreshResult
 decodeWebSocketResult r =
     WebSocketRefreshResult
-        (r |> Json.decodeString (list decodedSteamEntry) |> Result.toMaybe)
-        (r |> Json.decodeString (list decodedGogEntry) |> Result.toMaybe)
+        (r |> Json.decodeString (list decodedGameEntry) |> Result.toMaybe)
         (r |> Json.decodeString (list decodedPriceEntry) |> Result.toMaybe)
 
 
