@@ -1,4 +1,4 @@
-module Filters exposing (Model, parse, Msg, update, refresh, view, serialize)
+module Filters exposing (Model, parse, Msg, update, refresh, view, serialize, replace)
 
 import Html exposing (Html, button, div, input, label, option, select, text, th)
 import Html.Attributes exposing (checked, class, name, placeholder, selected, style, type_, value)
@@ -20,9 +20,9 @@ type alias Model =
     { userId : Int, sources : GameSources, isDiscounted : Bool, gameOn : Maybe GameOn, name : String, prices : ( Maybe Float, Maybe Float ), original : List GameEntry, result : List GameEntry, err : Maybe Http.Error }
 
 
-replace : List GameEntry -> Model -> Model
-replace list model =
-    apply { model | original = list }
+replace : WebSocketRefreshResult -> Model -> Model
+replace r model =
+    apply { model | original = GameEntry.update r model.original }
 
 
 parse : Erl.Url -> Model
@@ -182,7 +182,7 @@ update msg model =
                 newModel ! [ sendRefresh newModel ]
 
         ReceiveEntries entries ->
-            replace entries model ! []
+            apply { model | original = entries } ! []
 
         ReceiveError err ->
             { model | err = Just err } ! []

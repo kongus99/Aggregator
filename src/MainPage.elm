@@ -81,10 +81,13 @@ update msg model =
     case msg of
         ServerRefreshRequest s ->
             let
-                ( newFilters, cmd ) =
-                    Filters.refresh s model.filters
+                newValues =
+                    Router.decodeWebSocketResult s
+
+                newFilters =
+                    Filters.replace newValues model.filters
             in
-                ( { model | filters = newFilters, message = newFilters.err |> Maybe.map toString }, Cmd.map FiltersMessage cmd )
+                ( { model | filters = newFilters, message = newFilters.err |> Maybe.map toString }, Cmd.none )
 
         DialogOpen steamId ->
             ( model, GameOptionsDialog.fetch model.userId steamId DialogData GeneralError )

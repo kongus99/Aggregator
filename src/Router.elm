@@ -1,4 +1,4 @@
-module Router exposing (routes, MethodGenerator, resolveResponse, refreshSocketUrl)
+module Router exposing (routes, MethodGenerator, resolveResponse, refreshSocketUrl, decodeWebSocketResult)
 
 import Http
 import Json.Decode as Json exposing (..)
@@ -64,12 +64,20 @@ routes =
 
 
 
---URLS
+--WEB SOCKET
 
 
 refreshSocketUrl : String -> String
 refreshSocketUrl host =
     "ws://" ++ host ++ "/refreshsocket"
+
+
+decodeWebSocketResult : String -> WebSocketRefreshResult
+decodeWebSocketResult r =
+    WebSocketRefreshResult
+        (r |> Json.decodeString (list decodedSteamEntry) |> Result.toMaybe)
+        (r |> Json.decodeString (list decodedGogEntry) |> Result.toMaybe)
+        (r |> Json.decodeString (list decodedPriceEntry) |> Result.toMaybe)
 
 
 

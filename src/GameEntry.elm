@@ -7,13 +7,44 @@ module GameEntry
         , roundToString
         , getSteamId
         , getLink
+        , update
         )
 
+import Dict
 import Model exposing (..)
 
 
 type alias GameEntry =
     { gog : List GogEntry, steam : List SteamEntry, prices : List PriceEntry }
+
+
+update : WebSocketRefreshResult -> List GameEntry -> List GameEntry
+update newData oldData =
+    oldData
+        |> updateSteamEntries (newData.steamGames |> Maybe.withDefault [])
+
+
+
+--    |> updateGogEntries (newData.steamGames |> Maybe.withDefault [])
+--    |> updatePriceEntries (newData.steamGames |> Maybe.withDefault [])
+
+
+updateSteamEntries : List SteamEntry -> List GameEntry -> List GameEntry
+updateSteamEntries steamEntries gameEntries =
+    let
+        steamEntriesDict =
+            steamEntries |> List.map (\e -> ( e.steamId, e )) |> Dict.fromList
+
+        updateSteamEntry steamEntry =
+            Dict.get steamEntry.steamId steamEntriesDict |> Maybe.withDefault steamEntry
+
+        updateGameEntry gameEntry =
+            { gameEntry | steam = gameEntry.steam |> List.map updateSteamEntry }
+    in
+        if List.isEmpty steamEntries then
+            gameEntries
+        else
+            List.map updateGameEntry gameEntries
 
 
 getName : GameEntry -> String

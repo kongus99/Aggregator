@@ -10693,6 +10693,10 @@ var _user$project$Model$GameOptions = F2(
 	function (a, b) {
 		return {entry: a, queries: b};
 	});
+var _user$project$Model$WebSocketRefreshResult = F3(
+	function (a, b, c) {
+		return {steamGames: a, gogGames: b, prices: c};
+	});
 var _user$project$Model$Steam = {ctor: 'Steam'};
 var _user$project$Model$Gog = {ctor: 'Gog'};
 var _user$project$Model$Both = {ctor: 'Both'};
@@ -10840,6 +10844,40 @@ var _user$project$GameEntry$getName = function (gameEntry) {
 			},
 			_elm_lang$core$List$head(gameEntry.gog)));
 };
+var _user$project$GameEntry$updateSteamEntries = F2(
+	function (steamEntries, gameEntries) {
+		var steamEntriesDict = _elm_lang$core$Dict$fromList(
+			A2(
+				_elm_lang$core$List$map,
+				function (e) {
+					return {ctor: '_Tuple2', _0: e.steamId, _1: e};
+				},
+				steamEntries));
+		var updateSteamEntry = function (steamEntry) {
+			return A2(
+				_elm_lang$core$Maybe$withDefault,
+				steamEntry,
+				A2(_elm_lang$core$Dict$get, steamEntry.steamId, steamEntriesDict));
+		};
+		var updateGameEntry = function (gameEntry) {
+			return _elm_lang$core$Native_Utils.update(
+				gameEntry,
+				{
+					steam: A2(_elm_lang$core$List$map, updateSteamEntry, gameEntry.steam)
+				});
+		};
+		return _elm_lang$core$List$isEmpty(steamEntries) ? gameEntries : A2(_elm_lang$core$List$map, updateGameEntry, gameEntries);
+	});
+var _user$project$GameEntry$update = F2(
+	function (newData, oldData) {
+		return A2(
+			_user$project$GameEntry$updateSteamEntries,
+			A2(
+				_elm_lang$core$Maybe$withDefault,
+				{ctor: '[]'},
+				newData.steamGames),
+			oldData);
+	});
 var _user$project$GameEntry$GameEntry = F3(
 	function (a, b, c) {
 		return {gog: a, steam: b, prices: c};
@@ -10982,6 +11020,25 @@ var _user$project$Router$decodedUserEntry = A5(
 		_elm_lang$core$Json_Decode$field,
 		'gogLogin',
 		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$string)));
+var _user$project$Router$decodeWebSocketResult = function (r) {
+	return A3(
+		_user$project$Model$WebSocketRefreshResult,
+		_elm_lang$core$Result$toMaybe(
+			A2(
+				_elm_lang$core$Json_Decode$decodeString,
+				_elm_lang$core$Json_Decode$list(_user$project$Router$decodedSteamEntry),
+				r)),
+		_elm_lang$core$Result$toMaybe(
+			A2(
+				_elm_lang$core$Json_Decode$decodeString,
+				_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGogEntry),
+				r)),
+		_elm_lang$core$Result$toMaybe(
+			A2(
+				_elm_lang$core$Json_Decode$decodeString,
+				_elm_lang$core$Json_Decode$list(_user$project$Router$decodedPriceEntry),
+				r)));
+};
 var _user$project$Router$refreshSocketUrl = function (host) {
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
