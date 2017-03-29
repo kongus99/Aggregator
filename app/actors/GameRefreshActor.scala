@@ -24,19 +24,18 @@ class GameRefreshActor (user : User, client: WSClient, tables: Tables, configura
   override def receive: Receive = {
     case _ : RunRefresh =>
       val send: ActorRef = sender()
-      refreshSteamGames(user).flatMap(_ => refreshGogGames(user)).onSuccess({case _ => sendRefreshed(send)})
+      refreshSteamGames().flatMap(_ => refreshGogGames()).onSuccess({case _ => sendRefreshed(send)})
   }
 
   private def sendRefreshed(send : ActorRef) = {
-    GameEntry.generateFromNames(Some(user), GameSources.WishList, tables)
-      .zip(GameEntry.generateFromNames(Some(user), GameSources.Owned, tables)).onSuccess({
+    GameEntry.gamesWithPrices(user.id.get, GameSources.WishList, tables)
+      .zip(GameEntry.gamesWithPrices(user.id.get, GameSources.Owned, tables)).onSuccess({
       case (wishlist, owned) =>
-          send ! UserGamesRefreshed(user.id.get, (GameSources.WishList, wishlist))
-          send ! UserGamesRefreshed(user.id.get, (GameSources.Owned, owned))
+          send ! UserGamesRefreshed(user.id.get, (wishlist, owned))
       })
   }
 
-  private def refreshSteamGames(user: User): Future[_] = {
+  private def refreshSteamGames(): Future[_] = {
     for {
       rates <- ratesRetriever.retrieve("").map(CurrencyConverter.parseFromXml)
       owned <- user.steamLogin.map(l => steamRetriever.retrieveWithUser(user.steamAlternate)(l)("/games/?tab=all")).getOrElse(Future(""))
@@ -48,7 +47,7 @@ class GameRefreshActor (user : User, client: WSClient, tables: Tables, configura
     }
   }
 
-  private def refreshGogGames(user: User): Future[_] = {
+  private def refreshGogGames(): Future[_] = {
     for {
       rates <- ratesRetriever.retrieve("").map(CurrencyConverter.parseFromXml)
       owned <- gogRetriever.retrieve(getGogPageNumber)

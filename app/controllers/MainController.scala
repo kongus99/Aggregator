@@ -7,7 +7,7 @@ import play.api.Configuration
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
 import play.api.mvc._
-import services.GameEntry.{generateFromNames, _}
+import services.GameEntry._
 import services.GameSources.GameSources
 import services._
 
@@ -28,11 +28,9 @@ class MainController @Inject()(client: WSClient, configuration: Configuration, t
 
   def getUserGames(userId: Long, sources: GameSources): Action[AnyContent] = Action.async {
     for {
-      user <- tables.getUserById(userId)
-      result <- generateFromNames(user, sources, tables)
-      prices <- tables.getPrices(result.map(_.steam).filter(_.nonEmpty).flatten).map(_.groupBy(_.steamId).mapValues(_.sortBy(_.price)))
+      result <- gamesWithPrices(userId, sources, tables)
     } yield {
-      Ok(Json.toJson(result.map(e => if (e.steam.isEmpty) e else e.copy(prices = prices.getOrElse(e.steam.head.steamId, Seq())))))
+      Ok(Json.toJson(result))
     }
   }
 

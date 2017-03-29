@@ -1,9 +1,10 @@
 package services
 
-import model.{Tables, User}
+import model.Tables
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Writes}
 import services.GameOn.GameOn
+import services.GameSources.GameSources
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -47,7 +48,7 @@ object GameEntry {
       (JsPath \ "prices").write[Seq[PriceEntry]]
     ) ((e) => (e.gog, e.steam, e.prices))
 
-  def generateFromNames(user : Option[User], sources  : GameSources.GameSources, tables: Tables)(implicit ec: ExecutionContext): Future[Seq[GameEntry]] = {
+  private def generateFromNames(userId : Option[Long], sources  : GameSources.GameSources, tables: Tables)(implicit ec: ExecutionContext): Future[Seq[GameEntry]] = {
     def simplify(p: ((GameOn, Long), (GameOn, Long))) = if (p._1._1 == GameOn.Gog || (p._1._1 == GameOn.Steam && p._2._1 == GameOn.Steam && p._1._2 < p._2._2)) p.swap else p
 
 
@@ -58,8 +59,8 @@ object GameEntry {
     }
 
     for {
-      gog <- tables.getGogEntries(user, GameSources.toOption(sources))
-      steam <- tables.getSteamEntries(user, GameSources.toOption(sources))
+      gog <- tables.getGogEntries(userId, GameSources.toOption(sources))
+      steam <- tables.getSteamEntries(userId, GameSources.toOption(sources))
       matches <- tables.getAllMatches
     } yield {
       val gogMap = gog.map(e => (e.gogId, e)).toMap
@@ -73,6 +74,15 @@ object GameEntry {
       val onlyGog = gog.filter(g => !repeatingGogIds.contains(g.gogId)).map(g => GameEntry(Seq(g), Seq()))
       val onlySteam = steam.filter(g => !repeatingSteamIds.contains(g.steamId)).map(s => GameEntry(Seq(), Seq(s)))
       (repeated ++ onlyGog ++ onlySteam).sortBy(_.name)
+    }
+  }
+  def gamesWithPrices(userId: Long, sources: GameSources, tables: Tables)(implicit ec: ExecutionContext): Future[Seq[GameEntry]] = {
+    for {
+      user <- tables.getUserById(userId)
+      result <- generateFromNames(user.get.id, sources, tables)
+      prices <- tables.getPrices(result.map(_.steam).filter(_.nonEmpty).flatten).map(_.groupBy(_.steamId).mapValues(_.sortBy(_.price)))
+    } yield {
+      result.map(e => if (e.steam.isEmpty) e else e.copy(prices = prices.getOrElse(e.steam.head.steamId, Seq())))
     }
   }
 }

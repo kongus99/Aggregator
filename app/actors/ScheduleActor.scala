@@ -9,7 +9,6 @@ import model.{Tables, User}
 import play.api.Configuration
 import play.api.libs.json.{JsArray, Json, Writes}
 import play.api.libs.ws.WSClient
-import services.GameSources.GameSources
 import services._
 
 import scala.concurrent.ExecutionContext
@@ -20,7 +19,7 @@ object ScheduleActor {
 
   case class RefreshPrices()
 
-  case class UserGamesRefreshed(userId : Long, data : (GameSources, Seq[GameEntry]))
+  case class UserGamesRefreshed(userId : Long, data : (Seq[GameEntry], Seq[GameEntry]))
 
   case class UserPricesRefreshed(data : Seq[PriceEntry])
 

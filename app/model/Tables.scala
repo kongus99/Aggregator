@@ -303,20 +303,20 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
   }
 
 
-  def getGogEntries(user: Option[User], sources: Option[Boolean]): Future[Seq[GogEntry]] = {
+  def getGogEntries(userId: Option[Long], sources: Option[Boolean]): Future[Seq[GogEntry]] = {
     def condition(e: GogOwnershipData, g : GogData): Rep[Boolean] = {
-      if (user.isEmpty) true
-      else if (user.isDefined && sources.isEmpty) e.userId === user.get.id.get
-      else e.owned === sources.get && e.userId === user.get.id.get
+      if (userId.isEmpty) true
+      else if (userId.isDefined && sources.isEmpty) e.userId === userId.get
+      else e.owned === sources.get && e.userId === userId.get
     }
     db.run(gogOwnershipData.join(gogData).on(_.gogId === _.gogId).filter((condition _).tupled).result).map(_.map(p => p._2.copy(owned = p._1.owned)))
   }
 
-  def getSteamEntries(user: Option[User], sources: Option[Boolean]): Future[Seq[SteamEntry]] = {
+  def getSteamEntries(userId: Option[Long], sources: Option[Boolean]): Future[Seq[SteamEntry]] = {
     def condition(e: SteamOwnershipData, s : SteamData): Rep[Boolean] = {
-      if (user.isEmpty) true
-      else if (user.isDefined && sources.isEmpty) e.userId === user.get.id.get
-      else e.owned === sources.get && e.userId === user.get.id.get
+      if (userId.isEmpty) true
+      else if (userId.isDefined && sources.isEmpty) e.userId === userId.get
+      else e.owned === sources.get && e.userId === userId.get
     }
     db.run(steamOwnershipData.join(steamData).on(_.steamId === _.steamId).filter((condition _).tupled).result).map(_.map(p => p._2.copy(owned = p._1.owned)))
   }

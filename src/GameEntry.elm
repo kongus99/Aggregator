@@ -20,20 +20,34 @@ type alias GameEntry =
     { gog : List GogEntry, steam : List SteamEntry, prices : List PriceEntry }
 
 
+type alias WishlistEntries =
+    List GameEntry
+
+
+type alias OwnedEntries =
+    List GameEntry
+
+
 type alias WebSocketRefreshResult =
-    { games : Maybe ( Maybe GameSources, List GameEntry ), prices : Maybe (List PriceEntry) }
+    { games : Maybe ( WishlistEntries, OwnedEntries ), prices : Maybe (List PriceEntry) }
 
 
 update : WebSocketRefreshResult -> GameSources -> List GameEntry -> List GameEntry
 update newData sources oldData =
     newData.games
-        |> Maybe.andThen
-            (\( newSources, newGames ) ->
-                if newSources == Just sources then
-                    Just newGames
-                else
-                    Nothing
+        |> Maybe.map
+            (\( wishlist, owned ) ->
+                case sources of
+                    Owned ->
+                        owned
+
+                    WishList ->
+                        wishlist
+
+                    Both ->
+                        List.append wishlist owned
             )
+        |> Maybe.map (List.sortBy getName)
         |> Maybe.withDefault oldData
 
 
