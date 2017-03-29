@@ -16198,9 +16198,20 @@ var _user$project$GameEntry$getName = function (gameEntry) {
 			},
 			_elm_lang$core$List$head(gameEntry.gog)));
 };
-var _user$project$GameEntry$update = F2(
-	function (newData, oldData) {
-		return A2(_elm_lang$core$Maybe$withDefault, oldData, newData.games);
+var _user$project$GameEntry$update = F3(
+	function (newData, sources, oldData) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			oldData,
+			A2(
+				_elm_lang$core$Maybe$andThen,
+				function (_p6) {
+					var _p7 = _p6;
+					return _elm_lang$core$Native_Utils.eq(
+						_p7._0,
+						_elm_lang$core$Maybe$Just(sources)) ? _elm_lang$core$Maybe$Just(_p7._1) : _elm_lang$core$Maybe$Nothing;
+				},
+				newData.games));
 	});
 var _user$project$GameEntry$GameEntry = F3(
 	function (a, b, c) {
@@ -16292,6 +16303,7 @@ var _user$project$Router$generateGetMethod = F3(
 			request: A2(_elm_lang$http$Http$get, url, decoder)
 		};
 	});
+var _user$project$Router$gameSourcesDecoder = A2(_elm_lang$core$Json_Decode$map, _user$project$Parser$parseSources, _elm_lang$core$Json_Decode$string);
 var _user$project$Router$decodedGameQueryEntry = A5(
 	_elm_lang$core$Json_Decode$map4,
 	_user$project$Model$GameQuery,
@@ -16398,7 +16410,17 @@ var _user$project$Router$decodeWebSocketResult = function (r) {
 		_elm_lang$core$Result$toMaybe(
 			A2(
 				_elm_lang$core$Json_Decode$decodeString,
-				_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry),
+				A3(
+					_elm_lang$core$Json_Decode$map2,
+					F2(
+						function (v0, v1) {
+							return {ctor: '_Tuple2', _0: v0, _1: v1};
+						}),
+					A2(_elm_lang$core$Json_Decode$index, 0, _user$project$Router$gameSourcesDecoder),
+					A2(
+						_elm_lang$core$Json_Decode$index,
+						1,
+						_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry))),
 				r)),
 		_elm_lang$core$Result$toMaybe(
 			A2(
@@ -16687,7 +16709,7 @@ var _user$project$Filters$replace = F2(
 			_elm_lang$core$Native_Utils.update(
 				model,
 				{
-					original: A2(_user$project$GameEntry$update, r, model.original)
+					original: A3(_user$project$GameEntry$update, r, model.sources, model.original)
 				}));
 	});
 var _user$project$Filters$Model = F9(

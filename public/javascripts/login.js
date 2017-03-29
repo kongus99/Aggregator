@@ -10842,9 +10842,20 @@ var _user$project$GameEntry$getName = function (gameEntry) {
 			},
 			_elm_lang$core$List$head(gameEntry.gog)));
 };
-var _user$project$GameEntry$update = F2(
-	function (newData, oldData) {
-		return A2(_elm_lang$core$Maybe$withDefault, oldData, newData.games);
+var _user$project$GameEntry$update = F3(
+	function (newData, sources, oldData) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			oldData,
+			A2(
+				_elm_lang$core$Maybe$andThen,
+				function (_p6) {
+					var _p7 = _p6;
+					return _elm_lang$core$Native_Utils.eq(
+						_p7._0,
+						_elm_lang$core$Maybe$Just(sources)) ? _elm_lang$core$Maybe$Just(_p7._1) : _elm_lang$core$Maybe$Nothing;
+				},
+				newData.games));
 	});
 var _user$project$GameEntry$GameEntry = F3(
 	function (a, b, c) {
@@ -10998,6 +11009,50 @@ var _user$project$LoginData$LoginData = F4(
 	});
 var _user$project$LoginData$emptyLoginData = A4(_user$project$LoginData$LoginData, false, _user$project$LoginData$emptyUser, _elm_lang$core$Array$empty, _elm_lang$core$Maybe$Nothing);
 
+var _user$project$Parser$parseGameOn = function (value) {
+	var _p0 = value;
+	switch (_p0) {
+		case 'Gog':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Gog);
+		case 'Steam':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Steam);
+		default:
+			return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _user$project$Parser$parseSources = function (value) {
+	var _p1 = value;
+	switch (_p1) {
+		case 'Owned':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Owned);
+		case 'WishList':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$WishList);
+		case 'Both':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Both);
+		default:
+			return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _user$project$Parser$parseBool = function (value) {
+	var _p2 = _elm_lang$core$String$toLower(value);
+	switch (_p2) {
+		case 'true':
+			return _elm_lang$core$Maybe$Just(true);
+		case 'false':
+			return _elm_lang$core$Maybe$Just(false);
+		default:
+			return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _user$project$Parser$parseFloat = function (value) {
+	return _elm_lang$core$Result$toMaybe(
+		_elm_lang$core$String$toFloat(value));
+};
+var _user$project$Parser$parseInt = function (value) {
+	return _elm_lang$core$Result$toMaybe(
+		_elm_lang$core$String$toInt(value));
+};
+
 var _user$project$Router$resolveResponse = F3(
 	function (successResolver, errorResolver, response) {
 		var _p0 = response;
@@ -11035,6 +11090,7 @@ var _user$project$Router$generateGetMethod = F3(
 			request: A2(_elm_lang$http$Http$get, url, decoder)
 		};
 	});
+var _user$project$Router$gameSourcesDecoder = A2(_elm_lang$core$Json_Decode$map, _user$project$Parser$parseSources, _elm_lang$core$Json_Decode$string);
 var _user$project$Router$decodedGameQueryEntry = A5(
 	_elm_lang$core$Json_Decode$map4,
 	_user$project$Model$GameQuery,
@@ -11141,7 +11197,17 @@ var _user$project$Router$decodeWebSocketResult = function (r) {
 		_elm_lang$core$Result$toMaybe(
 			A2(
 				_elm_lang$core$Json_Decode$decodeString,
-				_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry),
+				A3(
+					_elm_lang$core$Json_Decode$map2,
+					F2(
+						function (v0, v1) {
+							return {ctor: '_Tuple2', _0: v0, _1: v1};
+						}),
+					A2(_elm_lang$core$Json_Decode$index, 0, _user$project$Router$gameSourcesDecoder),
+					A2(
+						_elm_lang$core$Json_Decode$index,
+						1,
+						_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGameEntry))),
 				r)),
 		_elm_lang$core$Result$toMaybe(
 			A2(

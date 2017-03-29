@@ -2,10 +2,9 @@ package actors
 
 import actors.GameRefreshActor.RunRefresh
 import actors.ScheduleActor.UserGamesRefreshed
-import akka.actor.Actor
+import akka.actor.{Actor, ActorRef}
 import model.{CurrencyConverter, Tables, User}
 import play.api.Configuration
-import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import services.GogEntry.getGogPageNumber
 import services._
@@ -24,11 +23,17 @@ class GameRefreshActor (user : User, client: WSClient, tables: Tables, configura
 
   override def receive: Receive = {
     case _ : RunRefresh =>
-      val send = sender()
-      refreshSteamGames(user)
-        .flatMap(_ => refreshGogGames(user))
-        .flatMap(_ => GameEntry.generateFromNames(Some(user), GameSources.WishList, tables))
-        .onSuccess({case list => send ! UserGamesRefreshed(user.id.get, Json.toJson(list))})
+      val send: ActorRef = sender()
+      refreshSteamGames(user).flatMap(_ => refreshGogGames(user)).onSuccess({case _ => sendRefreshed(send)})
+  }
+
+  private def sendRefreshed(send : ActorRef) = {
+    GameEntry.generateFromNames(Some(user), GameSources.WishList, tables)
+      .zip(GameEntry.generateFromNames(Some(user), GameSources.Owned, tables)).onSuccess({
+      case (wishlist, owned) =>
+          send ! UserGamesRefreshed(user.id.get, (GameSources.WishList, wishlist))
+          send ! UserGamesRefreshed(user.id.get, (GameSources.Owned, owned))
+      })
   }
 
   private def refreshSteamGames(user: User): Future[_] = {

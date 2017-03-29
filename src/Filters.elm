@@ -22,7 +22,7 @@ type alias Model =
 
 replace : WebSocketRefreshResult -> Model -> Model
 replace r model =
-    apply { model | original = GameEntry.update r model.original }
+    apply { model | original = GameEntry.update r model.sources model.original }
 
 
 parse : Erl.Url -> Model

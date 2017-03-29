@@ -6,6 +6,7 @@ import Model exposing (..)
 import GameEntry exposing (GameEntry, WebSocketRefreshResult)
 import String
 import Erl
+import Parser
 
 
 --ROUTES
@@ -75,7 +76,7 @@ refreshSocketUrl host userId =
 decodeWebSocketResult : String -> WebSocketRefreshResult
 decodeWebSocketResult r =
     WebSocketRefreshResult
-        (r |> Json.decodeString (list decodedGameEntry) |> Result.toMaybe)
+        (r |> Json.decodeString (map2 (,) (index 0 gameSourcesDecoder) (index 1 (list decodedGameEntry))) |> Result.toMaybe)
         (r |> Json.decodeString (list decodedPriceEntry) |> Result.toMaybe)
 
 
@@ -117,6 +118,10 @@ decodedGameOptionsEntry =
 
 decodedGameQueryEntry =
     map4 GameQuery (field "query" string) (field "site" string) (field "results" (list string)) (field "selectedResult" (maybe string))
+
+
+gameSourcesDecoder =
+    map Parser.parseSources string
 
 
 

@@ -21,12 +21,20 @@ type alias GameEntry =
 
 
 type alias WebSocketRefreshResult =
-    { games : Maybe (List GameEntry), prices : Maybe (List PriceEntry) }
+    { games : Maybe ( Maybe GameSources, List GameEntry ), prices : Maybe (List PriceEntry) }
 
 
-update : WebSocketRefreshResult -> List GameEntry -> List GameEntry
-update newData oldData =
-    newData.games |> Maybe.withDefault oldData
+update : WebSocketRefreshResult -> GameSources -> List GameEntry -> List GameEntry
+update newData sources oldData =
+    newData.games
+        |> Maybe.andThen
+            (\( newSources, newGames ) ->
+                if newSources == Just sources then
+                    Just newGames
+                else
+                    Nothing
+            )
+        |> Maybe.withDefault oldData
 
 
 getName : GameEntry -> String

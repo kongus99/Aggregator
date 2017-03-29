@@ -1,10 +1,9 @@
 package actors
 
 import actors.PriceRefreshActor.RunRefresh
-import actors.ScheduleActor.UserGamesRefreshed
+import actors.ScheduleActor.UserPricesRefreshed
 import akka.actor.Actor
 import model.Tables
-import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSClient
 import services._
 
@@ -23,15 +22,14 @@ class PriceRefreshActor (entries : Seq[SteamEntry], client: WSClient, tables: Ta
   override def receive: Receive = {
     case _ : RunRefresh =>
       val s = sender()
-      refreshPrices().onSuccess({case r => s ! UserGamesRefreshed(1L, r)})
+      refreshPrices().onSuccess({case r => s ! UserPricesRefreshed(r)})
   }
-  private def refreshPrices(): Future[JsValue] = {
+  private def refreshPrices(): Future[Seq[PriceEntry]] = {
     for {
       prices <- PriceEntry.getPrices(tables, entries, golRetriever.retrieve, fkRetriever.retrieve, keyeRetriever.retrieve)
       _ <- tables.replacePrices(entries.map(_.steamId).toSet, prices.values.flatten.toSeq)
     } yield {
-      //TODO : do not flatten - user preferences are lost this way !!!
-      Json.toJson(prices.values.flatten)
+      prices.values.flatten.toSeq
     }
   }
 
