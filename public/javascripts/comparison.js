@@ -5244,6 +5244,124 @@ var _elm_lang$core$Set$partition = F2(
 		};
 	});
 
+var _elm_community$dict_extra$Dict_Extra$invert = function (dict) {
+	return A3(
+		_elm_lang$core$Dict$foldl,
+		F3(
+			function (k, v, acc) {
+				return A3(_elm_lang$core$Dict$insert, v, k, acc);
+			}),
+		_elm_lang$core$Dict$empty,
+		dict);
+};
+var _elm_community$dict_extra$Dict_Extra$filterMap = F2(
+	function (f, dict) {
+		return A3(
+			_elm_lang$core$Dict$foldl,
+			F3(
+				function (k, v, acc) {
+					var _p0 = A2(f, k, v);
+					if (_p0.ctor === 'Just') {
+						return A3(_elm_lang$core$Dict$insert, k, _p0._0, acc);
+					} else {
+						return acc;
+					}
+				}),
+			_elm_lang$core$Dict$empty,
+			dict);
+	});
+var _elm_community$dict_extra$Dict_Extra$mapKeys = F2(
+	function (keyMapper, dict) {
+		var addKey = F3(
+			function (key, value, d) {
+				return A3(
+					_elm_lang$core$Dict$insert,
+					keyMapper(key),
+					value,
+					d);
+			});
+		return A3(_elm_lang$core$Dict$foldl, addKey, _elm_lang$core$Dict$empty, dict);
+	});
+var _elm_community$dict_extra$Dict_Extra$keepOnly = F2(
+	function (set, dict) {
+		return A3(
+			_elm_lang$core$Set$foldl,
+			F2(
+				function (k, acc) {
+					return A2(
+						_elm_lang$core$Maybe$withDefault,
+						acc,
+						A2(
+							_elm_lang$core$Maybe$map,
+							function (v) {
+								return A3(_elm_lang$core$Dict$insert, k, v, acc);
+							},
+							A2(_elm_lang$core$Dict$get, k, dict)));
+				}),
+			_elm_lang$core$Dict$empty,
+			set);
+	});
+var _elm_community$dict_extra$Dict_Extra$removeMany = F2(
+	function (set, dict) {
+		return A3(_elm_lang$core$Set$foldl, _elm_lang$core$Dict$remove, dict, set);
+	});
+var _elm_community$dict_extra$Dict_Extra$removeWhen = F2(
+	function (pred, dict) {
+		return A2(
+			_elm_lang$core$Dict$filter,
+			F2(
+				function (k, v) {
+					return !A2(pred, k, v);
+				}),
+			dict);
+	});
+var _elm_community$dict_extra$Dict_Extra$fromListBy = F2(
+	function (keyfn, xs) {
+		return A3(
+			_elm_lang$core$List$foldl,
+			F2(
+				function (x, acc) {
+					return A3(
+						_elm_lang$core$Dict$insert,
+						keyfn(x),
+						x,
+						acc);
+				}),
+			_elm_lang$core$Dict$empty,
+			xs);
+	});
+var _elm_community$dict_extra$Dict_Extra$groupBy = F2(
+	function (keyfn, list) {
+		return A3(
+			_elm_lang$core$List$foldr,
+			F2(
+				function (x, acc) {
+					return A3(
+						_elm_lang$core$Dict$update,
+						keyfn(x),
+						function (_p1) {
+							return _elm_lang$core$Maybe$Just(
+								A2(
+									_elm_lang$core$Maybe$withDefault,
+									{
+										ctor: '::',
+										_0: x,
+										_1: {ctor: '[]'}
+									},
+									A2(
+										_elm_lang$core$Maybe$map,
+										F2(
+											function (x, y) {
+												return {ctor: '::', _0: x, _1: y};
+											})(x),
+										_p1)));
+						},
+						acc);
+				}),
+			_elm_lang$core$Dict$empty,
+			list);
+	});
+
 //import Native.List //
 
 var _elm_lang$core$Native_Array = function() {
@@ -10971,7 +11089,7 @@ var _user$project$GameEntry$getName = function (gameEntry) {
 			},
 			_elm_lang$core$List$head(gameEntry.gog)));
 };
-var _user$project$GameEntry$update = F3(
+var _user$project$GameEntry$updateGames = F3(
 	function (newData, sources, oldData) {
 		return A2(
 			_elm_lang$core$Maybe$withDefault,
@@ -10996,6 +11114,48 @@ var _user$project$GameEntry$update = F3(
 						}
 					},
 					newData.games)));
+	});
+var _user$project$GameEntry$updatePrices = F3(
+	function (newData, sources, oldData) {
+		return _elm_lang$core$Native_Utils.eq(sources, _user$project$Model$Owned) ? oldData : A2(
+			_elm_lang$core$Maybe$withDefault,
+			oldData,
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (prices) {
+					var groupedPrices = A2(
+						_elm_community$dict_extra$Dict_Extra$groupBy,
+						function (_) {
+							return _.steamId;
+						},
+						prices);
+					return A2(
+						_elm_lang$core$List$map,
+						function (g) {
+							var toReplace = A2(
+								_elm_lang$core$Maybe$withDefault,
+								{ctor: '[]'},
+								A2(
+									_elm_lang$core$Maybe$andThen,
+									function (id) {
+										return A2(_elm_lang$core$Dict$get, id, groupedPrices);
+									},
+									_user$project$GameEntry$getSteamId(g)));
+							return _elm_lang$core$Native_Utils.update(
+								g,
+								{prices: toReplace});
+						},
+						oldData);
+				},
+				newData.prices));
+	});
+var _user$project$GameEntry$update = F3(
+	function (newData, sources, oldData) {
+		return A3(
+			_user$project$GameEntry$updatePrices,
+			newData,
+			sources,
+			A3(_user$project$GameEntry$updateGames, newData, sources, oldData));
 	});
 var _user$project$GameEntry$GameEntry = F3(
 	function (a, b, c) {

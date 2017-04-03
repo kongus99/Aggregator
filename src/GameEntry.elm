@@ -12,6 +12,7 @@ module GameEntry
         )
 
 import Dict exposing (Dict)
+import Dict.Extra as Dicts
 import Model exposing (..)
 import Set exposing (Set)
 
@@ -34,6 +35,36 @@ type alias WebSocketRefreshResult =
 
 update : WebSocketRefreshResult -> GameSources -> List GameEntry -> List GameEntry
 update newData sources oldData =
+    updateGames newData sources oldData |> updatePrices newData sources
+
+
+updatePrices : WebSocketRefreshResult -> GameSources -> List GameEntry -> List GameEntry
+updatePrices newData sources oldData =
+    if sources == Owned then
+        oldData
+    else
+        newData.prices
+            |> Maybe.map
+                (\prices ->
+                    let
+                        groupedPrices =
+                            prices |> Dicts.groupBy .steamId
+                    in
+                        oldData
+                            |> List.map
+                                (\g ->
+                                    let
+                                        toReplace =
+                                            getSteamId g |> Maybe.andThen (\id -> Dict.get id groupedPrices) |> Maybe.withDefault []
+                                    in
+                                        { g | prices = toReplace }
+                                )
+                )
+            |> Maybe.withDefault oldData
+
+
+updateGames : WebSocketRefreshResult -> GameSources -> List GameEntry -> List GameEntry
+updateGames newData sources oldData =
     newData.games
         |> Maybe.map
             (\( wishlist, owned ) ->
