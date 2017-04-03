@@ -14,6 +14,12 @@ type GameSources
     | Both
 
 
+type Protocol
+    = Http
+    | Https
+    | Other
+
+
 type alias SteamUsername =
     String
 

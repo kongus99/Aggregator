@@ -12215,6 +12215,9 @@ var _user$project$Model$Gog = {ctor: 'Gog'};
 var _user$project$Model$Both = {ctor: 'Both'};
 var _user$project$Model$WishList = {ctor: 'WishList'};
 var _user$project$Model$Owned = {ctor: 'Owned'};
+var _user$project$Model$Other = {ctor: 'Other'};
+var _user$project$Model$Https = {ctor: 'Https'};
+var _user$project$Model$Http = {ctor: 'Http'};
 
 var _user$project$GameEntry$roundToString = F2(
 	function (precision, number) {
@@ -12445,9 +12448,20 @@ var _user$project$GameEntry$WebSocketRefreshResult = F2(
 		return {games: a, prices: b};
 	});
 
-var _user$project$Parser$parseGameOn = function (value) {
-	var _p0 = value;
+var _user$project$Parser$parseProtocol = function (value) {
+	var _p0 = _elm_lang$core$String$toLower(value);
 	switch (_p0) {
+		case 'http':
+			return _user$project$Model$Http;
+		case 'https':
+			return _user$project$Model$Https;
+		default:
+			return _user$project$Model$Other;
+	}
+};
+var _user$project$Parser$parseGameOn = function (value) {
+	var _p1 = value;
+	switch (_p1) {
 		case 'Gog':
 			return _elm_lang$core$Maybe$Just(_user$project$Model$Gog);
 		case 'Steam':
@@ -12457,8 +12471,8 @@ var _user$project$Parser$parseGameOn = function (value) {
 	}
 };
 var _user$project$Parser$parseSources = function (value) {
-	var _p1 = value;
-	switch (_p1) {
+	var _p2 = value;
+	switch (_p2) {
 		case 'Owned':
 			return _elm_lang$core$Maybe$Just(_user$project$Model$Owned);
 		case 'WishList':
@@ -12470,8 +12484,8 @@ var _user$project$Parser$parseSources = function (value) {
 	}
 };
 var _user$project$Parser$parseBool = function (value) {
-	var _p2 = _elm_lang$core$String$toLower(value);
-	switch (_p2) {
+	var _p3 = _elm_lang$core$String$toLower(value);
+	switch (_p3) {
 		case 'true':
 			return _elm_lang$core$Maybe$Just(true);
 		case 'false':
@@ -12653,9 +12667,18 @@ var _user$project$Router$decodeWebSocketResult = function (r) {
 				_elm_lang$core$Json_Decode$list(_user$project$Router$decodedPriceEntry),
 				r)));
 };
-var _user$project$Router$refreshSocketUrl = F2(
-	function (host, userId) {
-		return A2(
+var _user$project$Router$refreshSocketUrl = F3(
+	function (protocol, host, userId) {
+		return _elm_lang$core$Native_Utils.eq(protocol, _user$project$Model$Https) ? A2(
+			_elm_lang$core$Basics_ops['++'],
+			'wss://',
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				host,
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'/refreshsocket/',
+					_elm_lang$core$Basics$toString(userId)))) : A2(
 			_elm_lang$core$Basics_ops['++'],
 			'ws://',
 			A2(
@@ -14310,13 +14333,13 @@ var _user$project$MainPage$elmAddressChange = _elm_lang$core$Native_Platform.out
 	function (v) {
 		return v;
 	});
-var _user$project$MainPage$Model = F6(
-	function (a, b, c, d, e, f) {
-		return {sources: a, message: b, userId: c, filters: d, host: e, options: f};
+var _user$project$MainPage$Model = F7(
+	function (a, b, c, d, e, f, g) {
+		return {sources: a, message: b, userId: c, filters: d, host: e, protocol: f, options: g};
 	});
-var _user$project$MainPage$initialModel = F2(
-	function (host, filters) {
-		return A6(_user$project$MainPage$Model, _user$project$Model$WishList, _elm_lang$core$Maybe$Nothing, 1, filters, host, _user$project$GameOptionsDialog$emptyModel);
+var _user$project$MainPage$initialModel = F3(
+	function (protocol, host, filters) {
+		return A7(_user$project$MainPage$Model, _user$project$Model$WishList, _elm_lang$core$Maybe$Nothing, 1, filters, host, protocol, _user$project$GameOptionsDialog$emptyModel);
 	});
 var _user$project$MainPage$Ack = function (a) {
 	return {ctor: 'Ack', _0: a};
@@ -14333,6 +14356,7 @@ var _user$project$MainPage$initProgram = function (address) {
 			_elm_lang$core$Basics_ops['++'],
 			':',
 			_elm_lang$core$Basics$toString(url.port_)));
+	var protocol = _user$project$Parser$parseProtocol(url.protocol);
 	var _p0 = A2(
 		_user$project$Filters$refresh,
 		'',
@@ -14341,7 +14365,7 @@ var _user$project$MainPage$initProgram = function (address) {
 	var cmd = _p0._1;
 	return {
 		ctor: '_Tuple2',
-		_0: A2(_user$project$MainPage$initialModel, host, filters),
+		_0: A3(_user$project$MainPage$initialModel, protocol, host, filters),
 		_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$MainPage$FiltersMessage, cmd)
 	};
 };
@@ -14614,7 +14638,7 @@ var _user$project$MainPage$ServerRefreshRequest = function (a) {
 var _user$project$MainPage$subscriptions = function (model) {
 	return A2(
 		_elm_lang$websocket$WebSocket$listen,
-		A2(_user$project$Router$refreshSocketUrl, model.host, model.userId),
+		A3(_user$project$Router$refreshSocketUrl, model.protocol, model.host, model.userId),
 		_user$project$MainPage$ServerRefreshRequest);
 };
 var _user$project$MainPage$main = _elm_lang$html$Html$programWithFlags(

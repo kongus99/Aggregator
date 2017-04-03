@@ -68,9 +68,12 @@ routes =
 --WEB SOCKET
 
 
-refreshSocketUrl : String -> Int -> String
-refreshSocketUrl host userId =
-    "ws://" ++ host ++ "/refreshsocket/" ++ (toString userId)
+refreshSocketUrl : Protocol -> String -> Int -> String
+refreshSocketUrl protocol host userId =
+    if protocol == Https then
+        "wss://" ++ host ++ "/refreshsocket/" ++ (toString userId)
+    else
+        "ws://" ++ host ++ "/refreshsocket/" ++ (toString userId)
 
 
 decodeWebSocketResult : String -> WebSocketRefreshResult

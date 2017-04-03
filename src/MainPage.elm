@@ -27,10 +27,13 @@ initProgram address =
         host =
             (url.host |> String.join ".") ++ ":" ++ toString url.port_
 
+        protocol =
+            url.protocol |> Parser.parseProtocol
+
         ( filters, cmd ) =
             Filters.parse url |> Filters.refresh ""
     in
-        ( initialModel host filters, Cmd.map FiltersMessage cmd )
+        ( initialModel protocol host filters, Cmd.map FiltersMessage cmd )
 
 
 main =
@@ -43,7 +46,7 @@ main =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    WebSocket.listen (Router.refreshSocketUrl model.host model.userId) ServerRefreshRequest
+    WebSocket.listen (Router.refreshSocketUrl model.protocol model.host model.userId) ServerRefreshRequest
 
 
 port elmAddressChange : String -> Cmd msg
@@ -54,11 +57,11 @@ port elmAddressChange : String -> Cmd msg
 
 
 type alias Model =
-    { sources : GameSources, message : Maybe String, userId : Int, filters : Filters.Model, host : String, options : GameOptionsDialog.Model }
+    { sources : GameSources, message : Maybe String, userId : Int, filters : Filters.Model, host : String, protocol : Protocol, options : GameOptionsDialog.Model }
 
 
-initialModel host filters =
-    Model WishList Nothing 1 filters host GameOptionsDialog.emptyModel
+initialModel protocol host filters =
+    Model WishList Nothing 1 filters host protocol GameOptionsDialog.emptyModel
 
 
 
