@@ -11124,11 +11124,22 @@ var _user$project$GameEntry$updatePrices = F3(
 				_elm_lang$core$Maybe$map,
 				function (prices) {
 					var groupedPrices = A2(
-						_elm_community$dict_extra$Dict_Extra$groupBy,
-						function (_) {
-							return _.steamId;
-						},
-						prices);
+						_elm_lang$core$Dict$map,
+						F2(
+							function (k, v) {
+								return A2(
+									_elm_lang$core$List$sortBy,
+									function (_) {
+										return _.price;
+									},
+									v);
+							}),
+						A2(
+							_elm_community$dict_extra$Dict_Extra$groupBy,
+							function (_) {
+								return _.steamId;
+							},
+							prices));
 					return A2(
 						_elm_lang$core$List$map,
 						function (g) {

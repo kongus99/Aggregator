@@ -48,7 +48,7 @@ updatePrices newData sources oldData =
                 (\prices ->
                     let
                         groupedPrices =
-                            prices |> Dicts.groupBy .steamId
+                            prices |> Dicts.groupBy .steamId |> Dict.map (\k -> \v -> List.sortBy .price v)
                     in
                         oldData
                             |> List.map
