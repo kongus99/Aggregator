@@ -1,7 +1,7 @@
 package actors
 
 
-import actors.MyWebSocketActor.RefreshUserGames
+import actors.MyWebSocketActor.RefreshUserData
 import actors.ScheduleActor.{RefreshGames, RefreshPrices, UserGamesRefreshed, UserPricesRefreshed}
 import akka.actor.{Actor, ActorSystem, PoisonPill, Props}
 import com.google.inject.Inject
@@ -21,7 +21,7 @@ object ScheduleActor {
 
   case class UserGamesRefreshed(userId : Long, data : (Seq[GameEntry], Seq[GameEntry]))
 
-  case class UserPricesRefreshed(data : Seq[PriceEntry])
+  case class UserPricesRefreshed(data : Seq[(Long, Seq[PriceEntry])])
 
 }
 
@@ -35,8 +35,8 @@ class ScheduleActor @Inject()(system : ActorSystem, client: WSClient, configurat
     context.actorOf(Props(classOf[GameRefreshActor], user, client, tables, configuration, exec)) ! GameRefreshActor.RunRefresh()
   }
 
-  def schedulePricesRefresh(e : Seq[SteamEntry]) : Unit = {
-    context.actorOf(Props(classOf[PriceRefreshActor], e, client, tables, exec)) ! PriceRefreshActor.RunRefresh()
+  def schedulePricesRefresh(e : Seq[(Long, SteamEntry)]) : Unit = {
+    context.actorOf(Props(classOf[PricesRefreshSupervisor], e.groupBy(_._1).mapValues(_.map(_._2)), client, tables, exec)) ! PricesRefreshSupervisor.RunRefresh()
   }
 
   override def receive: Receive = {
@@ -44,12 +44,12 @@ class ScheduleActor @Inject()(system : ActorSystem, client: WSClient, configurat
       tables.getAllUsers.map(_.foreach(scheduleGamesRefresh))
 
     case _: RefreshPrices =>
-      tables.getSteamEntries(None, None).map(entries => entries.grouped(40).foreach(schedulePricesRefresh))
+      tables.getSteamWishLists().map(schedulePricesRefresh)
     case r : UserGamesRefreshed =>
-      system.actorSelection("akka://application/user/*") ! RefreshUserGames(r.userId, Json.toJson(r.data))
+      system.actorSelection("akka://application/user/*") ! RefreshUserData(r.userId, Json.toJson(r.data))
       sender() ! PoisonPill
     case r : UserPricesRefreshed =>
-//      r.data.groupBy(_.userId).foreach({case (userId, prices) => system.actorSelection("akka://application/user/*") ! RefreshUserData(userId, Json.toJson(prices))})
+      r.data.foreach(p => system.actorSelection("akka://application/user/*") ! RefreshUserData(p._1, Json.toJson(p._2)))
       sender() ! PoisonPill
 
   }

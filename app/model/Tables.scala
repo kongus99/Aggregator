@@ -321,6 +321,11 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
     db.run(steamOwnershipData.join(steamData).on(_.steamId === _.steamId).filter((condition _).tupled).result).map(_.map(p => p._2.copy(owned = p._1.owned)))
   }
 
+  def getSteamWishLists(): Future[Seq[(Long, SteamEntry)]] = {
+    db.run(steamOwnershipData.join(steamData).on(_.steamId === _.steamId).filter(_._1.owned === false).result)
+      .map(_.map(p => (p._1.userId, p._2.copy(owned = p._1.owned))))
+  }
+
   def getSteamEntryById(steamId : Long): Future[SteamEntry] = db.run(steamData.filter(_.steamId === steamId).result.head)
 
   def replaceSteamData(user : User, data : Seq[SteamEntry]): Future[_] = replaceData(steamData, steamOwnershipData, data, user)
