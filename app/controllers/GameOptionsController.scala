@@ -2,6 +2,8 @@ package controllers
 
 import javax.inject.{Inject, Singleton}
 
+import actors.ScheduleActor.RefreshPrice
+import akka.actor.ActorSystem
 import model.Tables
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
@@ -12,7 +14,7 @@ import services._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class GameOptionsController @Inject()(tables: Tables, client: WSClient)(implicit exec: ExecutionContext) extends Controller {
+class GameOptionsController @Inject()(system : ActorSystem, tables: Tables, client: WSClient)(implicit exec: ExecutionContext) extends Controller {
 
   val fkRetriever = new FKRetriever(client)
   val keyeRetriever = new KeyeRetriever(client)
@@ -94,6 +96,7 @@ class GameOptionsController @Inject()(tables: Tables, client: WSClient)(implicit
   }
 
   def refresh(userId: Long, steamId: Long): Action[AnyContent] =  Action.async {
+    system.actorSelection("akka://application/user/ScheduleActor") ! RefreshPrice(userId, steamId)
     Future(Ok("Scheduled refresh"))
   }
 

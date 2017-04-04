@@ -2,7 +2,7 @@ package actors
 
 
 import actors.MyWebSocketActor.RefreshUserData
-import actors.ScheduleActor.{RefreshGames, RefreshPrices, UserGamesRefreshed, UserPricesRefreshed}
+import actors.ScheduleActor._
 import akka.actor.{Actor, ActorSystem, PoisonPill, Props}
 import com.google.inject.Inject
 import model.{Tables, User}
@@ -19,9 +19,11 @@ object ScheduleActor {
 
   case class RefreshPrices()
 
+  case class RefreshPrice(userId : Long, steamId : Long)
+
   case class UserGamesRefreshed(userId : Long, data : (Seq[GameEntry], Seq[GameEntry]))
 
-  case class UserPricesRefreshed(data : Seq[(Long, Seq[PriceEntry])])
+  case class UserPricesRefreshed(data : Seq[PriceRefreshResult])
 
 }
 
@@ -42,14 +44,15 @@ class ScheduleActor @Inject()(system : ActorSystem, client: WSClient, configurat
   override def receive: Receive = {
     case _: RefreshGames =>
       tables.getAllUsers.map(_.foreach(scheduleGamesRefresh))
-
     case _: RefreshPrices =>
       tables.getSteamWishLists().map(schedulePricesRefresh)
+    case r : RefreshPrice =>
+      tables.getSteamEntryById(r.steamId).map(e => schedulePricesRefresh(Seq((r.userId, e))))
     case r : UserGamesRefreshed =>
       system.actorSelection("akka://application/user/*") ! RefreshUserData(r.userId, Json.toJson(r.data))
       sender() ! PoisonPill
     case r : UserPricesRefreshed =>
-      r.data.foreach(p => system.actorSelection("akka://application/user/*") ! RefreshUserData(p._1, Json.toJson(p._2)))
+      r.data.foreach(p => system.actorSelection("akka://application/user/*") ! RefreshUserData(p.userId, Json.toJson((p.isSingle, p.prices))))
       sender() ! PoisonPill
 
   }

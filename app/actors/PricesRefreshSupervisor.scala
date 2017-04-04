@@ -11,6 +11,8 @@ import services.{PriceEntry, SteamEntry}
 
 import scala.concurrent.ExecutionContext
 
+case class PriceRefreshResult(userId : Long, isSingle : Boolean, prices : Seq[PriceEntry])
+
 object PricesRefreshSupervisor {
 
   case class RunRefresh()
@@ -48,13 +50,13 @@ class PricesRefreshSupervisor(wishLists: Map[Long, Seq[SteamEntry]], client: WSC
     context.actorOf(Props(classOf[PriceRefreshActor], e, id, client, tables, exec)) ! PriceRefreshActor.RunRefresh()
   }
 
-  private def prepareRefreshesForClients(): Seq[(Long, Seq[PriceEntry])] = {
+  private def prepareRefreshesForClients(): Seq[PriceRefreshResult] = {
     val defaultPrices: Map[Long, Set[PriceEntry]] = prices.filter(_.userId == 1L)groupBy(p => p.steamId)
     val customizedPrices: Map[(Long, Long), Set[PriceEntry]] = prices.filter(_.userId != 1L).groupBy(p => (p.userId, p.steamId))
     wishLists.keys.map(k => {
       val wishList = wishLists.getOrElse(k, Seq())
       val prices = wishList.flatMap(e => customizedPrices.getOrElse((k, e.steamId), defaultPrices.getOrElse(e.steamId, Set())).toSeq)
-      (k, prices)
+      PriceRefreshResult(k, wishList.size == 1, prices)
     }).toSeq
   }
 }
