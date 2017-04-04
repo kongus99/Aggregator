@@ -56,7 +56,7 @@ class PricesRefreshSupervisor(wishLists: Map[Long, Seq[SteamEntry]], client: WSC
     wishLists.keys.map(k => {
       val wishList = wishLists.getOrElse(k, Seq())
       val prices = wishList.flatMap(e => customizedPrices.getOrElse((k, e.steamId), defaultPrices.getOrElse(e.steamId, Set())).toSeq)
-      PriceRefreshResult(k, wishList.size == 1, prices)
+      PriceRefreshResult(k, wishList.size <= 1, prices)
     }).toSeq
   }
 }
