@@ -59,8 +59,8 @@ object GameEntry {
     }
 
     for {
-      gog <- tables.getGogEntries(userId, GameSources.toOption(sources))
-      steam <- tables.getSteamEntries(userId, GameSources.toOption(sources))
+      gog <- tables.getGogEntries(userId, GameSources.toOption(sources)).map(_.map(e => if(e.owned) e.copy(price = None, discounted = None) else e))
+      steam <- tables.getSteamEntries(userId, GameSources.toOption(sources)).map(_.map(e => if(e.owned) e.copy(price = None, discounted = None) else e))
       matches <- tables.getAllMatches
     } yield {
       val gogMap = gog.map(e => (e.gogId, e)).toMap
@@ -80,7 +80,7 @@ object GameEntry {
     for {
       user <- tables.getUserById(userId)
       result <- generateFromNames(user.get.id, sources, tables)
-      prices <- tables.getPrices(result.map(_.steam).filter(_.nonEmpty).flatten).map(_.groupBy(_.steamId).mapValues(_.sortBy(_.price)))
+      prices <- tables.getPrices(result.map(_.steam).filter(_.nonEmpty).flatten.filter(!_.owned)).map(_.groupBy(_.steamId).mapValues(_.sortBy(_.price)))
     } yield {
       result.map(e => if (e.steam.isEmpty) e else e.copy(prices = prices.getOrElse(e.steam.head.steamId, Seq())))
     }
