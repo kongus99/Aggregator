@@ -97,7 +97,7 @@ class GameOptionsController @Inject()(system : ActorSystem, tables: Tables, clie
 
   def refresh(userId: Long, steamId: Long): Action[AnyContent] =  Action.async {
     system.actorSelection("akka://application/user/ScheduleActor") ! RefreshPrice(userId, steamId)
-    Future(Ok("Scheduled refresh"))
+    Future(Ok(Json.toJson("Scheduled refresh")))
   }
 
 }
