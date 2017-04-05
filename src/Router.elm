@@ -80,7 +80,7 @@ decodeWebSocketResult : String -> WebSocketRefreshResult
 decodeWebSocketResult r =
     WebSocketRefreshResult
         (r |> Json.decodeString (map2 (,) (index 0 (list decodedGameEntry)) (index 1 (list decodedGameEntry))) |> Result.toMaybe)
-        (r |> Json.decodeString (map2 (,) (index 0 bool) (index 1 (list decodedPriceEntry))) |> Result.toMaybe)
+        (r |> Json.decodeString (map2 (,) (index 0 (list int)) (index 1 (list decodedPriceEntry))) |> Result.toMaybe)
 
 
 

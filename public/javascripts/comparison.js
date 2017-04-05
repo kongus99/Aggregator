@@ -11127,8 +11127,7 @@ var _user$project$GameEntry$updatePrices = F3(
 				_elm_lang$core$Maybe$map,
 				function (_p11) {
 					var _p12 = _p11;
-					var _p13 = _p12._1;
-					var groupedPrices = A2(
+					var existingGroupedPrices = A2(
 						_elm_lang$core$Dict$map,
 						F2(
 							function (k, v) {
@@ -11144,13 +11143,27 @@ var _user$project$GameEntry$updatePrices = F3(
 							function (_) {
 								return _.steamId;
 							},
-							_p13));
+							_p12._1));
+					var groupedPrices = A2(
+						_elm_lang$core$Dict$union,
+						existingGroupedPrices,
+						_elm_lang$core$Dict$fromList(
+							A2(
+								_elm_lang$core$List$map,
+								function (id) {
+									return {
+										ctor: '_Tuple2',
+										_0: id,
+										_1: {ctor: '[]'}
+									};
+								},
+								_p12._0)));
 					return A2(
 						_elm_lang$core$List$map,
 						function (g) {
 							var toReplace = A2(
 								_elm_lang$core$Maybe$withDefault,
-								_p12._0 ? (_elm_lang$core$List$isEmpty(_p13) ? {ctor: '[]'} : g.prices) : {ctor: '[]'},
+								g.prices,
 								A2(
 									_elm_lang$core$Maybe$andThen,
 									function (id) {
@@ -11404,7 +11417,10 @@ var _user$project$Router$decodeWebSocketResult = function (r) {
 						function (v0, v1) {
 							return {ctor: '_Tuple2', _0: v0, _1: v1};
 						}),
-					A2(_elm_lang$core$Json_Decode$index, 0, _elm_lang$core$Json_Decode$bool),
+					A2(
+						_elm_lang$core$Json_Decode$index,
+						0,
+						_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$int)),
 					A2(
 						_elm_lang$core$Json_Decode$index,
 						1,

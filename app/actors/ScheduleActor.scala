@@ -52,7 +52,7 @@ class ScheduleActor @Inject()(system : ActorSystem, client: WSClient, configurat
       system.actorSelection("akka://application/user/*") ! RefreshUserData(r.userId, Json.toJson(r.data))
       sender() ! PoisonPill
     case r : UserPricesRefreshed =>
-      r.data.foreach(p => system.actorSelection("akka://application/user/*") ! RefreshUserData(p.userId, Json.toJson((p.isSingle, p.prices))))
+      r.data.foreach(p => system.actorSelection("akka://application/user/*") ! RefreshUserData(p.userId, Json.toJson((p.wishListIds, p.prices))))
       sender() ! PoisonPill
 
   }

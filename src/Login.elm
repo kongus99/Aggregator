@@ -92,99 +92,95 @@ type Msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    let
-        xxx =
-            Debug.log "msg:" msg
-    in
-        case msg of
-            Wrap toTop ->
-                if toTop then
-                    { model
-                        | autoState = Autocomplete.resetToFirstItem (updateConfig model.data.activeUsername) (LoginData.filterUsers model.data) model.showHowMany model.autoState
-                    }
-                        ! []
-                else
-                    { model
-                        | autoState = Autocomplete.resetToLastItem (updateConfig model.data.activeUsername) (LoginData.filterUsers model.data) model.showHowMany model.autoState
-                    }
-                        ! []
+    case msg of
+        Wrap toTop ->
+            if toTop then
+                { model
+                    | autoState = Autocomplete.resetToFirstItem (updateConfig model.data.activeUsername) (LoginData.filterUsers model.data) model.showHowMany model.autoState
+                }
+                    ! []
+            else
+                { model
+                    | autoState = Autocomplete.resetToLastItem (updateConfig model.data.activeUsername) (LoginData.filterUsers model.data) model.showHowMany model.autoState
+                }
+                    ! []
 
-            SetAutoState autoMsg ->
-                let
-                    ( newState, maybeMsg ) =
-                        Autocomplete.update (updateConfig model.data.activeUsername) autoMsg model.showHowMany model.autoState (LoginData.filterUsers model.data)
+        SetAutoState autoMsg ->
+            let
+                ( newState, maybeMsg ) =
+                    Autocomplete.update (updateConfig model.data.activeUsername) autoMsg model.showHowMany model.autoState (LoginData.filterUsers model.data)
 
-                    newModel =
-                        { model | autoState = newState }
-                in
-                    case maybeMsg of
-                        Nothing ->
-                            newModel ! []
+                newModel =
+                    { model | autoState = newState }
+            in
+                case maybeMsg of
+                    Nothing ->
+                        newModel ! []
 
-                        Just updateMsg ->
-                            update updateMsg newModel
+                    Just updateMsg ->
+                        update updateMsg newModel
 
-            SelectUser name ->
-                { model | message = "", data = LoginData.selectUser name model.data } ! []
+        SelectUser name ->
+            { model | message = "", data = LoginData.selectUser name model.data } ! []
 
-            CreateUpdateUser u ->
-                { model | message = "" }
-                    ! [ serializeUser u |> routes.login.createUpdate |> .request |> (getResponse UserFetched) ]
+        CreateUpdateUser u ->
+            { model | message = "" }
+                ! [ serializeUser u |> routes.login.createUpdate |> .request |> (getResponse UserFetched) ]
 
-            UserFetched u ->
-                { model | message = "", data = LoginData.setUser u model.data } ! []
+        UserFetched u ->
+            { model | message = "", data = LoginData.setUser u model.data } ! []
 
-            UsersFetched users ->
-                { model | message = "", data = LoginData.setPossibleUsers users model.data } ! []
+        UsersFetched users ->
+            { model | message = "", data = LoginData.setPossibleUsers users model.data } ! []
 
-            SteamChange u ->
-                { model | message = "", data = LoginData.updateSteamUsername u model.data } ! []
+        SteamChange u ->
+            { model | message = "", data = LoginData.updateSteamUsername u model.data } ! []
 
-            GogChange u ->
-                { model | message = "", data = LoginData.updateGogUsername u model.data } ! []
+        GogChange u ->
+            { model | message = "", data = LoginData.updateGogUsername u model.data } ! []
 
-            SteamGainFocus ->
-                { model | message = "", data = LoginData.changeActiveUsername Steam model.data }
-                    ! [ sendUsersRequest model.data.user (Maybe.withDefault "" model.data.user.steamUsername) ]
+        SteamGainFocus ->
+            { model | message = "", data = LoginData.changeActiveUsername Steam model.data }
+                ! [ sendUsersRequest model.data.user (Maybe.withDefault "" model.data.user.steamUsername) ]
 
-            GogGainFocus ->
-                { model | message = "", data = LoginData.changeActiveUsername Gog model.data }
-                    ! [ sendUsersRequest model.data.user (Maybe.withDefault "" model.data.user.gogUsername) ]
+        GogGainFocus ->
+            { model | message = "", data = LoginData.changeActiveUsername Gog model.data }
+                ! [ sendUsersRequest model.data.user (Maybe.withDefault "" model.data.user.gogUsername) ]
 
-            SteamAlternateChange c ->
-                let
-                    oldUser =
-                        model.data.user
+        SteamAlternateChange c ->
+            let
+                oldUser =
+                    model.data.user
 
-                    newUser =
-                        { oldUser | steamAlternate = c }
+                newUser =
+                    { oldUser | steamAlternate = c }
 
-                    changeAlternate args =
-                        List.map
-                            (\( p1, p2 ) ->
-                                if p1 == "steamAlternate" then
-                                    ( p1, c |> toString |> String.toLower )
-                                else
-                                    ( p1, p2 )
-                            )
-                            args
+                changeAlternate args =
+                    List.map
+                        (\( p1, p2 ) ->
+                            if p1 == "steamAlternate" then
+                                ( p1, c |> toString |> String.toLower )
+                            else
+                                ( p1, p2 )
+                        )
+                        args
 
-                    sendUpdate _ =
-                        serializeUser model.data.user |> changeAlternate |> routes.login.steamAlternate |> .request |> (getResponse UserFetched)
+                sendUpdate _ =
+                    serializeUser model.data.user |> changeAlternate |> routes.login.steamAlternate |> .request |> (getResponse UserFetched)
 
-                    newModel =
-                        { model | message = "", data = LoginData.setUser newUser model.data }
-                in
-                    newModel ! [ Maybe.map sendUpdate newModel.data.user.id |> Maybe.withDefault Cmd.none ]
+                newModel =
+                    { model | message = "", data = LoginData.setUser newUser model.data }
+            in
+                newModel ! [ Maybe.map sendUpdate newModel.data.user.id |> Maybe.withDefault Cmd.none ]
 
-            ResponseError err ->
-                { model | message = toString err } ! []
+        ResponseError err ->
+            { model | message = toString err } ! []
 
-            NoOp ->
-                model ! []
+        NoOp ->
+            model ! []
 
-            Reset ->
-                { model | autoState = Autocomplete.reset (updateConfig model.data.activeUsername) model.autoState } ! []
+        Reset ->
+            { model | autoState = Autocomplete.reset (updateConfig model.data.activeUsername) model.autoState } ! []
 
 
 sendUsersRequest user username =

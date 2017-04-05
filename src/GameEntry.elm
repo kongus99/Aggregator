@@ -29,12 +29,8 @@ type alias OwnedEntries =
     List GameEntry
 
 
-type alias PartialPricesRefresh =
-    Bool
-
-
 type alias WebSocketRefreshResult =
-    { games : Maybe ( WishlistEntries, OwnedEntries ), prices : Maybe ( PartialPricesRefresh, List PriceEntry ) }
+    { games : Maybe ( WishlistEntries, OwnedEntries ), prices : Maybe ( List Int, List PriceEntry ) }
 
 
 update : WebSocketRefreshResult -> GameSources -> List GameEntry -> List GameEntry
@@ -49,10 +45,13 @@ updatePrices newData sources oldData =
     else
         newData.prices
             |> Maybe.map
-                (\( partial, prices ) ->
+                (\( steamIds, prices ) ->
                     let
-                        groupedPrices =
+                        existingGroupedPrices =
                             prices |> Dicts.groupBy .steamId |> Dict.map (\k -> \v -> List.sortBy .price v)
+
+                        groupedPrices =
+                            steamIds |> List.map (\id -> ( id, [] )) |> Dict.fromList |> Dict.union existingGroupedPrices
                     in
                         oldData
                             |> List.map
@@ -61,15 +60,7 @@ updatePrices newData sources oldData =
                                         toReplace =
                                             getSteamId g
                                                 |> Maybe.andThen (\id -> Dict.get id groupedPrices)
-                                                |> Maybe.withDefault
-                                                    (if partial then
-                                                        if List.isEmpty prices then
-                                                            []
-                                                        else
-                                                            g.prices
-                                                     else
-                                                        []
-                                                    )
+                                                |> Maybe.withDefault g.prices
                                     in
                                         { g | prices = toReplace }
                                 )
