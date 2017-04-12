@@ -151,6 +151,8 @@ gameTableTitle =
     thead []
         [ tr []
             [ th [] [ text "Game - ", span [ class "cell_Steam" ] [ text " Steam" ], span [ class "cell_Gog" ] [ text " Gog" ], span [ class "cell_Both" ] [ text " Both" ] ]
+            , th [] [ text "Genres" ]
+            , th [] [ text "Tags" ]
             , th [] [ text "Price(PLN)" ]
             , th [] [ text "Additional prices(PLN)" ]
             ]
@@ -164,6 +166,8 @@ gameTableRows list =
 gameTableRow e =
     tr []
         [ th [] [ a [ href <| getLink e, class <| toStyle e ] [ text <| getName e ], gameOptionsButton e ]
+        , td [ class "text-left" ] [ text <| genresToString (getGenres e) ]
+        , td [ class "text-center" ] [ text <| tagsToString (getTags e) ]
         , td [ class "text-right" ] [ text <| pricesToString (getPrice e) ]
         , td [] (additionalPrices e.prices)
         ]

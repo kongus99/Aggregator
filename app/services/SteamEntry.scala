@@ -25,7 +25,9 @@ object SteamEntry {
       (JsPath \ "steamId").write[Long] and
       (JsPath \ "link").write[String] and
       (JsPath \ "price").write[Option[BigDecimal]]and
-      (JsPath \ "discounted").write[Option[BigDecimal]]) ((e) => (e.name, e.steamId, e.link, e.price, e.discounted))
+      (JsPath \ "discounted").write[Option[BigDecimal]] and
+      (JsPath \ "genres").write[String] and
+      (JsPath \ "tags").write[String]) ((e) => (e.name, e.steamId, e.link, e.price, e.discounted, e.genres, e.tags))
 
   def parseGenresAndTags(page: String): (Option[String], Option[String]) = {
     import scala.collection.JavaConversions._

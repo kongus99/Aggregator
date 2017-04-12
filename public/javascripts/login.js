@@ -10789,9 +10789,9 @@ var _user$project$Model$GogEntry = F5(
 	function (a, b, c, d, e) {
 		return {title: a, link: b, gogId: c, price: d, discounted: e};
 	});
-var _user$project$Model$SteamEntry = F5(
-	function (a, b, c, d, e) {
-		return {name: a, steamId: b, link: c, price: d, discounted: e};
+var _user$project$Model$SteamEntry = F7(
+	function (a, b, c, d, e, f, g) {
+		return {name: a, steamId: b, link: c, price: d, discounted: e, genres: f, tags: g};
 	});
 var _user$project$Model$PriceEntry = F5(
 	function (a, b, c, d, e) {
@@ -10894,6 +10894,34 @@ var _user$project$GameEntry$pricesToString = function (prices) {
 		_elm_lang$core$Maybe$withDefault,
 		'',
 		A3(_elm_lang$core$Maybe$map2, convertToText, discountPercentage, prices));
+};
+var _user$project$GameEntry$tagsToString = function (tags) {
+	return A2(_elm_lang$core$String$join, ', ', tags);
+};
+var _user$project$GameEntry$genresToString = function (genres) {
+	return A2(_elm_lang$core$String$join, ', ', genres);
+};
+var _user$project$GameEntry$getTags = function (gameEntry) {
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		{ctor: '[]'},
+		A2(
+			_elm_lang$core$Maybe$map,
+			function (_) {
+				return _.tags;
+			},
+			_elm_lang$core$List$head(gameEntry.steam)));
+};
+var _user$project$GameEntry$getGenres = function (gameEntry) {
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		{ctor: '[]'},
+		A2(
+			_elm_lang$core$Maybe$map,
+			function (_) {
+				return _.genres;
+			},
+			_elm_lang$core$List$head(gameEntry.steam)));
 };
 var _user$project$GameEntry$getPrice = function (gameEntry) {
 	var gogPrice = A2(
@@ -11334,28 +11362,6 @@ var _user$project$Router$decodedPriceEntry = A6(
 	A2(_elm_lang$core$Json_Decode$field, 'host', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'link', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'price', _elm_lang$core$Json_Decode$float));
-var _user$project$Router$decodedSteamEntry = A6(
-	_elm_lang$core$Json_Decode$map5,
-	_user$project$Model$SteamEntry,
-	A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string),
-	A2(_elm_lang$core$Json_Decode$field, 'steamId', _elm_lang$core$Json_Decode$int),
-	A2(_elm_lang$core$Json_Decode$field, 'link', _elm_lang$core$Json_Decode$string),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'price',
-		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'discounted',
-		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)));
-var _user$project$Router$decodedGameOptionsEntry = A3(
-	_elm_lang$core$Json_Decode$map2,
-	_user$project$Model$GameOptions,
-	A2(_elm_lang$core$Json_Decode$field, 'entry', _user$project$Router$decodedSteamEntry),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'queries',
-		_elm_lang$core$Json_Decode$array(_user$project$Router$decodedGameQueryEntry)));
 var _user$project$Router$decodedGogEntry = A6(
 	_elm_lang$core$Json_Decode$map5,
 	_user$project$Model$GogEntry,
@@ -11370,21 +11376,6 @@ var _user$project$Router$decodedGogEntry = A6(
 		_elm_lang$core$Json_Decode$field,
 		'discounted',
 		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)));
-var _user$project$Router$decodedGameEntry = A4(
-	_elm_lang$core$Json_Decode$map3,
-	_user$project$GameEntry$GameEntry,
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'gog',
-		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGogEntry)),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'steam',
-		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedSteamEntry)),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'prices',
-		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedPriceEntry)));
 var _user$project$Router$decodedUserEntry = A5(
 	_elm_lang$core$Json_Decode$map4,
 	_user$project$Model$User,
@@ -11401,6 +11392,60 @@ var _user$project$Router$decodedUserEntry = A5(
 		_elm_lang$core$Json_Decode$field,
 		'gogLogin',
 		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$string)));
+var _user$project$Router$csvRowDecoder = F2(
+	function (separator, stringDecoder) {
+		return A2(
+			_elm_lang$core$Json_Decode$map,
+			function (s) {
+				return A2(_elm_lang$core$String$split, separator, s);
+			},
+			stringDecoder);
+	});
+var _user$project$Router$decodedSteamEntry = A8(
+	_elm_lang$core$Json_Decode$map7,
+	_user$project$Model$SteamEntry,
+	A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'steamId', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'link', _elm_lang$core$Json_Decode$string),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'price',
+		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'discounted',
+		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'genres',
+		A2(_user$project$Router$csvRowDecoder, ',', _elm_lang$core$Json_Decode$string)),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'tags',
+		A2(_user$project$Router$csvRowDecoder, ',', _elm_lang$core$Json_Decode$string)));
+var _user$project$Router$decodedGameEntry = A4(
+	_elm_lang$core$Json_Decode$map3,
+	_user$project$GameEntry$GameEntry,
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'gog',
+		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedGogEntry)),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'steam',
+		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedSteamEntry)),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'prices',
+		_elm_lang$core$Json_Decode$list(_user$project$Router$decodedPriceEntry)));
+var _user$project$Router$decodedGameOptionsEntry = A3(
+	_elm_lang$core$Json_Decode$map2,
+	_user$project$Model$GameOptions,
+	A2(_elm_lang$core$Json_Decode$field, 'entry', _user$project$Router$decodedSteamEntry),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'queries',
+		_elm_lang$core$Json_Decode$array(_user$project$Router$decodedGameQueryEntry)));
 var _user$project$Router$decodeWebSocketResult = function (r) {
 	return A2(
 		_user$project$GameEntry$WebSocketRefreshResult,

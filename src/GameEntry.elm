@@ -8,6 +8,10 @@ module GameEntry
         , getSteamId
         , getLink
         , update
+        , getGenres
+        , getTags
+        , tagsToString
+        , genresToString
         , WebSocketRefreshResult
         )
 
@@ -125,6 +129,26 @@ getPrice gameEntry =
 
             Nothing ->
                 steamPrice
+
+
+getGenres : GameEntry -> List String
+getGenres gameEntry =
+    List.head gameEntry.steam |> Maybe.map .genres |> Maybe.withDefault []
+
+
+getTags : GameEntry -> List String
+getTags gameEntry =
+    List.head gameEntry.steam |> Maybe.map .tags |> Maybe.withDefault []
+
+
+genresToString : List String -> String
+genresToString genres =
+    String.join ", " genres
+
+
+tagsToString : List String -> String
+tagsToString tags =
+    String.join ", " tags
 
 
 pricesToString : Maybe ( Maybe Float, Maybe Float ) -> String

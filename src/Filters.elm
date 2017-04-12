@@ -212,6 +212,8 @@ view model =
             , gameOnSelect model
             ]
         ]
+    , th [ class "form-inline" ] []
+    , th [ class "form-inline" ] []
     , th [ class "form-inline" ]
         [ div [ class "form-group" ]
             [ input [ placeholder "Lowest price", class "form-control", type_ "text", onInput ChangeLow, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.first model.prices ] []

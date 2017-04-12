@@ -87,6 +87,10 @@ decodeWebSocketResult r =
 --DECODERS
 
 
+csvRowDecoder separator stringDecoder =
+    map (\s -> String.split separator s) stringDecoder
+
+
 decodedUserEntry =
     map4 User (field "id" (maybe int)) (field "steamLogin" (maybe string)) (field "steamAlternate" (bool)) (field "gogLogin" (maybe string))
 
@@ -96,7 +100,14 @@ decodedGogEntry =
 
 
 decodedSteamEntry =
-    map5 SteamEntry (field "name" string) (field "steamId" int) (field "link" string) (field "price" (maybe float)) (field "discounted" (maybe float))
+    map7 SteamEntry
+        (field "name" string)
+        (field "steamId" int)
+        (field "link" string)
+        (field "price" (maybe float))
+        (field "discounted" (maybe float))
+        (field "genres" (csvRowDecoder "," string))
+        (field "tags" (csvRowDecoder "," string))
 
 
 decodedPriceEntry =
