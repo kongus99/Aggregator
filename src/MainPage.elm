@@ -165,20 +165,20 @@ gameTableRows list =
 
 gameTableRow e =
     tr []
-        [ th [] [ a [ href <| getLink e, class <| toStyle e ] [ text <| getName e ], gameOptionsButton e ]
-        , td [ class "text-left" ] [ text <| genresToString (getGenres e) ]
-        , td [ class "text-center" ] [ text <| tagsToString (getTags e) ]
-        , td [ class "text-right" ] [ text <| pricesToString (getPrice e) ]
-        , td [] (additionalPrices e.prices)
+        [ th [] [ a [ href e.link, class <| toStyle e ] [ text e.name ], gameOptionsButton e ]
+        , td [ class "text-left" ] [ text <| serializeValue e.genres ]
+        , td [ class "text-center" ] [ text <| serializeValue e.tags ]
+        , td [ class "text-right" ] [ e.prices |> Maybe.map serializeValue |> Maybe.withDefault "" |> text ]
+        , td [] (additionalPrices e.additionalPrices)
         ]
 
 
 gameOptionsButton entry =
     let
         dialogButton e =
-            button [ onClick <| DialogOpen <| getSteamId e, class "glyphicon glyphicon-cog btn btn-default", style [ ( "float", "right" ) ] ] []
+            button [ onClick <| DialogOpen <| e.steamId, class "glyphicon glyphicon-cog btn btn-default", style [ ( "float", "right" ) ] ] []
     in
-        List.head entry.steam |> Maybe.map (\_ -> dialogButton entry) |> Maybe.withDefault (div [] [])
+        entry.steamId |> Maybe.map (\_ -> dialogButton entry) |> Maybe.withDefault (div [] [])
 
 
 additionalPrices priceEntries =
@@ -194,16 +194,9 @@ additionalPrices priceEntries =
 
 
 toStyle gameEntry =
-    let
-        onGog =
-            List.length gameEntry.gog > 0
-
-        onSteam =
-            List.length gameEntry.steam > 0
-    in
-        if onGog && onSteam then
-            "cell_Both"
-        else if onGog then
-            "cell_Gog"
-        else
-            "cell_Steam"
+    if gameEntry.gameOn == Nothing then
+        "cell_Both"
+    else if gameEntry.gameOn == Just Gog then
+        "cell_Gog"
+    else
+        "cell_Steam"

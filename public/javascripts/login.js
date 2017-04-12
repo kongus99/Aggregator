@@ -10889,134 +10889,11 @@ var _user$project$GameEntry$pricesToString = function (prices) {
 				_p4._0,
 				_p4._1));
 	};
-	var discountPercentage = A2(_elm_lang$core$Maybe$map, calculatePercentage, prices);
 	return A2(
-		_elm_lang$core$Maybe$withDefault,
-		'',
-		A3(_elm_lang$core$Maybe$map2, convertToText, discountPercentage, prices));
+		convertToText,
+		calculatePercentage(prices),
+		prices);
 };
-var _user$project$GameEntry$tagsToString = function (tags) {
-	return A2(_elm_lang$core$String$join, ', ', tags);
-};
-var _user$project$GameEntry$genresToString = function (genres) {
-	return A2(_elm_lang$core$String$join, ', ', genres);
-};
-var _user$project$GameEntry$getTags = function (gameEntry) {
-	return A2(
-		_elm_lang$core$Maybe$withDefault,
-		{ctor: '[]'},
-		A2(
-			_elm_lang$core$Maybe$map,
-			function (_) {
-				return _.tags;
-			},
-			_elm_lang$core$List$head(gameEntry.steam)));
-};
-var _user$project$GameEntry$getGenres = function (gameEntry) {
-	return A2(
-		_elm_lang$core$Maybe$withDefault,
-		{ctor: '[]'},
-		A2(
-			_elm_lang$core$Maybe$map,
-			function (_) {
-				return _.genres;
-			},
-			_elm_lang$core$List$head(gameEntry.steam)));
-};
-var _user$project$GameEntry$getPrice = function (gameEntry) {
-	var gogPrice = A2(
-		_elm_lang$core$Maybe$map,
-		function (g) {
-			return {ctor: '_Tuple2', _0: g.price, _1: g.discounted};
-		},
-		_elm_lang$core$List$head(gameEntry.gog));
-	var steamPrice = A2(
-		_elm_lang$core$Maybe$map,
-		function (s) {
-			return {ctor: '_Tuple2', _0: s.price, _1: s.discounted};
-		},
-		_elm_lang$core$List$head(gameEntry.steam));
-	var _p5 = gogPrice;
-	if (_p5.ctor === 'Just') {
-		return _elm_lang$core$Maybe$Just(_p5._0);
-	} else {
-		return steamPrice;
-	}
-};
-var _user$project$GameEntry$getSteamId = function (gameEntry) {
-	return A2(
-		_elm_lang$core$Maybe$map,
-		function (g) {
-			return g.steamId;
-		},
-		_elm_lang$core$List$head(gameEntry.steam));
-};
-var _user$project$GameEntry$getLink = function (gameEntry) {
-	var steamLink = A2(
-		_elm_lang$core$Maybe$withDefault,
-		'',
-		A2(
-			_elm_lang$core$Maybe$map,
-			function (g) {
-				return g.link;
-			},
-			_elm_lang$core$List$head(gameEntry.steam)));
-	return A2(
-		_elm_lang$core$Maybe$withDefault,
-		steamLink,
-		A2(
-			_elm_lang$core$Maybe$map,
-			function (g) {
-				return g.link;
-			},
-			_elm_lang$core$List$head(gameEntry.gog)));
-};
-var _user$project$GameEntry$getName = function (gameEntry) {
-	var steamName = A2(
-		_elm_lang$core$Maybe$withDefault,
-		'',
-		A2(
-			_elm_lang$core$Maybe$map,
-			function (g) {
-				return g.name;
-			},
-			_elm_lang$core$List$head(gameEntry.steam)));
-	return A2(
-		_elm_lang$core$Maybe$withDefault,
-		steamName,
-		A2(
-			_elm_lang$core$Maybe$map,
-			function (g) {
-				return g.title;
-			},
-			_elm_lang$core$List$head(gameEntry.gog)));
-};
-var _user$project$GameEntry$updateGames = F3(
-	function (newData, sources, oldData) {
-		return A2(
-			_elm_lang$core$Maybe$withDefault,
-			oldData,
-			A2(
-				_elm_lang$core$Maybe$map,
-				_elm_lang$core$List$sortBy(_user$project$GameEntry$getName),
-				A2(
-					_elm_lang$core$Maybe$map,
-					function (_p6) {
-						var _p7 = _p6;
-						var _p10 = _p7._0;
-						var _p9 = _p7._1;
-						var _p8 = sources;
-						switch (_p8.ctor) {
-							case 'Owned':
-								return _p9;
-							case 'WishList':
-								return _p10;
-							default:
-								return A2(_elm_lang$core$List$append, _p10, _p9);
-						}
-					},
-					newData.games)));
-	});
 var _user$project$GameEntry$updatePrices = F3(
 	function (newData, sources, oldData) {
 		return _elm_lang$core$Native_Utils.eq(sources, _user$project$Model$Owned) ? oldData : A2(
@@ -11024,8 +10901,8 @@ var _user$project$GameEntry$updatePrices = F3(
 			oldData,
 			A2(
 				_elm_lang$core$Maybe$map,
-				function (_p11) {
-					var _p12 = _p11;
+				function (_p5) {
+					var _p6 = _p5;
 					var existingGroupedPrices = A2(
 						_elm_lang$core$Dict$map,
 						F2(
@@ -11042,7 +10919,7 @@ var _user$project$GameEntry$updatePrices = F3(
 							function (_) {
 								return _.steamId;
 							},
-							_p12._1));
+							_p6._1));
 					var groupedPrices = A2(
 						_elm_lang$core$Dict$union,
 						existingGroupedPrices,
@@ -11056,26 +10933,155 @@ var _user$project$GameEntry$updatePrices = F3(
 										_1: {ctor: '[]'}
 									};
 								},
-								_p12._0)));
+								_p6._0)));
 					return A2(
 						_elm_lang$core$List$map,
 						function (g) {
 							var toReplace = A2(
 								_elm_lang$core$Maybe$withDefault,
-								g.prices,
+								g.additionalPrices,
 								A2(
 									_elm_lang$core$Maybe$andThen,
 									function (id) {
 										return A2(_elm_lang$core$Dict$get, id, groupedPrices);
 									},
-									_user$project$GameEntry$getSteamId(g)));
+									g.steamId));
 							return _elm_lang$core$Native_Utils.update(
 								g,
-								{prices: toReplace});
+								{additionalPrices: toReplace});
 						},
 						oldData);
 				},
 				newData.prices));
+	});
+var _user$project$GameEntry$serializeValue = function (v) {
+	return v.serialize(v.value);
+};
+var _user$project$GameEntry$GameEntry = F3(
+	function (a, b, c) {
+		return {gog: a, steam: b, prices: c};
+	});
+var _user$project$GameEntry$SerializableValue = F2(
+	function (a, b) {
+		return {value: a, serialize: b};
+	});
+var _user$project$GameEntry$emptySerializableValue = function (a) {
+	return A2(
+		_user$project$GameEntry$SerializableValue,
+		a,
+		function (_p7) {
+			return '';
+		});
+};
+var _user$project$GameEntry$GameEntryRow = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {steamId: a, gameOn: b, name: c, link: d, genres: e, tags: f, prices: g, additionalPrices: h};
+	});
+var _user$project$GameEntry$emptyGameRow = A8(
+	_user$project$GameEntry$GameEntryRow,
+	_elm_lang$core$Maybe$Nothing,
+	_elm_lang$core$Maybe$Nothing,
+	'',
+	'',
+	_user$project$GameEntry$emptySerializableValue(
+		{ctor: '[]'}),
+	_user$project$GameEntry$emptySerializableValue(
+		{ctor: '[]'}),
+	_elm_lang$core$Maybe$Nothing,
+	{ctor: '[]'});
+var _user$project$GameEntry$toGameEntryRow = function (gameEntry) {
+	var gameOn = _elm_lang$core$List$isEmpty(gameEntry.gog) ? _elm_lang$core$Maybe$Just(_user$project$Model$Steam) : (_elm_lang$core$List$isEmpty(gameEntry.steam) ? _elm_lang$core$Maybe$Just(_user$project$Model$Gog) : _elm_lang$core$Maybe$Nothing);
+	var steamToRow = function (s) {
+		return A8(
+			_user$project$GameEntry$GameEntryRow,
+			_elm_lang$core$Maybe$Just(s.steamId),
+			gameOn,
+			s.name,
+			s.link,
+			{
+				value: s.genres,
+				serialize: _elm_lang$core$String$join(', ')
+			},
+			{
+				value: s.tags,
+				serialize: _elm_lang$core$String$join(', ')
+			},
+			_elm_lang$core$Maybe$Just(
+				{
+					value: {ctor: '_Tuple2', _0: s.price, _1: s.discounted},
+					serialize: _user$project$GameEntry$pricesToString
+				}),
+			gameEntry.prices);
+	};
+	var maybeSteamEntryRow = function (list) {
+		return A2(
+			_elm_lang$core$Maybe$map,
+			steamToRow,
+			_elm_lang$core$List$head(list));
+	};
+	var gogToRow = function (g) {
+		return A8(
+			_user$project$GameEntry$GameEntryRow,
+			_elm_lang$core$Maybe$Nothing,
+			gameOn,
+			g.title,
+			g.link,
+			_user$project$GameEntry$emptySerializableValue(
+				{ctor: '[]'}),
+			_user$project$GameEntry$emptySerializableValue(
+				{ctor: '[]'}),
+			_elm_lang$core$Maybe$Just(
+				{
+					value: {ctor: '_Tuple2', _0: g.price, _1: g.discounted},
+					serialize: _user$project$GameEntry$pricesToString
+				}),
+			gameEntry.prices);
+	};
+	var gogEntryRow = function (list) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			_user$project$GameEntry$emptyGameRow,
+			A2(
+				_elm_lang$core$Maybe$map,
+				gogToRow,
+				_elm_lang$core$List$head(list)));
+	};
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		gogEntryRow(gameEntry.gog),
+		maybeSteamEntryRow(gameEntry.steam));
+};
+var _user$project$GameEntry$updateGames = F3(
+	function (newData, sources, oldData) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			oldData,
+			A2(
+				_elm_lang$core$Maybe$map,
+				_elm_lang$core$List$sortBy(
+					function (_) {
+						return _.name;
+					}),
+				A2(
+					_elm_lang$core$Maybe$map,
+					_elm_lang$core$List$map(_user$project$GameEntry$toGameEntryRow),
+					A2(
+						_elm_lang$core$Maybe$map,
+						function (_p8) {
+							var _p9 = _p8;
+							var _p12 = _p9._0;
+							var _p11 = _p9._1;
+							var _p10 = sources;
+							switch (_p10.ctor) {
+								case 'Owned':
+									return _p11;
+								case 'WishList':
+									return _p12;
+								default:
+									return A2(_elm_lang$core$List$append, _p12, _p11);
+							}
+						},
+						newData.games))));
 	});
 var _user$project$GameEntry$update = F3(
 	function (newData, sources, oldData) {
@@ -11084,10 +11090,6 @@ var _user$project$GameEntry$update = F3(
 			newData,
 			sources,
 			A3(_user$project$GameEntry$updateGames, newData, sources, oldData));
-	});
-var _user$project$GameEntry$GameEntry = F3(
-	function (a, b, c) {
-		return {gog: a, steam: b, prices: c};
 	});
 var _user$project$GameEntry$WebSocketRefreshResult = F2(
 	function (a, b) {

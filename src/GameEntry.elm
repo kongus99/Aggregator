@@ -1,18 +1,12 @@
 module GameEntry
     exposing
         ( GameEntry
-        , getPrice
-        , getName
-        , pricesToString
         , roundToString
-        , getSteamId
-        , getLink
         , update
-        , getGenres
-        , getTags
-        , tagsToString
-        , genresToString
         , WebSocketRefreshResult
+        , GameEntryRow
+        , toGameEntryRow
+        , serializeValue
         )
 
 import Dict exposing (Dict)
@@ -23,6 +17,30 @@ import Set exposing (Set)
 
 type alias GameEntry =
     { gog : List GogEntry, steam : List SteamEntry, prices : List PriceEntry }
+
+
+type alias SerializableValue a =
+    { value : a, serialize : a -> String }
+
+
+type alias GameEntryRow =
+    { steamId : Maybe Int
+    , gameOn : Maybe GameOn
+    , name : String
+    , link : String
+    , genres : SerializableValue (List String)
+    , tags : SerializableValue (List String)
+    , prices : Maybe (SerializableValue ( Maybe Float, Maybe Float ))
+    , additionalPrices : List PriceEntry
+    }
+
+
+emptySerializableValue a =
+    SerializableValue a (\_ -> "")
+
+
+emptyGameRow =
+    GameEntryRow Nothing Nothing "" "" (emptySerializableValue []) (emptySerializableValue []) Nothing []
 
 
 type alias WishlistEntries =
@@ -37,12 +55,17 @@ type alias WebSocketRefreshResult =
     { games : Maybe ( WishlistEntries, OwnedEntries ), prices : Maybe ( List Int, List PriceEntry ) }
 
 
-update : WebSocketRefreshResult -> GameSources -> List GameEntry -> List GameEntry
+serializeValue : SerializableValue a -> String
+serializeValue v =
+    v.serialize v.value
+
+
+update : WebSocketRefreshResult -> GameSources -> List GameEntryRow -> List GameEntryRow
 update newData sources oldData =
     updateGames newData sources oldData |> updatePrices newData sources
 
 
-updatePrices : WebSocketRefreshResult -> GameSources -> List GameEntry -> List GameEntry
+updatePrices : WebSocketRefreshResult -> GameSources -> List GameEntryRow -> List GameEntryRow
 updatePrices newData sources oldData =
     if sources == Owned then
         oldData
@@ -62,17 +85,17 @@ updatePrices newData sources oldData =
                                 (\g ->
                                     let
                                         toReplace =
-                                            getSteamId g
+                                            g.steamId
                                                 |> Maybe.andThen (\id -> Dict.get id groupedPrices)
-                                                |> Maybe.withDefault g.prices
+                                                |> Maybe.withDefault g.additionalPrices
                                     in
-                                        { g | prices = toReplace }
+                                        { g | additionalPrices = toReplace }
                                 )
                 )
             |> Maybe.withDefault oldData
 
 
-updateGames : WebSocketRefreshResult -> GameSources -> List GameEntry -> List GameEntry
+updateGames : WebSocketRefreshResult -> GameSources -> List GameEntryRow -> List GameEntryRow
 updateGames newData sources oldData =
     newData.games
         |> Maybe.map
@@ -87,71 +110,54 @@ updateGames newData sources oldData =
                     Both ->
                         List.append wishlist owned
             )
-        |> Maybe.map (List.sortBy getName)
+        |> Maybe.map (List.map toGameEntryRow)
+        |> Maybe.map (List.sortBy .name)
         |> Maybe.withDefault oldData
 
 
-getName : GameEntry -> String
-getName gameEntry =
+toGameEntryRow : GameEntry -> GameEntryRow
+toGameEntryRow gameEntry =
     let
-        steamName =
-            List.head gameEntry.steam |> Maybe.map (\g -> g.name) |> Maybe.withDefault ""
+        gameOn =
+            if List.isEmpty gameEntry.gog then
+                Just Steam
+            else if List.isEmpty gameEntry.steam then
+                Just Gog
+            else
+                Nothing
+
+        steamToRow s =
+            GameEntryRow
+                (Just s.steamId)
+                gameOn
+                s.name
+                s.link
+                { value = s.genres, serialize = String.join ", " }
+                { value = s.tags, serialize = String.join ", " }
+                (Just { value = ( s.price, s.discounted ), serialize = pricesToString })
+                gameEntry.prices
+
+        gogToRow g =
+            GameEntryRow
+                Nothing
+                gameOn
+                g.title
+                g.link
+                (emptySerializableValue [])
+                (emptySerializableValue [])
+                (Just { value = ( g.price, g.discounted ), serialize = pricesToString })
+                gameEntry.prices
+
+        maybeSteamEntryRow list =
+            List.head list |> Maybe.map steamToRow
+
+        gogEntryRow list =
+            List.head list |> Maybe.map gogToRow |> Maybe.withDefault emptyGameRow
     in
-        List.head gameEntry.gog |> Maybe.map (\g -> g.title) |> Maybe.withDefault steamName
+        maybeSteamEntryRow gameEntry.steam |> Maybe.withDefault (gogEntryRow gameEntry.gog)
 
 
-getLink : GameEntry -> String
-getLink gameEntry =
-    let
-        steamLink =
-            List.head gameEntry.steam |> Maybe.map (\g -> g.link) |> Maybe.withDefault ""
-    in
-        List.head gameEntry.gog |> Maybe.map (\g -> g.link) |> Maybe.withDefault steamLink
-
-
-getSteamId : GameEntry -> Maybe Int
-getSteamId gameEntry =
-    List.head gameEntry.steam |> Maybe.map (\g -> g.steamId)
-
-
-getPrice : GameEntry -> Maybe ( Maybe Float, Maybe Float )
-getPrice gameEntry =
-    let
-        steamPrice =
-            List.head gameEntry.steam |> Maybe.map (\s -> ( s.price, s.discounted ))
-
-        gogPrice =
-            List.head gameEntry.gog |> Maybe.map (\g -> ( g.price, g.discounted ))
-    in
-        case gogPrice of
-            Just x ->
-                Just x
-
-            Nothing ->
-                steamPrice
-
-
-getGenres : GameEntry -> List String
-getGenres gameEntry =
-    List.head gameEntry.steam |> Maybe.map .genres |> Maybe.withDefault []
-
-
-getTags : GameEntry -> List String
-getTags gameEntry =
-    List.head gameEntry.steam |> Maybe.map .tags |> Maybe.withDefault []
-
-
-genresToString : List String -> String
-genresToString genres =
-    String.join ", " genres
-
-
-tagsToString : List String -> String
-tagsToString tags =
-    String.join ", " tags
-
-
-pricesToString : Maybe ( Maybe Float, Maybe Float ) -> String
+pricesToString : ( Maybe Float, Maybe Float ) -> String
 pricesToString prices =
     let
         calculatePercentage ( price, discount ) =
@@ -167,11 +173,8 @@ pricesToString prices =
                 Maybe.withDefault "Error" <| Maybe.map2 (formatDiscount percentage) price discount
             else
                 Maybe.withDefault "" <| Maybe.map (roundToString 2) price
-
-        discountPercentage =
-            Maybe.map calculatePercentage prices
     in
-        Maybe.withDefault "" <| Maybe.map2 convertToText discountPercentage prices
+        convertToText (calculatePercentage prices) prices
 
 
 roundToString : Int -> Float -> String

@@ -6,7 +6,7 @@ import Html.Events exposing (on, onCheck, onClick, onInput)
 import HtmlHelpers exposing (onSelect)
 import Http
 import Model exposing (..)
-import GameEntry exposing (GameEntry, WebSocketRefreshResult, getName, getPrice)
+import GameEntry exposing (GameEntry, WebSocketRefreshResult, GameEntryRow, toGameEntryRow)
 import Erl
 import Parser
 import Router exposing (routes)
@@ -17,7 +17,7 @@ import WebSocket
 
 
 type alias Model =
-    { userId : Int, sources : GameSources, isDiscounted : Bool, gameOn : Maybe GameOn, name : String, prices : ( Maybe Float, Maybe Float ), original : List GameEntry, result : List GameEntry, err : Maybe Http.Error }
+    { userId : Int, sources : GameSources, isDiscounted : Bool, gameOn : Maybe GameOn, name : String, prices : ( Maybe Float, Maybe Float ), original : List GameEntryRow, result : List GameEntryRow, err : Maybe Http.Error }
 
 
 replace : WebSocketRefreshResult -> Model -> Model
@@ -78,11 +78,11 @@ apply model =
         { model | result = result, err = Nothing }
 
 
-applyDiscountedFilter : Bool -> List GameEntry -> List GameEntry
+applyDiscountedFilter : Bool -> List GameEntryRow -> List GameEntryRow
 applyDiscountedFilter isDiscounted entries =
     let
         filterDiscounted e =
-            Maybe.map (\p -> not (Tuple.second p == Nothing)) (getPrice e) |> Maybe.withDefault False
+            Maybe.map (\p -> not (Tuple.second p == Nothing)) (e.prices |> Maybe.map .value) |> Maybe.withDefault False
     in
         if isDiscounted then
             List.filter filterDiscounted entries
@@ -90,34 +90,39 @@ applyDiscountedFilter isDiscounted entries =
             entries
 
 
-applyGameOnFilter : Maybe GameOn -> List GameEntry -> List GameEntry
+applyGameOnFilter : Maybe GameOn -> List GameEntryRow -> List GameEntryRow
 applyGameOnFilter gameOn entries =
     let
-        isOn on entry =
-            if on == Steam && List.isEmpty entry.steam || on == Gog && List.isEmpty entry.gog then
-                False
-            else
-                True
+        isOn entry =
+            gameOn
+                |> Maybe.map
+                    (\on ->
+                        if entry.gameOn == Nothing then
+                            True
+                        else
+                            entry.gameOn == Just on
+                    )
+                |> Maybe.withDefault True
     in
-        Maybe.map (\g -> List.filter (isOn g) entries) gameOn |> Maybe.withDefault entries
+        List.filter isOn entries
 
 
-applyNameFilter : String -> List GameEntry -> List GameEntry
+applyNameFilter : String -> List GameEntryRow -> List GameEntryRow
 applyNameFilter name entries =
     if String.isEmpty name then
         entries
     else
-        List.filter (\e -> getName e |> String.toLower |> String.contains (String.toLower name)) entries
+        List.filter (\e -> e.name |> String.toLower |> String.contains (String.toLower name)) entries
 
 
-applyPriceFilter : ( Maybe Float, Maybe Float ) -> List GameEntry -> List GameEntry
+applyPriceFilter : ( Maybe Float, Maybe Float ) -> List GameEntryRow -> List GameEntryRow
 applyPriceFilter ( lowPrice, highPrice ) entries =
     let
         filterByLow lowPrice entry =
-            getPrice entry |> discountedIfAvailable |> Maybe.map (\e -> e >= lowPrice) |> Maybe.withDefault False
+            entry.prices |> Maybe.map .value |> discountedIfAvailable |> Maybe.map (\e -> e >= lowPrice) |> Maybe.withDefault False
 
         filterByHigh highPrice entry =
-            getPrice entry |> discountedIfAvailable |> Maybe.map (\e -> e <= highPrice) |> Maybe.withDefault False
+            entry.prices |> Maybe.map .value |> discountedIfAvailable |> Maybe.map (\e -> e <= highPrice) |> Maybe.withDefault False
 
         lowFiltered =
             Maybe.map (\p -> List.filter (filterByLow p) entries) lowPrice |> Maybe.withDefault entries
@@ -182,7 +187,7 @@ update msg model =
                 newModel ! [ sendRefresh newModel ]
 
         ReceiveEntries entries ->
-            apply { model | original = entries } ! []
+            apply { model | original = List.map toGameEntryRow entries } ! []
 
         ReceiveError err ->
             { model | err = Just err } ! []
