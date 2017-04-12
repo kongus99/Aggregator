@@ -112,12 +112,18 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def discountedPrice = column[Option[BigDecimal]]("STEAM_DATA_PRICE_DISCOUNTED", O.SqlType("DECIMAL(6,2)"))
 
+    def genres = column[String]("STEAM_DATA_GENRES")
+
+    def tags = column[String]("STEAM_DATA_TAGS")
+
     def * : ProvenShape[SteamEntry] = {
 
-      val apply: (Long, String, Option[BigDecimal], Option[BigDecimal]) => SteamEntry = (steamId, name, price, discountedPrice) => SteamEntry(name, steamId, price, discountedPrice, owned = true)
+      val apply: (Long, String, Option[BigDecimal], Option[BigDecimal], String, String) => SteamEntry =
+        (steamId, name, price, discountedPrice, genres, tags) => SteamEntry(name, steamId, price, discountedPrice, genres, tags, owned = true)
 
-      val unapply: (SteamEntry) => Option[(Long, String, Option[BigDecimal], Option[BigDecimal])] = s => Some((s.steamId, s.name, s.price, s.discounted))
-      (steamId, name, price, discountedPrice) <>(apply.tupled, unapply)
+      val unapply: (SteamEntry) => Option[(Long, String, Option[BigDecimal], Option[BigDecimal], String, String)] =
+        s => Some((s.steamId, s.name, s.price, s.discounted, s.genres, s.tags))
+      (steamId, name, price, discountedPrice, genres, tags) <>(apply.tupled, unapply)
     }
 
     override def accessId: Rep[Long] = steamId
@@ -327,6 +333,14 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
   }
 
   def getSteamEntryById(steamId : Long): Future[SteamEntry] = db.run(steamData.filter(_.steamId === steamId).result.head)
+
+  def updateSteamGenresAndTags(categoriesAndTags: Seq[(Long, Option[String], Option[String])]): Future[_] = {
+    def updateGenres(steamId: Long, genres :String) = (for {e <- steamData if e.steamId === steamId} yield e.genres).update(genres)
+    def updateTags(steamId: Long, tags :String) = (for {e <- steamData if e.steamId === steamId} yield e.tags).update(tags)
+    val genresUpdates = categoriesAndTags.map(t => t._2.map(updateGenres(t._1, _))).filter(_.isDefined).map(_.get)
+    val tagsUpdates = categoriesAndTags.map(t => t._3.map(updateTags(t._1, _))).filter(_.isDefined).map(_.get)
+    db.run(DBIO.sequence(genresUpdates ++ tagsUpdates).transactionally)
+  }
 
   def replaceSteamData(user : User, data : Seq[SteamEntry]): Future[_] = replaceData(steamData, steamOwnershipData, data, user)
 

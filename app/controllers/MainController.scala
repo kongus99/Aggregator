@@ -17,7 +17,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class MainController @Inject()(client: WSClient, configuration: Configuration, tables: Tables)(implicit exec: ExecutionContext) extends Controller {
 
   val gogRetriever = new GogPageRetriever(client, configuration)
-  val steamRetriever = new SteamPageRetriever(client)
+  val steamRetriever = new SteamCommunityPageRetriever(client)
   val gogWishListRetriever = new GogWishListRetriever(client, configuration)
 
   def main: Action[AnyContent] = Action.async {

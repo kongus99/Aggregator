@@ -35,7 +35,7 @@ class ComparisonController @Inject()(client: WSClient, configuration: Configurat
       (JsPath \ "matches").write[Boolean]) ((t) => (t.left, t.metricResult, t.right, t.matches))
 
   val gogRetriever = new GogPageRetriever(client, configuration)
-  val steamRetriever = new SteamPageRetriever(client)
+  val steamRetriever = new SteamCommunityPageRetriever(client)
 
   def main: Action[AnyContent] = Action.async {
     Future {

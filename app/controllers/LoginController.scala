@@ -8,7 +8,7 @@ import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, Controller}
-import services.{GogWishListRetriever, PageRetriever, SteamPageRetriever}
+import services.{GogWishListRetriever, PageRetriever, SteamCommunityPageRetriever}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -17,7 +17,7 @@ class LoginController @Inject()(client: WSClient, configuration: Configuration, 
 
 
   val gogWishListRetriever = new GogWishListRetriever(client, configuration)
-  val steamRetriever = new SteamPageRetriever(client)
+  val steamRetriever = new SteamCommunityPageRetriever(client)
 
   def init = Action.async {
     Future {

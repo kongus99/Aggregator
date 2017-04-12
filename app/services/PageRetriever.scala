@@ -47,10 +47,18 @@ class GogWishListRetriever(client: WSClient, configuration: Configuration)(impli
   override protected def address(user: String)(query: String): UrlAddress = UrlAddress(s"https://www.gog.com/u/$user$query")
 }
 
-class SteamPageRetriever(client: WSClient)(implicit exec: ExecutionContext) extends PageRetriever(client) {
+class SteamCommunityPageRetriever(client: WSClient)(implicit exec: ExecutionContext) extends PageRetriever(client) {
   override protected def alternateAddress(user: String)(query: String): UrlAddress = UrlAddress(s"http://steamcommunity.com/profiles/$user$query")
   override protected def address(user: String)(query: String): UrlAddress = UrlAddress(s"http://steamcommunity.com/id/$user$query")
 }
+
+class SteamStorePageRetriever(client: WSClient)(implicit exec: ExecutionContext) extends PageRetriever(client) {
+  private val header =
+    ("Cookie", "timezoneOffset=7200,0; lastagecheckage=1-January-1988; bGameHighlightAutoplayDisabled=true; browserid=1367233469724589524; mature_content=1; steamCountry=PL%7Cfc7bcc1c1015434250af262db54dc65e; sessionid=782d7b102067402acac2b2aa; birthtime=567990001") ::
+      Nil
+  override protected def address(user: String)(query: String): UrlAddress = UrlAddress(s"http://store.steampowered.com/app/$query", header)
+}
+
 
 class ReferenceRatesRetriever(client: WSClient)(implicit exec: ExecutionContext) extends PageRetriever(client) {
   override protected def address(user: String)(query: String): UrlAddress = UrlAddress("http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml")

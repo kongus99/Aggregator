@@ -8,7 +8,7 @@ import play.api.libs.json.{JsPath, Json, Reads, Writes}
 
 import scala.collection.immutable.Seq
 
-case class SteamEntry(name: String, steamId: Long, price: Option[BigDecimal] = None, discounted: Option[BigDecimal]= None, owned : Boolean) extends ShopEntry{
+case class SteamEntry(name: String, steamId: Long, price: Option[BigDecimal] = None, discounted: Option[BigDecimal]= None, genres : String = "", tags : String = "", owned : Boolean) extends ShopEntry{
   val link = s"http://store.steampowered.com/app/$steamId"
 
   override def id: Long = steamId
@@ -26,6 +26,27 @@ object SteamEntry {
       (JsPath \ "link").write[String] and
       (JsPath \ "price").write[Option[BigDecimal]]and
       (JsPath \ "discounted").write[Option[BigDecimal]]) ((e) => (e.name, e.steamId, e.link, e.price, e.discounted))
+
+  def parseGenresAndTags(page: String): (Option[String], Option[String]) = {
+    import scala.collection.JavaConversions._
+    val detailsBlock = Jsoup.parse(page).getElementsByClass("block responsive_apppage_details_left game_details underlined_links").first()
+    val genres =
+      if (detailsBlock != null) {
+        val allDetails = detailsBlock.getElementsByClass("details_block").first().children().toList.map(e => e.text()).filter(_.length() > 0)
+        val genreIndex = allDetails.indexOf("Genre:")
+        val devIndex = allDetails.indexOf("Developer:")
+        if (genreIndex != -1 && devIndex > genreIndex)
+          Some(allDetails.slice(genreIndex + 1, devIndex).mkString(","))
+        else None
+      } else None
+    val tagsBlock = Jsoup.parse(page).getElementsByClass("glance_tags_ctn popular_tags_ctn").first()
+    val tags =
+      if (tagsBlock != null) {
+        Some(tagsBlock.getElementsByTag("a").toList.map(e => e.text()).mkString(","))
+      } else None
+
+    (genres, tags)
+  }
 
   def parse(owned: String, wishList : String, converter : CurrencyConverter): Seq[SteamEntry] =
     parseOwned(owned) ++ parseWishList(wishList, converter)

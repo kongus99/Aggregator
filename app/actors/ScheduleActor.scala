@@ -19,6 +19,8 @@ object ScheduleActor {
 
   case class RefreshPrices()
 
+  case class RefreshSteamGenresAndTags()
+
   case class RefreshPrice(userId : Long, steamId : Long)
 
   case class UserGamesRefreshed(userId : Long, data : (Seq[GameEntry], Seq[GameEntry]))
@@ -41,11 +43,17 @@ class ScheduleActor @Inject()(system : ActorSystem, client: WSClient, configurat
     context.actorOf(Props(classOf[PricesRefreshSupervisor], e.groupBy(_._1).mapValues(_.map(_._2)), client, tables, exec)) ! PricesRefreshSupervisor.RunRefresh()
   }
 
+  def scheduleGenresAndTagsRefresh(steamIds : Seq[Long]) : Unit ={
+    steamIds.grouped(40).foreach(ids => context.actorOf(Props(classOf[SteamGameDetailsActor], ids, client, tables, exec)) ! SteamGameDetailsActor.RunRefresh())
+  }
+
   override def receive: Receive = {
     case _: RefreshGames =>
       tables.getAllUsers.map(_.foreach(scheduleGamesRefresh))
     case _: RefreshPrices =>
       tables.getSteamWishLists().map(schedulePricesRefresh)
+    case _: RefreshSteamGenresAndTags =>
+      tables.getSteamEntries(None, None).map(_.map(_.steamId)).map(scheduleGenresAndTagsRefresh)
     case r : RefreshPrice =>
       tables.getSteamEntryById(r.steamId).map(e => schedulePricesRefresh(Seq((r.userId, e))))
     case r : UserGamesRefreshed =>

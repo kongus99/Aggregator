@@ -18,7 +18,7 @@ object GameRefreshActor {
 class GameRefreshActor (user : User, client: WSClient, tables: Tables, configuration: Configuration, implicit val exec: ExecutionContext) extends Actor {
   val gogRetriever = new GogPageRetriever(client, configuration)
   val gogWishListRetriever = new GogWishListRetriever(client, configuration)
-  val steamRetriever = new SteamPageRetriever(client)
+  val steamRetriever = new SteamCommunityPageRetriever(client)
   val ratesRetriever = new ReferenceRatesRetriever(client)
 
   override def receive: Receive = {
@@ -59,3 +59,6 @@ class GameRefreshActor (user : User, client: WSClient, tables: Tables, configura
     }
   }
 }
+
+
+//TODO remove unattached games from database
