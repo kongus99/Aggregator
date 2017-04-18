@@ -12171,11 +12171,37 @@ var _sporto$erl$Erl$Url = function (a) {
 	};
 };
 
+var _user$project$HtmlHelpers$targetOptions = A2(
+	_elm_lang$core$Json_Decode$map,
+	_elm_lang$core$List$filterMap(_elm_lang$core$Tuple$second),
+	A2(
+		_elm_lang$core$Json_Decode$at,
+		{
+			ctor: '::',
+			_0: 'target',
+			_1: {
+				ctor: '::',
+				_0: 'selectedOptions',
+				_1: {ctor: '[]'}
+			}
+		},
+		_elm_lang$core$Json_Decode$keyValuePairs(
+			_elm_lang$core$Json_Decode$maybe(
+				A2(_elm_lang$core$Json_Decode$field, 'value', _elm_lang$core$Json_Decode$string)))));
+var _user$project$HtmlHelpers$onMultiSelect = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(_elm_lang$core$Json_Decode$map, msg, _user$project$HtmlHelpers$targetOptions));
+};
 var _user$project$HtmlHelpers$onSelect = function (msg) {
 	return A2(
 		_elm_lang$html$Html_Events$on,
 		'change',
 		A2(_elm_lang$core$Json_Decode$map, msg, _elm_lang$html$Html_Events$targetValue));
+};
+var _user$project$HtmlHelpers$Option = function (a) {
+	return {value: a};
 };
 
 var _user$project$Model$User = F4(
@@ -12562,7 +12588,7 @@ var _user$project$Router$generateAddress = F2(
 		var folder = F2(
 			function (_p1, u) {
 				var _p2 = _p1;
-				return A3(_sporto$erl$Erl$setQuery, _p2._0, _p2._1, u);
+				return A3(_sporto$erl$Erl$addQuery, _p2._0, _p2._1, u);
 			});
 		var defaultUrl = _sporto$erl$Erl$parse(
 			A2(_elm_lang$core$Basics_ops['++'], '/', resourceName));
@@ -12816,6 +12842,26 @@ var _user$project$Router$Comparison = F3(
 		return {toggleSelected: a, comparisonData: b, page: c};
 	});
 
+var _user$project$Filters$dynamicOptions = F2(
+	function (selectedSet, currentValue) {
+		return A2(
+			_elm_lang$html$Html$option,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$selected(
+					A2(_elm_lang$core$Set$member, currentValue, selectedSet)),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$value(currentValue),
+					_1: {ctor: '[]'}
+				}
+			},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text(currentValue),
+				_1: {ctor: '[]'}
+			});
+	});
 var _user$project$Filters$discountedIfAvailable = function (prices) {
 	var selectFromPair = function (_p0) {
 		var _p1 = _p0;
@@ -12888,6 +12934,20 @@ var _user$project$Filters$applyPriceFilter = F2(
 				},
 				_p4._1));
 	});
+var _user$project$Filters$applyMultiFilter = F3(
+	function (entryValues, newValues, entries) {
+		return _elm_lang$core$Set$isEmpty(newValues) ? entries : A2(
+			_elm_lang$core$List$filter,
+			function (e) {
+				return !_elm_lang$core$Set$isEmpty(
+					A2(
+						_elm_lang$core$Set$intersect,
+						newValues,
+						_elm_lang$core$Set$fromList(
+							entryValues(e))));
+			},
+			entries);
+	});
 var _user$project$Filters$applyNameFilter = F2(
 	function (name, entries) {
 		return _elm_lang$core$String$isEmpty(name) ? entries : A2(
@@ -12940,16 +13000,28 @@ var _user$project$Filters$applyDiscountedFilter = F2(
 		return isDiscounted ? A2(_elm_lang$core$List$filter, filterDiscounted, entries) : entries;
 	});
 var _user$project$Filters$apply = function (model) {
-	var result = A2(
-		_user$project$Filters$applyPriceFilter,
-		model.prices,
-		A2(
-			_user$project$Filters$applyNameFilter,
-			model.name,
+	var result = A3(
+		_user$project$Filters$applyMultiFilter,
+		function (e) {
+			return e.tags.value;
+		},
+		model.tagsFilter.selectedValues,
+		A3(
+			_user$project$Filters$applyMultiFilter,
+			function (e) {
+				return e.genres.value;
+			},
+			model.genresFilter.selectedValues,
 			A2(
-				_user$project$Filters$applyGameOnFilter,
-				model.gameOn,
-				A2(_user$project$Filters$applyDiscountedFilter, model.isDiscounted, model.original))));
+				_user$project$Filters$applyPriceFilter,
+				model.prices,
+				A2(
+					_user$project$Filters$applyNameFilter,
+					model.name,
+					A2(
+						_user$project$Filters$applyGameOnFilter,
+						model.gameOn,
+						A2(_user$project$Filters$applyDiscountedFilter, model.isDiscounted, model.original))))));
 	return _elm_lang$core$Native_Utils.update(
 		model,
 		{result: result, err: _elm_lang$core$Maybe$Nothing});
@@ -12971,86 +13043,184 @@ var _user$project$Filters$serialize = function (model) {
 				var _p8 = _p7;
 				return !_elm_lang$core$Native_Utils.eq(_p8._1, _elm_lang$core$Maybe$Nothing);
 			},
-			{
-				ctor: '::',
-				_0: {
-					ctor: '_Tuple2',
-					_0: 'sources',
-					_1: _elm_lang$core$Maybe$Just(
-						_elm_lang$core$Basics$toString(model.sources))
-				},
-				_1: {
-					ctor: '::',
-					_0: {
-						ctor: '_Tuple2',
-						_0: 'userId',
-						_1: _elm_lang$core$Maybe$Just(
-							_elm_lang$core$Basics$toString(model.userId))
+			A2(
+				_elm_lang$core$List$append,
+				A2(
+					_elm_lang$core$List$map,
+					function (t) {
+						return {
+							ctor: '_Tuple2',
+							_0: 'tags',
+							_1: _elm_lang$core$Maybe$Just(t)
+						};
 					},
-					_1: {
+					_elm_lang$core$Set$toList(model.tagsFilter.selectedValues)),
+				A2(
+					_elm_lang$core$List$append,
+					A2(
+						_elm_lang$core$List$map,
+						function (g) {
+							return {
+								ctor: '_Tuple2',
+								_0: 'genres',
+								_1: _elm_lang$core$Maybe$Just(g)
+							};
+						},
+						_elm_lang$core$Set$toList(model.genresFilter.selectedValues)),
+					{
 						ctor: '::',
 						_0: {
 							ctor: '_Tuple2',
-							_0: 'discounted',
+							_0: 'sources',
 							_1: _elm_lang$core$Maybe$Just(
-								_elm_lang$core$Basics$toString(model.isDiscounted))
+								_elm_lang$core$Basics$toString(model.sources))
 						},
 						_1: {
 							ctor: '::',
 							_0: {
 								ctor: '_Tuple2',
-								_0: 'gameOn',
-								_1: A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$toString, model.gameOn)
+								_0: 'userId',
+								_1: _elm_lang$core$Maybe$Just(
+									_elm_lang$core$Basics$toString(model.userId))
 							},
 							_1: {
 								ctor: '::',
 								_0: {
 									ctor: '_Tuple2',
-									_0: 'name',
-									_1: _elm_lang$core$Maybe$Just(model.name)
+									_0: 'discounted',
+									_1: _elm_lang$core$Maybe$Just(
+										_elm_lang$core$Basics$toString(model.isDiscounted))
 								},
 								_1: {
 									ctor: '::',
 									_0: {
 										ctor: '_Tuple2',
-										_0: 'lowPrice',
-										_1: A2(
-											_elm_lang$core$Maybe$map,
-											_elm_lang$core$Basics$toString,
-											_elm_lang$core$Tuple$first(model.prices))
+										_0: 'gameOn',
+										_1: A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$toString, model.gameOn)
 									},
 									_1: {
 										ctor: '::',
 										_0: {
 											ctor: '_Tuple2',
-											_0: 'highPrice',
-											_1: A2(
-												_elm_lang$core$Maybe$map,
-												_elm_lang$core$Basics$toString,
-												_elm_lang$core$Tuple$second(model.prices))
+											_0: 'name',
+											_1: _elm_lang$core$Maybe$Just(model.name)
 										},
-										_1: {ctor: '[]'}
+										_1: {
+											ctor: '::',
+											_0: {
+												ctor: '_Tuple2',
+												_0: 'lowPrice',
+												_1: A2(
+													_elm_lang$core$Maybe$map,
+													_elm_lang$core$Basics$toString,
+													_elm_lang$core$Tuple$first(model.prices))
+											},
+											_1: {
+												ctor: '::',
+												_0: {
+													ctor: '_Tuple2',
+													_0: 'highPrice',
+													_1: A2(
+														_elm_lang$core$Maybe$map,
+														_elm_lang$core$Basics$toString,
+														_elm_lang$core$Tuple$second(model.prices))
+												},
+												_1: {ctor: '[]'}
+											}
+										}
 									}
 								}
 							}
 						}
-					}
-				}
-			}));
+					}))));
+};
+var _user$project$Filters$regenerateDynamicFilters = function (model) {
+	var newValues = function (values) {
+		return A3(
+			_elm_lang$core$List$foldl,
+			_elm_lang$core$Set$union,
+			_elm_lang$core$Set$empty,
+			A2(
+				_elm_lang$core$List$map,
+				function (e) {
+					return _elm_lang$core$Set$fromList(
+						values(e));
+				},
+				model.original));
+	};
+	var updateDynamicFilter = F2(
+		function (all, oldFilter) {
+			return _elm_lang$core$Native_Utils.update(
+				oldFilter,
+				{
+					allValues: all,
+					selectedValues: A2(_elm_lang$core$Set$intersect, all, oldFilter.selectedValues)
+				});
+		});
+	var newGenresFilter = A2(
+		updateDynamicFilter,
+		newValues(
+			function (v) {
+				return v.genres.value;
+			}),
+		model.genresFilter);
+	var newTagsFilter = A2(
+		updateDynamicFilter,
+		newValues(
+			function (v) {
+				return v.tags.value;
+			}),
+		model.tagsFilter);
+	return _elm_lang$core$Native_Utils.update(
+		model,
+		{genresFilter: newGenresFilter, tagsFilter: newTagsFilter});
 };
 var _user$project$Filters$replace = F2(
 	function (r, model) {
 		return _user$project$Filters$apply(
-			_elm_lang$core$Native_Utils.update(
-				model,
-				{
-					original: A3(_user$project$GameEntry$update, r, model.sources, model.original)
-				}));
+			_user$project$Filters$regenerateDynamicFilters(
+				_elm_lang$core$Native_Utils.update(
+					model,
+					{
+						original: A3(_user$project$GameEntry$update, r, model.sources, model.original)
+					})));
 	});
-var _user$project$Filters$Model = F9(
-	function (a, b, c, d, e, f, g, h, i) {
-		return {userId: a, sources: b, isDiscounted: c, gameOn: d, name: e, prices: f, original: g, result: h, err: i};
+var _user$project$Filters$updateSelectedDynamicFilter = F2(
+	function (values, filter) {
+		return _elm_lang$core$Native_Utils.update(
+			filter,
+			{selectedValues: values});
 	});
+var _user$project$Filters$Model = function (a) {
+	return function (b) {
+		return function (c) {
+			return function (d) {
+				return function (e) {
+					return function (f) {
+						return function (g) {
+							return function (h) {
+								return function (i) {
+									return function (j) {
+										return function (k) {
+											return {userId: a, sources: b, isDiscounted: c, gameOn: d, name: e, genresFilter: f, tagsFilter: g, prices: h, original: i, result: j, err: k};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
+var _user$project$Filters$DynamicFilter = F3(
+	function (a, b, c) {
+		return {allValues: a, selectedValues: b, includeEmpty: c};
+	});
+var _user$project$Filters$initDynamicFilter = function (selected) {
+	return A3(_user$project$Filters$DynamicFilter, _elm_lang$core$Set$empty, selected, true);
+};
 var _user$project$Filters$parse = function (url) {
 	var highPrice = A2(
 		_elm_lang$core$Maybe$andThen,
@@ -13062,6 +13232,10 @@ var _user$project$Filters$parse = function (url) {
 		_user$project$Parser$parseFloat,
 		_elm_lang$core$List$head(
 			A2(_sporto$erl$Erl$getQueryValuesForKey, 'lowPrice', url)));
+	var tags = _elm_lang$core$Set$fromList(
+		A2(_sporto$erl$Erl$getQueryValuesForKey, 'tags', url));
+	var genres = _elm_lang$core$Set$fromList(
+		A2(_sporto$erl$Erl$getQueryValuesForKey, 'genres', url));
 	var name = A2(
 		_elm_lang$core$Maybe$withDefault,
 		'',
@@ -13096,17 +13270,12 @@ var _user$project$Filters$parse = function (url) {
 			_user$project$Parser$parseInt,
 			_elm_lang$core$List$head(
 				A2(_sporto$erl$Erl$getQueryValuesForKey, 'userId', url))));
-	return A9(
-		_user$project$Filters$Model,
-		userId,
-		sources,
-		discounted,
-		gameOn,
-		name,
-		{ctor: '_Tuple2', _0: lowPrice, _1: highPrice},
-		{ctor: '[]'},
-		{ctor: '[]'},
-		_elm_lang$core$Maybe$Nothing);
+	return _user$project$Filters$Model(userId)(sources)(discounted)(gameOn)(name)(
+		_user$project$Filters$initDynamicFilter(genres))(
+		_user$project$Filters$initDynamicFilter(tags))(
+		{ctor: '_Tuple2', _0: lowPrice, _1: highPrice})(
+		{ctor: '[]'})(
+		{ctor: '[]'})(_elm_lang$core$Maybe$Nothing);
 };
 var _user$project$Filters$ReceiveError = function (a) {
 	return {ctor: 'ReceiveError', _0: a};
@@ -13132,17 +13301,11 @@ var _user$project$Filters$update = F2(
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_user$project$Filters$apply(
-						A9(
-							_user$project$Filters$Model,
-							model.userId,
-							model.sources,
-							false,
-							_elm_lang$core$Maybe$Nothing,
-							'',
-							{ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
-							model.original,
-							{ctor: '[]'},
-							_elm_lang$core$Maybe$Nothing)),
+						_user$project$Filters$Model(model.userId)(model.sources)(false)(_elm_lang$core$Maybe$Nothing)('')(
+							A2(_user$project$Filters$updateSelectedDynamicFilter, _elm_lang$core$Set$empty, model.genresFilter))(
+							A2(_user$project$Filters$updateSelectedDynamicFilter, _elm_lang$core$Set$empty, model.genresFilter))(
+							{ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing})(model.original)(
+							{ctor: '[]'})(_elm_lang$core$Maybe$Nothing)),
 					{ctor: '[]'});
 			case 'ChangeName':
 				return A2(
@@ -13218,15 +13381,42 @@ var _user$project$Filters$update = F2(
 						_0: _user$project$Filters$sendRefresh(newModel),
 						_1: {ctor: '[]'}
 					});
-			case 'ReceiveEntries':
+			case 'ChangeSelectedGenres':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_user$project$Filters$apply(
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								original: A2(_elm_lang$core$List$map, _user$project$GameEntry$toGameEntryRow, _p9._0)
+								genresFilter: A2(
+									_user$project$Filters$updateSelectedDynamicFilter,
+									_elm_lang$core$Set$fromList(_p9._0),
+									model.genresFilter)
 							})),
+					{ctor: '[]'});
+			case 'ChangeSelectedTags':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_user$project$Filters$apply(
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								tagsFilter: A2(
+									_user$project$Filters$updateSelectedDynamicFilter,
+									_elm_lang$core$Set$fromList(_p9._0),
+									model.tagsFilter)
+							})),
+					{ctor: '[]'});
+			case 'ReceiveEntries':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_user$project$Filters$apply(
+						_user$project$Filters$regenerateDynamicFilters(
+							_elm_lang$core$Native_Utils.update(
+								model,
+								{
+									original: A2(_elm_lang$core$List$map, _user$project$GameEntry$toGameEntryRow, _p9._0)
+								}))),
 					{ctor: '[]'});
 			default:
 				return A2(
@@ -13462,6 +13652,54 @@ var _user$project$Filters$gameOnSelect = function (model) {
 			}
 		});
 };
+var _user$project$Filters$ChangeSelectedTags = function (a) {
+	return {ctor: 'ChangeSelectedTags', _0: a};
+};
+var _user$project$Filters$tagsSelect = function (model) {
+	return A2(
+		_elm_lang$html$Html$select,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('form-control'),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$multiple(true),
+				_1: {
+					ctor: '::',
+					_0: _user$project$HtmlHelpers$onMultiSelect(_user$project$Filters$ChangeSelectedTags),
+					_1: {ctor: '[]'}
+				}
+			}
+		},
+		A2(
+			_elm_lang$core$List$map,
+			_user$project$Filters$dynamicOptions(model.tagsFilter.selectedValues),
+			_elm_lang$core$Set$toList(model.tagsFilter.allValues)));
+};
+var _user$project$Filters$ChangeSelectedGenres = function (a) {
+	return {ctor: 'ChangeSelectedGenres', _0: a};
+};
+var _user$project$Filters$genresSelect = function (model) {
+	return A2(
+		_elm_lang$html$Html$select,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('form-control'),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$multiple(true),
+				_1: {
+					ctor: '::',
+					_0: _user$project$HtmlHelpers$onMultiSelect(_user$project$Filters$ChangeSelectedGenres),
+					_1: {ctor: '[]'}
+				}
+			}
+		},
+		A2(
+			_elm_lang$core$List$map,
+			_user$project$Filters$dynamicOptions(model.genresFilter.selectedValues),
+			_elm_lang$core$Set$toList(model.genresFilter.allValues)));
+};
 var _user$project$Filters$ChangeHigh = function (a) {
 	return {ctor: 'ChangeHigh', _0: a};
 };
@@ -13542,7 +13780,11 @@ var _user$project$Filters$view = function (model) {
 					_0: _elm_lang$html$Html_Attributes$class('form-inline'),
 					_1: {ctor: '[]'}
 				},
-				{ctor: '[]'}),
+				{
+					ctor: '::',
+					_0: _user$project$Filters$genresSelect(model),
+					_1: {ctor: '[]'}
+				}),
 			_1: {
 				ctor: '::',
 				_0: A2(
@@ -13552,7 +13794,11 @@ var _user$project$Filters$view = function (model) {
 						_0: _elm_lang$html$Html_Attributes$class('form-inline'),
 						_1: {ctor: '[]'}
 					},
-					{ctor: '[]'}),
+					{
+						ctor: '::',
+						_0: _user$project$Filters$tagsSelect(model),
+						_1: {ctor: '[]'}
+					}),
 				_1: {
 					ctor: '::',
 					_0: A2(

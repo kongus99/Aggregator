@@ -11308,7 +11308,7 @@ var _user$project$Router$generateAddress = F2(
 		var folder = F2(
 			function (_p1, u) {
 				var _p2 = _p1;
-				return A3(_sporto$erl$Erl$setQuery, _p2._0, _p2._1, u);
+				return A3(_sporto$erl$Erl$addQuery, _p2._0, _p2._1, u);
 			});
 		var defaultUrl = _sporto$erl$Erl$parse(
 			A2(_elm_lang$core$Basics_ops['++'], '/', resourceName));

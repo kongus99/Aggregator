@@ -1,15 +1,16 @@
 module Filters exposing (Model, parse, Msg, update, refresh, view, serialize, replace)
 
 import Html exposing (Html, button, div, input, label, option, select, text, th)
-import Html.Attributes exposing (checked, class, name, placeholder, selected, style, type_, value)
+import Html.Attributes exposing (checked, class, multiple, name, placeholder, selected, style, type_, value)
 import Html.Events exposing (on, onCheck, onClick, onInput)
-import HtmlHelpers exposing (onSelect)
+import HtmlHelpers exposing (onMultiSelect, onSelect)
 import Http
 import Model exposing (..)
 import GameEntry exposing (GameEntry, WebSocketRefreshResult, GameEntryRow, toGameEntryRow)
 import Erl
 import Parser
 import Router exposing (routes)
+import Set exposing (Set)
 import WebSocket
 
 
@@ -17,12 +18,55 @@ import WebSocket
 
 
 type alias Model =
-    { userId : Int, sources : GameSources, isDiscounted : Bool, gameOn : Maybe GameOn, name : String, prices : ( Maybe Float, Maybe Float ), original : List GameEntryRow, result : List GameEntryRow, err : Maybe Http.Error }
+    { userId : Int
+    , sources : GameSources
+    , isDiscounted : Bool
+    , gameOn : Maybe GameOn
+    , name : String
+    , genresFilter : DynamicFilter
+    , tagsFilter : DynamicFilter
+    , prices : ( Maybe Float, Maybe Float )
+    , original : List GameEntryRow
+    , result : List GameEntryRow
+    , err : Maybe Http.Error
+    }
+
+
+type alias DynamicFilter =
+    { allValues : Set String, selectedValues : Set String, includeEmpty : Bool }
+
+
+initDynamicFilter : Set String -> DynamicFilter
+initDynamicFilter selected =
+    DynamicFilter Set.empty selected True
+
+
+updateSelectedDynamicFilter : Set String -> DynamicFilter -> DynamicFilter
+updateSelectedDynamicFilter values filter =
+    { filter | selectedValues = values }
 
 
 replace : WebSocketRefreshResult -> Model -> Model
 replace r model =
-    apply { model | original = GameEntry.update r model.sources model.original }
+    { model | original = GameEntry.update r model.sources model.original } |> regenerateDynamicFilters |> apply
+
+
+regenerateDynamicFilters : Model -> Model
+regenerateDynamicFilters model =
+    let
+        updateDynamicFilter all oldFilter =
+            { oldFilter | allValues = all, selectedValues = Set.intersect all oldFilter.selectedValues }
+
+        newValues values =
+            model.original |> List.map (\e -> values e |> Set.fromList) |> List.foldl Set.union Set.empty
+
+        newGenresFilter =
+            updateDynamicFilter (newValues (\v -> v.genres.value)) model.genresFilter
+
+        newTagsFilter =
+            updateDynamicFilter (newValues (\v -> v.tags.value)) model.tagsFilter
+    in
+        { model | genresFilter = newGenresFilter, tagsFilter = newTagsFilter }
 
 
 parse : Erl.Url -> Model
@@ -43,13 +87,19 @@ parse url =
         name =
             Erl.getQueryValuesForKey "name" url |> List.head |> Maybe.withDefault ""
 
+        genres =
+            Erl.getQueryValuesForKey "genres" url |> Set.fromList
+
+        tags =
+            Erl.getQueryValuesForKey "tags" url |> Set.fromList
+
         lowPrice =
             Erl.getQueryValuesForKey "lowPrice" url |> List.head |> Maybe.andThen Parser.parseFloat
 
         highPrice =
             Erl.getQueryValuesForKey "highPrice" url |> List.head |> Maybe.andThen Parser.parseFloat
     in
-        Model userId sources discounted gameOn name ( lowPrice, highPrice ) [] [] Nothing
+        Model userId sources discounted gameOn name (initDynamicFilter genres) (initDynamicFilter tags) ( lowPrice, highPrice ) [] [] Nothing
 
 
 serialize : Model -> List ( String, String )
@@ -62,6 +112,8 @@ serialize model =
     , ( "lowPrice", Tuple.first model.prices |> Maybe.map toString )
     , ( "highPrice", Tuple.second model.prices |> Maybe.map toString )
     ]
+        |> List.append (model.genresFilter.selectedValues |> Set.toList |> List.map (\g -> ( "genres", Just g )))
+        |> List.append (model.tagsFilter.selectedValues |> Set.toList |> List.map (\t -> ( "tags", Just t )))
         |> List.filter (\( l, r ) -> r /= Nothing)
         |> List.map (\( l, r ) -> ( l, Maybe.withDefault "" r ))
 
@@ -74,6 +126,8 @@ apply model =
                 |> applyGameOnFilter model.gameOn
                 |> applyNameFilter model.name
                 |> applyPriceFilter model.prices
+                |> applyMultiFilter (\e -> e.genres.value) model.genresFilter.selectedValues
+                |> applyMultiFilter (\e -> e.tags.value) model.tagsFilter.selectedValues
     in
         { model | result = result, err = Nothing }
 
@@ -115,6 +169,14 @@ applyNameFilter name entries =
         List.filter (\e -> e.name |> String.toLower |> String.contains (String.toLower name)) entries
 
 
+applyMultiFilter : (GameEntryRow -> List String) -> Set String -> List GameEntryRow -> List GameEntryRow
+applyMultiFilter entryValues newValues entries =
+    if Set.isEmpty newValues then
+        entries
+    else
+        List.filter (\e -> entryValues e |> Set.fromList |> Set.intersect newValues |> Set.isEmpty |> not) entries
+
+
 applyPriceFilter : ( Maybe Float, Maybe Float ) -> List GameEntryRow -> List GameEntryRow
 applyPriceFilter ( lowPrice, highPrice ) entries =
     let
@@ -151,6 +213,8 @@ type Msg
     | ChangeName String
     | ChangeLow String
     | ChangeHigh String
+    | ChangeSelectedGenres (List String)
+    | ChangeSelectedTags (List String)
     | ChangeGameOn String
     | ChangeDiscounted Bool
     | ChangeSources String
@@ -162,7 +226,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Clear ->
-            apply (Model model.userId model.sources False Nothing "" ( Nothing, Nothing ) model.original [] Nothing) ! []
+            apply (Model model.userId model.sources False Nothing "" (updateSelectedDynamicFilter Set.empty model.genresFilter) (updateSelectedDynamicFilter Set.empty model.genresFilter) ( Nothing, Nothing ) model.original [] Nothing) ! []
 
         ChangeName name ->
             apply { model | name = name } ! []
@@ -186,8 +250,14 @@ update msg model =
             in
                 newModel ! [ sendRefresh newModel ]
 
+        ChangeSelectedGenres genres ->
+            ({ model | genresFilter = updateSelectedDynamicFilter (Set.fromList genres) model.genresFilter } |> apply) ! []
+
+        ChangeSelectedTags tags ->
+            ({ model | tagsFilter = updateSelectedDynamicFilter (Set.fromList tags) model.tagsFilter } |> apply) ! []
+
         ReceiveEntries entries ->
-            apply { model | original = List.map toGameEntryRow entries } ! []
+            ({ model | original = List.map toGameEntryRow entries } |> regenerateDynamicFilters |> apply) ! []
 
         ReceiveError err ->
             { model | err = Just err } ! []
@@ -217,8 +287,8 @@ view model =
             , gameOnSelect model
             ]
         ]
-    , th [ class "form-inline" ] []
-    , th [ class "form-inline" ] []
+    , th [ class "form-inline" ] [ genresSelect model ]
+    , th [ class "form-inline" ] [ tagsSelect model ]
     , th [ class "form-inline" ]
         [ div [ class "form-group" ]
             [ input [ placeholder "Lowest price", class "form-control", type_ "text", onInput ChangeLow, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.first model.prices ] []
@@ -227,6 +297,18 @@ view model =
         ]
     , th [] [ button [ onClick Clear, class "glyphicon glyphicon-remove btn btn-default", style [ ( "float", "right" ) ] ] [] ]
     ]
+
+
+genresSelect model =
+    select [ class "form-control", multiple True, onMultiSelect ChangeSelectedGenres ] <| List.map (dynamicOptions model.genresFilter.selectedValues) (Set.toList model.genresFilter.allValues)
+
+
+tagsSelect model =
+    select [ class "form-control", multiple True, onMultiSelect ChangeSelectedTags ] <| List.map (dynamicOptions model.tagsFilter.selectedValues) (Set.toList model.tagsFilter.allValues)
+
+
+dynamicOptions selectedSet currentValue =
+    option [ selected (Set.member currentValue selectedSet), value currentValue ] [ text currentValue ]
 
 
 gameOnSelect model =

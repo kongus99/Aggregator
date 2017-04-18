@@ -10903,11 +10903,37 @@ var _sporto$erl$Erl$Url = function (a) {
 	};
 };
 
+var _user$project$HtmlHelpers$targetOptions = A2(
+	_elm_lang$core$Json_Decode$map,
+	_elm_lang$core$List$filterMap(_elm_lang$core$Tuple$second),
+	A2(
+		_elm_lang$core$Json_Decode$at,
+		{
+			ctor: '::',
+			_0: 'target',
+			_1: {
+				ctor: '::',
+				_0: 'selectedOptions',
+				_1: {ctor: '[]'}
+			}
+		},
+		_elm_lang$core$Json_Decode$keyValuePairs(
+			_elm_lang$core$Json_Decode$maybe(
+				A2(_elm_lang$core$Json_Decode$field, 'value', _elm_lang$core$Json_Decode$string)))));
+var _user$project$HtmlHelpers$onMultiSelect = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(_elm_lang$core$Json_Decode$map, msg, _user$project$HtmlHelpers$targetOptions));
+};
 var _user$project$HtmlHelpers$onSelect = function (msg) {
 	return A2(
 		_elm_lang$html$Html_Events$on,
 		'change',
 		A2(_elm_lang$core$Json_Decode$map, msg, _elm_lang$html$Html_Events$targetValue));
+};
+var _user$project$HtmlHelpers$Option = function (a) {
+	return {value: a};
 };
 
 var _user$project$Model$User = F4(
@@ -11294,7 +11320,7 @@ var _user$project$Router$generateAddress = F2(
 		var folder = F2(
 			function (_p1, u) {
 				var _p2 = _p1;
-				return A3(_sporto$erl$Erl$setQuery, _p2._0, _p2._1, u);
+				return A3(_sporto$erl$Erl$addQuery, _p2._0, _p2._1, u);
 			});
 		var defaultUrl = _sporto$erl$Erl$parse(
 			A2(_elm_lang$core$Basics_ops['++'], '/', resourceName));

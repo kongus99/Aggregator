@@ -161,7 +161,7 @@ generateAddress resourceName params =
             Erl.parse ("/" ++ resourceName)
 
         folder ( k, v ) u =
-            Erl.setQuery k v u
+            Erl.addQuery k v u
     in
         List.foldl folder defaultUrl params |> Erl.toString
 
