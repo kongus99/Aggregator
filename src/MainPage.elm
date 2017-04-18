@@ -137,7 +137,7 @@ view model =
     table [ class "table table-striped table-bordered" ] <|
         List.concat
             [ [ gameTableTitle ]
-            , Filters.view model.filters |> List.map (Html.map FiltersMessage)
+            , [ Filters.view model.filters |> Html.map FiltersMessage ]
             , [ gameTableRows model.filters.result ]
             , [ GameOptionsDialog.view DialogMessage DialogClose model.options ]
             ]
@@ -150,11 +150,11 @@ messageText model =
 gameTableTitle =
     thead []
         [ tr []
-            [ th [] [ text "Game - ", span [ class "cell_Steam" ] [ text " Steam" ], span [ class "cell_Gog" ] [ text " Gog" ], span [ class "cell_Both" ] [ text " Both" ] ]
-            , th [] [ text "Genres" ]
-            , th [] [ text "Tags" ]
-            , th [] [ text "Price(PLN)" ]
-            , th [] [ text "Additional prices(PLN)" ]
+            [ th [ class "col-md-2" ] [ text "Game - ", span [ class "cell_Steam" ] [ text " Steam" ], span [ class "cell_Gog" ] [ text " Gog" ], span [ class "cell_Both" ] [ text " Both" ] ]
+            , th [ class "col-md-1" ] [ text "Genres" ]
+            , th [ class "col-md-5" ] [ text "Tags" ]
+            , th [ class "col-md-1" ] [ text "Price(PLN)" ]
+            , th [ class "col-md-3" ] [ text "Additional prices(PLN)" ]
             ]
         ]
 

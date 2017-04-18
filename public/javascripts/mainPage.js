@@ -12842,6 +12842,47 @@ var _user$project$Router$Comparison = F3(
 		return {toggleSelected: a, comparisonData: b, page: c};
 	});
 
+var _user$project$Filters$checkboxInput = F3(
+	function (inputText, inputValue, msg) {
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('checkbox'),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$label,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$input,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$type_('checkbox'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$checked(inputValue),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Events$onCheck(msg),
+										_1: {ctor: '[]'}
+									}
+								}
+							},
+							{ctor: '[]'}),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(inputText),
+							_1: {ctor: '[]'}
+						}
+					}),
+				_1: {ctor: '[]'}
+			});
+	});
 var _user$project$Filters$dynamicOptions = F2(
 	function (selectedSet, currentValue) {
 		return A2(
@@ -12935,18 +12976,26 @@ var _user$project$Filters$applyPriceFilter = F2(
 				_p4._1));
 	});
 var _user$project$Filters$applyMultiFilter = F3(
-	function (entryValues, newValues, entries) {
-		return _elm_lang$core$Set$isEmpty(newValues) ? entries : A2(
-			_elm_lang$core$List$filter,
-			function (e) {
-				return !_elm_lang$core$Set$isEmpty(
-					A2(
-						_elm_lang$core$Set$intersect,
-						newValues,
+	function (entryValues, filter, entries) {
+		if (_elm_lang$core$Set$isEmpty(filter.selectedValues)) {
+			return entries;
+		} else {
+			var condition = function (values) {
+				return (!filter.conjunction) ? (!_elm_lang$core$Set$isEmpty(
+					A2(_elm_lang$core$Set$intersect, filter.selectedValues, values))) : _elm_lang$core$Native_Utils.eq(
+					_elm_lang$core$Set$size(
+						A2(_elm_lang$core$Set$union, values, filter.selectedValues)),
+					_elm_lang$core$Set$size(values));
+			};
+			return A2(
+				_elm_lang$core$List$filter,
+				function (e) {
+					return condition(
 						_elm_lang$core$Set$fromList(
-							entryValues(e))));
-			},
-			entries);
+							entryValues(e)));
+				},
+				entries);
+		}
 	});
 var _user$project$Filters$applyNameFilter = F2(
 	function (name, entries) {
@@ -13005,13 +13054,13 @@ var _user$project$Filters$apply = function (model) {
 		function (e) {
 			return e.tags.value;
 		},
-		model.tagsFilter.selectedValues,
+		model.tagsFilter,
 		A3(
 			_user$project$Filters$applyMultiFilter,
 			function (e) {
 				return e.genres.value;
 			},
-			model.genresFilter.selectedValues,
+			model.genresFilter,
 			A2(
 				_user$project$Filters$applyPriceFilter,
 				model.prices,
@@ -13185,12 +13234,6 @@ var _user$project$Filters$replace = F2(
 						original: A3(_user$project$GameEntry$update, r, model.sources, model.original)
 					})));
 	});
-var _user$project$Filters$updateSelectedDynamicFilter = F2(
-	function (values, filter) {
-		return _elm_lang$core$Native_Utils.update(
-			filter,
-			{selectedValues: values});
-	});
 var _user$project$Filters$Model = function (a) {
 	return function (b) {
 		return function (c) {
@@ -13216,10 +13259,10 @@ var _user$project$Filters$Model = function (a) {
 };
 var _user$project$Filters$DynamicFilter = F3(
 	function (a, b, c) {
-		return {allValues: a, selectedValues: b, includeEmpty: c};
+		return {allValues: a, selectedValues: b, conjunction: c};
 	});
 var _user$project$Filters$initDynamicFilter = function (selected) {
-	return A3(_user$project$Filters$DynamicFilter, _elm_lang$core$Set$empty, selected, true);
+	return A3(_user$project$Filters$DynamicFilter, _elm_lang$core$Set$empty, selected, false);
 };
 var _user$project$Filters$parse = function (url) {
 	var highPrice = A2(
@@ -13302,8 +13345,8 @@ var _user$project$Filters$update = F2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_user$project$Filters$apply(
 						_user$project$Filters$Model(model.userId)(model.sources)(false)(_elm_lang$core$Maybe$Nothing)('')(
-							A2(_user$project$Filters$updateSelectedDynamicFilter, _elm_lang$core$Set$empty, model.genresFilter))(
-							A2(_user$project$Filters$updateSelectedDynamicFilter, _elm_lang$core$Set$empty, model.genresFilter))(
+							A3(_user$project$Filters$DynamicFilter, model.genresFilter.allValues, _elm_lang$core$Set$empty, model.genresFilter.conjunction))(
+							A3(_user$project$Filters$DynamicFilter, model.tagsFilter.allValues, _elm_lang$core$Set$empty, model.tagsFilter.conjunction))(
 							{ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing})(model.original)(
 							{ctor: '[]'})(_elm_lang$core$Maybe$Nothing)),
 					{ctor: '[]'});
@@ -13388,10 +13431,11 @@ var _user$project$Filters$update = F2(
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								genresFilter: A2(
-									_user$project$Filters$updateSelectedDynamicFilter,
+								genresFilter: A3(
+									_user$project$Filters$DynamicFilter,
+									model.genresFilter.allValues,
 									_elm_lang$core$Set$fromList(_p9._0),
-									model.genresFilter)
+									model.genresFilter.conjunction)
 							})),
 					{ctor: '[]'});
 			case 'ChangeSelectedTags':
@@ -13401,10 +13445,31 @@ var _user$project$Filters$update = F2(
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								tagsFilter: A2(
-									_user$project$Filters$updateSelectedDynamicFilter,
+								tagsFilter: A3(
+									_user$project$Filters$DynamicFilter,
+									model.tagsFilter.allValues,
 									_elm_lang$core$Set$fromList(_p9._0),
-									model.tagsFilter)
+									model.tagsFilter.conjunction)
+							})),
+					{ctor: '[]'});
+			case 'ChangeTagsConjunction':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_user$project$Filters$apply(
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								tagsFilter: A3(_user$project$Filters$DynamicFilter, model.tagsFilter.allValues, model.tagsFilter.selectedValues, _p9._0)
+							})),
+					{ctor: '[]'});
+			case 'ChangeGenresConjunction':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_user$project$Filters$apply(
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								genresFilter: A3(_user$project$Filters$DynamicFilter, model.genresFilter.allValues, model.genresFilter.selectedValues, _p9._0)
 							})),
 					{ctor: '[]'});
 			case 'ReceiveEntries':
@@ -13520,52 +13585,14 @@ var _user$project$Filters$sourcesSelect = function (model) {
 			}
 		});
 };
+var _user$project$Filters$ChangeGenresConjunction = function (a) {
+	return {ctor: 'ChangeGenresConjunction', _0: a};
+};
+var _user$project$Filters$ChangeTagsConjunction = function (a) {
+	return {ctor: 'ChangeTagsConjunction', _0: a};
+};
 var _user$project$Filters$ChangeDiscounted = function (a) {
 	return {ctor: 'ChangeDiscounted', _0: a};
-};
-var _user$project$Filters$discountedInput = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('checkbox'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$label,
-				{ctor: '[]'},
-				{
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$input,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$type_('checkbox'),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$name('Discounted'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$checked(model.isDiscounted),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html_Events$onCheck(_user$project$Filters$ChangeDiscounted),
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						},
-						{ctor: '[]'}),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$html$Html$text('Discounted'),
-						_1: {ctor: '[]'}
-					}
-				}),
-			_1: {ctor: '[]'}
-		});
 };
 var _user$project$Filters$ChangeGameOn = function (a) {
 	return {ctor: 'ChangeGameOn', _0: a};
@@ -13657,48 +13684,78 @@ var _user$project$Filters$ChangeSelectedTags = function (a) {
 };
 var _user$project$Filters$tagsSelect = function (model) {
 	return A2(
-		_elm_lang$html$Html$select,
+		_elm_lang$html$Html$div,
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('form-control'),
+			_0: _elm_lang$html$Html_Attributes$class('form-group'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A3(_user$project$Filters$checkboxInput, 'Conjunction', model.tagsFilter.conjunction, _user$project$Filters$ChangeTagsConjunction),
 			_1: {
 				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$multiple(true),
-				_1: {
-					ctor: '::',
-					_0: _user$project$HtmlHelpers$onMultiSelect(_user$project$Filters$ChangeSelectedTags),
-					_1: {ctor: '[]'}
-				}
+				_0: A2(
+					_elm_lang$html$Html$select,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('form-control'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$multiple(true),
+							_1: {
+								ctor: '::',
+								_0: _user$project$HtmlHelpers$onMultiSelect(_user$project$Filters$ChangeSelectedTags),
+								_1: {ctor: '[]'}
+							}
+						}
+					},
+					A2(
+						_elm_lang$core$List$map,
+						_user$project$Filters$dynamicOptions(model.tagsFilter.selectedValues),
+						_elm_lang$core$Set$toList(model.tagsFilter.allValues))),
+				_1: {ctor: '[]'}
 			}
-		},
-		A2(
-			_elm_lang$core$List$map,
-			_user$project$Filters$dynamicOptions(model.tagsFilter.selectedValues),
-			_elm_lang$core$Set$toList(model.tagsFilter.allValues)));
+		});
 };
 var _user$project$Filters$ChangeSelectedGenres = function (a) {
 	return {ctor: 'ChangeSelectedGenres', _0: a};
 };
 var _user$project$Filters$genresSelect = function (model) {
 	return A2(
-		_elm_lang$html$Html$select,
+		_elm_lang$html$Html$div,
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('form-control'),
+			_0: _elm_lang$html$Html_Attributes$class('form-group'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A3(_user$project$Filters$checkboxInput, 'Conjunction', model.genresFilter.conjunction, _user$project$Filters$ChangeGenresConjunction),
 			_1: {
 				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$multiple(true),
-				_1: {
-					ctor: '::',
-					_0: _user$project$HtmlHelpers$onMultiSelect(_user$project$Filters$ChangeSelectedGenres),
-					_1: {ctor: '[]'}
-				}
+				_0: A2(
+					_elm_lang$html$Html$select,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('form-control'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$multiple(true),
+							_1: {
+								ctor: '::',
+								_0: _user$project$HtmlHelpers$onMultiSelect(_user$project$Filters$ChangeSelectedGenres),
+								_1: {ctor: '[]'}
+							}
+						}
+					},
+					A2(
+						_elm_lang$core$List$map,
+						_user$project$Filters$dynamicOptions(model.genresFilter.selectedValues),
+						_elm_lang$core$Set$toList(model.genresFilter.allValues))),
+				_1: {ctor: '[]'}
 			}
-		},
-		A2(
-			_elm_lang$core$List$map,
-			_user$project$Filters$dynamicOptions(model.genresFilter.selectedValues),
-			_elm_lang$core$Set$toList(model.genresFilter.allValues)));
+		});
 };
 var _user$project$Filters$ChangeHigh = function (a) {
 	return {ctor: 'ChangeHigh', _0: a};
@@ -13711,78 +13768,67 @@ var _user$project$Filters$ChangeName = function (a) {
 };
 var _user$project$Filters$Clear = {ctor: 'Clear'};
 var _user$project$Filters$view = function (model) {
-	return {
-		ctor: '::',
-		_0: A2(
-			_elm_lang$html$Html$th,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('form-inline'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('form-group'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _user$project$Filters$discountedInput(model),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$input,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$placeholder('Name'),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('form-control'),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$type_('text'),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$html$Html_Events$onInput(_user$project$Filters$ChangeName),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$value(model.name),
-													_1: {ctor: '[]'}
-												}
-											}
-										}
-									}
-								},
-								{ctor: '[]'}),
-							_1: {
-								ctor: '::',
-								_0: _user$project$Filters$sourcesSelect(model),
-								_1: {
-									ctor: '::',
-									_0: _user$project$Filters$gameOnSelect(model),
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					}),
-				_1: {ctor: '[]'}
-			}),
-		_1: {
+	return A2(
+		_elm_lang$html$Html$thead,
+		{ctor: '[]'},
+		{
 			ctor: '::',
 			_0: A2(
 				_elm_lang$html$Html$th,
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('form-inline'),
+					_0: _elm_lang$html$Html_Attributes$class('form vtop'),
 					_1: {ctor: '[]'}
 				},
 				{
 					ctor: '::',
-					_0: _user$project$Filters$genresSelect(model),
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('form-group'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: A3(_user$project$Filters$checkboxInput, 'Discounted', model.isDiscounted, _user$project$Filters$ChangeDiscounted),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$input,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$placeholder('Name'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('form-control'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$type_('text'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Events$onInput(_user$project$Filters$ChangeName),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$value(model.name),
+														_1: {ctor: '[]'}
+													}
+												}
+											}
+										}
+									},
+									{ctor: '[]'}),
+								_1: {
+									ctor: '::',
+									_0: _user$project$Filters$sourcesSelect(model),
+									_1: {
+										ctor: '::',
+										_0: _user$project$Filters$gameOnSelect(model),
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						}),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
@@ -13791,12 +13837,12 @@ var _user$project$Filters$view = function (model) {
 					_elm_lang$html$Html$th,
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('form-inline'),
+						_0: _elm_lang$html$Html_Attributes$class('form vtop'),
 						_1: {ctor: '[]'}
 					},
 					{
 						ctor: '::',
-						_0: _user$project$Filters$tagsSelect(model),
+						_0: _user$project$Filters$genresSelect(model),
 						_1: {ctor: '[]'}
 					}),
 				_1: {
@@ -13805,58 +13851,39 @@ var _user$project$Filters$view = function (model) {
 						_elm_lang$html$Html$th,
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('form-inline'),
+							_0: _elm_lang$html$Html_Attributes$class('form vtop'),
 							_1: {ctor: '[]'}
 						},
 						{
 							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('form-group'),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$input,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$placeholder('Lowest price'),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$class('form-control'),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$type_('text'),
-													_1: {
-														ctor: '::',
-														_0: _elm_lang$html$Html_Events$onInput(_user$project$Filters$ChangeLow),
-														_1: {
-															ctor: '::',
-															_0: _elm_lang$html$Html_Attributes$value(
-																A2(
-																	_elm_lang$core$Maybe$withDefault,
-																	'',
-																	A2(
-																		_elm_lang$core$Maybe$map,
-																		_elm_lang$core$Basics$toString,
-																		_elm_lang$core$Tuple$first(model.prices)))),
-															_1: {ctor: '[]'}
-														}
-													}
-												}
-											}
-										},
-										{ctor: '[]'}),
-									_1: {
+							_0: _user$project$Filters$tagsSelect(model),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$th,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('form vcenter'),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$div,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class('form-group'),
+										_1: {ctor: '[]'}
+									},
+									{
 										ctor: '::',
 										_0: A2(
 											_elm_lang$html$Html$input,
 											{
 												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$placeholder('Highest price'),
+												_0: _elm_lang$html$Html_Attributes$placeholder('Lowest price'),
 												_1: {
 													ctor: '::',
 													_0: _elm_lang$html$Html_Attributes$class('form-control'),
@@ -13865,7 +13892,7 @@ var _user$project$Filters$view = function (model) {
 														_0: _elm_lang$html$Html_Attributes$type_('text'),
 														_1: {
 															ctor: '::',
-															_0: _elm_lang$html$Html_Events$onInput(_user$project$Filters$ChangeHigh),
+															_0: _elm_lang$html$Html_Events$onInput(_user$project$Filters$ChangeLow),
 															_1: {
 																ctor: '::',
 																_0: _elm_lang$html$Html_Attributes$value(
@@ -13875,7 +13902,7 @@ var _user$project$Filters$view = function (model) {
 																		A2(
 																			_elm_lang$core$Maybe$map,
 																			_elm_lang$core$Basics$toString,
-																			_elm_lang$core$Tuple$second(model.prices)))),
+																			_elm_lang$core$Tuple$first(model.prices)))),
 																_1: {ctor: '[]'}
 															}
 														}
@@ -13883,47 +13910,84 @@ var _user$project$Filters$view = function (model) {
 												}
 											},
 											{ctor: '[]'}),
-										_1: {ctor: '[]'}
-									}
-								}),
-							_1: {ctor: '[]'}
-						}),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$th,
-							{ctor: '[]'},
-							{
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$button,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Events$onClick(_user$project$Filters$Clear),
 										_1: {
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$class('glyphicon glyphicon-remove btn btn-default'),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$style(
-													{
+											_0: A2(
+												_elm_lang$html$Html$input,
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$placeholder('Highest price'),
+													_1: {
 														ctor: '::',
-														_0: {ctor: '_Tuple2', _0: 'float', _1: 'right'},
-														_1: {ctor: '[]'}
-													}),
-												_1: {ctor: '[]'}
-											}
+														_0: _elm_lang$html$Html_Attributes$class('form-control'),
+														_1: {
+															ctor: '::',
+															_0: _elm_lang$html$Html_Attributes$type_('text'),
+															_1: {
+																ctor: '::',
+																_0: _elm_lang$html$Html_Events$onInput(_user$project$Filters$ChangeHigh),
+																_1: {
+																	ctor: '::',
+																	_0: _elm_lang$html$Html_Attributes$value(
+																		A2(
+																			_elm_lang$core$Maybe$withDefault,
+																			'',
+																			A2(
+																				_elm_lang$core$Maybe$map,
+																				_elm_lang$core$Basics$toString,
+																				_elm_lang$core$Tuple$second(model.prices)))),
+																	_1: {ctor: '[]'}
+																}
+															}
+														}
+													}
+												},
+												{ctor: '[]'}),
+											_1: {ctor: '[]'}
 										}
-									},
-									{ctor: '[]'}),
+									}),
 								_1: {ctor: '[]'}
 							}),
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$th,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('form vtop'),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$button,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Events$onClick(_user$project$Filters$Clear),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$class('glyphicon glyphicon-remove btn btn-default'),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$style(
+														{
+															ctor: '::',
+															_0: {ctor: '_Tuple2', _0: 'float', _1: 'right'},
+															_1: {ctor: '[]'}
+														}),
+													_1: {ctor: '[]'}
+												}
+											}
+										},
+										{ctor: '[]'}),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}
 					}
 				}
 			}
-		}
-	};
+		});
 };
 
 var _user$project$GameOptionsDialog$onEnter = function (msg) {
@@ -14583,7 +14647,11 @@ var _user$project$MainPage$gameTableTitle = A2(
 				ctor: '::',
 				_0: A2(
 					_elm_lang$html$Html$th,
-					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('col-md-2'),
+						_1: {ctor: '[]'}
+					},
 					{
 						ctor: '::',
 						_0: _elm_lang$html$Html$text('Game - '),
@@ -14638,7 +14706,11 @@ var _user$project$MainPage$gameTableTitle = A2(
 					ctor: '::',
 					_0: A2(
 						_elm_lang$html$Html$th,
-						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('col-md-1'),
+							_1: {ctor: '[]'}
+						},
 						{
 							ctor: '::',
 							_0: _elm_lang$html$Html$text('Genres'),
@@ -14648,7 +14720,11 @@ var _user$project$MainPage$gameTableTitle = A2(
 						ctor: '::',
 						_0: A2(
 							_elm_lang$html$Html$th,
-							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('col-md-5'),
+								_1: {ctor: '[]'}
+							},
 							{
 								ctor: '::',
 								_0: _elm_lang$html$Html$text('Tags'),
@@ -14658,7 +14734,11 @@ var _user$project$MainPage$gameTableTitle = A2(
 							ctor: '::',
 							_0: A2(
 								_elm_lang$html$Html$th,
-								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('col-md-1'),
+									_1: {ctor: '[]'}
+								},
 								{
 									ctor: '::',
 									_0: _elm_lang$html$Html$text('Price(PLN)'),
@@ -14668,7 +14748,11 @@ var _user$project$MainPage$gameTableTitle = A2(
 								ctor: '::',
 								_0: A2(
 									_elm_lang$html$Html$th,
-									{ctor: '[]'},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class('col-md-3'),
+										_1: {ctor: '[]'}
+									},
 									{
 										ctor: '::',
 										_0: _elm_lang$html$Html$text('Additional prices(PLN)'),
@@ -15014,10 +15098,14 @@ var _user$project$MainPage$view = function (model) {
 				},
 				_1: {
 					ctor: '::',
-					_0: A2(
-						_elm_lang$core$List$map,
-						_elm_lang$html$Html$map(_user$project$MainPage$FiltersMessage),
-						_user$project$Filters$view(model.filters)),
+					_0: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$map,
+							_user$project$MainPage$FiltersMessage,
+							_user$project$Filters$view(model.filters)),
+						_1: {ctor: '[]'}
+					},
 					_1: {
 						ctor: '::',
 						_0: {

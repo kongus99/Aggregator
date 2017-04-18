@@ -22,3 +22,11 @@ table .cell_Steam {
 .game-options-class input[type=text]{
     width: 100%;
 }
+
+.vtop {
+    vertical-align: top;
+}
+
+.vcenter {
+    vertical-align: middle;
+}

@@ -1,6 +1,6 @@
 module Filters exposing (Model, parse, Msg, update, refresh, view, serialize, replace)
 
-import Html exposing (Html, button, div, input, label, option, select, text, th)
+import Html exposing (Html, button, div, input, label, option, select, text, th, thead)
 import Html.Attributes exposing (checked, class, multiple, name, placeholder, selected, style, type_, value)
 import Html.Events exposing (on, onCheck, onClick, onInput)
 import HtmlHelpers exposing (onMultiSelect, onSelect)
@@ -33,17 +33,12 @@ type alias Model =
 
 
 type alias DynamicFilter =
-    { allValues : Set String, selectedValues : Set String, includeEmpty : Bool }
+    { allValues : Set String, selectedValues : Set String, conjunction : Bool }
 
 
 initDynamicFilter : Set String -> DynamicFilter
 initDynamicFilter selected =
-    DynamicFilter Set.empty selected True
-
-
-updateSelectedDynamicFilter : Set String -> DynamicFilter -> DynamicFilter
-updateSelectedDynamicFilter values filter =
-    { filter | selectedValues = values }
+    DynamicFilter Set.empty selected False
 
 
 replace : WebSocketRefreshResult -> Model -> Model
@@ -126,8 +121,8 @@ apply model =
                 |> applyGameOnFilter model.gameOn
                 |> applyNameFilter model.name
                 |> applyPriceFilter model.prices
-                |> applyMultiFilter (\e -> e.genres.value) model.genresFilter.selectedValues
-                |> applyMultiFilter (\e -> e.tags.value) model.tagsFilter.selectedValues
+                |> applyMultiFilter (\e -> e.genres.value) model.genresFilter
+                |> applyMultiFilter (\e -> e.tags.value) model.tagsFilter
     in
         { model | result = result, err = Nothing }
 
@@ -169,12 +164,19 @@ applyNameFilter name entries =
         List.filter (\e -> e.name |> String.toLower |> String.contains (String.toLower name)) entries
 
 
-applyMultiFilter : (GameEntryRow -> List String) -> Set String -> List GameEntryRow -> List GameEntryRow
-applyMultiFilter entryValues newValues entries =
-    if Set.isEmpty newValues then
+applyMultiFilter : (GameEntryRow -> List String) -> DynamicFilter -> List GameEntryRow -> List GameEntryRow
+applyMultiFilter entryValues filter entries =
+    if Set.isEmpty filter.selectedValues then
         entries
     else
-        List.filter (\e -> entryValues e |> Set.fromList |> Set.intersect newValues |> Set.isEmpty |> not) entries
+        let
+            condition values =
+                if not filter.conjunction then
+                    values |> Set.intersect filter.selectedValues |> Set.isEmpty |> not
+                else
+                    (Set.union values filter.selectedValues |> Set.size) == (values |> Set.size)
+        in
+            List.filter (\e -> entryValues e |> Set.fromList |> condition) entries
 
 
 applyPriceFilter : ( Maybe Float, Maybe Float ) -> List GameEntryRow -> List GameEntryRow
@@ -217,6 +219,8 @@ type Msg
     | ChangeSelectedTags (List String)
     | ChangeGameOn String
     | ChangeDiscounted Bool
+    | ChangeTagsConjunction Bool
+    | ChangeGenresConjunction Bool
     | ChangeSources String
     | ReceiveEntries (List GameEntry)
     | ReceiveError Http.Error
@@ -226,7 +230,9 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Clear ->
-            apply (Model model.userId model.sources False Nothing "" (updateSelectedDynamicFilter Set.empty model.genresFilter) (updateSelectedDynamicFilter Set.empty model.genresFilter) ( Nothing, Nothing ) model.original [] Nothing) ! []
+            apply
+                (Model model.userId model.sources False Nothing "" (DynamicFilter model.genresFilter.allValues Set.empty model.genresFilter.conjunction) (DynamicFilter model.tagsFilter.allValues Set.empty model.tagsFilter.conjunction) ( Nothing, Nothing ) model.original [] Nothing)
+                ! []
 
         ChangeName name ->
             apply { model | name = name } ! []
@@ -251,10 +257,16 @@ update msg model =
                 newModel ! [ sendRefresh newModel ]
 
         ChangeSelectedGenres genres ->
-            ({ model | genresFilter = updateSelectedDynamicFilter (Set.fromList genres) model.genresFilter } |> apply) ! []
+            apply { model | genresFilter = DynamicFilter model.genresFilter.allValues (Set.fromList genres) model.genresFilter.conjunction } ! []
 
         ChangeSelectedTags tags ->
-            ({ model | tagsFilter = updateSelectedDynamicFilter (Set.fromList tags) model.tagsFilter } |> apply) ! []
+            apply { model | tagsFilter = DynamicFilter model.tagsFilter.allValues (Set.fromList tags) model.tagsFilter.conjunction } ! []
+
+        ChangeTagsConjunction conjunction ->
+            apply { model | tagsFilter = DynamicFilter model.tagsFilter.allValues model.tagsFilter.selectedValues conjunction } ! []
+
+        ChangeGenresConjunction conjunction ->
+            apply { model | genresFilter = DynamicFilter model.genresFilter.allValues model.genresFilter.selectedValues conjunction } ! []
 
         ReceiveEntries entries ->
             ({ model | original = List.map toGameEntryRow entries } |> regenerateDynamicFilters |> apply) ! []
@@ -277,34 +289,41 @@ sendRefresh model =
 -- VIEW
 
 
-view : Model -> List (Html Msg)
+view : Model -> Html Msg
 view model =
-    [ th [ class "form-inline" ]
-        [ div [ class "form-group" ]
-            [ discountedInput model
-            , input [ placeholder "Name", class "form-control", type_ "text", onInput ChangeName, value model.name ] []
-            , sourcesSelect model
-            , gameOnSelect model
+    thead []
+        [ th [ class "form vtop" ]
+            [ div [ class "form-group" ]
+                [ checkboxInput "Discounted" model.isDiscounted ChangeDiscounted
+                , input [ placeholder "Name", class "form-control", type_ "text", onInput ChangeName, value model.name ] []
+                , sourcesSelect model
+                , gameOnSelect model
+                ]
             ]
-        ]
-    , th [ class "form-inline" ] [ genresSelect model ]
-    , th [ class "form-inline" ] [ tagsSelect model ]
-    , th [ class "form-inline" ]
-        [ div [ class "form-group" ]
-            [ input [ placeholder "Lowest price", class "form-control", type_ "text", onInput ChangeLow, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.first model.prices ] []
-            , input [ placeholder "Highest price", class "form-control", type_ "text", onInput ChangeHigh, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.second model.prices ] []
+        , th [ class "form vtop" ] [ genresSelect model ]
+        , th [ class "form vtop" ] [ tagsSelect model ]
+        , th [ class "form vcenter" ]
+            [ div [ class "form-group" ]
+                [ input [ placeholder "Lowest price", class "form-control", type_ "text", onInput ChangeLow, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.first model.prices ] []
+                , input [ placeholder "Highest price", class "form-control", type_ "text", onInput ChangeHigh, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.second model.prices ] []
+                ]
             ]
+        , th [ class "form vtop" ] [ button [ onClick Clear, class "glyphicon glyphicon-remove btn btn-default", style [ ( "float", "right" ) ] ] [] ]
         ]
-    , th [] [ button [ onClick Clear, class "glyphicon glyphicon-remove btn btn-default", style [ ( "float", "right" ) ] ] [] ]
-    ]
 
 
 genresSelect model =
-    select [ class "form-control", multiple True, onMultiSelect ChangeSelectedGenres ] <| List.map (dynamicOptions model.genresFilter.selectedValues) (Set.toList model.genresFilter.allValues)
+    div [ class "form-group" ]
+        [ checkboxInput "Conjunction" model.genresFilter.conjunction ChangeGenresConjunction
+        , select [ class "form-control", multiple True, onMultiSelect ChangeSelectedGenres ] <| List.map (dynamicOptions model.genresFilter.selectedValues) (Set.toList model.genresFilter.allValues)
+        ]
 
 
 tagsSelect model =
-    select [ class "form-control", multiple True, onMultiSelect ChangeSelectedTags ] <| List.map (dynamicOptions model.tagsFilter.selectedValues) (Set.toList model.tagsFilter.allValues)
+    div [ class "form-group" ]
+        [ checkboxInput "Conjunction" model.tagsFilter.conjunction ChangeTagsConjunction
+        , select [ class "form-control", multiple True, onMultiSelect ChangeSelectedTags ] <| List.map (dynamicOptions model.tagsFilter.selectedValues) (Set.toList model.tagsFilter.allValues)
+        ]
 
 
 dynamicOptions selectedSet currentValue =
@@ -319,9 +338,9 @@ gameOnSelect model =
         ]
 
 
-discountedInput model =
+checkboxInput inputText inputValue msg =
     div [ class "checkbox" ]
-        [ label [] [ input [ type_ "checkbox", name "Discounted", checked model.isDiscounted, onCheck ChangeDiscounted ] [], text "Discounted" ]
+        [ label [] [ input [ type_ "checkbox", checked inputValue, onCheck msg ] [], text inputText ]
         ]
 
 
