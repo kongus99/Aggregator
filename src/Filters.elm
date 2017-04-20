@@ -1,7 +1,7 @@
-module Filters exposing (Model, parse, Msg, update, refresh, view, serialize, replace)
+module Filters exposing (Model, Msg, update, initialize, view, serialize, replace, subscriptions)
 
 import Html exposing (Html, button, div, input, label, option, select, text, th, thead)
-import Html.Attributes exposing (checked, class, multiple, name, placeholder, selected, style, type_, value)
+import Html.Attributes exposing (checked, class, href, multiple, name, placeholder, selected, style, type_, value)
 import Html.Events exposing (on, onCheck, onClick, onInput)
 import HtmlHelpers exposing (onMultiSelect, onSelect)
 import Http
@@ -12,6 +12,7 @@ import Parser
 import Router exposing (routes)
 import Set exposing (Set)
 import WebSocket
+import Bootstrap.Navbar as Navbar
 
 
 -- MODEL
@@ -28,6 +29,7 @@ type alias Model =
     , prices : ( Maybe Float, Maybe Float )
     , original : List GameEntryRow
     , result : List GameEntryRow
+    , navbarState : Navbar.State
     , err : Maybe Http.Error
     }
 
@@ -64,8 +66,8 @@ regenerateDynamicFilters model =
         { model | genresFilter = newGenresFilter, tagsFilter = newTagsFilter }
 
 
-parse : Erl.Url -> Model
-parse url =
+parse : Navbar.State -> Erl.Url -> Model
+parse navbarState url =
     let
         userId =
             Erl.getQueryValuesForKey "userId" url |> List.head |> Maybe.andThen Parser.parseInt |> Maybe.withDefault 1
@@ -94,7 +96,19 @@ parse url =
         highPrice =
             Erl.getQueryValuesForKey "highPrice" url |> List.head |> Maybe.andThen Parser.parseFloat
     in
-        Model userId sources discounted gameOn name (initDynamicFilter genres) (initDynamicFilter tags) ( lowPrice, highPrice ) [] [] Nothing
+        Model userId sources discounted gameOn name (initDynamicFilter genres) (initDynamicFilter tags) ( lowPrice, highPrice ) [] [] navbarState Nothing
+
+
+initialize : Erl.Url -> ( Model, Cmd Msg )
+initialize url =
+    let
+        ( navbarState, navbarCmd ) =
+            Navbar.initialState NavbarMsg
+
+        model =
+            parse navbarState url
+    in
+        ( model, Cmd.batch [ navbarCmd, sendRefresh model ] )
 
 
 serialize : Model -> List ( String, String )
@@ -206,6 +220,11 @@ discountedIfAvailable prices =
         Maybe.andThen selectFromPair prices
 
 
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Navbar.subscriptions model.navbarState NavbarMsg
+
+
 
 -- UPDATE
 
@@ -224,6 +243,7 @@ type Msg
     | ChangeSources String
     | ReceiveEntries (List GameEntry)
     | ReceiveError Http.Error
+    | NavbarMsg Navbar.State
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -231,7 +251,7 @@ update msg model =
     case msg of
         Clear ->
             apply
-                (Model model.userId model.sources False Nothing "" (DynamicFilter model.genresFilter.allValues Set.empty model.genresFilter.conjunction) (DynamicFilter model.tagsFilter.allValues Set.empty model.tagsFilter.conjunction) ( Nothing, Nothing ) model.original [] Nothing)
+                (Model model.userId model.sources False Nothing "" (DynamicFilter model.genresFilter.allValues Set.empty model.genresFilter.conjunction) (DynamicFilter model.tagsFilter.allValues Set.empty model.tagsFilter.conjunction) ( Nothing, Nothing ) model.original [] model.navbarState Nothing)
                 ! []
 
         ChangeName name ->
@@ -271,13 +291,11 @@ update msg model =
         ReceiveEntries entries ->
             ({ model | original = List.map toGameEntryRow entries } |> regenerateDynamicFilters |> apply) ! []
 
+        NavbarMsg state ->
+            ( { model | navbarState = state }, Cmd.none )
+
         ReceiveError err ->
             { model | err = Just err } ! []
-
-
-refresh : String -> Model -> ( Model, Cmd Msg )
-refresh s model =
-    ( model, sendRefresh model )
 
 
 sendRefresh : Model -> Cmd Msg
@@ -291,25 +309,36 @@ sendRefresh model =
 
 view : Model -> Html Msg
 view model =
-    thead []
-        [ th [ class "form vtop" ]
-            [ div [ class "form-group" ]
-                [ checkboxInput "Discounted" model.isDiscounted ChangeDiscounted
-                , input [ placeholder "Name", class "form-control", type_ "text", onInput ChangeName, value model.name ] []
-                , sourcesSelect model
-                , gameOnSelect model
-                ]
+    Navbar.config NavbarMsg
+        |> Navbar.withAnimation
+        |> Navbar.brand [ href "#" ] [ text "Brand" ]
+        |> Navbar.items
+            [ Navbar.itemLink [ href "#" ] [ text "Item 1" ]
+            , Navbar.itemLink [ href "#" ] [ text "Item 2" ]
             ]
-        , th [ class "form vtop" ] [ genresSelect model ]
-        , th [ class "form vtop" ] [ tagsSelect model ]
-        , th [ class "form vcenter" ]
-            [ div [ class "form-group" ]
-                [ input [ placeholder "Lowest price", class "form-control", type_ "text", onInput ChangeLow, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.first model.prices ] []
-                , input [ placeholder "Highest price", class "form-control", type_ "text", onInput ChangeHigh, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.second model.prices ] []
-                ]
-            ]
-        , th [ class "form vtop" ] [ button [ onClick Clear, class "glyphicon glyphicon-remove btn btn-default", style [ ( "float", "right" ) ] ] [] ]
-        ]
+        |> Navbar.view model.navbarState
+
+
+
+--    thead []
+--        [ th [ class "form vtop" ]
+--            [ div [ class "form-group" ]
+--                [ checkboxInput "Discounted" model.isDiscounted ChangeDiscounted
+--                , input [ placeholder "Name", class "form-control", type_ "text", onInput ChangeName, value model.name ] []
+--                , sourcesSelect model
+--                , gameOnSelect model
+--                ]
+--            ]
+--        , th [ class "form vtop" ] [ genresSelect model ]
+--        , th [ class "form vtop" ] [ tagsSelect model ]
+--        , th [ class "form vcenter" ]
+--            [ div [ class "form-group" ]
+--                [ input [ placeholder "Lowest price", class "form-control", type_ "text", onInput ChangeLow, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.first model.prices ] []
+--                , input [ placeholder "Highest price", class "form-control", type_ "text", onInput ChangeHigh, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.second model.prices ] []
+--                ]
+--            ]
+--        , th [ class "form vtop" ] [ button [ onClick Clear, class "glyphicon glyphicon-remove btn btn-default", style [ ( "float", "right" ) ] ] [] ]
+--        ]
 
 
 genresSelect model =

@@ -183,7 +183,6 @@ view close model =
         |> Maybe.withDefault (div [] [])
 
 
-
 dialogHeader : GameOptions -> Modal.Config msg -> Modal.Config msg
 dialogHeader options config =
     Modal.h4 [] [ text options.entry.name ] config

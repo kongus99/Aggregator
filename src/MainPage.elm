@@ -34,7 +34,7 @@ initProgram address =
             url.protocol |> Parser.parseProtocol
 
         ( filters, cmd ) =
-            Filters.parse url |> Filters.refresh ""
+            Filters.initialize url
     in
         ( initialModel protocol host filters, Cmd.map FiltersMessage cmd )
 
@@ -49,7 +49,10 @@ main =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    WebSocket.listen (Router.refreshSocketUrl model.protocol model.host model.userId) ServerRefreshRequest
+    Sub.batch
+        [ WebSocket.listen (Router.refreshSocketUrl model.protocol model.host model.userId) ServerRefreshRequest
+        , Filters.subscriptions model.filters |> Sub.map FiltersMessage
+        ]
 
 
 port elmAddressChange : String -> Cmd msg
@@ -143,6 +146,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ CDN.stylesheet
+        , Filters.view model.filters |> Html.map FiltersMessage
         , Table.table
             { options = [ Table.striped, Table.bordered ]
             , thead = gameTableTitle
