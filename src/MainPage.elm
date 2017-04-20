@@ -3,7 +3,7 @@ port module MainPage exposing (..)
 import Filters
 import GameOptionsDialog
 import Parser
-import Html exposing (Html, button, br, input, div, text, span, table, tr, th, td, select, option, a, label, thead, tbody, p, h2, h3)
+import Html exposing (Html, button, br, input, div, text, span, tr, th, td, select, option, a, label, thead, tbody, p, h2, h3)
 import Html.Attributes exposing (checked, class, href, name, placeholder, selected, style, type_, value)
 import Html.Events exposing (onClick, on, targetValue, onInput, onCheck)
 import Json.Decode as Json
@@ -14,8 +14,11 @@ import Erl
 import Model exposing (..)
 import Router exposing (..)
 import WebSocket
-import Dialog
 import List.Extra as Lists
+import Bootstrap.CDN as CDN
+import Bootstrap.Table as Table
+import Bootstrap.Button as Button
+import Bootstrap.Modal as Modal
 
 
 initProgram : String -> ( Model, Cmd Msg )
@@ -57,11 +60,11 @@ port elmAddressChange : String -> Cmd msg
 
 
 type alias Model =
-    { sources : GameSources, message : Maybe String, userId : Int, filters : Filters.Model, host : String, protocol : Protocol, options : GameOptionsDialog.Model }
+    { sources : GameSources, message : Maybe String, userId : Int, filters : Filters.Model, host : String, protocol : Protocol, options : GameOptionsDialog.Model Msg }
 
 
 initialModel protocol host filters =
-    Model WishList Nothing 1 filters host protocol GameOptionsDialog.emptyModel
+    Model WishList Nothing 1 filters host protocol (GameOptionsDialog.emptyModel 0 0 DialogMessage GeneralError)
 
 
 
@@ -71,8 +74,7 @@ initialModel protocol host filters =
 type Msg
     = ServerRefreshRequest String
     | DialogOpen (Maybe Int)
-    | DialogData GameOptions
-    | DialogClose
+    | DialogClose Modal.State
     | GeneralError Http.Error
     | DialogMessage GameOptionsDialog.Msg
     | FiltersMessage Filters.Msg
@@ -93,13 +95,18 @@ update msg model =
                 ( { model | filters = newFilters, message = newFilters.err |> Maybe.map toString }, Cmd.none )
 
         DialogOpen steamId ->
-            ( model, GameOptionsDialog.fetch model.userId steamId DialogData GeneralError )
+            let
+                options =
+                    GameOptionsDialog.emptyModel model.userId (Maybe.withDefault 0 steamId) DialogMessage GeneralError
+            in
+                { model | options = options } ! [ GameOptionsDialog.open options ]
 
-        DialogData options ->
-            ( { model | options = GameOptionsDialog.model options }, Cmd.none )
-
-        DialogClose ->
-            ( { model | options = GameOptionsDialog.emptyModel }, GameOptionsDialog.refresh model.userId model.options Ack GeneralError )
+        DialogClose state ->
+            let
+                options =
+                    GameOptionsDialog.close model.options
+            in
+                { model | options = options } ! [ GameOptionsDialog.refresh Ack options ]
 
         GeneralError err ->
             ( { model | message = toString err |> Just }, Cmd.none )
@@ -107,7 +114,7 @@ update msg model =
         DialogMessage msg ->
             let
                 ( options, cmd ) =
-                    GameOptionsDialog.update model.userId msg model.options
+                    GameOptionsDialog.update msg model.options
             in
                 ( { model | options = options }, Cmd.map DialogMessage cmd )
 
@@ -134,49 +141,51 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    table [ class "table table-striped table-bordered" ] <|
-        List.concat
-            [ [ gameTableTitle ]
-            , [ Filters.view model.filters |> Html.map FiltersMessage ]
-            , [ gameTableRows model.filters.result ]
-            , [ GameOptionsDialog.view DialogMessage DialogClose model.options ]
-            ]
-
-
-messageText model =
-    Maybe.map (\t -> div [] [ text t ]) model.message |> Maybe.withDefault (div [] [])
+    div []
+        [ CDN.stylesheet
+        , Table.table
+            { options = [ Table.striped, Table.bordered ]
+            , thead = gameTableTitle
+            , tbody = gameTableRows model.filters.result
+            }
+        , GameOptionsDialog.view DialogClose model.options
+        ]
 
 
 gameTableTitle =
-    thead []
-        [ tr []
-            [ th [ class "col-md-2" ] [ text "Game - ", span [ class "cell_Steam" ] [ text " Steam" ], span [ class "cell_Gog" ] [ text " Gog" ], span [ class "cell_Both" ] [ text " Both" ] ]
-            , th [ class "col-md-1" ] [ text "Genres" ]
-            , th [ class "col-md-5" ] [ text "Tags" ]
-            , th [ class "col-md-1" ] [ text "Price(PLN)" ]
-            , th [ class "col-md-3" ] [ text "Additional prices(PLN)" ]
-            ]
+    Table.simpleThead
+        [ Table.th [] [ text "Game - ", span [ class "cell_Steam" ] [ text " Steam" ], span [ class "cell_Gog" ] [ text " Gog" ], span [ class "cell_Both" ] [ text " Both" ] ]
+        , Table.th [] [ text "Genres" ]
+        , Table.th [] [ text "Tags" ]
+        , Table.th [] [ text "Price(PLN)" ]
+        , Table.th [] [ text "Additional prices(PLN)" ]
         ]
 
 
 gameTableRows list =
-    tbody [] <| List.map gameTableRow list
+    Table.tbody [] <| List.map gameTableRow list
 
 
 gameTableRow e =
-    tr []
-        [ th [] [ a [ href e.link, class <| toStyle e ] [ text e.name ], gameOptionsButton e ]
-        , td [ class "text-left" ] [ text <| serializeValue e.genres ]
-        , td [ class "text-center" ] [ text <| serializeValue e.tags ]
-        , td [ class "text-right" ] [ e.prices |> Maybe.map serializeValue |> Maybe.withDefault "" |> text ]
-        , td [] (additionalPrices e.additionalPrices)
+    Table.tr []
+        [ Table.th [] [ a [ href e.link, class <| toStyle e ] [ text e.name ], gameOptionsButton e ]
+        , Table.td [ Table.cellAttr (class "text-left") ] [ text <| serializeValue e.genres ]
+        , Table.td [ Table.cellAttr (class "text-center") ] [ text <| serializeValue e.tags ]
+        , Table.td [ Table.cellAttr (class "text-right") ] [ e.prices |> Maybe.map serializeValue |> Maybe.withDefault "" |> text ]
+        , Table.td [] (additionalPrices e.additionalPrices)
         ]
 
 
 gameOptionsButton entry =
     let
         dialogButton e =
-            button [ onClick <| DialogOpen <| e.steamId, class "glyphicon glyphicon-cog btn btn-default", style [ ( "float", "right" ) ] ] []
+            Button.linkButton
+                [ Button.onClick <| DialogOpen <| e.steamId
+                , Button.outlinePrimary
+                , Button.small
+                , Button.attrs [ class "fa fa-cog align-top float-right" ]
+                ]
+                []
     in
         entry.steamId |> Maybe.map (\_ -> dialogButton entry) |> Maybe.withDefault (div [] [])
 

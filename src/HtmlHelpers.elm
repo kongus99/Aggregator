@@ -1,9 +1,9 @@
-module HtmlHelpers exposing (..)
+module HtmlHelpers exposing (onSelect, onMultiSelect, onEnter)
 
 import Array
 import Dict
 import Html
-import Html.Events exposing (on, targetValue)
+import Html.Events exposing (keyCode, on, targetValue)
 import Json.Decode as Json
 
 
@@ -15,6 +15,18 @@ onSelect msg =
 onMultiSelect : (List String -> a) -> Html.Attribute a
 onMultiSelect msg =
     on "change" (Json.map msg targetOptions)
+
+
+onEnter : msg -> Html.Attribute msg
+onEnter msg =
+    let
+        isEnter code =
+            if code == 13 then
+                Json.succeed msg
+            else
+                Json.fail "not ENTER"
+    in
+        on "keydown" (Json.andThen isEnter keyCode)
 
 
 type alias Option =

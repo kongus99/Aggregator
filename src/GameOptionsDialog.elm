@@ -1,31 +1,34 @@
-module GameOptionsDialog exposing (model, emptyModel, view, fetch, Model, Msg, update, refresh)
+module GameOptionsDialog exposing (model, emptyModel, view, Model, Msg, update, open, close, refresh)
 
 import Array exposing (Array)
-import Dialog
 import Html exposing (Attribute, Html, div, h4, input, label, table, tbody, td, text, th, thead, tr)
 import Html.Attributes exposing (checked, class, name, type_, value)
 import Html.Events exposing (keyCode, on, onClick, onInput)
+import HtmlHelpers exposing (onEnter)
 import Http
 import Json.Decode as Json
 import Model exposing (GameOptions, GameQuery)
 import Router exposing (routes)
+import Bootstrap.Modal as Modal
+import Bootstrap.Button as Button
+import Bootstrap.Table as Table
 
 
 -- MODEL
 
 
-type alias Model =
-    { message : Maybe String, gameOptions : Maybe GameOptions }
+type alias Model msg =
+    { userId : Int, steamId : Int, message : Maybe String, gameOptions : Maybe GameOptions, state : Modal.State, success : Msg -> msg, error : Http.Error -> msg }
 
 
-model : GameOptions -> Model
-model options =
-    Model Nothing (Just options)
+model : Int -> Int -> (Msg -> msg) -> (Http.Error -> msg) -> GameOptions -> Model msg
+model userId steamId success error options =
+    Model userId steamId Nothing (Just options) Modal.visibleState success error
 
 
-emptyModel : Model
-emptyModel =
-    Model Nothing Nothing
+emptyModel : Int -> Int -> (Msg -> msg) -> (Http.Error -> msg) -> Model msg
+emptyModel userId steamId success error =
+    Model userId steamId Nothing Nothing Modal.hiddenState success error
 
 
 
@@ -51,7 +54,7 @@ updateArray n f a =
             Array.set n (f element) a
 
 
-updateQuery : Int -> (GameQuery -> GameQuery) -> Model -> Model
+updateQuery : Int -> (GameQuery -> GameQuery) -> Model msg -> Model msg
 updateQuery queryIndex queryUpdate model =
     let
         updateQueries queries =
@@ -63,18 +66,13 @@ updateQuery queryIndex queryUpdate model =
         { model | gameOptions = Maybe.map updateOptions model.gameOptions }
 
 
-serializeSelectedQuery : Int -> (GameQuery -> List ( String, String )) -> Model -> List ( String, String )
+serializeSelectedQuery : Int -> (GameQuery -> List ( String, String )) -> Model msg -> List ( String, String )
 serializeSelectedQuery queryIndex querySerializer model =
     Maybe.andThen (\o -> Array.get queryIndex o.queries) model.gameOptions |> Maybe.map querySerializer |> Maybe.withDefault []
 
 
-serializeSteamId : Model -> List ( String, String )
-serializeSteamId model =
-    model.gameOptions |> Maybe.map (\o -> [ ( "steamId", toString o.entry.steamId ) ]) |> Maybe.withDefault []
-
-
-update : Int -> Msg -> Model -> ( Model, Cmd Msg )
-update userId msg model =
+update : Msg -> Model msg -> ( Model msg, Cmd Msg )
+update msg model =
     case msg of
         SwitchTo queryIndex newSelectedResult ->
             let
@@ -100,7 +98,7 @@ update userId msg model =
                 serialized =
                     serializeSelectedQuery queryIndex (\q -> ( "site", q.site ) :: getSelectedResult q.selectedResult) newModel
             in
-                ( { newModel | message = Nothing }, saveSwitched userId serialized newModel )
+                ( { newModel | message = Nothing }, saveSwitched serialized newModel )
 
         Switched msg ->
             ( { model | message = Just msg }, Cmd.none )
@@ -123,45 +121,44 @@ update userId msg model =
                 serialized =
                     serializeSelectedQuery queryIndex (\q -> [ ( "query", q.query ), ( "site", q.site ) ]) newModel
             in
-                ( { newModel | message = Nothing }, newResults userId serialized model )
+                ( { newModel | message = Nothing }, newResults serialized model )
 
         NewResults results ->
-            ( { model | message = Nothing, gameOptions = Just results }, Cmd.none )
+            ( { model | message = Nothing, gameOptions = Just results, state = Modal.visibleState }, Cmd.none )
 
 
-fetch : Int -> Maybe Int -> (GameOptions -> c) -> (Http.Error -> c) -> Cmd c
-fetch userId steamId mess err =
-    let
-        send id =
-            [ ( "userId", toString userId ), ( "steamId", toString id ) ]
-                |> routes.gameOptions.fetch
-                |> .request
-                |> Http.send (Router.resolveResponse mess err)
-    in
-        Maybe.map send steamId |> Maybe.withDefault Cmd.none
+open : Model msg -> Cmd msg
+open model =
+    [ ( "userId", toString model.userId ), ( "steamId", toString model.steamId ) ]
+        |> routes.gameOptions.fetch
+        |> .request
+        |> Http.send (Router.resolveResponse (\r -> model.success (NewResults r)) model.error)
 
 
-refresh : Int -> Model -> (String -> c) -> (Http.Error -> c) -> Cmd c
-refresh userId model mess err =
-    let
-        send options =
-            [ ( "userId", toString userId ), ( "steamId", toString options.entry.steamId ) ]
-                |> routes.gameOptions.triggerRefresh
-                |> .request
-                |> Http.send (Router.resolveResponse mess err)
-    in
-        Maybe.map send model.gameOptions |> Maybe.withDefault Cmd.none
+close : Model msg -> Model msg
+close model =
+    { model | state = Modal.hiddenState }
 
 
-saveSwitched userId serialized model =
-    List.append (( "userId", toString userId ) :: serialized) (serializeSteamId model)
+refresh : (String -> msg) -> Model msg -> Cmd msg
+refresh msg model =
+    [ ( "userId", toString model.userId ), ( "steamId", toString model.steamId ) ]
+        |> routes.gameOptions.triggerRefresh
+        |> .request
+        |> Http.send (Router.resolveResponse msg model.error)
+
+
+saveSwitched serialized model =
+    ( "userId", toString model.userId )
+        :: (( "steamId", toString model.steamId ) :: serialized)
         |> routes.gameOptions.changeSelectedSearch
         |> .request
         |> Http.send (Router.resolveResponse Switched DialogError)
 
 
-newResults userId serialized model =
-    List.append (( "userId", toString userId ) :: serialized) (serializeSteamId model)
+newResults serialized model =
+    ( "userId", toString model.userId )
+        :: (( "steamId", toString model.steamId ) :: serialized)
         |> routes.gameOptions.fetchSearchResults
         |> .request
         |> Http.send (Router.resolveResponse NewResults DialogError)
@@ -171,59 +168,62 @@ newResults userId serialized model =
 -- VIEW
 
 
-view : (Msg -> msg) -> msg -> Model -> Html msg
-view wrapper close model =
-    Dialog.view <|
-        Maybe.map
-            (\o ->
-                { closeMessage = Just close
-                , containerClass = Just "game-options-class"
-                , header = Just <| dialogHeader o
-                , body = Just <| Html.map wrapper (dialogBody o)
-                , footer = Maybe.map text model.message
-                }
-            )
-            model.gameOptions
+view : (Modal.State -> msg) -> Model msg -> Html msg
+view close model =
+    Maybe.map
+        (\o ->
+            Modal.config close
+                |> Modal.large
+                |> (dialogHeader o)
+                |> (dialogBody model.success o)
+                |> Modal.footer [] [ text (Maybe.withDefault "" model.message) ]
+                |> Modal.view model.state
+        )
+        model.gameOptions
+        |> Maybe.withDefault (div [] [])
 
 
-dialogHeader : GameOptions -> Html msg
-dialogHeader options =
-    h4 [] [ text options.entry.name ]
+
+dialogHeader : GameOptions -> Modal.Config msg -> Modal.Config msg
+dialogHeader options config =
+    Modal.h4 [] [ text options.entry.name ] config
 
 
-dialogBody : GameOptions -> Html Msg
-dialogBody options =
-    div []
-        [ table [ class "table table-striped table-bordered" ]
-            [ tableHead
-            , tbody [] (Array.indexedMap tableRow options.queries |> Array.toList)
-            ]
+dialogBody : (Msg -> msg) -> GameOptions -> Modal.Config msg -> Modal.Config msg
+dialogBody wrapper options config =
+    Modal.body []
+        [ Table.table
+            { options = [ Table.striped, Table.bordered ]
+            , thead = tableHead
+            , tbody = Table.tbody [] (Array.indexedMap (tableRow wrapper) options.queries |> Array.toList)
+            }
         ]
+        config
 
 
 tableHead =
-    thead []
-        [ tr []
-            [ th []
+    Table.thead []
+        [ Table.tr []
+            [ Table.th []
                 [ text "Site" ]
-            , th []
+            , Table.th []
                 [ text "Query" ]
-            , th []
+            , Table.th []
                 [ text "Results" ]
             ]
         ]
 
 
-tableRow : Int -> GameQuery -> Html Msg
-tableRow index gameQuery =
-    tr []
-        [ th []
+tableRow : (Msg -> msg) -> Int -> GameQuery -> Table.Row msg
+tableRow wrapper index gameQuery =
+    Table.tr []
+        [ Table.th []
             [ text gameQuery.site ]
-        , td []
-            [ input [ type_ "text", value gameQuery.query, onEnter (GetNewResults index), onInput (ChangeQuery index) ] [] ]
-        , td []
+        , Table.td []
+            [ input [ type_ "text", value gameQuery.query, onEnter (GetNewResults index), onInput (ChangeQuery index) ] [] |> Html.map wrapper ]
+        , Table.td []
             (List.map
-                (queryResult gameQuery.selectedResult (SwitchTo index) index)
+                (\q -> queryResult gameQuery.selectedResult (SwitchTo index) index q |> Html.map wrapper)
                 gameQuery.results
             )
         ]
@@ -238,15 +238,3 @@ queryResult selectedResult msg index currentResult =
             , text currentResult
             ]
         ]
-
-
-onEnter : msg -> Attribute msg
-onEnter msg =
-    let
-        isEnter code =
-            if code == 13 then
-                Json.succeed msg
-            else
-                Json.fail "not ENTER"
-    in
-        on "keydown" (Json.andThen isEnter keyCode)
