@@ -1,10 +1,25 @@
-module HtmlHelpers exposing (onSelect, onMultiSelect, onEnter)
+module HtmlHelpers exposing (onSelect, onMultiSelect, onEnter, onLinkClick, onMenuItemCheck, onMenuItemClick)
 
 import Array
 import Dict
-import Html
-import Html.Events exposing (keyCode, on, targetValue)
+import Html exposing (Attribute)
+import Html.Events exposing (defaultOptions, keyCode, on, onWithOptions, targetChecked, targetValue)
 import Json.Decode as Json
+
+
+onLinkClick : msg -> Attribute msg
+onLinkClick msg =
+    onWithOptions "click" { defaultOptions | preventDefault = True } (Json.succeed msg)
+
+
+onMenuItemCheck : (Bool -> msg) -> Attribute msg
+onMenuItemCheck tagger =
+    onWithOptions "click" { defaultOptions | stopPropagation = True } (Json.map tagger targetChecked)
+
+
+onMenuItemClick : msg -> Attribute msg
+onMenuItemClick msg =
+    onWithOptions "click" { defaultOptions | stopPropagation = True } (Json.succeed msg)
 
 
 onSelect : (String -> a) -> Html.Attribute a

@@ -10941,6 +10941,15 @@ var _user$project$HtmlHelpers$onSelect = function (msg) {
 		'change',
 		A2(_elm_lang$core$Json_Decode$map, msg, _elm_lang$html$Html_Events$targetValue));
 };
+var _user$project$HtmlHelpers$onLinkClick = function (msg) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'click',
+		_elm_lang$core$Native_Utils.update(
+			_elm_lang$html$Html_Events$defaultOptions,
+			{preventDefault: true}),
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
 var _user$project$HtmlHelpers$Option = function (a) {
 	return {value: a};
 };

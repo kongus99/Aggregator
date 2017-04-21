@@ -3,7 +3,7 @@ module Filters exposing (Model, Msg, update, initialize, view, serialize, replac
 import Html exposing (Html, button, div, input, label, option, select, text, th, thead)
 import Html.Attributes exposing (checked, class, href, multiple, name, placeholder, selected, style, type_, value)
 import Html.Events exposing (on, onCheck, onClick, onInput)
-import HtmlHelpers exposing (onMultiSelect, onSelect)
+import HtmlHelpers exposing (onLinkClick, onMenuItemCheck, onMenuItemClick, onMultiSelect, onSelect)
 import Http
 import Model exposing (..)
 import GameEntry exposing (GameEntry, WebSocketRefreshResult, GameEntryRow, toGameEntryRow)
@@ -13,6 +13,9 @@ import Router exposing (routes)
 import Set exposing (Set)
 import WebSocket
 import Bootstrap.Navbar as Navbar
+import Bootstrap.Form.Input as Input
+import Bootstrap.Button as Button
+import Bootstrap.ButtonGroup as ButtonGroup
 
 
 -- MODEL
@@ -234,8 +237,8 @@ type Msg
     | ChangeName String
     | ChangeLow String
     | ChangeHigh String
-    | ChangeSelectedGenres (List String)
-    | ChangeSelectedTags (List String)
+    | ChangeSelectedGenre String Bool
+    | ChangeSelectedTag String Bool
     | ChangeGameOn String
     | ChangeDiscounted Bool
     | ChangeTagsConjunction Bool
@@ -244,6 +247,7 @@ type Msg
     | ReceiveEntries (List GameEntry)
     | ReceiveError Http.Error
     | NavbarMsg Navbar.State
+    | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -276,11 +280,25 @@ update msg model =
             in
                 newModel ! [ sendRefresh newModel ]
 
-        ChangeSelectedGenres genres ->
-            apply { model | genresFilter = DynamicFilter model.genresFilter.allValues (Set.fromList genres) model.genresFilter.conjunction } ! []
+        ChangeSelectedGenre genre isAdded ->
+            let
+                selected =
+                    if isAdded then
+                        Set.insert genre model.genresFilter.selectedValues
+                    else
+                        Set.remove genre model.genresFilter.selectedValues
+            in
+                apply { model | genresFilter = DynamicFilter model.genresFilter.allValues selected model.genresFilter.conjunction } ! []
 
-        ChangeSelectedTags tags ->
-            apply { model | tagsFilter = DynamicFilter model.tagsFilter.allValues (Set.fromList tags) model.tagsFilter.conjunction } ! []
+        ChangeSelectedTag tag isAdded ->
+            let
+                selected =
+                    if isAdded then
+                        Set.insert tag model.tagsFilter.selectedValues
+                    else
+                        Set.remove tag model.tagsFilter.selectedValues
+            in
+                apply { model | tagsFilter = DynamicFilter model.tagsFilter.allValues selected model.tagsFilter.conjunction } ! []
 
         ChangeTagsConjunction conjunction ->
             apply { model | tagsFilter = DynamicFilter model.tagsFilter.allValues model.tagsFilter.selectedValues conjunction } ! []
@@ -294,6 +312,9 @@ update msg model =
         NavbarMsg state ->
             ( { model | navbarState = state }, Cmd.none )
 
+        NoOp ->
+            model ! []
+
         ReceiveError err ->
             { model | err = Just err } ! []
 
@@ -305,77 +326,91 @@ sendRefresh model =
 
 
 -- VIEW
+--TODO - reset link should show proper address
 
 
 view : Model -> Html Msg
 view model =
     Navbar.config NavbarMsg
         |> Navbar.withAnimation
-        |> Navbar.brand [ href "#" ] [ text "Brand" ]
+        |> Navbar.attrs [ class "sticky-top" ]
+        |> Navbar.brand [ href "", onLinkClick Clear ] [ text "Aggro" ]
         |> Navbar.items
-            [ Navbar.itemLink [ href "#" ] [ text "Item 1" ]
-            , Navbar.itemLink [ href "#" ] [ text "Item 2" ]
+            [ Navbar.dropdown
+                { id = "Filters"
+                , toggle = Navbar.dropdownToggle [] [ text "Filters" ]
+                , items =
+                    [ Navbar.dropdownItem [ onMenuItemClick NoOp ] [ Input.text [ Input.placeholder "Name", Input.onInput ChangeName, Input.value model.name ] ]
+                    , Navbar.dropdownDivider
+                    , Navbar.dropdownHeader [ text "Source" ]
+                    , Navbar.dropdownItem [ onMenuItemClick NoOp ]
+                        [ ButtonGroup.radioButtonGroup [ ButtonGroup.small ]
+                            [ ButtonGroup.radioButton (model.sources == WishList) [ Button.attrs [ onMenuItemClick (ChangeSources <| toString WishList) ], Button.secondary ] [ text <| toString WishList ]
+                            , ButtonGroup.radioButton (model.sources == Owned) [ Button.attrs [ onMenuItemClick (ChangeSources <| toString Owned) ], Button.secondary ] [ text <| toString Owned ]
+                            , ButtonGroup.radioButton (model.sources == Both) [ Button.attrs [ onMenuItemClick (ChangeSources <| toString Both) ], Button.secondary ] [ text <| toString Both ]
+                            ]
+                        ]
+                    , Navbar.dropdownDivider
+                    , Navbar.dropdownHeader [ text "Shop" ]
+                    , Navbar.dropdownItem [ onMenuItemClick NoOp ]
+                        [ ButtonGroup.radioButtonGroup [ ButtonGroup.small ]
+                            [ ButtonGroup.radioButton (model.gameOn == Nothing) [ Button.attrs [ onMenuItemClick (ChangeGameOn "") ], Button.secondary ] [ text <| toString Both ]
+                            , ButtonGroup.radioButton (model.gameOn == Just Steam) [ Button.attrs [ onMenuItemClick (ChangeGameOn <| toString Steam) ], Button.secondary ] [ text <| toString Steam ]
+                            , ButtonGroup.radioButton (model.gameOn == Just Gog) [ Button.attrs [ onMenuItemClick (ChangeGameOn <| toString Gog) ], Button.secondary ] [ text <| toString Gog ]
+                            ]
+                        ]
+                    ]
+                }
+            , Navbar.dropdown
+                { id = "Pricing"
+                , toggle = Navbar.dropdownToggle [] [ text "Pricing" ]
+                , items =
+                    [ Navbar.dropdownItem [ onMenuItemClick NoOp ]
+                        [ ButtonGroup.checkboxButtonGroup []
+                            [ ButtonGroup.checkboxButton model.isDiscounted [ Button.attrs [ onMenuItemCheck ChangeDiscounted ], Button.secondary ] [ text "Discounted" ]
+                            ]
+                        ]
+                    , Navbar.dropdownDivider
+                    , Navbar.dropdownItem [ onMenuItemClick NoOp ] [ Input.text [ Input.placeholder "Lowest", Input.onInput ChangeLow, Input.value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.first model.prices ] ]
+                    , Navbar.dropdownDivider
+                    , Navbar.dropdownItem [ onMenuItemClick NoOp ] [ Input.text [ Input.placeholder "Highest", Input.onInput ChangeHigh, Input.value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.second model.prices ] ]
+                    ]
+                }
+            , Navbar.dropdown
+                { id = "Genres"
+                , toggle = Navbar.dropdownToggle [] [ text "Genres" ]
+                , items =
+                    [ Navbar.dropdownItem [ onMenuItemClick NoOp ]
+                        [ ButtonGroup.checkboxButtonGroup []
+                            [ ButtonGroup.checkboxButton model.genresFilter.conjunction [ Button.attrs [ onMenuItemCheck ChangeGenresConjunction ], Button.secondary ] [ text "Conjunction" ]
+                            ]
+                        ]
+                    , Navbar.dropdownDivider
+                    , Navbar.dropdownItem [ onMenuItemClick NoOp, class "scrollable-menu" ]
+                        [ ButtonGroup.checkboxButtonGroup [ ButtonGroup.vertical, ButtonGroup.small ] <|
+                            List.map (dynamicOptions ChangeSelectedGenre model.genresFilter.selectedValues) (Set.toList model.genresFilter.allValues)
+                        ]
+                    ]
+                }
+            , Navbar.dropdown
+                { id = "Tags"
+                , toggle = Navbar.dropdownToggle [] [ text "Tags" ]
+                , items =
+                    [ Navbar.dropdownItem [ onMenuItemClick NoOp ]
+                        [ ButtonGroup.checkboxButtonGroup []
+                            [ ButtonGroup.checkboxButton model.tagsFilter.conjunction [ Button.attrs [ onMenuItemCheck ChangeTagsConjunction ], Button.secondary ] [ text "Conjunction" ]
+                            ]
+                        ]
+                    , Navbar.dropdownDivider
+                    , Navbar.dropdownItem [ onMenuItemClick NoOp, class "scrollable-menu" ]
+                        [ ButtonGroup.checkboxButtonGroup [ ButtonGroup.vertical, ButtonGroup.small ] <|
+                            List.map (dynamicOptions ChangeSelectedTag model.tagsFilter.selectedValues) (Set.toList model.tagsFilter.allValues)
+                        ]
+                    ]
+                }
             ]
         |> Navbar.view model.navbarState
 
 
-
---    thead []
---        [ th [ class "form vtop" ]
---            [ div [ class "form-group" ]
---                [ checkboxInput "Discounted" model.isDiscounted ChangeDiscounted
---                , input [ placeholder "Name", class "form-control", type_ "text", onInput ChangeName, value model.name ] []
---                , sourcesSelect model
---                , gameOnSelect model
---                ]
---            ]
---        , th [ class "form vtop" ] [ genresSelect model ]
---        , th [ class "form vtop" ] [ tagsSelect model ]
---        , th [ class "form vcenter" ]
---            [ div [ class "form-group" ]
---                [ input [ placeholder "Lowest price", class "form-control", type_ "text", onInput ChangeLow, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.first model.prices ] []
---                , input [ placeholder "Highest price", class "form-control", type_ "text", onInput ChangeHigh, value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.second model.prices ] []
---                ]
---            ]
---        , th [ class "form vtop" ] [ button [ onClick Clear, class "glyphicon glyphicon-remove btn btn-default", style [ ( "float", "right" ) ] ] [] ]
---        ]
-
-
-genresSelect model =
-    div [ class "form-group" ]
-        [ checkboxInput "Conjunction" model.genresFilter.conjunction ChangeGenresConjunction
-        , select [ class "form-control", multiple True, onMultiSelect ChangeSelectedGenres ] <| List.map (dynamicOptions model.genresFilter.selectedValues) (Set.toList model.genresFilter.allValues)
-        ]
-
-
-tagsSelect model =
-    div [ class "form-group" ]
-        [ checkboxInput "Conjunction" model.tagsFilter.conjunction ChangeTagsConjunction
-        , select [ class "form-control", multiple True, onMultiSelect ChangeSelectedTags ] <| List.map (dynamicOptions model.tagsFilter.selectedValues) (Set.toList model.tagsFilter.allValues)
-        ]
-
-
-dynamicOptions selectedSet currentValue =
-    option [ selected (Set.member currentValue selectedSet), value currentValue ] [ text currentValue ]
-
-
-gameOnSelect model =
-    select [ class "form-control", onSelect ChangeGameOn ]
-        [ option [ selected (model.gameOn == Nothing), value "" ] [ text "" ]
-        , option [ selected (model.gameOn == Just Steam), value <| toString Steam ] [ text <| toString Steam ]
-        , option [ selected (model.gameOn == Just Gog), value <| toString Gog ] [ text <| toString Gog ]
-        ]
-
-
-checkboxInput inputText inputValue msg =
-    div [ class "checkbox" ]
-        [ label [] [ input [ type_ "checkbox", checked inputValue, onCheck msg ] [], text inputText ]
-        ]
-
-
-sourcesSelect model =
-    select [ class "form-control", onSelect ChangeSources ]
-        [ option [ selected (model.sources == Owned), value <| toString Owned ] [ text <| toString Owned ]
-        , option [ selected (model.sources == WishList), value <| toString WishList ] [ text <| toString WishList ]
-        , option [ selected (model.sources == Both), value <| toString Both ] [ text <| toString Both ]
-        ]
+dynamicOptions msg selectedSet currentValue =
+    ButtonGroup.checkboxButton (Set.member currentValue selectedSet) [ Button.attrs [ onMenuItemCheck (msg currentValue) ], Button.secondary ] [ text currentValue ]

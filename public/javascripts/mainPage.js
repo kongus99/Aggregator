@@ -13486,6 +13486,227 @@ var _rundis$elm_bootstrap$Bootstrap_Button$button = F2(
 			children);
 	});
 
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$defaultOptions = {
+	size: _elm_lang$core$Maybe$Nothing,
+	vertical: false,
+	attributes: {ctor: '[]'}
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$applyModifier = F2(
+	function (modifier, options) {
+		var _p0 = modifier;
+		switch (_p0.ctor) {
+			case 'Size':
+				return _elm_lang$core$Native_Utils.update(
+					options,
+					{
+						size: _elm_lang$core$Maybe$Just(_p0._0)
+					});
+			case 'Vertical':
+				return _elm_lang$core$Native_Utils.update(
+					options,
+					{vertical: true});
+			default:
+				return _elm_lang$core$Native_Utils.update(
+					options,
+					{
+						attributes: A2(_elm_lang$core$Basics_ops['++'], options.attributes, _p0._0)
+					});
+		}
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$groupAttributes = function (modifiers) {
+	var options = A3(_elm_lang$core$List$foldl, _rundis$elm_bootstrap$Bootstrap_ButtonGroup$applyModifier, _rundis$elm_bootstrap$Bootstrap_ButtonGroup$defaultOptions, modifiers);
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		{
+			ctor: '::',
+			_0: A2(_elm_lang$html$Html_Attributes$attribute, 'role', 'group'),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$classList(
+					{
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'btn-group', _1: true},
+						_1: {
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'btn-group-vertical', _1: options.vertical},
+							_1: {ctor: '[]'}
+						}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(_elm_lang$html$Html_Attributes$attribute, 'data-toggle', 'buttons'),
+					_1: {ctor: '[]'}
+				}
+			}
+		},
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			function () {
+				var _p1 = A2(_elm_lang$core$Maybe$andThen, _rundis$elm_bootstrap$Bootstrap_Grid_Internal$screenSizeOption, options.size);
+				if (_p1.ctor === 'Just') {
+					return {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class(
+							A2(_elm_lang$core$Basics_ops['++'], 'btn-group-', _p1._0)),
+						_1: {ctor: '[]'}
+					};
+				} else {
+					return {ctor: '[]'};
+				}
+			}(),
+			options.attributes));
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$renderGroup = function (_p2) {
+	var _p3 = _p2;
+	return _p3._0;
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$toolbar = F2(
+	function (attributes, items) {
+		return A2(
+			_elm_lang$html$Html$div,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				{
+					ctor: '::',
+					_0: A2(_elm_lang$html$Html_Attributes$attribute, 'role', 'toolbar'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('btn-toolbar'),
+						_1: {ctor: '[]'}
+					}
+				},
+				attributes),
+			A2(_elm_lang$core$List$map, _rundis$elm_bootstrap$Bootstrap_ButtonGroup$renderGroup, items));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$Options = F3(
+	function (a, b, c) {
+		return {size: a, vertical: b, attributes: c};
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$Attrs = function (a) {
+	return {ctor: 'Attrs', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$attrs = function (attrs) {
+	return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$Attrs(attrs);
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$Vertical = {ctor: 'Vertical'};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$vertical = _rundis$elm_bootstrap$Bootstrap_ButtonGroup$Vertical;
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$Size = function (a) {
+	return {ctor: 'Size', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$small = _rundis$elm_bootstrap$Bootstrap_ButtonGroup$Size(_rundis$elm_bootstrap$Bootstrap_Grid_Internal$SM);
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$large = _rundis$elm_bootstrap$Bootstrap_ButtonGroup$Size(_rundis$elm_bootstrap$Bootstrap_Grid_Internal$LG);
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$GroupItem = function (a) {
+	return {ctor: 'GroupItem', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$buttonGroupItem = F2(
+	function (options, items) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$GroupItem(
+			A2(
+				_elm_lang$html$Html$div,
+				_rundis$elm_bootstrap$Bootstrap_ButtonGroup$groupAttributes(options),
+				A2(
+					_elm_lang$core$List$map,
+					function (_p4) {
+						var _p5 = _p4;
+						return _p5._0;
+					},
+					items)));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$buttonGroup = F2(
+	function (options, items) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$renderGroup(
+			A2(_rundis$elm_bootstrap$Bootstrap_ButtonGroup$buttonGroupItem, options, items));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$linkButtonGroupItem = F2(
+	function (options, items) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$GroupItem(
+			A2(
+				_elm_lang$html$Html$div,
+				_rundis$elm_bootstrap$Bootstrap_ButtonGroup$groupAttributes(options),
+				A2(
+					_elm_lang$core$List$map,
+					function (_p6) {
+						var _p7 = _p6;
+						return _p7._0;
+					},
+					items)));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$linkButtonGroup = F2(
+	function (options, items) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$renderGroup(
+			A2(_rundis$elm_bootstrap$Bootstrap_ButtonGroup$linkButtonGroupItem, options, items));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButtonGroupItem = F2(
+	function (options, items) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$GroupItem(
+			A2(
+				_elm_lang$html$Html$div,
+				_rundis$elm_bootstrap$Bootstrap_ButtonGroup$groupAttributes(options),
+				A2(
+					_elm_lang$core$List$map,
+					function (_p8) {
+						var _p9 = _p8;
+						return _p9._0;
+					},
+					items)));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButtonGroup = F2(
+	function (options, items) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$renderGroup(
+			A2(_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButtonGroupItem, options, items));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroupItem = F2(
+	function (options, items) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$GroupItem(
+			A2(
+				_elm_lang$html$Html$div,
+				_rundis$elm_bootstrap$Bootstrap_ButtonGroup$groupAttributes(options),
+				A2(
+					_elm_lang$core$List$map,
+					function (_p10) {
+						var _p11 = _p10;
+						return _p11._0;
+					},
+					items)));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup = F2(
+	function (options, items) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$renderGroup(
+			A2(_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroupItem, options, items));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$ButtonItem = function (a) {
+	return {ctor: 'ButtonItem', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$button = F2(
+	function (options, children) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$ButtonItem(
+			A2(_rundis$elm_bootstrap$Bootstrap_Button$button, options, children));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$LinkButtonItem = function (a) {
+	return {ctor: 'LinkButtonItem', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$linkButton = F2(
+	function (options, children) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$LinkButtonItem(
+			A2(_rundis$elm_bootstrap$Bootstrap_Button$linkButton, options, children));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$RadioButtonItem = function (a) {
+	return {ctor: 'RadioButtonItem', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton = F3(
+	function (checked, options, children) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$RadioButtonItem(
+			A3(_rundis$elm_bootstrap$Bootstrap_Button$radioButton, checked, options, children));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$CheckboxButtonItem = function (a) {
+	return {ctor: 'CheckboxButtonItem', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButton = F3(
+	function (checked, options, children) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$CheckboxButtonItem(
+			A3(_rundis$elm_bootstrap$Bootstrap_Button$checkboxButton, checked, options, children));
+	});
+
 var _rundis$elm_bootstrap$Bootstrap_CDN$fontAwesome = A3(
 	_elm_lang$html$Html$node,
 	'link',
@@ -13512,6 +13733,335 @@ var _rundis$elm_bootstrap$Bootstrap_CDN$stylesheet = A3(
 		}
 	},
 	{ctor: '[]'});
+
+var _rundis$elm_bootstrap$Bootstrap_Form_FormInternal$validationToString = function (validation) {
+	var _p0 = validation;
+	switch (_p0.ctor) {
+		case 'Success':
+			return 'success';
+		case 'Warning':
+			return 'warning';
+		default:
+			return 'danger';
+	}
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_FormInternal$validationWrapperAttribute = function (validation) {
+	return _elm_lang$html$Html_Attributes$class(
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			'has-',
+			_rundis$elm_bootstrap$Bootstrap_Form_FormInternal$validationToString(validation)));
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_FormInternal$Danger = {ctor: 'Danger'};
+var _rundis$elm_bootstrap$Bootstrap_Form_FormInternal$Warning = {ctor: 'Warning'};
+var _rundis$elm_bootstrap$Bootstrap_Form_FormInternal$Success = {ctor: 'Success'};
+
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$validationAttribute = function (validation) {
+	return _elm_lang$html$Html_Attributes$class(
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			'form-control-',
+			_rundis$elm_bootstrap$Bootstrap_Form_FormInternal$validationToString(validation)));
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$typeAttribute = function (inputType) {
+	return _elm_lang$html$Html_Attributes$type_(
+		function () {
+			var _p0 = inputType;
+			switch (_p0.ctor) {
+				case 'Text':
+					return 'text';
+				case 'Password':
+					return 'password';
+				case 'DatetimeLocal':
+					return 'datetime-local';
+				case 'Date':
+					return 'date';
+				case 'Month':
+					return 'month';
+				case 'Time':
+					return 'time';
+				case 'Week':
+					return 'week';
+				case 'Number':
+					return 'number';
+				case 'Email':
+					return 'email';
+				case 'Url':
+					return 'url';
+				case 'Search':
+					return 'search';
+				case 'Tel':
+					return 'tel';
+				default:
+					return 'color';
+			}
+		}());
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$sizeAttribute = function (size) {
+	return A2(
+		_elm_lang$core$Maybe$map,
+		function (s) {
+			return _elm_lang$html$Html_Attributes$class(
+				A2(_elm_lang$core$Basics_ops['++'], 'form-control-', s));
+		},
+		_rundis$elm_bootstrap$Bootstrap_Grid_Internal$screenSizeOption(size));
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$applyModifier = F2(
+	function (modifier, options) {
+		var _p1 = modifier;
+		switch (_p1.ctor) {
+			case 'Size':
+				return _elm_lang$core$Native_Utils.update(
+					options,
+					{
+						size: _elm_lang$core$Maybe$Just(_p1._0)
+					});
+			case 'Id':
+				return _elm_lang$core$Native_Utils.update(
+					options,
+					{
+						id: _elm_lang$core$Maybe$Just(_p1._0)
+					});
+			case 'Type':
+				return _elm_lang$core$Native_Utils.update(
+					options,
+					{tipe: _p1._0});
+			case 'Disabled':
+				return _elm_lang$core$Native_Utils.update(
+					options,
+					{disabled: _p1._0});
+			case 'Value':
+				return _elm_lang$core$Native_Utils.update(
+					options,
+					{
+						value: _elm_lang$core$Maybe$Just(_p1._0)
+					});
+			case 'DefaultValue':
+				return _elm_lang$core$Native_Utils.update(
+					options,
+					{
+						defaultValue: _elm_lang$core$Maybe$Just(_p1._0)
+					});
+			case 'Placeholder':
+				return _elm_lang$core$Native_Utils.update(
+					options,
+					{
+						placeholder: _elm_lang$core$Maybe$Just(_p1._0)
+					});
+			case 'OnInput':
+				return _elm_lang$core$Native_Utils.update(
+					options,
+					{
+						onInput: _elm_lang$core$Maybe$Just(_p1._0)
+					});
+			case 'Validation':
+				return _elm_lang$core$Native_Utils.update(
+					options,
+					{
+						validation: _elm_lang$core$Maybe$Just(_p1._0)
+					});
+			default:
+				return _elm_lang$core$Native_Utils.update(
+					options,
+					{
+						attributes: A2(_elm_lang$core$Basics_ops['++'], options.attributes, _p1._0)
+					});
+		}
+	});
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Options = function (a) {
+	return function (b) {
+		return function (c) {
+			return function (d) {
+				return function (e) {
+					return function (f) {
+						return function (g) {
+							return function (h) {
+								return function (i) {
+									return function (j) {
+										return {tipe: a, id: b, size: c, disabled: d, value: e, defaultValue: f, placeholder: g, onInput: h, validation: i, attributes: j};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Input = function (a) {
+	return {ctor: 'Input', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Attrs = function (a) {
+	return {ctor: 'Attrs', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$attrs = function (attrs) {
+	return _rundis$elm_bootstrap$Bootstrap_Form_Input$Attrs(attrs);
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Placeholder = function (a) {
+	return {ctor: 'Placeholder', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$placeholder = function (value) {
+	return _rundis$elm_bootstrap$Bootstrap_Form_Input$Placeholder(value);
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Validation = function (a) {
+	return {ctor: 'Validation', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$success = _rundis$elm_bootstrap$Bootstrap_Form_Input$Validation(_rundis$elm_bootstrap$Bootstrap_Form_FormInternal$Success);
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$warning = _rundis$elm_bootstrap$Bootstrap_Form_Input$Validation(_rundis$elm_bootstrap$Bootstrap_Form_FormInternal$Warning);
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$danger = _rundis$elm_bootstrap$Bootstrap_Form_Input$Validation(_rundis$elm_bootstrap$Bootstrap_Form_FormInternal$Danger);
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$OnInput = function (a) {
+	return {ctor: 'OnInput', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$onInput = function (toMsg) {
+	return _rundis$elm_bootstrap$Bootstrap_Form_Input$OnInput(toMsg);
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$DefaultValue = function (a) {
+	return {ctor: 'DefaultValue', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$defaultValue = function (value) {
+	return _rundis$elm_bootstrap$Bootstrap_Form_Input$DefaultValue(value);
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Value = function (a) {
+	return {ctor: 'Value', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$value = function (value) {
+	return _rundis$elm_bootstrap$Bootstrap_Form_Input$Value(value);
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Disabled = function (a) {
+	return {ctor: 'Disabled', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$disabled = function (disabled) {
+	return _rundis$elm_bootstrap$Bootstrap_Form_Input$Disabled(disabled);
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Type = function (a) {
+	return {ctor: 'Type', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$create = F2(
+	function (tipe, options) {
+		return _rundis$elm_bootstrap$Bootstrap_Form_Input$Input(
+			{
+				options: {
+					ctor: '::',
+					_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$Type(tipe),
+					_1: options
+				}
+			});
+	});
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Id = function (a) {
+	return {ctor: 'Id', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$id = function (id) {
+	return _rundis$elm_bootstrap$Bootstrap_Form_Input$Id(id);
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Size = function (a) {
+	return {ctor: 'Size', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$small = _rundis$elm_bootstrap$Bootstrap_Form_Input$Size(_rundis$elm_bootstrap$Bootstrap_Grid_Internal$SM);
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$large = _rundis$elm_bootstrap$Bootstrap_Form_Input$Size(_rundis$elm_bootstrap$Bootstrap_Grid_Internal$LG);
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Color = {ctor: 'Color'};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Tel = {ctor: 'Tel'};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Search = {ctor: 'Search'};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Url = {ctor: 'Url'};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Email = {ctor: 'Email'};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Number = {ctor: 'Number'};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Week = {ctor: 'Week'};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Time = {ctor: 'Time'};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Month = {ctor: 'Month'};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Date = {ctor: 'Date'};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$DatetimeLocal = {ctor: 'DatetimeLocal'};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Password = {ctor: 'Password'};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$Text = {ctor: 'Text'};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$defaultOptions = {
+	tipe: _rundis$elm_bootstrap$Bootstrap_Form_Input$Text,
+	id: _elm_lang$core$Maybe$Nothing,
+	size: _elm_lang$core$Maybe$Nothing,
+	disabled: false,
+	value: _elm_lang$core$Maybe$Nothing,
+	defaultValue: _elm_lang$core$Maybe$Nothing,
+	placeholder: _elm_lang$core$Maybe$Nothing,
+	onInput: _elm_lang$core$Maybe$Nothing,
+	validation: _elm_lang$core$Maybe$Nothing,
+	attributes: {ctor: '[]'}
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$toAttributes = function (modifiers) {
+	var options = A3(_elm_lang$core$List$foldl, _rundis$elm_bootstrap$Bootstrap_Form_Input$applyModifier, _rundis$elm_bootstrap$Bootstrap_Form_Input$defaultOptions, modifiers);
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('form-control'),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$disabled(options.disabled),
+				_1: {
+					ctor: '::',
+					_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$typeAttribute(options.tipe),
+					_1: {ctor: '[]'}
+				}
+			}
+		},
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			A2(
+				_elm_lang$core$List$filterMap,
+				_elm_lang$core$Basics$identity,
+				{
+					ctor: '::',
+					_0: A2(_elm_lang$core$Maybe$map, _elm_lang$html$Html_Attributes$id, options.id),
+					_1: {
+						ctor: '::',
+						_0: A2(_elm_lang$core$Maybe$andThen, _rundis$elm_bootstrap$Bootstrap_Form_Input$sizeAttribute, options.size),
+						_1: {
+							ctor: '::',
+							_0: A2(_elm_lang$core$Maybe$map, _elm_lang$html$Html_Attributes$value, options.value),
+							_1: {
+								ctor: '::',
+								_0: A2(_elm_lang$core$Maybe$map, _elm_lang$html$Html_Attributes$defaultValue, options.defaultValue),
+								_1: {
+									ctor: '::',
+									_0: A2(_elm_lang$core$Maybe$map, _elm_lang$html$Html_Attributes$placeholder, options.placeholder),
+									_1: {
+										ctor: '::',
+										_0: A2(_elm_lang$core$Maybe$map, _elm_lang$html$Html_Events$onInput, options.onInput),
+										_1: {
+											ctor: '::',
+											_0: A2(_elm_lang$core$Maybe$map, _rundis$elm_bootstrap$Bootstrap_Form_Input$validationAttribute, options.validation),
+											_1: {ctor: '[]'}
+										}
+									}
+								}
+							}
+						}
+					}
+				}),
+			options.attributes));
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$view = function (_p2) {
+	var _p3 = _p2;
+	return A2(
+		_elm_lang$html$Html$input,
+		_rundis$elm_bootstrap$Bootstrap_Form_Input$toAttributes(_p3._0.options),
+		{ctor: '[]'});
+};
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$input = F2(
+	function (tipe, options) {
+		return _rundis$elm_bootstrap$Bootstrap_Form_Input$view(
+			A2(_rundis$elm_bootstrap$Bootstrap_Form_Input$create, tipe, options));
+	});
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$text = _rundis$elm_bootstrap$Bootstrap_Form_Input$input(_rundis$elm_bootstrap$Bootstrap_Form_Input$Text);
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$password = _rundis$elm_bootstrap$Bootstrap_Form_Input$input(_rundis$elm_bootstrap$Bootstrap_Form_Input$Password);
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$datetimeLocal = _rundis$elm_bootstrap$Bootstrap_Form_Input$input(_rundis$elm_bootstrap$Bootstrap_Form_Input$DatetimeLocal);
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$date = _rundis$elm_bootstrap$Bootstrap_Form_Input$input(_rundis$elm_bootstrap$Bootstrap_Form_Input$Date);
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$month = _rundis$elm_bootstrap$Bootstrap_Form_Input$input(_rundis$elm_bootstrap$Bootstrap_Form_Input$Month);
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$time = _rundis$elm_bootstrap$Bootstrap_Form_Input$input(_rundis$elm_bootstrap$Bootstrap_Form_Input$Time);
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$week = _rundis$elm_bootstrap$Bootstrap_Form_Input$input(_rundis$elm_bootstrap$Bootstrap_Form_Input$Week);
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$number = _rundis$elm_bootstrap$Bootstrap_Form_Input$input(_rundis$elm_bootstrap$Bootstrap_Form_Input$Number);
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$email = _rundis$elm_bootstrap$Bootstrap_Form_Input$input(_rundis$elm_bootstrap$Bootstrap_Form_Input$Email);
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$url = _rundis$elm_bootstrap$Bootstrap_Form_Input$input(_rundis$elm_bootstrap$Bootstrap_Form_Input$Url);
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$search = _rundis$elm_bootstrap$Bootstrap_Form_Input$input(_rundis$elm_bootstrap$Bootstrap_Form_Input$Search);
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$tel = _rundis$elm_bootstrap$Bootstrap_Form_Input$input(_rundis$elm_bootstrap$Bootstrap_Form_Input$Tel);
+var _rundis$elm_bootstrap$Bootstrap_Form_Input$color = _rundis$elm_bootstrap$Bootstrap_Form_Input$input(_rundis$elm_bootstrap$Bootstrap_Form_Input$Color);
 
 var _rundis$elm_bootstrap$Bootstrap_Modal$ifElse = F3(
 	function (pred, $true, $false) {
@@ -16297,6 +16847,33 @@ var _user$project$HtmlHelpers$onSelect = function (msg) {
 		'change',
 		A2(_elm_lang$core$Json_Decode$map, msg, _elm_lang$html$Html_Events$targetValue));
 };
+var _user$project$HtmlHelpers$onMenuItemClick = function (msg) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'click',
+		_elm_lang$core$Native_Utils.update(
+			_elm_lang$html$Html_Events$defaultOptions,
+			{stopPropagation: true}),
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _user$project$HtmlHelpers$onMenuItemCheck = function (tagger) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'click',
+		_elm_lang$core$Native_Utils.update(
+			_elm_lang$html$Html_Events$defaultOptions,
+			{stopPropagation: true}),
+		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetChecked));
+};
+var _user$project$HtmlHelpers$onLinkClick = function (msg) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'click',
+		_elm_lang$core$Native_Utils.update(
+			_elm_lang$html$Html_Events$defaultOptions,
+			{preventDefault: true}),
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
 var _user$project$HtmlHelpers$Option = function (a) {
 	return {value: a};
 };
@@ -16939,58 +17516,23 @@ var _user$project$Router$Comparison = F3(
 		return {toggleSelected: a, comparisonData: b, page: c};
 	});
 
-var _user$project$Filters$checkboxInput = F3(
-	function (inputText, inputValue, msg) {
-		return A2(
-			_elm_lang$html$Html$div,
+var _user$project$Filters$dynamicOptions = F3(
+	function (msg, selectedSet, currentValue) {
+		return A3(
+			_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButton,
+			A2(_elm_lang$core$Set$member, currentValue, selectedSet),
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('checkbox'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$label,
-					{ctor: '[]'},
+				_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
 					{
 						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$input,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$type_('checkbox'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$checked(inputValue),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html_Events$onCheck(msg),
-										_1: {ctor: '[]'}
-									}
-								}
-							},
-							{ctor: '[]'}),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$html$Html$text(inputText),
-							_1: {ctor: '[]'}
-						}
+						_0: _user$project$HtmlHelpers$onMenuItemCheck(
+							msg(currentValue)),
+						_1: {ctor: '[]'}
 					}),
-				_1: {ctor: '[]'}
-			});
-	});
-var _user$project$Filters$dynamicOptions = F2(
-	function (selectedSet, currentValue) {
-		return A2(
-			_elm_lang$html$Html$option,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$selected(
-					A2(_elm_lang$core$Set$member, currentValue, selectedSet)),
 				_1: {
 					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$value(currentValue),
+					_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
 					_1: {ctor: '[]'}
 				}
 			},
@@ -17420,63 +17962,12 @@ var _user$project$Filters$parse = F2(
 			{ctor: '[]'})(
 			{ctor: '[]'})(navbarState)(_elm_lang$core$Maybe$Nothing);
 	});
+var _user$project$Filters$NoOp = {ctor: 'NoOp'};
 var _user$project$Filters$NavbarMsg = function (a) {
 	return {ctor: 'NavbarMsg', _0: a};
 };
 var _user$project$Filters$subscriptions = function (model) {
 	return A2(_rundis$elm_bootstrap$Bootstrap_Navbar$subscriptions, model.navbarState, _user$project$Filters$NavbarMsg);
-};
-var _user$project$Filters$view = function (model) {
-	return A2(
-		_rundis$elm_bootstrap$Bootstrap_Navbar$view,
-		model.navbarState,
-		A2(
-			_rundis$elm_bootstrap$Bootstrap_Navbar$items,
-			{
-				ctor: '::',
-				_0: A2(
-					_rundis$elm_bootstrap$Bootstrap_Navbar$itemLink,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$href('#'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text('Item 1'),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_rundis$elm_bootstrap$Bootstrap_Navbar$itemLink,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$href('#'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text('Item 2'),
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				}
-			},
-			A3(
-				_rundis$elm_bootstrap$Bootstrap_Navbar$brand,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$href('#'),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text('Brand'),
-					_1: {ctor: '[]'}
-				},
-				_rundis$elm_bootstrap$Bootstrap_Navbar$withAnimation(
-					_rundis$elm_bootstrap$Bootstrap_Navbar$config(_user$project$Filters$NavbarMsg)))));
 };
 var _user$project$Filters$ReceiveError = function (a) {
 	return {ctor: 'ReceiveError', _0: a};
@@ -17602,32 +18093,28 @@ var _user$project$Filters$update = F2(
 						_0: _user$project$Filters$sendRefresh(newModel),
 						_1: {ctor: '[]'}
 					});
-			case 'ChangeSelectedGenres':
+			case 'ChangeSelectedGenre':
+				var _p11 = _p10._0;
+				var selected = _p10._1 ? A2(_elm_lang$core$Set$insert, _p11, model.genresFilter.selectedValues) : A2(_elm_lang$core$Set$remove, _p11, model.genresFilter.selectedValues);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_user$project$Filters$apply(
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								genresFilter: A3(
-									_user$project$Filters$DynamicFilter,
-									model.genresFilter.allValues,
-									_elm_lang$core$Set$fromList(_p10._0),
-									model.genresFilter.conjunction)
+								genresFilter: A3(_user$project$Filters$DynamicFilter, model.genresFilter.allValues, selected, model.genresFilter.conjunction)
 							})),
 					{ctor: '[]'});
-			case 'ChangeSelectedTags':
+			case 'ChangeSelectedTag':
+				var _p12 = _p10._0;
+				var selected = _p10._1 ? A2(_elm_lang$core$Set$insert, _p12, model.tagsFilter.selectedValues) : A2(_elm_lang$core$Set$remove, _p12, model.tagsFilter.selectedValues);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_user$project$Filters$apply(
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								tagsFilter: A3(
-									_user$project$Filters$DynamicFilter,
-									model.tagsFilter.allValues,
-									_elm_lang$core$Set$fromList(_p10._0),
-									model.tagsFilter.conjunction)
+								tagsFilter: A3(_user$project$Filters$DynamicFilter, model.tagsFilter.allValues, selected, model.tagsFilter.conjunction)
 							})),
 					{ctor: '[]'});
 			case 'ChangeTagsConjunction':
@@ -17669,6 +18156,11 @@ var _user$project$Filters$update = F2(
 						{navbarState: _p10._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
+			case 'NoOp':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{ctor: '[]'});
 			default:
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -17683,86 +18175,6 @@ var _user$project$Filters$update = F2(
 var _user$project$Filters$ChangeSources = function (a) {
 	return {ctor: 'ChangeSources', _0: a};
 };
-var _user$project$Filters$sourcesSelect = function (model) {
-	return A2(
-		_elm_lang$html$Html$select,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('form-control'),
-			_1: {
-				ctor: '::',
-				_0: _user$project$HtmlHelpers$onSelect(_user$project$Filters$ChangeSources),
-				_1: {ctor: '[]'}
-			}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$option,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$selected(
-						_elm_lang$core$Native_Utils.eq(model.sources, _user$project$Model$Owned)),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$value(
-							_elm_lang$core$Basics$toString(_user$project$Model$Owned)),
-						_1: {ctor: '[]'}
-					}
-				},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text(
-						_elm_lang$core$Basics$toString(_user$project$Model$Owned)),
-					_1: {ctor: '[]'}
-				}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$option,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$selected(
-							_elm_lang$core$Native_Utils.eq(model.sources, _user$project$Model$WishList)),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$value(
-								_elm_lang$core$Basics$toString(_user$project$Model$WishList)),
-							_1: {ctor: '[]'}
-						}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							_elm_lang$core$Basics$toString(_user$project$Model$WishList)),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$option,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$selected(
-								_elm_lang$core$Native_Utils.eq(model.sources, _user$project$Model$Both)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$value(
-									_elm_lang$core$Basics$toString(_user$project$Model$Both)),
-								_1: {ctor: '[]'}
-							}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text(
-								_elm_lang$core$Basics$toString(_user$project$Model$Both)),
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				}
-			}
-		});
-};
 var _user$project$Filters$ChangeGenresConjunction = function (a) {
 	return {ctor: 'ChangeGenresConjunction', _0: a};
 };
@@ -17775,166 +18187,14 @@ var _user$project$Filters$ChangeDiscounted = function (a) {
 var _user$project$Filters$ChangeGameOn = function (a) {
 	return {ctor: 'ChangeGameOn', _0: a};
 };
-var _user$project$Filters$gameOnSelect = function (model) {
-	return A2(
-		_elm_lang$html$Html$select,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('form-control'),
-			_1: {
-				ctor: '::',
-				_0: _user$project$HtmlHelpers$onSelect(_user$project$Filters$ChangeGameOn),
-				_1: {ctor: '[]'}
-			}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$option,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$selected(
-						_elm_lang$core$Native_Utils.eq(model.gameOn, _elm_lang$core$Maybe$Nothing)),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$value(''),
-						_1: {ctor: '[]'}
-					}
-				},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text(''),
-					_1: {ctor: '[]'}
-				}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$option,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$selected(
-							_elm_lang$core$Native_Utils.eq(
-								model.gameOn,
-								_elm_lang$core$Maybe$Just(_user$project$Model$Steam))),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$value(
-								_elm_lang$core$Basics$toString(_user$project$Model$Steam)),
-							_1: {ctor: '[]'}
-						}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							_elm_lang$core$Basics$toString(_user$project$Model$Steam)),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$option,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$selected(
-								_elm_lang$core$Native_Utils.eq(
-									model.gameOn,
-									_elm_lang$core$Maybe$Just(_user$project$Model$Gog))),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$value(
-									_elm_lang$core$Basics$toString(_user$project$Model$Gog)),
-								_1: {ctor: '[]'}
-							}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text(
-								_elm_lang$core$Basics$toString(_user$project$Model$Gog)),
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				}
-			}
-		});
-};
-var _user$project$Filters$ChangeSelectedTags = function (a) {
-	return {ctor: 'ChangeSelectedTags', _0: a};
-};
-var _user$project$Filters$tagsSelect = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('form-group'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A3(_user$project$Filters$checkboxInput, 'Conjunction', model.tagsFilter.conjunction, _user$project$Filters$ChangeTagsConjunction),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$select,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('form-control'),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$multiple(true),
-							_1: {
-								ctor: '::',
-								_0: _user$project$HtmlHelpers$onMultiSelect(_user$project$Filters$ChangeSelectedTags),
-								_1: {ctor: '[]'}
-							}
-						}
-					},
-					A2(
-						_elm_lang$core$List$map,
-						_user$project$Filters$dynamicOptions(model.tagsFilter.selectedValues),
-						_elm_lang$core$Set$toList(model.tagsFilter.allValues))),
-				_1: {ctor: '[]'}
-			}
-		});
-};
-var _user$project$Filters$ChangeSelectedGenres = function (a) {
-	return {ctor: 'ChangeSelectedGenres', _0: a};
-};
-var _user$project$Filters$genresSelect = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('form-group'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A3(_user$project$Filters$checkboxInput, 'Conjunction', model.genresFilter.conjunction, _user$project$Filters$ChangeGenresConjunction),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$select,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('form-control'),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$multiple(true),
-							_1: {
-								ctor: '::',
-								_0: _user$project$HtmlHelpers$onMultiSelect(_user$project$Filters$ChangeSelectedGenres),
-								_1: {ctor: '[]'}
-							}
-						}
-					},
-					A2(
-						_elm_lang$core$List$map,
-						_user$project$Filters$dynamicOptions(model.genresFilter.selectedValues),
-						_elm_lang$core$Set$toList(model.genresFilter.allValues))),
-				_1: {ctor: '[]'}
-			}
-		});
-};
+var _user$project$Filters$ChangeSelectedTag = F2(
+	function (a, b) {
+		return {ctor: 'ChangeSelectedTag', _0: a, _1: b};
+	});
+var _user$project$Filters$ChangeSelectedGenre = F2(
+	function (a, b) {
+		return {ctor: 'ChangeSelectedGenre', _0: a, _1: b};
+	});
 var _user$project$Filters$ChangeHigh = function (a) {
 	return {ctor: 'ChangeHigh', _0: a};
 };
@@ -17945,6 +18205,653 @@ var _user$project$Filters$ChangeName = function (a) {
 	return {ctor: 'ChangeName', _0: a};
 };
 var _user$project$Filters$Clear = {ctor: 'Clear'};
+var _user$project$Filters$view = function (model) {
+	return A2(
+		_rundis$elm_bootstrap$Bootstrap_Navbar$view,
+		model.navbarState,
+		A2(
+			_rundis$elm_bootstrap$Bootstrap_Navbar$items,
+			{
+				ctor: '::',
+				_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdown(
+					{
+						id: 'Filters',
+						toggle: A2(
+							_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownToggle,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Filters'),
+								_1: {ctor: '[]'}
+							}),
+						items: {
+							ctor: '::',
+							_0: A2(
+								_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
+								{
+									ctor: '::',
+									_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$text(
+										{
+											ctor: '::',
+											_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$placeholder('Name'),
+											_1: {
+												ctor: '::',
+												_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$onInput(_user$project$Filters$ChangeName),
+												_1: {
+													ctor: '::',
+													_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$value(model.name),
+													_1: {ctor: '[]'}
+												}
+											}
+										}),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownDivider,
+								_1: {
+									ctor: '::',
+									_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownHeader(
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('Source'),
+											_1: {ctor: '[]'}
+										}),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
+											{
+												ctor: '::',
+												_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+												_1: {ctor: '[]'}
+											},
+											{
+												ctor: '::',
+												_0: A2(
+													_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButtonGroup,
+													{
+														ctor: '::',
+														_0: _rundis$elm_bootstrap$Bootstrap_ButtonGroup$small,
+														_1: {ctor: '[]'}
+													},
+													{
+														ctor: '::',
+														_0: A3(
+															_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
+															_elm_lang$core$Native_Utils.eq(model.sources, _user$project$Model$WishList),
+															{
+																ctor: '::',
+																_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+																	{
+																		ctor: '::',
+																		_0: _user$project$HtmlHelpers$onMenuItemClick(
+																			_user$project$Filters$ChangeSources(
+																				_elm_lang$core$Basics$toString(_user$project$Model$WishList))),
+																		_1: {ctor: '[]'}
+																	}),
+																_1: {
+																	ctor: '::',
+																	_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
+																	_1: {ctor: '[]'}
+																}
+															},
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html$text(
+																	_elm_lang$core$Basics$toString(_user$project$Model$WishList)),
+																_1: {ctor: '[]'}
+															}),
+														_1: {
+															ctor: '::',
+															_0: A3(
+																_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
+																_elm_lang$core$Native_Utils.eq(model.sources, _user$project$Model$Owned),
+																{
+																	ctor: '::',
+																	_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+																		{
+																			ctor: '::',
+																			_0: _user$project$HtmlHelpers$onMenuItemClick(
+																				_user$project$Filters$ChangeSources(
+																					_elm_lang$core$Basics$toString(_user$project$Model$Owned))),
+																			_1: {ctor: '[]'}
+																		}),
+																	_1: {
+																		ctor: '::',
+																		_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
+																		_1: {ctor: '[]'}
+																	}
+																},
+																{
+																	ctor: '::',
+																	_0: _elm_lang$html$Html$text(
+																		_elm_lang$core$Basics$toString(_user$project$Model$Owned)),
+																	_1: {ctor: '[]'}
+																}),
+															_1: {
+																ctor: '::',
+																_0: A3(
+																	_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
+																	_elm_lang$core$Native_Utils.eq(model.sources, _user$project$Model$Both),
+																	{
+																		ctor: '::',
+																		_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+																			{
+																				ctor: '::',
+																				_0: _user$project$HtmlHelpers$onMenuItemClick(
+																					_user$project$Filters$ChangeSources(
+																						_elm_lang$core$Basics$toString(_user$project$Model$Both))),
+																				_1: {ctor: '[]'}
+																			}),
+																		_1: {
+																			ctor: '::',
+																			_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
+																			_1: {ctor: '[]'}
+																		}
+																	},
+																	{
+																		ctor: '::',
+																		_0: _elm_lang$html$Html$text(
+																			_elm_lang$core$Basics$toString(_user$project$Model$Both)),
+																		_1: {ctor: '[]'}
+																	}),
+																_1: {ctor: '[]'}
+															}
+														}
+													}),
+												_1: {ctor: '[]'}
+											}),
+										_1: {
+											ctor: '::',
+											_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownDivider,
+											_1: {
+												ctor: '::',
+												_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownHeader(
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html$text('Shop'),
+														_1: {ctor: '[]'}
+													}),
+												_1: {
+													ctor: '::',
+													_0: A2(
+														_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
+														{
+															ctor: '::',
+															_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+															_1: {ctor: '[]'}
+														},
+														{
+															ctor: '::',
+															_0: A2(
+																_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButtonGroup,
+																{
+																	ctor: '::',
+																	_0: _rundis$elm_bootstrap$Bootstrap_ButtonGroup$small,
+																	_1: {ctor: '[]'}
+																},
+																{
+																	ctor: '::',
+																	_0: A3(
+																		_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
+																		_elm_lang$core$Native_Utils.eq(model.gameOn, _elm_lang$core$Maybe$Nothing),
+																		{
+																			ctor: '::',
+																			_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+																				{
+																					ctor: '::',
+																					_0: _user$project$HtmlHelpers$onMenuItemClick(
+																						_user$project$Filters$ChangeGameOn('')),
+																					_1: {ctor: '[]'}
+																				}),
+																			_1: {
+																				ctor: '::',
+																				_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
+																				_1: {ctor: '[]'}
+																			}
+																		},
+																		{
+																			ctor: '::',
+																			_0: _elm_lang$html$Html$text(
+																				_elm_lang$core$Basics$toString(_user$project$Model$Both)),
+																			_1: {ctor: '[]'}
+																		}),
+																	_1: {
+																		ctor: '::',
+																		_0: A3(
+																			_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
+																			_elm_lang$core$Native_Utils.eq(
+																				model.gameOn,
+																				_elm_lang$core$Maybe$Just(_user$project$Model$Steam)),
+																			{
+																				ctor: '::',
+																				_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+																					{
+																						ctor: '::',
+																						_0: _user$project$HtmlHelpers$onMenuItemClick(
+																							_user$project$Filters$ChangeGameOn(
+																								_elm_lang$core$Basics$toString(_user$project$Model$Steam))),
+																						_1: {ctor: '[]'}
+																					}),
+																				_1: {
+																					ctor: '::',
+																					_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
+																					_1: {ctor: '[]'}
+																				}
+																			},
+																			{
+																				ctor: '::',
+																				_0: _elm_lang$html$Html$text(
+																					_elm_lang$core$Basics$toString(_user$project$Model$Steam)),
+																				_1: {ctor: '[]'}
+																			}),
+																		_1: {
+																			ctor: '::',
+																			_0: A3(
+																				_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
+																				_elm_lang$core$Native_Utils.eq(
+																					model.gameOn,
+																					_elm_lang$core$Maybe$Just(_user$project$Model$Gog)),
+																				{
+																					ctor: '::',
+																					_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+																						{
+																							ctor: '::',
+																							_0: _user$project$HtmlHelpers$onMenuItemClick(
+																								_user$project$Filters$ChangeGameOn(
+																									_elm_lang$core$Basics$toString(_user$project$Model$Gog))),
+																							_1: {ctor: '[]'}
+																						}),
+																					_1: {
+																						ctor: '::',
+																						_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
+																						_1: {ctor: '[]'}
+																					}
+																				},
+																				{
+																					ctor: '::',
+																					_0: _elm_lang$html$Html$text(
+																						_elm_lang$core$Basics$toString(_user$project$Model$Gog)),
+																					_1: {ctor: '[]'}
+																				}),
+																			_1: {ctor: '[]'}
+																		}
+																	}
+																}),
+															_1: {ctor: '[]'}
+														}),
+													_1: {ctor: '[]'}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}),
+				_1: {
+					ctor: '::',
+					_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdown(
+						{
+							id: 'Pricing',
+							toggle: A2(
+								_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownToggle,
+								{ctor: '[]'},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('Pricing'),
+									_1: {ctor: '[]'}
+								}),
+							items: {
+								ctor: '::',
+								_0: A2(
+									_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
+									{
+										ctor: '::',
+										_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+										_1: {ctor: '[]'}
+									},
+									{
+										ctor: '::',
+										_0: A2(
+											_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup,
+											{ctor: '[]'},
+											{
+												ctor: '::',
+												_0: A3(
+													_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButton,
+													model.isDiscounted,
+													{
+														ctor: '::',
+														_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+															{
+																ctor: '::',
+																_0: _user$project$HtmlHelpers$onMenuItemCheck(_user$project$Filters$ChangeDiscounted),
+																_1: {ctor: '[]'}
+															}),
+														_1: {
+															ctor: '::',
+															_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
+															_1: {ctor: '[]'}
+														}
+													},
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html$text('Discounted'),
+														_1: {ctor: '[]'}
+													}),
+												_1: {ctor: '[]'}
+											}),
+										_1: {ctor: '[]'}
+									}),
+								_1: {
+									ctor: '::',
+									_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownDivider,
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
+											{
+												ctor: '::',
+												_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+												_1: {ctor: '[]'}
+											},
+											{
+												ctor: '::',
+												_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$text(
+													{
+														ctor: '::',
+														_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$placeholder('Lowest'),
+														_1: {
+															ctor: '::',
+															_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$onInput(_user$project$Filters$ChangeLow),
+															_1: {
+																ctor: '::',
+																_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$value(
+																	A2(
+																		_elm_lang$core$Maybe$withDefault,
+																		'',
+																		A2(
+																			_elm_lang$core$Maybe$map,
+																			_elm_lang$core$Basics$toString,
+																			_elm_lang$core$Tuple$first(model.prices)))),
+																_1: {ctor: '[]'}
+															}
+														}
+													}),
+												_1: {ctor: '[]'}
+											}),
+										_1: {
+											ctor: '::',
+											_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownDivider,
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
+													{
+														ctor: '::',
+														_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+														_1: {ctor: '[]'}
+													},
+													{
+														ctor: '::',
+														_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$text(
+															{
+																ctor: '::',
+																_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$placeholder('Highest'),
+																_1: {
+																	ctor: '::',
+																	_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$onInput(_user$project$Filters$ChangeHigh),
+																	_1: {
+																		ctor: '::',
+																		_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$value(
+																			A2(
+																				_elm_lang$core$Maybe$withDefault,
+																				'',
+																				A2(
+																					_elm_lang$core$Maybe$map,
+																					_elm_lang$core$Basics$toString,
+																					_elm_lang$core$Tuple$second(model.prices)))),
+																		_1: {ctor: '[]'}
+																	}
+																}
+															}),
+														_1: {ctor: '[]'}
+													}),
+												_1: {ctor: '[]'}
+											}
+										}
+									}
+								}
+							}
+						}),
+					_1: {
+						ctor: '::',
+						_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdown(
+							{
+								id: 'Genres',
+								toggle: A2(
+									_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownToggle,
+									{ctor: '[]'},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('Genres'),
+										_1: {ctor: '[]'}
+									}),
+								items: {
+									ctor: '::',
+									_0: A2(
+										_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
+										{
+											ctor: '::',
+											_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: A2(
+												_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup,
+												{ctor: '[]'},
+												{
+													ctor: '::',
+													_0: A3(
+														_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButton,
+														model.genresFilter.conjunction,
+														{
+															ctor: '::',
+															_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+																{
+																	ctor: '::',
+																	_0: _user$project$HtmlHelpers$onMenuItemCheck(_user$project$Filters$ChangeGenresConjunction),
+																	_1: {ctor: '[]'}
+																}),
+															_1: {
+																ctor: '::',
+																_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
+																_1: {ctor: '[]'}
+															}
+														},
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html$text('Conjunction'),
+															_1: {ctor: '[]'}
+														}),
+													_1: {ctor: '[]'}
+												}),
+											_1: {ctor: '[]'}
+										}),
+									_1: {
+										ctor: '::',
+										_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownDivider,
+										_1: {
+											ctor: '::',
+											_0: A2(
+												_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
+												{
+													ctor: '::',
+													_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$class('scrollable-menu'),
+														_1: {ctor: '[]'}
+													}
+												},
+												{
+													ctor: '::',
+													_0: A2(
+														_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup,
+														{
+															ctor: '::',
+															_0: _rundis$elm_bootstrap$Bootstrap_ButtonGroup$vertical,
+															_1: {
+																ctor: '::',
+																_0: _rundis$elm_bootstrap$Bootstrap_ButtonGroup$small,
+																_1: {ctor: '[]'}
+															}
+														},
+														A2(
+															_elm_lang$core$List$map,
+															A2(_user$project$Filters$dynamicOptions, _user$project$Filters$ChangeSelectedGenre, model.genresFilter.selectedValues),
+															_elm_lang$core$Set$toList(model.genresFilter.allValues))),
+													_1: {ctor: '[]'}
+												}),
+											_1: {ctor: '[]'}
+										}
+									}
+								}
+							}),
+						_1: {
+							ctor: '::',
+							_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdown(
+								{
+									id: 'Tags',
+									toggle: A2(
+										_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownToggle,
+										{ctor: '[]'},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('Tags'),
+											_1: {ctor: '[]'}
+										}),
+									items: {
+										ctor: '::',
+										_0: A2(
+											_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
+											{
+												ctor: '::',
+												_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+												_1: {ctor: '[]'}
+											},
+											{
+												ctor: '::',
+												_0: A2(
+													_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup,
+													{ctor: '[]'},
+													{
+														ctor: '::',
+														_0: A3(
+															_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButton,
+															model.tagsFilter.conjunction,
+															{
+																ctor: '::',
+																_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+																	{
+																		ctor: '::',
+																		_0: _user$project$HtmlHelpers$onMenuItemCheck(_user$project$Filters$ChangeTagsConjunction),
+																		_1: {ctor: '[]'}
+																	}),
+																_1: {
+																	ctor: '::',
+																	_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
+																	_1: {ctor: '[]'}
+																}
+															},
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html$text('Conjunction'),
+																_1: {ctor: '[]'}
+															}),
+														_1: {ctor: '[]'}
+													}),
+												_1: {ctor: '[]'}
+											}),
+										_1: {
+											ctor: '::',
+											_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownDivider,
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
+													{
+														ctor: '::',
+														_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+														_1: {
+															ctor: '::',
+															_0: _elm_lang$html$Html_Attributes$class('scrollable-menu'),
+															_1: {ctor: '[]'}
+														}
+													},
+													{
+														ctor: '::',
+														_0: A2(
+															_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup,
+															{
+																ctor: '::',
+																_0: _rundis$elm_bootstrap$Bootstrap_ButtonGroup$vertical,
+																_1: {
+																	ctor: '::',
+																	_0: _rundis$elm_bootstrap$Bootstrap_ButtonGroup$small,
+																	_1: {ctor: '[]'}
+																}
+															},
+															A2(
+																_elm_lang$core$List$map,
+																A2(_user$project$Filters$dynamicOptions, _user$project$Filters$ChangeSelectedTag, model.tagsFilter.selectedValues),
+																_elm_lang$core$Set$toList(model.tagsFilter.allValues))),
+														_1: {ctor: '[]'}
+													}),
+												_1: {ctor: '[]'}
+											}
+										}
+									}
+								}),
+							_1: {ctor: '[]'}
+						}
+					}
+				}
+			},
+			A3(
+				_rundis$elm_bootstrap$Bootstrap_Navbar$brand,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$href(''),
+					_1: {
+						ctor: '::',
+						_0: _user$project$HtmlHelpers$onLinkClick(_user$project$Filters$Clear),
+						_1: {ctor: '[]'}
+					}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Aggro'),
+					_1: {ctor: '[]'}
+				},
+				A2(
+					_rundis$elm_bootstrap$Bootstrap_Navbar$attrs,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('sticky-top'),
+						_1: {ctor: '[]'}
+					},
+					_rundis$elm_bootstrap$Bootstrap_Navbar$withAnimation(
+						_rundis$elm_bootstrap$Bootstrap_Navbar$config(_user$project$Filters$NavbarMsg))))));
+};
 
 var _user$project$GameOptionsDialog$queryResult = F4(
 	function (selectedResult, msg, index, currentResult) {
