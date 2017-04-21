@@ -19670,9 +19670,9 @@ var _user$project$MainPage$elmAddressChange = _elm_lang$core$Native_Platform.out
 	function (v) {
 		return v;
 	});
-var _user$project$MainPage$Model = F7(
-	function (a, b, c, d, e, f, g) {
-		return {sources: a, message: b, userId: c, filters: d, host: e, protocol: f, options: g};
+var _user$project$MainPage$Model = F6(
+	function (a, b, c, d, e, f) {
+		return {sources: a, message: b, filters: c, host: d, protocol: e, options: f};
 	});
 var _user$project$MainPage$Ack = function (a) {
 	return {ctor: 'Ack', _0: a};
@@ -19688,11 +19688,10 @@ var _user$project$MainPage$GeneralError = function (a) {
 };
 var _user$project$MainPage$initialModel = F3(
 	function (protocol, host, filters) {
-		return A7(
+		return A6(
 			_user$project$MainPage$Model,
 			_user$project$Model$WishList,
 			_elm_lang$core$Maybe$Nothing,
-			1,
 			filters,
 			host,
 			protocol,
@@ -19737,7 +19736,7 @@ var _user$project$MainPage$update = F2(
 			case 'DialogOpen':
 				var options = A4(
 					_user$project$GameOptionsDialog$emptyModel,
-					model.userId,
+					model.filters.userId,
 					A2(_elm_lang$core$Maybe$withDefault, 0, _p1._0),
 					_user$project$MainPage$DialogMessage,
 					_user$project$MainPage$GeneralError);
@@ -20021,7 +20020,7 @@ var _user$project$MainPage$subscriptions = function (model) {
 			ctor: '::',
 			_0: A2(
 				_elm_lang$websocket$WebSocket$listen,
-				A3(_user$project$Router$refreshSocketUrl, model.protocol, model.host, model.userId),
+				A3(_user$project$Router$refreshSocketUrl, model.protocol, model.host, model.filters.userId),
 				_user$project$MainPage$ServerRefreshRequest),
 			_1: {
 				ctor: '::',

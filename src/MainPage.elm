@@ -50,7 +50,7 @@ main =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ WebSocket.listen (Router.refreshSocketUrl model.protocol model.host model.userId) ServerRefreshRequest
+        [ WebSocket.listen (Router.refreshSocketUrl model.protocol model.host model.filters.userId) ServerRefreshRequest
         , Filters.subscriptions model.filters |> Sub.map FiltersMessage
         ]
 
@@ -63,11 +63,11 @@ port elmAddressChange : String -> Cmd msg
 
 
 type alias Model =
-    { sources : GameSources, message : Maybe String, userId : Int, filters : Filters.Model, host : String, protocol : Protocol, options : GameOptionsDialog.Model Msg }
+    { sources : GameSources, message : Maybe String, filters : Filters.Model, host : String, protocol : Protocol, options : GameOptionsDialog.Model Msg }
 
 
 initialModel protocol host filters =
-    Model WishList Nothing 1 filters host protocol (GameOptionsDialog.emptyModel 0 0 DialogMessage GeneralError)
+    Model WishList Nothing filters host protocol (GameOptionsDialog.emptyModel 0 0 DialogMessage GeneralError)
 
 
 
@@ -100,7 +100,7 @@ update msg model =
         DialogOpen steamId ->
             let
                 options =
-                    GameOptionsDialog.emptyModel model.userId (Maybe.withDefault 0 steamId) DialogMessage GeneralError
+                    GameOptionsDialog.emptyModel model.filters.userId (Maybe.withDefault 0 steamId) DialogMessage GeneralError
             in
                 { model | options = options } ! [ GameOptionsDialog.open options ]
 
