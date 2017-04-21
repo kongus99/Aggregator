@@ -18191,40 +18191,396 @@ var _user$project$Filters$ChangeSelectedTag = F2(
 	function (a, b) {
 		return {ctor: 'ChangeSelectedTag', _0: a, _1: b};
 	});
+var _user$project$Filters$tagsDropdown = function (model) {
+	return _rundis$elm_bootstrap$Bootstrap_Navbar$dropdown(
+		{
+			id: 'Tags',
+			toggle: A2(
+				_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownToggle,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Tags'),
+					_1: {ctor: '[]'}
+				}),
+			items: {
+				ctor: '::',
+				_0: A2(
+					_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
+					{
+						ctor: '::',
+						_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: A3(
+									_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButton,
+									model.tagsFilter.conjunction,
+									{
+										ctor: '::',
+										_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+											{
+												ctor: '::',
+												_0: _user$project$HtmlHelpers$onMenuItemCheck(_user$project$Filters$ChangeTagsConjunction),
+												_1: {ctor: '[]'}
+											}),
+										_1: {
+											ctor: '::',
+											_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
+											_1: {ctor: '[]'}
+										}
+									},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('Conjunction'),
+										_1: {ctor: '[]'}
+									}),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownDivider,
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
+							{
+								ctor: '::',
+								_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('scrollable-menu'),
+									_1: {ctor: '[]'}
+								}
+							},
+							{
+								ctor: '::',
+								_0: A2(
+									_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup,
+									{
+										ctor: '::',
+										_0: _rundis$elm_bootstrap$Bootstrap_ButtonGroup$vertical,
+										_1: {
+											ctor: '::',
+											_0: _rundis$elm_bootstrap$Bootstrap_ButtonGroup$small,
+											_1: {ctor: '[]'}
+										}
+									},
+									A2(
+										_elm_lang$core$List$map,
+										A2(_user$project$Filters$dynamicOptions, _user$project$Filters$ChangeSelectedTag, model.tagsFilter.selectedValues),
+										_elm_lang$core$Set$toList(model.tagsFilter.allValues))),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		});
+};
 var _user$project$Filters$ChangeSelectedGenre = F2(
 	function (a, b) {
 		return {ctor: 'ChangeSelectedGenre', _0: a, _1: b};
 	});
+var _user$project$Filters$genresDropdown = function (model) {
+	return _rundis$elm_bootstrap$Bootstrap_Navbar$dropdown(
+		{
+			id: 'Genres',
+			toggle: A2(
+				_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownToggle,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Genres'),
+					_1: {ctor: '[]'}
+				}),
+			items: {
+				ctor: '::',
+				_0: A2(
+					_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
+					{
+						ctor: '::',
+						_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: A3(
+									_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButton,
+									model.genresFilter.conjunction,
+									{
+										ctor: '::',
+										_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+											{
+												ctor: '::',
+												_0: _user$project$HtmlHelpers$onMenuItemCheck(_user$project$Filters$ChangeGenresConjunction),
+												_1: {ctor: '[]'}
+											}),
+										_1: {
+											ctor: '::',
+											_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
+											_1: {ctor: '[]'}
+										}
+									},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('Conjunction'),
+										_1: {ctor: '[]'}
+									}),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownDivider,
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
+							{
+								ctor: '::',
+								_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('scrollable-menu'),
+									_1: {ctor: '[]'}
+								}
+							},
+							{
+								ctor: '::',
+								_0: A2(
+									_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup,
+									{
+										ctor: '::',
+										_0: _rundis$elm_bootstrap$Bootstrap_ButtonGroup$vertical,
+										_1: {
+											ctor: '::',
+											_0: _rundis$elm_bootstrap$Bootstrap_ButtonGroup$small,
+											_1: {ctor: '[]'}
+										}
+									},
+									A2(
+										_elm_lang$core$List$map,
+										A2(_user$project$Filters$dynamicOptions, _user$project$Filters$ChangeSelectedGenre, model.genresFilter.selectedValues),
+										_elm_lang$core$Set$toList(model.genresFilter.allValues))),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		});
+};
 var _user$project$Filters$ChangeHigh = function (a) {
 	return {ctor: 'ChangeHigh', _0: a};
 };
 var _user$project$Filters$ChangeLow = function (a) {
 	return {ctor: 'ChangeLow', _0: a};
 };
-var _user$project$Filters$ChangeName = function (a) {
-	return {ctor: 'ChangeName', _0: a};
-};
-var _user$project$Filters$Clear = {ctor: 'Clear'};
-var _user$project$Filters$view = function (model) {
-	return A2(
-		_rundis$elm_bootstrap$Bootstrap_Navbar$view,
-		model.navbarState,
-		A2(
-			_rundis$elm_bootstrap$Bootstrap_Navbar$items,
-			{
+var _user$project$Filters$pricingDropdown = function (model) {
+	return _rundis$elm_bootstrap$Bootstrap_Navbar$dropdown(
+		{
+			id: 'Pricing',
+			toggle: A2(
+				_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownToggle,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Pricing'),
+					_1: {ctor: '[]'}
+				}),
+			items: {
 				ctor: '::',
-				_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdown(
+				_0: A2(
+					_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
 					{
-						id: 'Filters',
-						toggle: A2(
-							_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownToggle,
+						ctor: '::',
+						_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup,
 							{ctor: '[]'},
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html$text('Filters'),
+								_0: A3(
+									_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButton,
+									model.isDiscounted,
+									{
+										ctor: '::',
+										_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+											{
+												ctor: '::',
+												_0: _user$project$HtmlHelpers$onMenuItemCheck(_user$project$Filters$ChangeDiscounted),
+												_1: {ctor: '[]'}
+											}),
+										_1: {
+											ctor: '::',
+											_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
+											_1: {ctor: '[]'}
+										}
+									},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('Discounted'),
+										_1: {ctor: '[]'}
+									}),
 								_1: {ctor: '[]'}
 							}),
-						items: {
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownDivider,
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
+							{
+								ctor: '::',
+								_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$text(
+									{
+										ctor: '::',
+										_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$placeholder('Lowest'),
+										_1: {
+											ctor: '::',
+											_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$onInput(_user$project$Filters$ChangeLow),
+											_1: {
+												ctor: '::',
+												_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$value(
+													A2(
+														_elm_lang$core$Maybe$withDefault,
+														'',
+														A2(
+															_elm_lang$core$Maybe$map,
+															_elm_lang$core$Basics$toString,
+															_elm_lang$core$Tuple$first(model.prices)))),
+												_1: {ctor: '[]'}
+											}
+										}
+									}),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownDivider,
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
+									{
+										ctor: '::',
+										_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+										_1: {ctor: '[]'}
+									},
+									{
+										ctor: '::',
+										_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$text(
+											{
+												ctor: '::',
+												_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$placeholder('Highest'),
+												_1: {
+													ctor: '::',
+													_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$onInput(_user$project$Filters$ChangeHigh),
+													_1: {
+														ctor: '::',
+														_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$value(
+															A2(
+																_elm_lang$core$Maybe$withDefault,
+																'',
+																A2(
+																	_elm_lang$core$Maybe$map,
+																	_elm_lang$core$Basics$toString,
+																	_elm_lang$core$Tuple$second(model.prices)))),
+														_1: {ctor: '[]'}
+													}
+												}
+											}),
+										_1: {ctor: '[]'}
+									}),
+								_1: {ctor: '[]'}
+							}
+						}
+					}
+				}
+			}
+		});
+};
+var _user$project$Filters$ChangeName = function (a) {
+	return {ctor: 'ChangeName', _0: a};
+};
+var _user$project$Filters$filtersDropdown = function (model) {
+	return _rundis$elm_bootstrap$Bootstrap_Navbar$dropdown(
+		{
+			id: 'Filters',
+			toggle: A2(
+				_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownToggle,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Filters'),
+					_1: {ctor: '[]'}
+				}),
+			items: {
+				ctor: '::',
+				_0: A2(
+					_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
+					{
+						ctor: '::',
+						_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$text(
+							{
+								ctor: '::',
+								_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$placeholder('Name'),
+								_1: {
+									ctor: '::',
+									_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$onInput(_user$project$Filters$ChangeName),
+									_1: {
+										ctor: '::',
+										_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$value(model.name),
+										_1: {ctor: '[]'}
+									}
+								}
+							}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownDivider,
+					_1: {
+						ctor: '::',
+						_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownHeader(
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Source'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
 							ctor: '::',
 							_0: A2(
 								_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
@@ -18235,16 +18591,94 @@ var _user$project$Filters$view = function (model) {
 								},
 								{
 									ctor: '::',
-									_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$text(
+									_0: A2(
+										_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButtonGroup,
 										{
 											ctor: '::',
-											_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$placeholder('Name'),
+											_0: _rundis$elm_bootstrap$Bootstrap_ButtonGroup$small,
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: A3(
+												_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
+												_elm_lang$core$Native_Utils.eq(model.sources, _user$project$Model$WishList),
+												{
+													ctor: '::',
+													_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+														{
+															ctor: '::',
+															_0: _user$project$HtmlHelpers$onMenuItemClick(
+																_user$project$Filters$ChangeSources(
+																	_elm_lang$core$Basics$toString(_user$project$Model$WishList))),
+															_1: {ctor: '[]'}
+														}),
+													_1: {
+														ctor: '::',
+														_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
+														_1: {ctor: '[]'}
+													}
+												},
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html$text(
+														_elm_lang$core$Basics$toString(_user$project$Model$WishList)),
+													_1: {ctor: '[]'}
+												}),
 											_1: {
 												ctor: '::',
-												_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$onInput(_user$project$Filters$ChangeName),
+												_0: A3(
+													_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
+													_elm_lang$core$Native_Utils.eq(model.sources, _user$project$Model$Owned),
+													{
+														ctor: '::',
+														_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+															{
+																ctor: '::',
+																_0: _user$project$HtmlHelpers$onMenuItemClick(
+																	_user$project$Filters$ChangeSources(
+																		_elm_lang$core$Basics$toString(_user$project$Model$Owned))),
+																_1: {ctor: '[]'}
+															}),
+														_1: {
+															ctor: '::',
+															_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
+															_1: {ctor: '[]'}
+														}
+													},
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html$text(
+															_elm_lang$core$Basics$toString(_user$project$Model$Owned)),
+														_1: {ctor: '[]'}
+													}),
 												_1: {
 													ctor: '::',
-													_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$value(model.name),
+													_0: A3(
+														_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
+														_elm_lang$core$Native_Utils.eq(model.sources, _user$project$Model$Both),
+														{
+															ctor: '::',
+															_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+																{
+																	ctor: '::',
+																	_0: _user$project$HtmlHelpers$onMenuItemClick(
+																		_user$project$Filters$ChangeSources(
+																			_elm_lang$core$Basics$toString(_user$project$Model$Both))),
+																	_1: {ctor: '[]'}
+																}),
+															_1: {
+																ctor: '::',
+																_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
+																_1: {ctor: '[]'}
+															}
+														},
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html$text(
+																_elm_lang$core$Basics$toString(_user$project$Model$Both)),
+															_1: {ctor: '[]'}
+														}),
 													_1: {ctor: '[]'}
 												}
 											}
@@ -18259,7 +18693,7 @@ var _user$project$Filters$view = function (model) {
 									_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownHeader(
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html$text('Source'),
+											_0: _elm_lang$html$Html$text('Shop'),
 											_1: {ctor: '[]'}
 										}),
 									_1: {
@@ -18284,15 +18718,14 @@ var _user$project$Filters$view = function (model) {
 														ctor: '::',
 														_0: A3(
 															_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
-															_elm_lang$core$Native_Utils.eq(model.sources, _user$project$Model$WishList),
+															_elm_lang$core$Native_Utils.eq(model.gameOn, _elm_lang$core$Maybe$Nothing),
 															{
 																ctor: '::',
 																_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
 																	{
 																		ctor: '::',
 																		_0: _user$project$HtmlHelpers$onMenuItemClick(
-																			_user$project$Filters$ChangeSources(
-																				_elm_lang$core$Basics$toString(_user$project$Model$WishList))),
+																			_user$project$Filters$ChangeGameOn('')),
 																		_1: {ctor: '[]'}
 																	}),
 																_1: {
@@ -18304,22 +18737,24 @@ var _user$project$Filters$view = function (model) {
 															{
 																ctor: '::',
 																_0: _elm_lang$html$Html$text(
-																	_elm_lang$core$Basics$toString(_user$project$Model$WishList)),
+																	_elm_lang$core$Basics$toString(_user$project$Model$Both)),
 																_1: {ctor: '[]'}
 															}),
 														_1: {
 															ctor: '::',
 															_0: A3(
 																_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
-																_elm_lang$core$Native_Utils.eq(model.sources, _user$project$Model$Owned),
+																_elm_lang$core$Native_Utils.eq(
+																	model.gameOn,
+																	_elm_lang$core$Maybe$Just(_user$project$Model$Steam)),
 																{
 																	ctor: '::',
 																	_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
 																		{
 																			ctor: '::',
 																			_0: _user$project$HtmlHelpers$onMenuItemClick(
-																				_user$project$Filters$ChangeSources(
-																					_elm_lang$core$Basics$toString(_user$project$Model$Owned))),
+																				_user$project$Filters$ChangeGameOn(
+																					_elm_lang$core$Basics$toString(_user$project$Model$Steam))),
 																			_1: {ctor: '[]'}
 																		}),
 																	_1: {
@@ -18331,22 +18766,24 @@ var _user$project$Filters$view = function (model) {
 																{
 																	ctor: '::',
 																	_0: _elm_lang$html$Html$text(
-																		_elm_lang$core$Basics$toString(_user$project$Model$Owned)),
+																		_elm_lang$core$Basics$toString(_user$project$Model$Steam)),
 																	_1: {ctor: '[]'}
 																}),
 															_1: {
 																ctor: '::',
 																_0: A3(
 																	_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
-																	_elm_lang$core$Native_Utils.eq(model.sources, _user$project$Model$Both),
+																	_elm_lang$core$Native_Utils.eq(
+																		model.gameOn,
+																		_elm_lang$core$Maybe$Just(_user$project$Model$Gog)),
 																	{
 																		ctor: '::',
 																		_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
 																			{
 																				ctor: '::',
 																				_0: _user$project$HtmlHelpers$onMenuItemClick(
-																					_user$project$Filters$ChangeSources(
-																						_elm_lang$core$Basics$toString(_user$project$Model$Both))),
+																					_user$project$Filters$ChangeGameOn(
+																						_elm_lang$core$Basics$toString(_user$project$Model$Gog))),
 																				_1: {ctor: '[]'}
 																			}),
 																		_1: {
@@ -18358,7 +18795,7 @@ var _user$project$Filters$view = function (model) {
 																	{
 																		ctor: '::',
 																		_0: _elm_lang$html$Html$text(
-																			_elm_lang$core$Basics$toString(_user$project$Model$Both)),
+																			_elm_lang$core$Basics$toString(_user$project$Model$Gog)),
 																		_1: {ctor: '[]'}
 																	}),
 																_1: {ctor: '[]'}
@@ -18367,460 +18804,35 @@ var _user$project$Filters$view = function (model) {
 													}),
 												_1: {ctor: '[]'}
 											}),
-										_1: {
-											ctor: '::',
-											_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownDivider,
-											_1: {
-												ctor: '::',
-												_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownHeader(
-													{
-														ctor: '::',
-														_0: _elm_lang$html$Html$text('Shop'),
-														_1: {ctor: '[]'}
-													}),
-												_1: {
-													ctor: '::',
-													_0: A2(
-														_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
-														{
-															ctor: '::',
-															_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
-															_1: {ctor: '[]'}
-														},
-														{
-															ctor: '::',
-															_0: A2(
-																_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButtonGroup,
-																{
-																	ctor: '::',
-																	_0: _rundis$elm_bootstrap$Bootstrap_ButtonGroup$small,
-																	_1: {ctor: '[]'}
-																},
-																{
-																	ctor: '::',
-																	_0: A3(
-																		_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
-																		_elm_lang$core$Native_Utils.eq(model.gameOn, _elm_lang$core$Maybe$Nothing),
-																		{
-																			ctor: '::',
-																			_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
-																				{
-																					ctor: '::',
-																					_0: _user$project$HtmlHelpers$onMenuItemClick(
-																						_user$project$Filters$ChangeGameOn('')),
-																					_1: {ctor: '[]'}
-																				}),
-																			_1: {
-																				ctor: '::',
-																				_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
-																				_1: {ctor: '[]'}
-																			}
-																		},
-																		{
-																			ctor: '::',
-																			_0: _elm_lang$html$Html$text(
-																				_elm_lang$core$Basics$toString(_user$project$Model$Both)),
-																			_1: {ctor: '[]'}
-																		}),
-																	_1: {
-																		ctor: '::',
-																		_0: A3(
-																			_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
-																			_elm_lang$core$Native_Utils.eq(
-																				model.gameOn,
-																				_elm_lang$core$Maybe$Just(_user$project$Model$Steam)),
-																			{
-																				ctor: '::',
-																				_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
-																					{
-																						ctor: '::',
-																						_0: _user$project$HtmlHelpers$onMenuItemClick(
-																							_user$project$Filters$ChangeGameOn(
-																								_elm_lang$core$Basics$toString(_user$project$Model$Steam))),
-																						_1: {ctor: '[]'}
-																					}),
-																				_1: {
-																					ctor: '::',
-																					_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
-																					_1: {ctor: '[]'}
-																				}
-																			},
-																			{
-																				ctor: '::',
-																				_0: _elm_lang$html$Html$text(
-																					_elm_lang$core$Basics$toString(_user$project$Model$Steam)),
-																				_1: {ctor: '[]'}
-																			}),
-																		_1: {
-																			ctor: '::',
-																			_0: A3(
-																				_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
-																				_elm_lang$core$Native_Utils.eq(
-																					model.gameOn,
-																					_elm_lang$core$Maybe$Just(_user$project$Model$Gog)),
-																				{
-																					ctor: '::',
-																					_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
-																						{
-																							ctor: '::',
-																							_0: _user$project$HtmlHelpers$onMenuItemClick(
-																								_user$project$Filters$ChangeGameOn(
-																									_elm_lang$core$Basics$toString(_user$project$Model$Gog))),
-																							_1: {ctor: '[]'}
-																						}),
-																					_1: {
-																						ctor: '::',
-																						_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
-																						_1: {ctor: '[]'}
-																					}
-																				},
-																				{
-																					ctor: '::',
-																					_0: _elm_lang$html$Html$text(
-																						_elm_lang$core$Basics$toString(_user$project$Model$Gog)),
-																					_1: {ctor: '[]'}
-																				}),
-																			_1: {ctor: '[]'}
-																		}
-																	}
-																}),
-															_1: {ctor: '[]'}
-														}),
-													_1: {ctor: '[]'}
-												}
-											}
-										}
+										_1: {ctor: '[]'}
 									}
 								}
 							}
 						}
-					}),
+					}
+				}
+			}
+		});
+};
+var _user$project$Filters$Clear = {ctor: 'Clear'};
+var _user$project$Filters$view = function (model) {
+	return A2(
+		_rundis$elm_bootstrap$Bootstrap_Navbar$view,
+		model.navbarState,
+		A2(
+			_rundis$elm_bootstrap$Bootstrap_Navbar$items,
+			{
+				ctor: '::',
+				_0: _user$project$Filters$pricingDropdown(model),
 				_1: {
 					ctor: '::',
-					_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdown(
-						{
-							id: 'Pricing',
-							toggle: A2(
-								_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownToggle,
-								{ctor: '[]'},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text('Pricing'),
-									_1: {ctor: '[]'}
-								}),
-							items: {
-								ctor: '::',
-								_0: A2(
-									_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
-									{
-										ctor: '::',
-										_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
-										_1: {ctor: '[]'}
-									},
-									{
-										ctor: '::',
-										_0: A2(
-											_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup,
-											{ctor: '[]'},
-											{
-												ctor: '::',
-												_0: A3(
-													_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButton,
-													model.isDiscounted,
-													{
-														ctor: '::',
-														_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
-															{
-																ctor: '::',
-																_0: _user$project$HtmlHelpers$onMenuItemCheck(_user$project$Filters$ChangeDiscounted),
-																_1: {ctor: '[]'}
-															}),
-														_1: {
-															ctor: '::',
-															_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
-															_1: {ctor: '[]'}
-														}
-													},
-													{
-														ctor: '::',
-														_0: _elm_lang$html$Html$text('Discounted'),
-														_1: {ctor: '[]'}
-													}),
-												_1: {ctor: '[]'}
-											}),
-										_1: {ctor: '[]'}
-									}),
-								_1: {
-									ctor: '::',
-									_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownDivider,
-									_1: {
-										ctor: '::',
-										_0: A2(
-											_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
-											{
-												ctor: '::',
-												_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
-												_1: {ctor: '[]'}
-											},
-											{
-												ctor: '::',
-												_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$text(
-													{
-														ctor: '::',
-														_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$placeholder('Lowest'),
-														_1: {
-															ctor: '::',
-															_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$onInput(_user$project$Filters$ChangeLow),
-															_1: {
-																ctor: '::',
-																_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$value(
-																	A2(
-																		_elm_lang$core$Maybe$withDefault,
-																		'',
-																		A2(
-																			_elm_lang$core$Maybe$map,
-																			_elm_lang$core$Basics$toString,
-																			_elm_lang$core$Tuple$first(model.prices)))),
-																_1: {ctor: '[]'}
-															}
-														}
-													}),
-												_1: {ctor: '[]'}
-											}),
-										_1: {
-											ctor: '::',
-											_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownDivider,
-											_1: {
-												ctor: '::',
-												_0: A2(
-													_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
-													{
-														ctor: '::',
-														_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
-														_1: {ctor: '[]'}
-													},
-													{
-														ctor: '::',
-														_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$text(
-															{
-																ctor: '::',
-																_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$placeholder('Highest'),
-																_1: {
-																	ctor: '::',
-																	_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$onInput(_user$project$Filters$ChangeHigh),
-																	_1: {
-																		ctor: '::',
-																		_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$value(
-																			A2(
-																				_elm_lang$core$Maybe$withDefault,
-																				'',
-																				A2(
-																					_elm_lang$core$Maybe$map,
-																					_elm_lang$core$Basics$toString,
-																					_elm_lang$core$Tuple$second(model.prices)))),
-																		_1: {ctor: '[]'}
-																	}
-																}
-															}),
-														_1: {ctor: '[]'}
-													}),
-												_1: {ctor: '[]'}
-											}
-										}
-									}
-								}
-							}
-						}),
+					_0: _user$project$Filters$filtersDropdown(model),
 					_1: {
 						ctor: '::',
-						_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdown(
-							{
-								id: 'Genres',
-								toggle: A2(
-									_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownToggle,
-									{ctor: '[]'},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('Genres'),
-										_1: {ctor: '[]'}
-									}),
-								items: {
-									ctor: '::',
-									_0: A2(
-										_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
-										{
-											ctor: '::',
-											_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
-											_1: {ctor: '[]'}
-										},
-										{
-											ctor: '::',
-											_0: A2(
-												_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup,
-												{ctor: '[]'},
-												{
-													ctor: '::',
-													_0: A3(
-														_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButton,
-														model.genresFilter.conjunction,
-														{
-															ctor: '::',
-															_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
-																{
-																	ctor: '::',
-																	_0: _user$project$HtmlHelpers$onMenuItemCheck(_user$project$Filters$ChangeGenresConjunction),
-																	_1: {ctor: '[]'}
-																}),
-															_1: {
-																ctor: '::',
-																_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
-																_1: {ctor: '[]'}
-															}
-														},
-														{
-															ctor: '::',
-															_0: _elm_lang$html$Html$text('Conjunction'),
-															_1: {ctor: '[]'}
-														}),
-													_1: {ctor: '[]'}
-												}),
-											_1: {ctor: '[]'}
-										}),
-									_1: {
-										ctor: '::',
-										_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownDivider,
-										_1: {
-											ctor: '::',
-											_0: A2(
-												_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
-												{
-													ctor: '::',
-													_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
-													_1: {
-														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$class('scrollable-menu'),
-														_1: {ctor: '[]'}
-													}
-												},
-												{
-													ctor: '::',
-													_0: A2(
-														_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup,
-														{
-															ctor: '::',
-															_0: _rundis$elm_bootstrap$Bootstrap_ButtonGroup$vertical,
-															_1: {
-																ctor: '::',
-																_0: _rundis$elm_bootstrap$Bootstrap_ButtonGroup$small,
-																_1: {ctor: '[]'}
-															}
-														},
-														A2(
-															_elm_lang$core$List$map,
-															A2(_user$project$Filters$dynamicOptions, _user$project$Filters$ChangeSelectedGenre, model.genresFilter.selectedValues),
-															_elm_lang$core$Set$toList(model.genresFilter.allValues))),
-													_1: {ctor: '[]'}
-												}),
-											_1: {ctor: '[]'}
-										}
-									}
-								}
-							}),
+						_0: _user$project$Filters$genresDropdown(model),
 						_1: {
 							ctor: '::',
-							_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdown(
-								{
-									id: 'Tags',
-									toggle: A2(
-										_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownToggle,
-										{ctor: '[]'},
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html$text('Tags'),
-											_1: {ctor: '[]'}
-										}),
-									items: {
-										ctor: '::',
-										_0: A2(
-											_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
-											{
-												ctor: '::',
-												_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
-												_1: {ctor: '[]'}
-											},
-											{
-												ctor: '::',
-												_0: A2(
-													_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup,
-													{ctor: '[]'},
-													{
-														ctor: '::',
-														_0: A3(
-															_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButton,
-															model.tagsFilter.conjunction,
-															{
-																ctor: '::',
-																_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
-																	{
-																		ctor: '::',
-																		_0: _user$project$HtmlHelpers$onMenuItemCheck(_user$project$Filters$ChangeTagsConjunction),
-																		_1: {ctor: '[]'}
-																	}),
-																_1: {
-																	ctor: '::',
-																	_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
-																	_1: {ctor: '[]'}
-																}
-															},
-															{
-																ctor: '::',
-																_0: _elm_lang$html$Html$text('Conjunction'),
-																_1: {ctor: '[]'}
-															}),
-														_1: {ctor: '[]'}
-													}),
-												_1: {ctor: '[]'}
-											}),
-										_1: {
-											ctor: '::',
-											_0: _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownDivider,
-											_1: {
-												ctor: '::',
-												_0: A2(
-													_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem,
-													{
-														ctor: '::',
-														_0: _user$project$HtmlHelpers$onMenuItemClick(_user$project$Filters$NoOp),
-														_1: {
-															ctor: '::',
-															_0: _elm_lang$html$Html_Attributes$class('scrollable-menu'),
-															_1: {ctor: '[]'}
-														}
-													},
-													{
-														ctor: '::',
-														_0: A2(
-															_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup,
-															{
-																ctor: '::',
-																_0: _rundis$elm_bootstrap$Bootstrap_ButtonGroup$vertical,
-																_1: {
-																	ctor: '::',
-																	_0: _rundis$elm_bootstrap$Bootstrap_ButtonGroup$small,
-																	_1: {ctor: '[]'}
-																}
-															},
-															A2(
-																_elm_lang$core$List$map,
-																A2(_user$project$Filters$dynamicOptions, _user$project$Filters$ChangeSelectedTag, model.tagsFilter.selectedValues),
-																_elm_lang$core$Set$toList(model.tagsFilter.allValues))),
-														_1: {ctor: '[]'}
-													}),
-												_1: {ctor: '[]'}
-											}
-										}
-									}
-								}),
+							_0: _user$project$Filters$tagsDropdown(model),
 							_1: {ctor: '[]'}
 						}
 					}
