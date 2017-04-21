@@ -334,9 +334,20 @@ view model =
     Navbar.config NavbarMsg
         |> Navbar.withAnimation
         |> Navbar.attrs [ class "sticky-top" ]
-        |> Navbar.brand [ href "", onLinkClick Clear ] [ text "Aggro" ]
+        |> Navbar.brand [ href "", onLinkClick Clear ] [ text "Game Aggregator" ]
         |> Navbar.items [ pricingDropdown model, filtersDropdown model, genresDropdown model, tagsDropdown model ]
+        |> Navbar.customItems [ logout ]
         |> Navbar.view model.navbarState
+
+
+logout =
+    Navbar.textItem []
+        [ Button.linkButton
+            [ Button.outlineSecondary
+            , Button.attrs [ class "fa fa-sign-out", href "/" ]
+            ]
+            []
+        ]
 
 
 filtersDropdown model =

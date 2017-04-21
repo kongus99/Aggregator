@@ -17542,6 +17542,34 @@ var _user$project$Filters$dynamicOptions = F3(
 				_1: {ctor: '[]'}
 			});
 	});
+var _user$project$Filters$logout = A2(
+	_rundis$elm_bootstrap$Bootstrap_Navbar$textItem,
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: A2(
+			_rundis$elm_bootstrap$Bootstrap_Button$linkButton,
+			{
+				ctor: '::',
+				_0: _rundis$elm_bootstrap$Bootstrap_Button$outlineSecondary,
+				_1: {
+					ctor: '::',
+					_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('fa fa-sign-out'),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$href('/'),
+								_1: {ctor: '[]'}
+							}
+						}),
+					_1: {ctor: '[]'}
+				}
+			},
+			{ctor: '[]'}),
+		_1: {ctor: '[]'}
+	});
 var _user$project$Filters$discountedIfAvailable = function (prices) {
 	var selectFromPair = function (_p0) {
 		var _p1 = _p0;
@@ -18820,49 +18848,56 @@ var _user$project$Filters$view = function (model) {
 		_rundis$elm_bootstrap$Bootstrap_Navbar$view,
 		model.navbarState,
 		A2(
-			_rundis$elm_bootstrap$Bootstrap_Navbar$items,
+			_rundis$elm_bootstrap$Bootstrap_Navbar$customItems,
 			{
 				ctor: '::',
-				_0: _user$project$Filters$pricingDropdown(model),
-				_1: {
+				_0: _user$project$Filters$logout,
+				_1: {ctor: '[]'}
+			},
+			A2(
+				_rundis$elm_bootstrap$Bootstrap_Navbar$items,
+				{
 					ctor: '::',
-					_0: _user$project$Filters$filtersDropdown(model),
+					_0: _user$project$Filters$pricingDropdown(model),
 					_1: {
 						ctor: '::',
-						_0: _user$project$Filters$genresDropdown(model),
+						_0: _user$project$Filters$filtersDropdown(model),
 						_1: {
 							ctor: '::',
-							_0: _user$project$Filters$tagsDropdown(model),
-							_1: {ctor: '[]'}
+							_0: _user$project$Filters$genresDropdown(model),
+							_1: {
+								ctor: '::',
+								_0: _user$project$Filters$tagsDropdown(model),
+								_1: {ctor: '[]'}
+							}
 						}
 					}
-				}
-			},
-			A3(
-				_rundis$elm_bootstrap$Bootstrap_Navbar$brand,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$href(''),
-					_1: {
-						ctor: '::',
-						_0: _user$project$HtmlHelpers$onLinkClick(_user$project$Filters$Clear),
-						_1: {ctor: '[]'}
-					}
 				},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text('Aggro'),
-					_1: {ctor: '[]'}
-				},
-				A2(
-					_rundis$elm_bootstrap$Bootstrap_Navbar$attrs,
+				A3(
+					_rundis$elm_bootstrap$Bootstrap_Navbar$brand,
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('sticky-top'),
+						_0: _elm_lang$html$Html_Attributes$href(''),
+						_1: {
+							ctor: '::',
+							_0: _user$project$HtmlHelpers$onLinkClick(_user$project$Filters$Clear),
+							_1: {ctor: '[]'}
+						}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Game Aggregator'),
 						_1: {ctor: '[]'}
 					},
-					_rundis$elm_bootstrap$Bootstrap_Navbar$withAnimation(
-						_rundis$elm_bootstrap$Bootstrap_Navbar$config(_user$project$Filters$NavbarMsg))))));
+					A2(
+						_rundis$elm_bootstrap$Bootstrap_Navbar$attrs,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('sticky-top'),
+							_1: {ctor: '[]'}
+						},
+						_rundis$elm_bootstrap$Bootstrap_Navbar$withAnimation(
+							_rundis$elm_bootstrap$Bootstrap_Navbar$config(_user$project$Filters$NavbarMsg)))))));
 };
 
 var _user$project$GameOptionsDialog$queryResult = F4(
@@ -19803,7 +19838,7 @@ var _user$project$MainPage$gameOptionsButton = function (entry) {
 					_user$project$MainPage$DialogOpen(e.steamId)),
 				_1: {
 					ctor: '::',
-					_0: _rundis$elm_bootstrap$Bootstrap_Button$outlinePrimary,
+					_0: _rundis$elm_bootstrap$Bootstrap_Button$outlineSecondary,
 					_1: {
 						ctor: '::',
 						_0: _rundis$elm_bootstrap$Bootstrap_Button$small,

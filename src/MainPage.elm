@@ -185,7 +185,7 @@ gameOptionsButton entry =
         dialogButton e =
             Button.linkButton
                 [ Button.onClick <| DialogOpen <| e.steamId
-                , Button.outlinePrimary
+                , Button.outlineSecondary
                 , Button.small
                 , Button.attrs [ class "fa fa-cog align-top float-right" ]
                 ]
