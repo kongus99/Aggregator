@@ -15,6 +15,6 @@ function activateElm(moduleName) {
     var app = Elm[moduleName].embed(document.getElementById('mainBody'), JSON.stringify(urlParams));
 
     app.ports.elmAddressChange.subscribe(function(address) {
-        window.history.pushState({},"@title",address);
+        window.history.replaceState({},"@title",address);
     });
 }

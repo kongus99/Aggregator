@@ -3,8 +3,8 @@ module Login exposing (..)
 import Array exposing (Array)
 import Autocomplete
 import Dom
-import Html exposing (Html, button, div, text, form, br, input, span, label)
-import Html.Attributes exposing (action, autocomplete, checked, class, classList, disabled, id, method, name, style, type_, value)
+import Html exposing (Html, a, br, button, div, form, input, label, span, text)
+import Html.Attributes exposing (action, autocomplete, checked, class, classList, disabled, href, id, method, name, style, type_, value)
 import Html.Events exposing (keyCode, onBlur, onCheck, onClick, onFocus, onInput, onSubmit, onWithOptions)
 import LoginData exposing (LoginData)
 import Model exposing (..)
@@ -12,6 +12,14 @@ import Router exposing (routes)
 import Http
 import Json.Decode as Json
 import Task
+import Bootstrap.CDN as CDN
+import Bootstrap.Button as Button
+import Bootstrap.ButtonGroup as ButtonGroup
+import Bootstrap.Form as Form
+import Bootstrap.Form.Input as Input
+import Bootstrap.Grid as Grid
+import Bootstrap.Grid.Col as Col
+import Bootstrap.Grid.Row as Row
 
 
 main =
@@ -219,14 +227,7 @@ viewConfig activeInput =
 
 view : Model -> Html Msg
 view model =
-    div [ class "center" ] <| List.concat [ usernameForm model, createUpdateButton model, mainPageLink model ]
-
-
-createUpdateButton model =
-    if model.data.userLoaded then
-        []
-    else
-        [ form [] [ button [ type_ "button", onClick <| CreateUpdateUser model.data.user ] [ text "Create/Update" ], br [] [] ] ]
+    div [] [ CDN.stylesheet, usernameForm model, actionButton model ]
 
 
 usernameForm model =
@@ -237,39 +238,48 @@ usernameForm model =
         ( typedSteamUsername, typedGogUsername, typedSteamAlternate ) =
             userData (Just model.data.user)
     in
-        [ form [ onSubmit NoOp ]
-            [ span [] [ text model.message ]
+        Form.form [ onSubmit NoOp ]
+            [ Form.row [] [ Form.col [ Col.offsetXs3, Col.xs6 ] [ span [] [ text model.message ] ] ]
             , steamInput model typedSteamUsername
             , alternateSteamInput model.data
             , gogInput model typedGogUsername
-            , div [ class "form-group" ] [ input [ type_ "submit", style [ ( "display", "none" ) ] ] [] ]
             ]
-        , br [] []
-        ]
 
 
 alternateSteamInput data =
-    div [ class "form-group" ]
-        [ label []
-            [ text "Alternate Steam login:"
-            , br [] []
-            , input
-                [ type_ "checkbox"
-                , disabled (not data.userLoaded)
-                , checked data.user.steamAlternate
-                , onCheck SteamAlternateChange
+    let
+        buttonCheck =
+            if data.userLoaded then
+                Button.attrs [ onCheck SteamAlternateChange ]
+            else
+                Button.disabled True
+
+        buttonText =
+            if data.user.steamAlternate then
+                "Steam login method : Alternate"
+            else
+                "Steam login method : Normal"
+    in
+        Form.row []
+            [ Form.col [ Col.offsetXs5, Col.xs2 ]
+                [ ButtonGroup.checkboxButtonGroup [ ButtonGroup.attrs [ class "btn-block" ] ]
+                    [ ButtonGroup.checkboxButton data.user.steamAlternate
+                        [ buttonCheck
+                        , Button.secondary
+                        , Button.block
+                        ]
+                        [ text buttonText ]
+                    ]
                 ]
-                []
             ]
-        ]
 
 
 steamInput model typed =
-    usernameInput model (Just Steam) "Steam username:" SteamChange SteamGainFocus typed
+    usernameInput model (Just Steam) "Steam username" SteamChange SteamGainFocus typed
 
 
 gogInput model typed =
-    usernameInput model (Just Gog) "Gog username:" GogChange GogGainFocus typed
+    usernameInput model (Just Gog) "Gog username" GogChange GogGainFocus typed
 
 
 usernameInput model activeInput name inputMsg focusMsg typed =
@@ -277,19 +287,15 @@ usernameInput model activeInput name inputMsg focusMsg typed =
         filteredUsers =
             LoginData.filterUsers model.data
     in
-        div [ class "form-group" ]
-            [ label []
-                [ text name
-                , br [] []
-                , input
-                    [ type_ "text"
-                    , disabled model.data.userLoaded
-                    , onInput inputMsg
-                    , onFocus focusMsg
-                    , value typed
-                    , autocomplete False
+        Form.row []
+            [ Form.col [ Col.offsetXs5, Col.xs2 ]
+                [ Input.text
+                    [ Input.disabled model.data.userLoaded
+                    , Input.placeholder name
+                    , Input.onInput inputMsg
+                    , Input.attrs [ onFocus focusMsg ]
+                    , Input.value typed
                     ]
-                    []
                 , if model.data.activeUsername == activeInput && not (List.isEmpty filteredUsers) then
                     Html.map SetAutoState (Autocomplete.view (viewConfig model.data.activeUsername) model.showHowMany model.autoState filteredUsers)
                   else
@@ -298,15 +304,21 @@ usernameInput model activeInput name inputMsg focusMsg typed =
             ]
 
 
-mainPageLink model =
+actionButton model =
     model.data.user.id
         |> Maybe.map
             (\userId ->
-                [ form [ method "get", action <| (routes.main.page []).url ]
-                    [ input [ type_ "hidden", name "sources", value <| toString WishList ] []
-                    , input [ type_ "hidden", name "userId", value <| toString userId ] []
-                    , button [ type_ "submit" ] [ text "Continue" ]
+                Form.row []
+                    [ Form.col [ Col.offsetXs5, Col.xs2 ]
+                        [ a [ href <| (routes.main.page [ ( "sources", toString WishList ), ( "userId", toString userId ) ]).url ]
+                            [ Button.button [ Button.secondary ] [ text "Continue" ]
+                            ]
+                        ]
                     ]
+            )
+        |> Maybe.withDefault
+            (Form.row []
+                [ Form.col [ Col.offsetXs5, Col.xs2 ]
+                    [ Button.button [ Button.secondary, Button.onClick <| CreateUpdateUser model.data.user ] [ text "Create/Update" ] ]
                 ]
             )
-        |> Maybe.withDefault []
