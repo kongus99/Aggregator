@@ -2,30 +2,32 @@ package controllers
 
 import javax.inject.{Inject, Singleton}
 
+import actors.ScheduleActor.RefreshGames
+import akka.actor.ActorSystem
 import model.{Tables, User}
 import org.jsoup.Jsoup
 import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, AnyContent, Controller}
 import services.{GogWishListRetriever, PageRetriever, SteamCommunityPageRetriever}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class LoginController @Inject()(client: WSClient, configuration: Configuration, tables: Tables)(implicit exec: ExecutionContext) extends Controller {
+class LoginController @Inject()(system : ActorSystem, client: WSClient, configuration: Configuration, tables: Tables)(implicit exec: ExecutionContext) extends Controller {
 
 
   val gogWishListRetriever = new GogWishListRetriever(client, configuration)
   val steamRetriever = new SteamCommunityPageRetriever(client)
 
-  def init = Action.async {
+  def init: Action[AnyContent] = Action.async {
     Future {
       Ok(views.html.main("Aggregator - login", "javascripts/login", "Login"))
     }
   }
 
-  def fetchUsers(steamUsername: Option[String], gogUsername: Option[String]) = Action.async {
+  def fetchUsers(steamUsername: Option[String], gogUsername: Option[String]): Action[AnyContent] = Action.async {
     for{
       users <- tables.getAllUsers
     } yield{
@@ -33,7 +35,7 @@ class LoginController @Inject()(client: WSClient, configuration: Configuration, 
     }
   }
 
-  def createUpdate(steamUsername: Option[String], gogUsername: Option[String]) = Action.async {
+  def createUpdate(steamUsername: Option[String], gogUsername: Option[String]): Action[AnyContent] = Action.async {
     def resolveUser(isValidSteam: Boolean, steamAlternate : Boolean, isValidGog: Boolean, steamExists: Option[User], gogExists: Option[User]) : Future[Option[User]] = {
       if (isValidGog && isValidGog)
         if (steamExists.isDefined && gogExists.isDefined)
@@ -58,6 +60,9 @@ class LoginController @Inject()(client: WSClient, configuration: Configuration, 
       resolved
     }
     user.map(u => {
+      if(u.isDefined) {
+        system.actorSelection("akka://application/user/ScheduleActor") ! RefreshGames(Seq(u.get))
+      }
       Ok(Json.toJson(u))
     })
   }
@@ -80,7 +85,7 @@ class LoginController @Inject()(client: WSClient, configuration: Configuration, 
     ).getOrElse(Future((false, false)))
   }
 
-  def steamAlternate(userId: Long, steamAlternate: Boolean) = Action.async {
+  def steamAlternate(userId: Long, steamAlternate: Boolean): Action[AnyContent] = Action.async {
     tables.updateSteamAlternate(userId, steamAlternate).map(x => Ok(Json.toJson(x)))
 
   }

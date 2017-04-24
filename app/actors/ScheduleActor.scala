@@ -15,7 +15,7 @@ import scala.concurrent.ExecutionContext
 
 object ScheduleActor {
 
-  case class RefreshGames()
+  case class RefreshGames(userIds : Seq[User])
 
   case class RefreshPrices()
 
@@ -48,8 +48,11 @@ class ScheduleActor @Inject()(system : ActorSystem, client: WSClient, configurat
   }
 
   override def receive: Receive = {
-    case _: RefreshGames =>
-      tables.getAllUsers.map(_.foreach(scheduleGamesRefresh))
+    case r: RefreshGames =>
+      if(r.userIds.isEmpty)
+        tables.getAllUsers.map(_.foreach(scheduleGamesRefresh))
+      else
+        r.userIds.foreach(scheduleGamesRefresh)
     case _: RefreshPrices =>
       tables.getSteamWishLists().map(schedulePricesRefresh)
     case _: RefreshSteamGenresAndTags =>

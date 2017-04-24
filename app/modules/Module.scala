@@ -19,7 +19,7 @@ class Module extends AbstractModule with AkkaGuiceSupport {
 
 @Singleton
 class RefreshScheduler @Inject()(system: ActorSystem, @Named("ScheduleActor") scheduleActor: ActorRef) {
-  system.scheduler.schedule(FiniteDuration(1, SECONDS), FiniteDuration(15, MINUTES), scheduleActor, RefreshGames())
+  system.scheduler.schedule(FiniteDuration(1, SECONDS), FiniteDuration(15, MINUTES), scheduleActor, RefreshGames(Seq()))
   system.scheduler.schedule(FiniteDuration(15, SECONDS), FiniteDuration(120, MINUTES), scheduleActor, RefreshSteamGenresAndTags())
   system.scheduler.schedule(FiniteDuration(30, SECONDS), FiniteDuration(60, MINUTES), scheduleActor, RefreshPrices())
 }
