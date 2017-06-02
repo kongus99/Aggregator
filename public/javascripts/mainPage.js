@@ -16882,9 +16882,9 @@ var _user$project$Model$User = F4(
 	function (a, b, c, d) {
 		return {id: a, steamUsername: b, steamAlternate: c, gogUsername: d};
 	});
-var _user$project$Model$GogEntry = F5(
-	function (a, b, c, d, e) {
-		return {title: a, link: b, gogId: c, price: d, discounted: e};
+var _user$project$Model$GogEntry = F6(
+	function (a, b, c, d, e, f) {
+		return {title: a, link: b, gogId: c, price: d, discounted: e, genres: f};
 	});
 var _user$project$Model$SteamEntry = F7(
 	function (a, b, c, d, e, f, g) {
@@ -17123,8 +17123,10 @@ var _user$project$GameEntry$toGameEntryRow = function (gameEntry) {
 			gameOn,
 			g.title,
 			g.link,
-			_user$project$GameEntry$emptySerializableValue(
-				{ctor: '[]'}),
+			{
+				value: g.genres,
+				serialize: _elm_lang$core$String$join(', ')
+			},
 			_user$project$GameEntry$emptySerializableValue(
 				{ctor: '[]'}),
 			_elm_lang$core$Maybe$Just(
@@ -17318,20 +17320,6 @@ var _user$project$Router$decodedPriceEntry = A6(
 	A2(_elm_lang$core$Json_Decode$field, 'host', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'link', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'price', _elm_lang$core$Json_Decode$float));
-var _user$project$Router$decodedGogEntry = A6(
-	_elm_lang$core$Json_Decode$map5,
-	_user$project$Model$GogEntry,
-	A2(_elm_lang$core$Json_Decode$field, 'title', _elm_lang$core$Json_Decode$string),
-	A2(_elm_lang$core$Json_Decode$field, 'link', _elm_lang$core$Json_Decode$string),
-	A2(_elm_lang$core$Json_Decode$field, 'gogId', _elm_lang$core$Json_Decode$int),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'price',
-		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'discounted',
-		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)));
 var _user$project$Router$decodedUserEntry = A5(
 	_elm_lang$core$Json_Decode$map4,
 	_user$project$Model$User,
@@ -17357,6 +17345,24 @@ var _user$project$Router$csvRowDecoder = F2(
 			},
 			stringDecoder);
 	});
+var _user$project$Router$decodedGogEntry = A7(
+	_elm_lang$core$Json_Decode$map6,
+	_user$project$Model$GogEntry,
+	A2(_elm_lang$core$Json_Decode$field, 'title', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'link', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'gogId', _elm_lang$core$Json_Decode$int),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'price',
+		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'discounted',
+		_elm_lang$core$Json_Decode$maybe(_elm_lang$core$Json_Decode$float)),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'genres',
+		A2(_user$project$Router$csvRowDecoder, ',', _elm_lang$core$Json_Decode$string)));
 var _user$project$Router$decodedSteamEntry = A8(
 	_elm_lang$core$Json_Decode$map7,
 	_user$project$Model$SteamEntry,

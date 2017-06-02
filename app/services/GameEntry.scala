@@ -18,6 +18,7 @@ trait ShopEntry {
   def price: Option[BigDecimal]
   def discounted: Option[BigDecimal]
   def owned : Boolean
+  def genres : String
 }
 
 case class GameEntry(gog: Seq[GogEntry], steam: Seq[SteamEntry], prices : Seq[PriceEntry] = Seq()) {

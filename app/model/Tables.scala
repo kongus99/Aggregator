@@ -70,12 +70,14 @@ class Tables @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit exec: 
 
     def discountedPrice = column[Option[BigDecimal]]("GOG_DATA_PRICE_DISCOUNTED", O.SqlType("DECIMAL(6,2)"))
 
+    def genres = column[String]("GOG_DATA_GENRES")
+
     def * : ProvenShape[GogEntry] = {
 
-      val apply: (Long, String, String, Option[BigDecimal], Option[BigDecimal]) => GogEntry = (gogId, link, title, price, discountedPrice) => GogEntry(title, link, gogId, price, discountedPrice, owned = false)
+      val apply: (Long, String, String, Option[BigDecimal], Option[BigDecimal], String) => GogEntry = (gogId, link, title, price, discountedPrice, genres) => GogEntry(title, link, gogId, price, discountedPrice, genres, owned = false)
 
-      val unapply: GogEntry => Option[(Long, String, String, Option[BigDecimal], Option[BigDecimal])] = g => Some(g.gogId, g.link, g.title, g.price, g.discounted)
-      (gogId, link, title, price, discountedPrice) <>(apply.tupled, unapply)
+      val unapply: GogEntry => Option[(Long, String, String, Option[BigDecimal], Option[BigDecimal], String)] = g => Some(g.gogId, g.link, g.title, g.price, g.discounted, g.genres)
+      (gogId, link, title, price, discountedPrice, genres) <>(apply.tupled, unapply)
     }
 
     override def accessId: Rep[Long] = gogId

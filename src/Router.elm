@@ -96,7 +96,13 @@ decodedUserEntry =
 
 
 decodedGogEntry =
-    map5 GogEntry (field "title" string) (field "link" string) (field "gogId" int) (field "price" (maybe float)) (field "discounted" (maybe float))
+    map6 GogEntry
+        (field "title" string)
+        (field "link" string)
+        (field "gogId" int)
+        (field "price" (maybe float))
+        (field "discounted" (maybe float))
+        (field "genres" (csvRowDecoder "," string))
 
 
 decodedSteamEntry =

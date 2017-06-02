@@ -143,7 +143,7 @@ toGameEntryRow gameEntry =
                 gameOn
                 g.title
                 g.link
-                (emptySerializableValue [])
+                { value = g.genres, serialize = String.join ", " }
                 (emptySerializableValue [])
                 (Just { value = ( g.price, g.discounted ), serialize = pricesToString })
                 gameEntry.prices
