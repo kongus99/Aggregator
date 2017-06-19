@@ -16,6 +16,7 @@ import Bootstrap.Navbar as Navbar
 import Bootstrap.Form.Input as Input
 import Bootstrap.Button as Button
 import Bootstrap.ButtonGroup as ButtonGroup
+import Price exposing (AlternatePrice, Price, PriceRange, filterByPriceRange, updateHighRange, updateLowRange)
 
 
 -- MODEL
@@ -29,7 +30,7 @@ type alias Model =
     , name : String
     , genresFilter : DynamicFilter
     , tagsFilter : DynamicFilter
-    , prices : ( Maybe Float, Maybe Float )
+    , range : PriceRange
     , original : List GameEntryRow
     , result : List GameEntryRow
     , navbarState : Navbar.State
@@ -99,7 +100,7 @@ parse navbarState url =
         highPrice =
             Erl.getQueryValuesForKey "highPrice" url |> List.head |> Maybe.andThen Parser.parseFloat
     in
-        Model userId sources discounted gameOn name (initDynamicFilter genres) (initDynamicFilter tags) ( lowPrice, highPrice ) [] [] navbarState Nothing
+        Model userId sources discounted gameOn name (initDynamicFilter genres) (initDynamicFilter tags) (PriceRange lowPrice highPrice) [] [] navbarState Nothing
 
 
 initialize : Erl.Url -> ( Model, Cmd Msg )
@@ -121,8 +122,8 @@ serialize model =
     , ( "discounted", toString model.isDiscounted |> Just )
     , ( "gameOn", Maybe.map toString model.gameOn )
     , ( "name", model.name |> Just )
-    , ( "lowPrice", Tuple.first model.prices |> Maybe.map toString )
-    , ( "highPrice", Tuple.second model.prices |> Maybe.map toString )
+    , ( "lowPrice", model.range.low |> Maybe.map toString )
+    , ( "highPrice", model.range.high |> Maybe.map toString )
     ]
         |> List.append (model.genresFilter.selectedValues |> Set.toList |> List.map (\g -> ( "genres", Just g )))
         |> List.append (model.tagsFilter.selectedValues |> Set.toList |> List.map (\t -> ( "tags", Just t )))
@@ -137,7 +138,7 @@ apply model =
             applyDiscountedFilter model.isDiscounted model.original
                 |> applyGameOnFilter model.gameOn
                 |> applyNameFilter model.name
-                |> applyPriceFilter model.prices
+                |> applyPriceFilter model.range
                 |> applyMultiFilter (\e -> e.genres.value) model.genresFilter
                 |> applyMultiFilter (\e -> e.tags.value) model.tagsFilter
     in
@@ -148,7 +149,7 @@ applyDiscountedFilter : Bool -> List GameEntryRow -> List GameEntryRow
 applyDiscountedFilter isDiscounted entries =
     let
         filterDiscounted e =
-            Maybe.map (\p -> not (Tuple.second p == Nothing)) (e.prices |> Maybe.map .value) |> Maybe.withDefault False
+            priceExtractor e |> Maybe.map Price.isDiscounted |> Maybe.withDefault False
     in
         if isDiscounted then
             List.filter filterDiscounted entries
@@ -196,31 +197,13 @@ applyMultiFilter entryValues filter entries =
             List.filter (\e -> entryValues e |> Set.fromList |> condition) entries
 
 
-applyPriceFilter : ( Maybe Float, Maybe Float ) -> List GameEntryRow -> List GameEntryRow
-applyPriceFilter ( lowPrice, highPrice ) entries =
-    let
-        filterByLow lowPrice entry =
-            entry.prices |> Maybe.map .value |> discountedIfAvailable |> Maybe.map (\e -> e >= lowPrice) |> Maybe.withDefault False
-
-        filterByHigh highPrice entry =
-            entry.prices |> Maybe.map .value |> discountedIfAvailable |> Maybe.map (\e -> e <= highPrice) |> Maybe.withDefault False
-
-        lowFiltered =
-            Maybe.map (\p -> List.filter (filterByLow p) entries) lowPrice |> Maybe.withDefault entries
-    in
-        Maybe.map (\p -> List.filter (filterByHigh p) lowFiltered) highPrice |> Maybe.withDefault lowFiltered
+applyPriceFilter : PriceRange -> List GameEntryRow -> List GameEntryRow
+applyPriceFilter range entries =
+    filterByPriceRange range priceExtractor entries
 
 
-discountedIfAvailable : Maybe ( Maybe Float, Maybe Float ) -> Maybe Float
-discountedIfAvailable prices =
-    let
-        selectFromPair ( f, s ) =
-            if s == Nothing then
-                f
-            else
-                s
-    in
-        Maybe.andThen selectFromPair prices
+priceExtractor entry =
+    entry.price |> Maybe.map .value
 
 
 subscriptions : Model -> Sub Msg
@@ -255,17 +238,17 @@ update msg model =
     case msg of
         Clear ->
             apply
-                (Model model.userId model.sources False Nothing "" (DynamicFilter model.genresFilter.allValues Set.empty model.genresFilter.conjunction) (DynamicFilter model.tagsFilter.allValues Set.empty model.tagsFilter.conjunction) ( Nothing, Nothing ) model.original [] model.navbarState Nothing)
+                (Model model.userId model.sources False Nothing "" (DynamicFilter model.genresFilter.allValues Set.empty model.genresFilter.conjunction) (DynamicFilter model.tagsFilter.allValues Set.empty model.tagsFilter.conjunction) (PriceRange Nothing Nothing) model.original [] model.navbarState Nothing)
                 ! []
 
         ChangeName name ->
             apply { model | name = name } ! []
 
         ChangeLow low ->
-            apply { model | prices = ( Parser.parseFloat low, Tuple.second model.prices ) } ! []
+            apply { model | range = updateLowRange (Parser.parseFloat low) model.range } ! []
 
         ChangeHigh high ->
-            apply { model | prices = ( Tuple.first model.prices, Parser.parseFloat high ) } ! []
+            apply { model | range = updateHighRange (Parser.parseFloat high) model.range } ! []
 
         ChangeGameOn on ->
             apply { model | gameOn = (Parser.parseGameOn on) } ! []
@@ -389,9 +372,9 @@ pricingDropdown model =
                     ]
                 ]
             , Navbar.dropdownDivider
-            , Navbar.dropdownItem [ onMenuItemClick NoOp ] [ Input.text [ Input.placeholder "Lowest", Input.onInput ChangeLow, Input.value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.first model.prices ] ]
+            , Navbar.dropdownItem [ onMenuItemClick NoOp ] [ Input.text [ Input.placeholder "Lowest", Input.onInput ChangeLow, Input.value <| Maybe.withDefault "" <| Maybe.map toString <| model.range.low ] ]
             , Navbar.dropdownDivider
-            , Navbar.dropdownItem [ onMenuItemClick NoOp ] [ Input.text [ Input.placeholder "Highest", Input.onInput ChangeHigh, Input.value <| Maybe.withDefault "" <| Maybe.map toString <| Tuple.second model.prices ] ]
+            , Navbar.dropdownItem [ onMenuItemClick NoOp ] [ Input.text [ Input.placeholder "Highest", Input.onInput ChangeHigh, Input.value <| Maybe.withDefault "" <| Maybe.map toString <| model.range.high ] ]
             ]
         }
 

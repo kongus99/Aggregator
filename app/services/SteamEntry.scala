@@ -24,8 +24,8 @@ object SteamEntry {
     (JsPath \ "name").write[String] and
       (JsPath \ "steamId").write[Long] and
       (JsPath \ "link").write[String] and
-      (JsPath \ "price").write[Option[BigDecimal]]and
-      (JsPath \ "discounted").write[Option[BigDecimal]] and
+      (JsPath \ "price" \ "normal").write[Option[BigDecimal]]and
+      (JsPath \ "price" \ "discounted").write[Option[BigDecimal]] and
       (JsPath \ "genres").write[String] and
       (JsPath \ "tags").write[String]) ((e) => (e.name, e.steamId, e.link, e.price, e.discounted, e.genres, e.tags))
 

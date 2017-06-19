@@ -1,7 +1,6 @@
 module GameEntry
     exposing
         ( GameEntry
-        , roundToString
         , update
         , WebSocketRefreshResult
         , GameEntryRow
@@ -12,11 +11,12 @@ module GameEntry
 import Dict exposing (Dict)
 import Dict.Extra as Dicts
 import Model exposing (..)
+import Price exposing (AlternatePrice, Price, priceToString)
 import Set exposing (Set)
 
 
 type alias GameEntry =
-    { gog : List GogEntry, steam : List SteamEntry, prices : List PriceEntry }
+    { gog : List GogEntry, steam : List SteamEntry, prices : List AlternatePrice }
 
 
 type alias SerializableValue a =
@@ -30,8 +30,8 @@ type alias GameEntryRow =
     , link : String
     , genres : SerializableValue (List String)
     , tags : SerializableValue (List String)
-    , prices : Maybe (SerializableValue ( Maybe Float, Maybe Float ))
-    , additionalPrices : List PriceEntry
+    , price : Maybe (SerializableValue Price)
+    , alternatePrices : List AlternatePrice
     }
 
 
@@ -52,7 +52,7 @@ type alias OwnedEntries =
 
 
 type alias WebSocketRefreshResult =
-    { games : Maybe ( WishlistEntries, OwnedEntries ), prices : Maybe ( List Int, List PriceEntry ) }
+    { games : Maybe ( WishlistEntries, OwnedEntries ), prices : Maybe ( List Int, List AlternatePrice ) }
 
 
 serializeValue : SerializableValue a -> String
@@ -87,9 +87,9 @@ updatePrices newData sources oldData =
                                         toReplace =
                                             g.steamId
                                                 |> Maybe.andThen (\id -> Dict.get id groupedPrices)
-                                                |> Maybe.withDefault g.additionalPrices
+                                                |> Maybe.withDefault g.alternatePrices
                                     in
-                                        { g | additionalPrices = toReplace }
+                                        { g | alternatePrices = toReplace }
                                 )
                 )
             |> Maybe.withDefault oldData
@@ -134,7 +134,7 @@ toGameEntryRow gameEntry =
                 s.link
                 { value = s.genres, serialize = String.join ", " }
                 { value = s.tags, serialize = String.join ", " }
-                (Just { value = ( s.price, s.discounted ), serialize = pricesToString })
+                (Maybe.map (\pr -> { value = pr, serialize = priceToString }) s.price)
                 gameEntry.prices
 
         gogToRow g =
@@ -145,7 +145,7 @@ toGameEntryRow gameEntry =
                 g.link
                 { value = g.genres, serialize = String.join ", " }
                 (emptySerializableValue [])
-                (Just { value = ( g.price, g.discounted ), serialize = pricesToString })
+                (Maybe.map (\pr -> { value = pr, serialize = priceToString }) g.price)
                 gameEntry.prices
 
         maybeSteamEntryRow list =
@@ -155,38 +155,3 @@ toGameEntryRow gameEntry =
             List.head list |> Maybe.map gogToRow |> Maybe.withDefault emptyGameRow
     in
         maybeSteamEntryRow gameEntry.steam |> Maybe.withDefault (gogEntryRow gameEntry.gog)
-
-
-pricesToString : ( Maybe Float, Maybe Float ) -> String
-pricesToString prices =
-    let
-        calculatePercentage ( price, discount ) =
-            Maybe.withDefault 0 <| Maybe.map2 (\p -> \d -> round (((p - d) / p) * 100)) price discount
-
-        formatDiscount percentage price discount =
-            (roundToString 2 price) ++ " (-" ++ toString percentage ++ "%) " ++ (roundToString 2 discount)
-
-        convertToText percentage ( price, discount ) =
-            if isNaN <| toFloat percentage then
-                "0"
-            else if percentage > 0 then
-                Maybe.withDefault "Error" <| Maybe.map2 (formatDiscount percentage) price discount
-            else
-                Maybe.withDefault "" <| Maybe.map (roundToString 2) price
-    in
-        convertToText (calculatePercentage prices) prices
-
-
-roundToString : Int -> Float -> String
-roundToString precision number =
-    let
-        integerRepresentation =
-            number * toFloat (10 ^ precision) |> round |> toString
-
-        total =
-            String.dropRight 2 integerRepresentation
-
-        fraction =
-            String.dropLeft (String.length total) integerRepresentation
-    in
-        total ++ "." ++ fraction

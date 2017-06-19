@@ -1,6 +1,7 @@
 module Model exposing (..)
 
 import Array exposing (Array)
+import Price exposing (Price)
 
 
 type GameOn
@@ -33,15 +34,11 @@ type alias User =
 
 
 type alias GogEntry =
-    { title : String, link : String, gogId : Int, price : Maybe Float, discounted : Maybe Float, genres : List String }
+    { title : String, link : String, gogId : Int, price : Maybe Price, genres : List String }
 
 
 type alias SteamEntry =
-    { name : String, steamId : Int, link : String, price : Maybe Float, discounted : Maybe Float, genres : List String, tags : List String }
-
-
-type alias PriceEntry =
-    { steamId : Int, name : String, host : String, link : String, price : Float }
+    { name : String, steamId : Int, link : String, price : Maybe Price, genres : List String, tags : List String }
 
 
 type alias NamedEntry =

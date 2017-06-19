@@ -19,6 +19,7 @@ import Bootstrap.CDN as CDN
 import Bootstrap.Table as Table
 import Bootstrap.Button as Button
 import Bootstrap.Modal as Modal
+import Price exposing (roundToString)
 
 
 initProgram : String -> ( Model, Cmd Msg )
@@ -175,8 +176,8 @@ gameTableRow e =
         [ Table.th [] [ a [ href e.link, class <| toStyle e ] [ text e.name ], gameOptionsButton e ]
         , Table.td [ Table.cellAttr (class "text-left") ] [ text <| serializeValue e.genres ]
         , Table.td [ Table.cellAttr (class "text-center") ] [ text <| serializeValue e.tags ]
-        , Table.td [ Table.cellAttr (class "text-right") ] [ e.prices |> Maybe.map serializeValue |> Maybe.withDefault "" |> text ]
-        , Table.td [] (additionalPrices e.additionalPrices)
+        , Table.td [ Table.cellAttr (class "text-right") ] [ e.price |> Maybe.map serializeValue |> Maybe.withDefault "" |> text ]
+        , Table.td [] (alternatePrices e.alternatePrices)
         ]
 
 
@@ -194,7 +195,7 @@ gameOptionsButton entry =
         entry.steamId |> Maybe.map (\_ -> dialogButton entry) |> Maybe.withDefault (div [] [])
 
 
-additionalPrices priceEntries =
+alternatePrices priceEntries =
     let
         price e =
             div []

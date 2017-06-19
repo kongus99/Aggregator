@@ -7,6 +7,7 @@ import GameEntry exposing (GameEntry, WebSocketRefreshResult)
 import String
 import Erl
 import Parser
+import Price exposing (AlternatePrice, Price)
 
 
 --ROUTES
@@ -80,7 +81,7 @@ decodeWebSocketResult : String -> WebSocketRefreshResult
 decodeWebSocketResult r =
     WebSocketRefreshResult
         (r |> Json.decodeString (map2 (,) (index 0 (list decodedGameEntry)) (index 1 (list decodedGameEntry))) |> Result.toMaybe)
-        (r |> Json.decodeString (map2 (,) (index 0 (list int)) (index 1 (list decodedPriceEntry))) |> Result.toMaybe)
+        (r |> Json.decodeString (map2 (,) (index 0 (list int)) (index 1 (list decodedAlternatePrice))) |> Result.toMaybe)
 
 
 
@@ -96,32 +97,34 @@ decodedUserEntry =
 
 
 decodedGogEntry =
-    map6 GogEntry
+    map5 GogEntry
         (field "title" string)
         (field "link" string)
         (field "gogId" int)
-        (field "price" (maybe float))
-        (field "discounted" (maybe float))
+        (maybe (field "price" decodedPrice))
         (field "genres" (csvRowDecoder "," string))
 
 
 decodedSteamEntry =
-    map7 SteamEntry
+    map6 SteamEntry
         (field "name" string)
         (field "steamId" int)
         (field "link" string)
-        (field "price" (maybe float))
-        (field "discounted" (maybe float))
+        (maybe (field "price" decodedPrice))
         (field "genres" (csvRowDecoder "," string))
         (field "tags" (csvRowDecoder "," string))
 
 
-decodedPriceEntry =
-    map5 PriceEntry (field "steamId" int) (field "name" string) (field "host" string) (field "link" string) (field "price" float)
+decodedPrice =
+    map2 Price (field "normal" float) (maybe (field "discounted" float))
+
+
+decodedAlternatePrice =
+    map5 AlternatePrice (field "steamId" int) (field "name" string) (field "host" string) (field "link" string) (field "price" float)
 
 
 decodedGameEntry =
-    map3 GameEntry (field "gog" (list decodedGogEntry)) (field "steam" (list decodedSteamEntry)) (field "prices" (list decodedPriceEntry))
+    map3 GameEntry (field "gog" (list decodedGogEntry)) (field "steam" (list decodedSteamEntry)) (field "prices" (list decodedAlternatePrice))
 
 
 decodedComparisonEntry =
