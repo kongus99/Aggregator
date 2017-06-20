@@ -13391,6 +13391,50 @@ var _user$project$Price$discountedIfAvailable = function (price) {
 	};
 	return A2(_elm_lang$core$Maybe$andThen, selectPrice, price);
 };
+var _user$project$Price$filterByAlternatePrices = F3(
+	function (alternativeExtractor, priceExtractor, entries) {
+		var alternative = function (e) {
+			return A2(
+				_elm_lang$core$Maybe$map,
+				function (_) {
+					return _.price;
+				},
+				alternativeExtractor(e));
+		};
+		var price = function (e) {
+			return A2(
+				_elm_lang$core$Maybe$map,
+				function (_) {
+					return _.normal;
+				},
+				priceExtractor(e));
+		};
+		var filter = function (_p3) {
+			var _p4 = _p3;
+			return A2(
+				_elm_lang$core$Maybe$withDefault,
+				false,
+				A3(
+					_elm_lang$core$Maybe$map2,
+					F2(
+						function (p, a) {
+							return _elm_lang$core$Native_Utils.cmp(p, 2 * a) > -1;
+						}),
+					_p4._0,
+					_p4._1));
+		};
+		return A2(
+			_elm_lang$core$List$filter,
+			function (e) {
+				return filter(
+					{
+						ctor: '_Tuple2',
+						_0: price(e),
+						_1: alternative(e)
+					});
+			},
+			entries);
+	});
 var _user$project$Price$filterByPriceRange = F3(
 	function (range, extractor, entries) {
 		var bounds = {
@@ -13399,15 +13443,15 @@ var _user$project$Price$filterByPriceRange = F3(
 			_1: A2(_elm_lang$core$Maybe$withDefault, 1000000, range.high)
 		};
 		var filter = F2(
-			function (_p3, price) {
-				var _p4 = _p3;
+			function (_p5, price) {
+				var _p6 = _p5;
 				return A2(
 					_elm_lang$core$Maybe$withDefault,
 					false,
 					A2(
 						_elm_lang$core$Maybe$map,
 						function (p) {
-							return (_elm_lang$core$Native_Utils.cmp(p, _p4._0) > -1) && (_elm_lang$core$Native_Utils.cmp(p, _p4._1) < 1);
+							return (_elm_lang$core$Native_Utils.cmp(p, _p6._0) > -1) && (_elm_lang$core$Native_Utils.cmp(p, _p6._1) < 1);
 						},
 						_user$project$Price$discountedIfAvailable(price)));
 			});

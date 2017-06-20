@@ -16901,6 +16901,50 @@ var _user$project$Price$discountedIfAvailable = function (price) {
 	};
 	return A2(_elm_lang$core$Maybe$andThen, selectPrice, price);
 };
+var _user$project$Price$filterByAlternatePrices = F3(
+	function (alternativeExtractor, priceExtractor, entries) {
+		var alternative = function (e) {
+			return A2(
+				_elm_lang$core$Maybe$map,
+				function (_) {
+					return _.price;
+				},
+				alternativeExtractor(e));
+		};
+		var price = function (e) {
+			return A2(
+				_elm_lang$core$Maybe$map,
+				function (_) {
+					return _.normal;
+				},
+				priceExtractor(e));
+		};
+		var filter = function (_p3) {
+			var _p4 = _p3;
+			return A2(
+				_elm_lang$core$Maybe$withDefault,
+				false,
+				A3(
+					_elm_lang$core$Maybe$map2,
+					F2(
+						function (p, a) {
+							return _elm_lang$core$Native_Utils.cmp(p, 2 * a) > -1;
+						}),
+					_p4._0,
+					_p4._1));
+		};
+		return A2(
+			_elm_lang$core$List$filter,
+			function (e) {
+				return filter(
+					{
+						ctor: '_Tuple2',
+						_0: price(e),
+						_1: alternative(e)
+					});
+			},
+			entries);
+	});
 var _user$project$Price$filterByPriceRange = F3(
 	function (range, extractor, entries) {
 		var bounds = {
@@ -16909,15 +16953,15 @@ var _user$project$Price$filterByPriceRange = F3(
 			_1: A2(_elm_lang$core$Maybe$withDefault, 1000000, range.high)
 		};
 		var filter = F2(
-			function (_p3, price) {
-				var _p4 = _p3;
+			function (_p5, price) {
+				var _p6 = _p5;
 				return A2(
 					_elm_lang$core$Maybe$withDefault,
 					false,
 					A2(
 						_elm_lang$core$Maybe$map,
 						function (p) {
-							return (_elm_lang$core$Native_Utils.cmp(p, _p4._0) > -1) && (_elm_lang$core$Native_Utils.cmp(p, _p4._1) < 1);
+							return (_elm_lang$core$Native_Utils.cmp(p, _p6._0) > -1) && (_elm_lang$core$Native_Utils.cmp(p, _p6._1) < 1);
 						},
 						_user$project$Price$discountedIfAvailable(price)));
 			});
@@ -17663,6 +17707,16 @@ var _user$project$Filters$applyGameOnFilter = F2(
 		};
 		return A2(_elm_lang$core$List$filter, isOn, entries);
 	});
+var _user$project$Filters$applyDealFilter = F2(
+	function (isDeal, entries) {
+		return isDeal ? A3(
+			_user$project$Price$filterByAlternatePrices,
+			function (ge) {
+				return _elm_lang$core$List$head(ge.alternatePrices);
+			},
+			_user$project$Filters$priceExtractor,
+			entries) : entries;
+	});
 var _user$project$Filters$applyDiscountedFilter = F2(
 	function (isDiscounted, entries) {
 		var filterDiscounted = function (e) {
@@ -17698,7 +17752,10 @@ var _user$project$Filters$apply = function (model) {
 					A2(
 						_user$project$Filters$applyGameOnFilter,
 						model.gameOn,
-						A2(_user$project$Filters$applyDiscountedFilter, model.isDiscounted, model.original))))));
+						A2(
+							_user$project$Filters$applyDealFilter,
+							model.isDeal,
+							A2(_user$project$Filters$applyDiscountedFilter, model.isDiscounted, model.original)))))));
 	return _elm_lang$core$Native_Utils.update(
 		model,
 		{result: result, err: _elm_lang$core$Maybe$Nothing});
@@ -17772,31 +17829,40 @@ var _user$project$Filters$serialize = function (model) {
 									ctor: '::',
 									_0: {
 										ctor: '_Tuple2',
-										_0: 'gameOn',
-										_1: A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$toString, model.gameOn)
+										_0: 'deal',
+										_1: _elm_lang$core$Maybe$Just(
+											_elm_lang$core$Basics$toString(model.isDeal))
 									},
 									_1: {
 										ctor: '::',
 										_0: {
 											ctor: '_Tuple2',
-											_0: 'name',
-											_1: _elm_lang$core$Maybe$Just(model.name)
+											_0: 'gameOn',
+											_1: A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$toString, model.gameOn)
 										},
 										_1: {
 											ctor: '::',
 											_0: {
 												ctor: '_Tuple2',
-												_0: 'lowPrice',
-												_1: A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$toString, model.range.low)
+												_0: 'name',
+												_1: _elm_lang$core$Maybe$Just(model.name)
 											},
 											_1: {
 												ctor: '::',
 												_0: {
 													ctor: '_Tuple2',
-													_0: 'highPrice',
-													_1: A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$toString, model.range.high)
+													_0: 'lowPrice',
+													_1: A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$toString, model.range.low)
 												},
-												_1: {ctor: '[]'}
+												_1: {
+													ctor: '::',
+													_0: {
+														ctor: '_Tuple2',
+														_0: 'highPrice',
+														_1: A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$toString, model.range.high)
+													},
+													_1: {ctor: '[]'}
+												}
 											}
 										}
 									}
@@ -17868,7 +17934,9 @@ var _user$project$Filters$Model = function (a) {
 									return function (j) {
 										return function (k) {
 											return function (l) {
-												return {userId: a, sources: b, isDiscounted: c, gameOn: d, name: e, genresFilter: f, tagsFilter: g, range: h, original: i, result: j, navbarState: k, err: l};
+												return function (m) {
+													return {userId: a, sources: b, isDiscounted: c, isDeal: d, gameOn: e, name: f, genresFilter: g, tagsFilter: h, range: i, original: j, result: k, navbarState: l, err: m};
+												};
 											};
 										};
 									};
@@ -17914,6 +17982,14 @@ var _user$project$Filters$parse = F2(
 			_user$project$Parser$parseGameOn,
 			_elm_lang$core$List$head(
 				A2(_sporto$erl$Erl$getQueryValuesForKey, 'gameOn', url)));
+		var deal = A2(
+			_elm_lang$core$Maybe$withDefault,
+			false,
+			A2(
+				_elm_lang$core$Maybe$andThen,
+				_user$project$Parser$parseBool,
+				_elm_lang$core$List$head(
+					A2(_sporto$erl$Erl$getQueryValuesForKey, 'deal', url))));
 		var discounted = A2(
 			_elm_lang$core$Maybe$withDefault,
 			false,
@@ -17938,7 +18014,7 @@ var _user$project$Filters$parse = F2(
 				_user$project$Parser$parseInt,
 				_elm_lang$core$List$head(
 					A2(_sporto$erl$Erl$getQueryValuesForKey, 'userId', url))));
-		return _user$project$Filters$Model(userId)(sources)(discounted)(gameOn)(name)(
+		return _user$project$Filters$Model(userId)(sources)(discounted)(deal)(gameOn)(name)(
 			_user$project$Filters$initDynamicFilter(genres))(
 			_user$project$Filters$initDynamicFilter(tags))(
 			A2(_user$project$Price$PriceRange, lowPrice, highPrice))(
@@ -17993,12 +18069,12 @@ var _user$project$Filters$update = F2(
 		var _p5 = msg;
 		switch (_p5.ctor) {
 			case 'Clear':
+				var tagsFilter = A3(_user$project$Filters$DynamicFilter, model.tagsFilter.allValues, _elm_lang$core$Set$empty, model.tagsFilter.conjunction);
+				var genresFilter = A3(_user$project$Filters$DynamicFilter, model.genresFilter.allValues, _elm_lang$core$Set$empty, model.genresFilter.conjunction);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_user$project$Filters$apply(
-						_user$project$Filters$Model(model.userId)(model.sources)(false)(_elm_lang$core$Maybe$Nothing)('')(
-							A3(_user$project$Filters$DynamicFilter, model.genresFilter.allValues, _elm_lang$core$Set$empty, model.genresFilter.conjunction))(
-							A3(_user$project$Filters$DynamicFilter, model.tagsFilter.allValues, _elm_lang$core$Set$empty, model.tagsFilter.conjunction))(
+						_user$project$Filters$Model(model.userId)(model.sources)(false)(false)(_elm_lang$core$Maybe$Nothing)('')(genresFilter)(tagsFilter)(
 							A2(_user$project$Price$PriceRange, _elm_lang$core$Maybe$Nothing, _elm_lang$core$Maybe$Nothing))(model.original)(
 							{ctor: '[]'})(model.navbarState)(_elm_lang$core$Maybe$Nothing)),
 					{ctor: '[]'});
@@ -18053,6 +18129,14 @@ var _user$project$Filters$update = F2(
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{isDiscounted: _p5._0})),
+					{ctor: '[]'});
+			case 'ChangeDeal':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_user$project$Filters$apply(
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{isDeal: _p5._0})),
 					{ctor: '[]'});
 			case 'ChangeSources':
 				var newModel = _user$project$Filters$apply(
@@ -18161,6 +18245,9 @@ var _user$project$Filters$ChangeGenresConjunction = function (a) {
 };
 var _user$project$Filters$ChangeTagsConjunction = function (a) {
 	return {ctor: 'ChangeTagsConjunction', _0: a};
+};
+var _user$project$Filters$ChangeDeal = function (a) {
+	return {ctor: 'ChangeDeal', _0: a};
 };
 var _user$project$Filters$ChangeDiscounted = function (a) {
 	return {ctor: 'ChangeDiscounted', _0: a};
@@ -18397,7 +18484,11 @@ var _user$project$Filters$pricingDropdown = function (model) {
 						ctor: '::',
 						_0: A2(
 							_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup,
-							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _rundis$elm_bootstrap$Bootstrap_ButtonGroup$small,
+								_1: {ctor: '[]'}
+							},
 							{
 								ctor: '::',
 								_0: A3(
@@ -18422,7 +18513,32 @@ var _user$project$Filters$pricingDropdown = function (model) {
 										_0: _elm_lang$html$Html$text('Discounted'),
 										_1: {ctor: '[]'}
 									}),
-								_1: {ctor: '[]'}
+								_1: {
+									ctor: '::',
+									_0: A3(
+										_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButton,
+										model.isDeal,
+										{
+											ctor: '::',
+											_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+												{
+													ctor: '::',
+													_0: _user$project$HtmlHelpers$onMenuItemCheck(_user$project$Filters$ChangeDeal),
+													_1: {ctor: '[]'}
+												}),
+											_1: {
+												ctor: '::',
+												_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
+												_1: {ctor: '[]'}
+											}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('Deal'),
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								}
 							}),
 						_1: {ctor: '[]'}
 					}),

@@ -16,7 +16,7 @@ import Bootstrap.Navbar as Navbar
 import Bootstrap.Form.Input as Input
 import Bootstrap.Button as Button
 import Bootstrap.ButtonGroup as ButtonGroup
-import Price exposing (AlternatePrice, Price, PriceRange, filterByPriceRange, updateHighRange, updateLowRange)
+import Price exposing (AlternatePrice, Price, PriceRange, filterByAlternatePrices, filterByPriceRange, updateHighRange, updateLowRange)
 
 
 -- MODEL
@@ -26,6 +26,7 @@ type alias Model =
     { userId : Int
     , sources : GameSources
     , isDiscounted : Bool
+    , isDeal : Bool
     , gameOn : Maybe GameOn
     , name : String
     , genresFilter : DynamicFilter
@@ -82,6 +83,9 @@ parse navbarState url =
         discounted =
             Erl.getQueryValuesForKey "discounted" url |> List.head |> Maybe.andThen Parser.parseBool |> Maybe.withDefault False
 
+        deal =
+            Erl.getQueryValuesForKey "deal" url |> List.head |> Maybe.andThen Parser.parseBool |> Maybe.withDefault False
+
         gameOn =
             Erl.getQueryValuesForKey "gameOn" url |> List.head |> Maybe.andThen Parser.parseGameOn
 
@@ -100,7 +104,7 @@ parse navbarState url =
         highPrice =
             Erl.getQueryValuesForKey "highPrice" url |> List.head |> Maybe.andThen Parser.parseFloat
     in
-        Model userId sources discounted gameOn name (initDynamicFilter genres) (initDynamicFilter tags) (PriceRange lowPrice highPrice) [] [] navbarState Nothing
+        Model userId sources discounted deal gameOn name (initDynamicFilter genres) (initDynamicFilter tags) (PriceRange lowPrice highPrice) [] [] navbarState Nothing
 
 
 initialize : Erl.Url -> ( Model, Cmd Msg )
@@ -120,6 +124,7 @@ serialize model =
     [ ( "sources", toString model.sources |> Just )
     , ( "userId", toString model.userId |> Just )
     , ( "discounted", toString model.isDiscounted |> Just )
+    , ( "deal", toString model.isDeal |> Just )
     , ( "gameOn", Maybe.map toString model.gameOn )
     , ( "name", model.name |> Just )
     , ( "lowPrice", model.range.low |> Maybe.map toString )
@@ -136,6 +141,7 @@ apply model =
     let
         result =
             applyDiscountedFilter model.isDiscounted model.original
+                |> applyDealFilter model.isDeal
                 |> applyGameOnFilter model.gameOn
                 |> applyNameFilter model.name
                 |> applyPriceFilter model.range
@@ -155,6 +161,14 @@ applyDiscountedFilter isDiscounted entries =
             List.filter filterDiscounted entries
         else
             entries
+
+
+applyDealFilter : Bool -> List GameEntryRow -> List GameEntryRow
+applyDealFilter isDeal entries =
+    if isDeal then
+        filterByAlternatePrices (\ge -> List.head ge.alternatePrices) priceExtractor entries
+    else
+        entries
 
 
 applyGameOnFilter : Maybe GameOn -> List GameEntryRow -> List GameEntryRow
@@ -224,6 +238,7 @@ type Msg
     | ChangeSelectedTag String Bool
     | ChangeGameOn String
     | ChangeDiscounted Bool
+    | ChangeDeal Bool
     | ChangeTagsConjunction Bool
     | ChangeGenresConjunction Bool
     | ChangeSources String
@@ -237,9 +252,14 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Clear ->
-            apply
-                (Model model.userId model.sources False Nothing "" (DynamicFilter model.genresFilter.allValues Set.empty model.genresFilter.conjunction) (DynamicFilter model.tagsFilter.allValues Set.empty model.tagsFilter.conjunction) (PriceRange Nothing Nothing) model.original [] model.navbarState Nothing)
-                ! []
+            let
+                genresFilter =
+                    DynamicFilter model.genresFilter.allValues Set.empty model.genresFilter.conjunction
+
+                tagsFilter =
+                    DynamicFilter model.tagsFilter.allValues Set.empty model.tagsFilter.conjunction
+            in
+                apply (Model model.userId model.sources False False Nothing "" genresFilter tagsFilter (PriceRange Nothing Nothing) model.original [] model.navbarState Nothing) ! []
 
         ChangeName name ->
             apply { model | name = name } ! []
@@ -255,6 +275,9 @@ update msg model =
 
         ChangeDiscounted isDiscounted ->
             apply { model | isDiscounted = isDiscounted } ! []
+
+        ChangeDeal isDeal ->
+            apply { model | isDeal = isDeal } ! []
 
         ChangeSources s ->
             let
@@ -367,8 +390,9 @@ pricingDropdown model =
         , toggle = Navbar.dropdownToggle [] [ text "Pricing" ]
         , items =
             [ Navbar.dropdownItem [ onMenuItemClick NoOp ]
-                [ ButtonGroup.checkboxButtonGroup []
+                [ ButtonGroup.checkboxButtonGroup [ ButtonGroup.small ]
                     [ ButtonGroup.checkboxButton model.isDiscounted [ Button.attrs [ onMenuItemCheck ChangeDiscounted ], Button.secondary ] [ text "Discounted" ]
+                    , ButtonGroup.checkboxButton model.isDeal [ Button.attrs [ onMenuItemCheck ChangeDeal ], Button.secondary ] [ text "Deal" ]
                     ]
                 ]
             , Navbar.dropdownDivider

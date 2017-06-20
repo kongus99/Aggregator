@@ -53,6 +53,21 @@ filterByPriceRange range extractor entries =
         List.filter (\e -> extractor e |> (filter bounds)) entries
 
 
+filterByAlternatePrices : (a -> Maybe AlternatePrice) -> (a -> Maybe Price) -> List a -> List a
+filterByAlternatePrices alternativeExtractor priceExtractor entries =
+    let
+        filter ( maybePrice, maybeAlternative ) =
+            Maybe.map2 (\p -> \a -> p >= 2 * a) maybePrice maybeAlternative |> Maybe.withDefault False
+
+        price e =
+            priceExtractor e |> Maybe.map .normal
+
+        alternative e =
+            alternativeExtractor e |> Maybe.map .price
+    in
+        List.filter (\e -> ( price e, alternative e ) |> filter) entries
+
+
 discountedIfAvailable : Maybe Price -> Maybe Float
 discountedIfAvailable price =
     let
