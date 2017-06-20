@@ -1,16 +1,23 @@
 port module Comparison exposing (..)
 
 import AllDict exposing (AllDict)
-import Html exposing (Html, button, div, text, span, table, tr, th, td, select, option, input)
-import Html.Attributes exposing (class, selected, value, type_, checked)
+import Html exposing (Html, button, div, input, option, select, span, table, td, text, th, thead, tr)
+import Html.Attributes exposing (checked, class, contenteditable, for, readonly, selected, type_, value)
 import Html.Events exposing (onClick, on, targetValue)
-import HtmlHelpers exposing (onSelect)
+import HtmlHelpers exposing (onMenuItemCheck, onSelect)
 import Http
 import Json.Decode as Json exposing (string, map3, field, decodeString)
 import Task
+import Bootstrap.CDN as CDN
+import Bootstrap.Table as Table
+import Bootstrap.Form as Form
+import Bootstrap.Form.Input as Input
+import Bootstrap.Button as Button
+import Bootstrap.ButtonGroup as ButtonGroup
 import String
 import Router exposing (..)
 import Model exposing (..)
+import Parser
 
 
 initProgram : String -> ( Model, Cmd Msg )
@@ -79,7 +86,7 @@ type Msg
     = ReceiveData (List ComparisonEntry)
     | DataError Http.Error
     | RefreshData ComparisonParameters
-    | Toggle Int Int
+    | Toggle Int Int Bool
     | ToggleStored String
 
 
@@ -95,11 +102,11 @@ update msg model =
         RefreshData parameters ->
             ( { model | comparisons = [], parameters = parameters }, refresh parameters )
 
-        Toggle leftId rightId ->
+        Toggle leftId rightId toggle ->
             let
                 updateEntry e =
                     if e.left.id == leftId && e.right.id == rightId then
-                        { e | matches = not e.matches }
+                        { e | matches = toggle }
                     else
                         e
 
@@ -118,16 +125,19 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div [] <|
-        [ div []
+    div []
+        [ CDN.stylesheet
+        , div []
             (if String.isEmpty model.message then
                 []
              else
                 [ text (toString model.message) ]
             )
-        , div []
-            [ table [ class <| "inlineTable" ] <| selectedSource Left model.parameters :: selectedSource Right model.parameters :: title model :: (List.map (tableRow model) model.comparisons)
-            ]
+        , Table.table
+            { options = [ Table.striped, Table.bordered ]
+            , thead = title model
+            , tbody = tableRows model.comparisons
+            }
         ]
 
 
@@ -135,9 +145,9 @@ selectedSource side parameters =
     let
         refreshSide on =
             if side == Left then
-                RefreshData { parameters | leftOn = gameOnFromString on }
+                RefreshData { parameters | leftOn = on }
             else
-                RefreshData { parameters | rightOn = gameOnFromString on }
+                RefreshData { parameters | rightOn = on }
 
         gameOn =
             if side == Left then
@@ -145,50 +155,58 @@ selectedSource side parameters =
             else
                 parameters.rightOn
     in
-        select [ onSelect refreshSide ] [ option [ selected (gameOn == Gog), value <| toString Gog ] [ text <| toString Gog ], option [ selected (gameOn == Steam), value <| toString Steam ] [ text <| toString Steam ] ]
+        ButtonGroup.radioButtonGroup [ ButtonGroup.small ]
+            [ ButtonGroup.radioButton (gameOn == Gog) [ Button.secondary, Button.onClick <| refreshSide Gog ] [ text <| toString Gog ]
+            , ButtonGroup.radioButton (gameOn == Steam) [ Button.secondary, Button.onClick <| refreshSide Steam ] [ text <| toString Steam ]
+            ]
 
 
-tableRow model e =
-    tr []
-        [ td [] [ text e.left.name ]
-        , td [] [ text <| toString e.metricResult ]
-        , td [] [ text e.right.name ]
-        , td [] [ input [ onClick <| Toggle e.left.id e.right.id, type_ "checkbox", checked e.matches ] [] ]
+tableRows comparisonList =
+    Table.tbody [] <| List.map tableRow comparisonList
+
+
+tableRow comparison =
+    Table.tr []
+        [ Table.td [] [ text <| toString comparison.metricResult ]
+        , Table.td [] [ text comparison.left.name ]
+        , Table.td [] [ text comparison.right.name ]
+        , Table.td []
+            [ ButtonGroup.checkboxButtonGroup [ ButtonGroup.small ]
+                [ ButtonGroup.checkboxButton comparison.matches
+                    [ Button.attrs
+                        [ if comparison.matches then
+                            class "fa fa-check"
+                          else
+                            class "fa fa-times"
+                        , onMenuItemCheck <| Toggle comparison.left.id comparison.right.id
+                        ]
+                    , Button.secondary
+                    ]
+                    []
+                ]
+            ]
         ]
 
 
 title model =
-    let
-        tableTitle t1 t2 =
-            tr []
-                [ th [] [ text t1 ]
-                , th [] <| metricButtons model.parameters
-                , th [] [ text t2 ]
-                , th [] [ text "Matches" ]
-                ]
-
-        getTitle on =
-            case on of
-                Gog ->
-                    "Gog Games"
-
-                Steam ->
-                    "Steam Games"
-    in
-        tableTitle (getTitle model.parameters.leftOn) (getTitle model.parameters.rightOn)
+    Table.simpleThead
+        [ Table.th [] [ metricButtons model.parameters ]
+        , Table.th [ Table.cellAttr <| class "center" ] [ selectedSource Left model.parameters ]
+        , Table.th [ Table.cellAttr <| class "center" ] [ selectedSource Right model.parameters ]
+        , Table.th [ Table.cellAttr <| class "center" ] [ text "Matches" ]
+        ]
 
 
 metricButtons parameters =
-    let
-        increment =
-            RefreshData { parameters | minimumMetric = parameters.minimumMetric + 1 }
-
-        decrement =
-            RefreshData { parameters | minimumMetric = parameters.minimumMetric - 1 }
-    in
-        [ button [ onClick increment ] [ text "+" ]
-        , div [] [ text <| "Editing distance less than " ++ (toString parameters.minimumMetric) ]
-        , button [ onClick decrement ] [ text "-" ]
+    Form.formInline []
+        [ Form.group []
+            [ Form.label [ for "distanceSpinner" ] [ text "Editing distance less than " ]
+            , Input.number
+                [ Input.id "distanceSpinner"
+                , Input.value <| toString parameters.minimumMetric
+                , Input.onInput (\v -> RefreshData { parameters | minimumMetric = Parser.parseInt v |> Maybe.withDefault 1 })
+                ]
+            ]
         ]
 
 

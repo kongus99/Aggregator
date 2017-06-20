@@ -1,6 +1,10 @@
-.center form {
-    display: table;
-    margin: 0 auto;
+.right {
+    float: right;
+}
+
+.middle {
+    display: table-cell;
+    vertical-align: middle;
 }
 
 table .cell_Gog {

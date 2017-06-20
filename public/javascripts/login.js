@@ -5888,6 +5888,23 @@ var _elm_lang$core$Set$partition = F2(
 		};
 	});
 
+var _elm_community$dict_extra$Dict_Extra$find = F2(
+	function (predicate, dict) {
+		return A3(
+			_elm_lang$core$Dict$foldl,
+			F3(
+				function (k, v, acc) {
+					var _p0 = acc;
+					if (_p0.ctor === 'Just') {
+						return acc;
+					} else {
+						return A2(predicate, k, v) ? _elm_lang$core$Maybe$Just(
+							{ctor: '_Tuple2', _0: k, _1: v}) : _elm_lang$core$Maybe$Nothing;
+					}
+				}),
+			_elm_lang$core$Maybe$Nothing,
+			dict);
+	});
 var _elm_community$dict_extra$Dict_Extra$invert = function (dict) {
 	return A3(
 		_elm_lang$core$Dict$foldl,
@@ -5904,9 +5921,9 @@ var _elm_community$dict_extra$Dict_Extra$filterMap = F2(
 			_elm_lang$core$Dict$foldl,
 			F3(
 				function (k, v, acc) {
-					var _p0 = A2(f, k, v);
-					if (_p0.ctor === 'Just') {
-						return A3(_elm_lang$core$Dict$insert, k, _p0._0, acc);
+					var _p1 = A2(f, k, v);
+					if (_p1.ctor === 'Just') {
+						return A3(_elm_lang$core$Dict$insert, k, _p1._0, acc);
 					} else {
 						return acc;
 					}
@@ -5916,15 +5933,18 @@ var _elm_community$dict_extra$Dict_Extra$filterMap = F2(
 	});
 var _elm_community$dict_extra$Dict_Extra$mapKeys = F2(
 	function (keyMapper, dict) {
-		var addKey = F3(
-			function (key, value, d) {
-				return A3(
-					_elm_lang$core$Dict$insert,
-					keyMapper(key),
-					value,
-					d);
-			});
-		return A3(_elm_lang$core$Dict$foldl, addKey, _elm_lang$core$Dict$empty, dict);
+		return A3(
+			_elm_lang$core$Dict$foldl,
+			F3(
+				function (k, v, acc) {
+					return A3(
+						_elm_lang$core$Dict$insert,
+						keyMapper(k),
+						v,
+						acc);
+				}),
+			_elm_lang$core$Dict$empty,
+			dict);
 	});
 var _elm_community$dict_extra$Dict_Extra$keepOnly = F2(
 	function (set, dict) {
@@ -5945,6 +5965,19 @@ var _elm_community$dict_extra$Dict_Extra$keepOnly = F2(
 			_elm_lang$core$Dict$empty,
 			set);
 	});
+var _elm_community$dict_extra$Dict_Extra$insertDedupe = F4(
+	function (combine, key, value, dict) {
+		var $with = function (mbValue) {
+			var _p2 = mbValue;
+			if (_p2.ctor === 'Just') {
+				return _elm_lang$core$Maybe$Just(
+					A2(combine, _p2._0, value));
+			} else {
+				return _elm_lang$core$Maybe$Just(value);
+			}
+		};
+		return A3(_elm_lang$core$Dict$update, key, $with, dict);
+	});
 var _elm_community$dict_extra$Dict_Extra$removeMany = F2(
 	function (set, dict) {
 		return A3(_elm_lang$core$Set$foldl, _elm_lang$core$Dict$remove, dict, set);
@@ -5958,6 +5991,34 @@ var _elm_community$dict_extra$Dict_Extra$removeWhen = F2(
 					return !A2(pred, k, v);
 				}),
 			dict);
+	});
+var _elm_community$dict_extra$Dict_Extra$fromListDedupeBy = F3(
+	function (combine, keyfn, xs) {
+		return A3(
+			_elm_lang$core$List$foldl,
+			F2(
+				function (x, acc) {
+					return A4(
+						_elm_community$dict_extra$Dict_Extra$insertDedupe,
+						combine,
+						keyfn(x),
+						x,
+						acc);
+				}),
+			_elm_lang$core$Dict$empty,
+			xs);
+	});
+var _elm_community$dict_extra$Dict_Extra$fromListDedupe = F2(
+	function (combine, xs) {
+		return A3(
+			_elm_lang$core$List$foldl,
+			F2(
+				function (_p3, acc) {
+					var _p4 = _p3;
+					return A4(_elm_community$dict_extra$Dict_Extra$insertDedupe, combine, _p4._0, _p4._1, acc);
+				}),
+			_elm_lang$core$Dict$empty,
+			xs);
 	});
 var _elm_community$dict_extra$Dict_Extra$fromListBy = F2(
 	function (keyfn, xs) {
@@ -5983,7 +6044,7 @@ var _elm_community$dict_extra$Dict_Extra$groupBy = F2(
 					return A3(
 						_elm_lang$core$Dict$update,
 						keyfn(x),
-						function (_p1) {
+						function (_p5) {
 							return _elm_lang$core$Maybe$Just(
 								A2(
 									_elm_lang$core$Maybe$withDefault,
@@ -5998,7 +6059,7 @@ var _elm_community$dict_extra$Dict_Extra$groupBy = F2(
 											function (x, y) {
 												return {ctor: '::', _0: x, _1: y};
 											})(x),
-										_p1)));
+										_p5)));
 						},
 						acc);
 				}),
@@ -12375,6 +12436,106 @@ var _rundis$elm_bootstrap$Bootstrap_Grid$col = F2(
 			{options: options, children: children});
 	});
 
+
+var _sporto$erl$Erl_Query$getValuesForKey = function (key) {
+	return function (_p0) {
+		return A2(
+			_elm_lang$core$List$map,
+			_elm_lang$core$Tuple$second,
+			A2(
+				_elm_lang$core$List$filter,
+				function (_p1) {
+					var _p2 = _p1;
+					return _elm_lang$core$Native_Utils.eq(_p2._0, key);
+				},
+				_p0));
+	};
+};
+var _sporto$erl$Erl_Query$remove = F2(
+	function (key, query) {
+		return A2(
+			_elm_lang$core$List$filter,
+			function (_p3) {
+				var _p4 = _p3;
+				return !_elm_lang$core$Native_Utils.eq(_p4._0, key);
+			},
+			query);
+	});
+var _sporto$erl$Erl_Query$add = F2(
+	function (key, val) {
+		return function (_p5) {
+			return _elm_lang$core$List$reverse(
+				A2(
+					F2(
+						function (x, y) {
+							return {ctor: '::', _0: x, _1: y};
+						}),
+					{ctor: '_Tuple2', _0: key, _1: val},
+					_elm_lang$core$List$reverse(_p5)));
+		};
+	});
+var _sporto$erl$Erl_Query$set = F3(
+	function (key, val, query) {
+		var without = A2(_sporto$erl$Erl_Query$remove, key, query);
+		return A3(_sporto$erl$Erl_Query$add, key, val, without);
+	});
+var _sporto$erl$Erl_Query$toString = function (query) {
+	var encodedTuples = A2(
+		_elm_lang$core$List$map,
+		function (_p6) {
+			var _p7 = _p6;
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$http$Http$encodeUri(_p7._0),
+				_1: _elm_lang$http$Http$encodeUri(_p7._1)
+			};
+		},
+		query);
+	var parts = A2(
+		_elm_lang$core$List$map,
+		function (_p8) {
+			var _p9 = _p8;
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				_p9._0,
+				A2(_elm_lang$core$Basics_ops['++'], '=', _p9._1));
+		},
+		encodedTuples);
+	return _elm_lang$core$List$isEmpty(query) ? '' : A2(
+		_elm_lang$core$Basics_ops['++'],
+		'?',
+		A2(_elm_lang$core$String$join, '&', parts));
+};
+var _sporto$erl$Erl_Query$queryStringElementToTuple = function (element) {
+	var splitted = A2(_elm_lang$core$String$split, '=', element);
+	var first = A2(
+		_elm_lang$core$Maybe$withDefault,
+		'',
+		_elm_lang$core$List$head(splitted));
+	var firstDecoded = A2(
+		_elm_lang$core$Maybe$withDefault,
+		'',
+		_elm_lang$http$Http$decodeUri(first));
+	var second = A2(
+		_elm_lang$core$Maybe$withDefault,
+		'',
+		_elm_lang$core$List$head(
+			A2(_elm_lang$core$List$drop, 1, splitted)));
+	var secondDecoded = A2(
+		_elm_lang$core$Maybe$withDefault,
+		'',
+		_elm_lang$http$Http$decodeUri(second));
+	return {ctor: '_Tuple2', _0: firstDecoded, _1: secondDecoded};
+};
+var _sporto$erl$Erl_Query$parse = function (queryString) {
+	var trimmed = A2(
+		_elm_lang$core$String$join,
+		'',
+		A2(_elm_lang$core$String$split, '?', queryString));
+	var splitted = A2(_elm_lang$core$String$split, '&', trimmed);
+	return _elm_lang$core$String$isEmpty(trimmed) ? {ctor: '[]'} : A2(_elm_lang$core$List$map, _sporto$erl$Erl_Query$queryStringElementToTuple, splitted);
+};
+
 var _sporto$erl$Erl$appendPathSegments = F2(
 	function (segments, url) {
 		var newPath = A2(_elm_lang$core$List$append, url.path, segments);
@@ -12384,48 +12545,31 @@ var _sporto$erl$Erl$appendPathSegments = F2(
 	});
 var _sporto$erl$Erl$getQueryValuesForKey = F2(
 	function (key, url) {
-		return A2(
-			_elm_lang$core$List$map,
-			_elm_lang$core$Tuple$second,
-			A2(
-				_elm_lang$core$List$filter,
-				function (_p0) {
-					var _p1 = _p0;
-					return _elm_lang$core$Native_Utils.eq(_p1._0, key);
-				},
-				url.query));
+		return A2(_sporto$erl$Erl_Query$getValuesForKey, key, url.query);
 	});
 var _sporto$erl$Erl$removeQuery = F2(
 	function (key, url) {
-		var updated = A2(
-			_elm_lang$core$List$filter,
-			function (_p2) {
-				var _p3 = _p2;
-				return !_elm_lang$core$Native_Utils.eq(_p3._0, key);
-			},
-			url.query);
 		return _elm_lang$core$Native_Utils.update(
 			url,
-			{query: updated});
-	});
-var _sporto$erl$Erl$addQuery = F3(
-	function (key, val, url) {
-		var updated = _elm_lang$core$List$reverse(
-			A2(
-				F2(
-					function (x, y) {
-						return {ctor: '::', _0: x, _1: y};
-					}),
-				{ctor: '_Tuple2', _0: key, _1: val},
-				_elm_lang$core$List$reverse(url.query)));
-		return _elm_lang$core$Native_Utils.update(
-			url,
-			{query: updated});
+			{
+				query: A2(_sporto$erl$Erl_Query$remove, key, url.query)
+			});
 	});
 var _sporto$erl$Erl$setQuery = F3(
 	function (key, val, url) {
-		var without = A2(_sporto$erl$Erl$removeQuery, key, url);
-		return A3(_sporto$erl$Erl$addQuery, key, val, without);
+		return _elm_lang$core$Native_Utils.update(
+			url,
+			{
+				query: A3(_sporto$erl$Erl_Query$set, key, val, url.query)
+			});
+	});
+var _sporto$erl$Erl$addQuery = F3(
+	function (key, val, url) {
+		return _elm_lang$core$Native_Utils.update(
+			url,
+			{
+				query: A3(_sporto$erl$Erl_Query$add, key, val, url.query)
+			});
 	});
 var _sporto$erl$Erl$clearQuery = function (url) {
 	return _elm_lang$core$Native_Utils.update(
@@ -12453,8 +12597,8 @@ var _sporto$erl$Erl$trailingSlashComponent = function (url) {
 	return _elm_lang$core$Native_Utils.eq(url.hasTrailingSlash, true) ? '/' : '';
 };
 var _sporto$erl$Erl$portComponent = function (url) {
-	var _p4 = url.port_;
-	switch (_p4) {
+	var _p0 = url.port_;
+	switch (_p0) {
 		case 0:
 			return '';
 		case 80:
@@ -12483,45 +12627,33 @@ var _sporto$erl$Erl$pathComponent = function (url) {
 		A2(_elm_lang$core$String$join, '/', encoded));
 };
 var _sporto$erl$Erl$protocolComponent = function (url) {
-	var _p5 = url.protocol;
-	if (_p5 === '') {
+	var _p1 = url.protocol;
+	if (_p1 === '') {
 		return '';
 	} else {
 		return A2(_elm_lang$core$Basics_ops['++'], url.protocol, '://');
 	}
 };
-var _sporto$erl$Erl$queryToString = function (url) {
-	var encodedTuples = A2(
-		_elm_lang$core$List$map,
-		function (_p6) {
-			var _p7 = _p6;
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$http$Http$encodeUri(_p7._0),
-				_1: _elm_lang$http$Http$encodeUri(_p7._1)
-			};
-		},
-		url.query);
-	var parts = A2(
-		_elm_lang$core$List$map,
-		function (_p8) {
-			var _p9 = _p8;
-			return A2(
-				_elm_lang$core$Basics_ops['++'],
-				_p9._0,
-				A2(_elm_lang$core$Basics_ops['++'], '=', _p9._1));
-		},
-		encodedTuples);
-	return _elm_lang$core$List$isEmpty(url.query) ? '' : A2(
-		_elm_lang$core$Basics_ops['++'],
-		'?',
-		A2(_elm_lang$core$String$join, '&', parts));
+var _sporto$erl$Erl$queryToString = function (_p2) {
+	return _sporto$erl$Erl_Query$toString(
+		function (_) {
+			return _.query;
+		}(_p2));
 };
-var _sporto$erl$Erl$toString = function (url) {
+var _sporto$erl$Erl$toAbsoluteString = function (url) {
 	var hash = _sporto$erl$Erl$hashToString(url);
 	var query_ = _sporto$erl$Erl$queryToString(url);
 	var trailingSlash_ = _sporto$erl$Erl$trailingSlashComponent(url);
 	var path_ = _sporto$erl$Erl$pathComponent(url);
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		path_,
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			trailingSlash_,
+			A2(_elm_lang$core$Basics_ops['++'], query_, hash)));
+};
+var _sporto$erl$Erl$toString = function (url) {
 	var port_ = _sporto$erl$Erl$portComponent(url);
 	var host_ = _sporto$erl$Erl$hostComponent(url);
 	var protocol_ = _sporto$erl$Erl$protocolComponent(url);
@@ -12534,41 +12666,11 @@ var _sporto$erl$Erl$toString = function (url) {
 			A2(
 				_elm_lang$core$Basics_ops['++'],
 				port_,
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					path_,
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						trailingSlash_,
-						A2(_elm_lang$core$Basics_ops['++'], query_, hash))))));
+				_sporto$erl$Erl$toAbsoluteString(url))));
 };
-var _sporto$erl$Erl$queryStringElementToTuple = function (element) {
-	var splitted = A2(_elm_lang$core$String$split, '=', element);
-	var first = A2(
-		_elm_lang$core$Maybe$withDefault,
-		'',
-		_elm_lang$core$List$head(splitted));
-	var firstDecoded = A2(
-		_elm_lang$core$Maybe$withDefault,
-		'',
-		_elm_lang$http$Http$decodeUri(first));
-	var second = A2(
-		_elm_lang$core$Maybe$withDefault,
-		'',
-		_elm_lang$core$List$head(
-			A2(_elm_lang$core$List$drop, 1, splitted)));
-	var secondDecoded = A2(
-		_elm_lang$core$Maybe$withDefault,
-		'',
-		_elm_lang$http$Http$decodeUri(second));
-	return {ctor: '_Tuple2', _0: firstDecoded, _1: secondDecoded};
-};
-var _sporto$erl$Erl$parseQuery = function (queryString) {
-	var splitted = A2(_elm_lang$core$String$split, '&', queryString);
-	return _elm_lang$core$String$isEmpty(queryString) ? {ctor: '[]'} : A2(_elm_lang$core$List$map, _sporto$erl$Erl$queryStringElementToTuple, splitted);
-};
+var _sporto$erl$Erl$parseQuery = _sporto$erl$Erl_Query$parse;
 var _sporto$erl$Erl$extractQuery = function (str) {
-	return A2(
+	var query = A2(
 		_elm_lang$core$Maybe$withDefault,
 		'',
 		_elm_lang$core$List$head(
@@ -12583,6 +12685,7 @@ var _sporto$erl$Erl$extractQuery = function (str) {
 							_elm_lang$core$List$drop,
 							1,
 							A2(_elm_lang$core$String$split, '?', str)))))));
+	return _elm_lang$core$String$isEmpty(query) ? '' : A2(_elm_lang$core$Basics_ops['++'], '?', query);
 };
 var _sporto$erl$Erl$queryFromAll = function (all) {
 	return _sporto$erl$Erl$parseQuery(
@@ -12606,8 +12709,8 @@ var _sporto$erl$Erl$parseHost = function (str) {
 };
 var _sporto$erl$Erl$extractProtocol = function (str) {
 	var parts = A2(_elm_lang$core$String$split, '://', str);
-	var _p10 = _elm_lang$core$List$length(parts);
-	if (_p10 === 1) {
+	var _p3 = _elm_lang$core$List$length(parts);
+	if (_p3 === 1) {
 		return '';
 	} else {
 		return A2(
@@ -12624,12 +12727,12 @@ var _sporto$erl$Erl$extractPort = function (str) {
 		rx,
 		str);
 	return function (result) {
-		var _p11 = result;
-		if (_p11.ctor === 'Ok') {
-			return _p11._0;
+		var _p4 = result;
+		if (_p4.ctor === 'Ok') {
+			return _p4._0;
 		} else {
-			var _p12 = _sporto$erl$Erl$extractProtocol(str);
-			switch (_p12) {
+			var _p5 = _sporto$erl$Erl$extractProtocol(str);
+			switch (_p5) {
 				case 'http':
 					return 80;
 				case 'https':
@@ -12662,8 +12765,8 @@ var _sporto$erl$Erl$leftFrom = F2(
 	function (delimiter, str) {
 		var parts = A2(_elm_lang$core$String$split, delimiter, str);
 		var head = _elm_lang$core$List$head(parts);
-		var _p13 = _elm_lang$core$List$length(parts);
-		switch (_p13) {
+		var _p6 = _elm_lang$core$List$length(parts);
+		switch (_p6) {
 			case 0:
 				return '';
 			case 1:
@@ -12729,14 +12832,14 @@ var _sporto$erl$Erl$extractPath = function (str) {
 		_elm_lang$core$Regex$replace,
 		_elm_lang$core$Regex$AtMost(1),
 		_elm_lang$core$Regex$regex(':\\d+'),
-		function (_p14) {
+		function (_p7) {
 			return '';
 		},
 		A4(
 			_elm_lang$core$Regex$replace,
 			_elm_lang$core$Regex$AtMost(1),
 			_elm_lang$core$Regex$regex(host),
-			function (_p15) {
+			function (_p8) {
 				return '';
 			},
 			A2(
@@ -12762,8 +12865,8 @@ var _sporto$erl$Erl$hasTrailingSlashFromAll = function (str) {
 var _sporto$erl$Erl$rightFrom = F2(
 	function (delimiter, str) {
 		var parts = A2(_elm_lang$core$String$split, delimiter, str);
-		var _p16 = _elm_lang$core$List$length(parts);
-		switch (_p16) {
+		var _p9 = _elm_lang$core$List$length(parts);
+		switch (_p9) {
 			case 0:
 				return '';
 			case 1:
