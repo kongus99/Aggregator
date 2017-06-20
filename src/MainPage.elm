@@ -1,25 +1,25 @@
 port module MainPage exposing (..)
 
-import Filters
-import GameOptionsDialog
-import Parser
-import Html exposing (Html, button, br, input, div, text, span, tr, th, td, select, option, a, label, thead, tbody, p, h2, h3)
-import Html.Attributes exposing (checked, class, href, name, placeholder, selected, style, type_, value)
-import Html.Events exposing (onClick, on, targetValue, onInput, onCheck)
-import Json.Decode as Json
-import GameEntry exposing (..)
-import Http
-import Task
-import Erl
-import Model exposing (..)
-import Router exposing (..)
-import WebSocket
-import List.Extra as Lists
-import Bootstrap.CDN as CDN
-import Bootstrap.Table as Table
 import Bootstrap.Button as Button
+import Bootstrap.CDN as CDN
 import Bootstrap.Modal as Modal
+import Bootstrap.Table as Table
+import Erl
+import Filters
+import GameEntry exposing (..)
+import GameOptionsDialog
+import Html exposing (Html, a, br, button, div, h2, h3, input, label, option, p, select, span, tbody, td, text, th, thead, tr)
+import Html.Attributes exposing (checked, class, href, name, placeholder, selected, style, type_, value)
+import Html.Events exposing (on, onCheck, onClick, onInput, targetValue)
+import Http
+import Json.Decode as Json
+import List.Extra as Lists
+import Model exposing (..)
+import Parser
 import Price exposing (roundToString)
+import Router exposing (..)
+import Task
+import WebSocket
 
 
 initProgram : String -> ( Model, Cmd Msg )
@@ -37,7 +37,7 @@ initProgram address =
         ( filters, cmd ) =
             Filters.initialize url
     in
-        ( initialModel protocol host filters, Cmd.map FiltersMessage cmd )
+    ( initialModel protocol host filters, Cmd.map FiltersMessage cmd )
 
 
 main =
@@ -96,21 +96,21 @@ update msg model =
                 newFilters =
                     Filters.replace newValues model.filters
             in
-                ( { model | filters = newFilters, message = newFilters.err |> Maybe.map toString }, Cmd.none )
+            ( { model | filters = newFilters, message = newFilters.err |> Maybe.map toString }, Cmd.none )
 
         DialogOpen steamId ->
             let
                 options =
                     GameOptionsDialog.emptyModel model.filters.userId (Maybe.withDefault 0 steamId) DialogMessage GeneralError
             in
-                { model | options = options } ! [ GameOptionsDialog.open options ]
+            { model | options = options } ! [ GameOptionsDialog.open options ]
 
         DialogClose state ->
             let
                 options =
                     GameOptionsDialog.close model.options
             in
-                { model | options = options } ! [ GameOptionsDialog.refresh Ack options ]
+            { model | options = options } ! [ GameOptionsDialog.refresh Ack options ]
 
         GeneralError err ->
             ( { model | message = toString err |> Just }, Cmd.none )
@@ -120,7 +120,7 @@ update msg model =
                 ( options, cmd ) =
                     GameOptionsDialog.update msg model.options
             in
-                ( { model | options = options }, Cmd.map DialogMessage cmd )
+            ( { model | options = options }, Cmd.map DialogMessage cmd )
 
         FiltersMessage msg ->
             let
@@ -133,7 +133,7 @@ update msg model =
                 adjustAddress model =
                     Filters.serialize model.filters |> routes.main.page |> .url |> elmAddressChange
             in
-                newModel ! [ Cmd.map FiltersMessage cmd, adjustAddress newModel ]
+            newModel ! [ Cmd.map FiltersMessage cmd, adjustAddress newModel ]
 
         Ack msg ->
             model ! []
@@ -192,7 +192,7 @@ gameOptionsButton entry =
                 ]
                 []
     in
-        entry.steamId |> Maybe.map (\_ -> dialogButton entry) |> Maybe.withDefault (div [] [])
+    entry.steamId |> Maybe.map (\_ -> dialogButton entry) |> Maybe.withDefault (div [] [])
 
 
 alternatePrices priceEntries =
@@ -204,7 +204,7 @@ alternatePrices priceEntries =
                 , div [] [ text <| roundToString 2 e.price ]
                 ]
     in
-        List.map price priceEntries
+    List.map price priceEntries
 
 
 toStyle gameEntry =

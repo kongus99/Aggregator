@@ -1,13 +1,13 @@
-module Router exposing (routes, MethodGenerator, resolveResponse, refreshSocketUrl, decodeWebSocketResult)
+module Router exposing (MethodGenerator, decodeWebSocketResult, refreshSocketUrl, resolveResponse, routes)
 
+import Erl
+import GameEntry exposing (GameEntry, WebSocketRefreshResult)
 import Http
 import Json.Decode as Json exposing (..)
 import Model exposing (..)
-import GameEntry exposing (GameEntry, WebSocketRefreshResult)
-import String
-import Erl
 import Parser
 import Price exposing (AlternatePrice, Price)
+import String
 
 
 --ROUTES
@@ -43,24 +43,24 @@ type alias Comparison =
 
 routes =
     { login =
-        { fetchUsers = (generateGetMethod "login/fetchUsers" (list decodedUserEntry))
-        , createUpdate = (generatePostMethod "login/createUpdate" decodedUserEntry)
-        , steamAlternate = (generatePostMethod "login/steamAlternate" decodedUserEntry)
+        { fetchUsers = generateGetMethod "login/fetchUsers" (list decodedUserEntry)
+        , createUpdate = generatePostMethod "login/createUpdate" decodedUserEntry
+        , steamAlternate = generatePostMethod "login/steamAlternate" decodedUserEntry
         }
     , main =
-        { fetch = (generateGetMethod "main/fetch" (list decodedGameEntry))
-        , page = (generateGetMethod "main" string)
+        { fetch = generateGetMethod "main/fetch" (list decodedGameEntry)
+        , page = generateGetMethod "main" string
         }
     , gameOptions =
-        { fetch = (generateGetMethod "gameOptions/fetch" decodedGameOptionsEntry)
-        , changeSelectedSearch = (generatePostMethod "gameOptions/changeSelectedSearch" string)
-        , fetchSearchResults = (generateGetMethod "gameOptions/fetchSearchResults" decodedGameOptionsEntry)
-        , triggerRefresh = (generatePostMethod "gameOptions/refresh" string)
+        { fetch = generateGetMethod "gameOptions/fetch" decodedGameOptionsEntry
+        , changeSelectedSearch = generatePostMethod "gameOptions/changeSelectedSearch" string
+        , fetchSearchResults = generateGetMethod "gameOptions/fetchSearchResults" decodedGameOptionsEntry
+        , triggerRefresh = generatePostMethod "gameOptions/refresh" string
         }
     , comparison =
-        { toggleSelected = (generatePostMethod "comparison/toggleMatch" string)
-        , comparisonData = (generateGetMethod "comparison/data" (list decodedComparisonEntry))
-        , page = (generateGetMethod "comparison" string)
+        { toggleSelected = generatePostMethod "comparison/toggleMatch" string
+        , comparisonData = generateGetMethod "comparison/data" (list decodedComparisonEntry)
+        , page = generateGetMethod "comparison" string
         }
     }
 
@@ -72,9 +72,9 @@ routes =
 refreshSocketUrl : Protocol -> String -> Int -> String
 refreshSocketUrl protocol host userId =
     if protocol == Https then
-        "wss://" ++ host ++ "/refreshsocket/" ++ (toString userId)
+        "wss://" ++ host ++ "/refreshsocket/" ++ toString userId
     else
-        "ws://" ++ host ++ "/refreshsocket/" ++ (toString userId)
+        "ws://" ++ host ++ "/refreshsocket/" ++ toString userId
 
 
 decodeWebSocketResult : String -> WebSocketRefreshResult
@@ -93,7 +93,7 @@ csvRowDecoder separator stringDecoder =
 
 
 decodedUserEntry =
-    map4 User (field "id" (maybe int)) (field "steamLogin" (maybe string)) (field "steamAlternate" (bool)) (field "gogLogin" (maybe string))
+    map4 User (field "id" (maybe int)) (field "steamLogin" (maybe string)) (field "steamAlternate" bool) (field "gogLogin" (maybe string))
 
 
 decodedGogEntry =
@@ -152,7 +152,7 @@ generateGetMethod base decoder params =
         url =
             generateAddress base params
     in
-        { url = url, request = Http.get url decoder }
+    { url = url, request = Http.get url decoder }
 
 
 generatePostMethod base decoder params =
@@ -160,7 +160,7 @@ generatePostMethod base decoder params =
         url =
             generateAddress base params
     in
-        { url = url, request = Http.post url Http.emptyBody decoder }
+    { url = url, request = Http.post url Http.emptyBody decoder }
 
 
 generateAddress : String -> List ( String, String ) -> String
@@ -172,7 +172,7 @@ generateAddress resourceName params =
         folder ( k, v ) u =
             Erl.addQuery k v u
     in
-        List.foldl folder defaultUrl params |> Erl.toString
+    List.foldl folder defaultUrl params |> Erl.toString
 
 
 resolveResponse : (a -> c) -> (b -> c) -> Result b a -> c

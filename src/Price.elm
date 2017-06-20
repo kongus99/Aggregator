@@ -21,9 +21,9 @@ priceToString price =
                 percentage =
                     (((price.normal - discounted) / price.normal) * 100) |> round
             in
-                (roundToString 2 price.normal) ++ " (-" ++ toString percentage ++ "%) " ++ (roundToString 2 discounted)
+            roundToString 2 price.normal ++ " (-" ++ toString percentage ++ "%) " ++ roundToString 2 discounted
     in
-        price.discounted |> Maybe.map formatDiscounted |> Maybe.withDefault (roundToString 2 price.normal)
+    price.discounted |> Maybe.map formatDiscounted |> Maybe.withDefault (roundToString 2 price.normal)
 
 
 roundToString : Int -> Float -> String
@@ -38,7 +38,7 @@ roundToString precision number =
         fraction =
             String.dropLeft (String.length total) integerRepresentation
     in
-        total ++ "." ++ fraction
+    total ++ "." ++ fraction
 
 
 filterByPriceRange : PriceRange -> (a -> Maybe Price) -> List a -> List a
@@ -50,7 +50,7 @@ filterByPriceRange range extractor entries =
         bounds =
             ( range.low |> Maybe.withDefault 0, range.high |> Maybe.withDefault 1000000 )
     in
-        List.filter (\e -> extractor e |> (filter bounds)) entries
+    List.filter (\e -> extractor e |> filter bounds) entries
 
 
 filterByAlternatePrices : (a -> Maybe AlternatePrice) -> (a -> Maybe Price) -> List a -> List a
@@ -65,7 +65,7 @@ filterByAlternatePrices alternativeExtractor priceExtractor entries =
         alternative e =
             alternativeExtractor e |> Maybe.map .price
     in
-        List.filter (\e -> ( price e, alternative e ) |> filter) entries
+    List.filter (\e -> ( price e, alternative e ) |> filter) entries
 
 
 discountedIfAvailable : Maybe Price -> Maybe Float
@@ -77,7 +77,7 @@ discountedIfAvailable price =
             else
                 discounted
     in
-        Maybe.andThen selectPrice price
+    Maybe.andThen selectPrice price
 
 
 isDiscounted : Price -> Bool

@@ -1,23 +1,23 @@
 port module Comparison exposing (..)
 
 import AllDict exposing (AllDict)
-import Html exposing (Html, button, div, input, option, select, span, table, td, text, th, thead, tr)
-import Html.Attributes exposing (checked, class, contenteditable, for, readonly, selected, type_, value)
-import Html.Events exposing (onClick, on, targetValue)
-import HtmlHelpers exposing (onMenuItemCheck, onSelect)
-import Http
-import Json.Decode as Json exposing (string, map3, field, decodeString)
-import Task
-import Bootstrap.CDN as CDN
-import Bootstrap.Table as Table
-import Bootstrap.Form as Form
-import Bootstrap.Form.Input as Input
 import Bootstrap.Button as Button
 import Bootstrap.ButtonGroup as ButtonGroup
-import String
-import Router exposing (..)
+import Bootstrap.CDN as CDN
+import Bootstrap.Form as Form
+import Bootstrap.Form.Input as Input
+import Bootstrap.Table as Table
+import Html exposing (Html, button, div, input, option, select, span, table, td, text, th, thead, tr)
+import Html.Attributes exposing (checked, class, contenteditable, for, readonly, selected, type_, value)
+import Html.Events exposing (on, onClick, targetValue)
+import HtmlHelpers exposing (onMenuItemCheck, onSelect)
+import Http
+import Json.Decode as Json exposing (decodeString, field, map3, string)
 import Model exposing (..)
 import Parser
+import Router exposing (..)
+import String
+import Task
 
 
 initProgram : String -> ( Model, Cmd Msg )
@@ -32,7 +32,7 @@ initProgram address =
         decodedParameters =
             Json.decodeString decodeAddress address |> Result.toMaybe |> Maybe.withDefault initialModel.parameters
     in
-        ( { initialModel | parameters = decodedParameters }, refresh decodedParameters )
+    ( { initialModel | parameters = decodedParameters }, refresh decodedParameters )
 
 
 main =
@@ -113,14 +113,14 @@ update msg model =
                 newComparisons =
                     List.map updateEntry model.comparisons
             in
-                ( { model | comparisons = newComparisons }
-                , postUpdate
-                    [ ( "leftOn", toString model.parameters.leftOn )
-                    , ( "rightOn", toString model.parameters.rightOn )
-                    , ( "leftId", toString leftId )
-                    , ( "rightId", toString rightId )
-                    ]
-                )
+            ( { model | comparisons = newComparisons }
+            , postUpdate
+                [ ( "leftOn", toString model.parameters.leftOn )
+                , ( "rightOn", toString model.parameters.rightOn )
+                , ( "leftId", toString leftId )
+                , ( "rightId", toString rightId )
+                ]
+            )
 
         ToggleStored mess ->
             ( model, Cmd.none )
@@ -162,10 +162,10 @@ selectedSource side parameters =
             else
                 parameters.rightOn
     in
-        ButtonGroup.radioButtonGroup [ ButtonGroup.small ]
-            [ ButtonGroup.radioButton (gameOn == Gog) [ Button.secondary, Button.onClick <| refreshSide Gog ] [ text <| toString Gog ]
-            , ButtonGroup.radioButton (gameOn == Steam) [ Button.secondary, Button.onClick <| refreshSide Steam ] [ text <| toString Steam ]
-            ]
+    ButtonGroup.radioButtonGroup [ ButtonGroup.small ]
+        [ ButtonGroup.radioButton (gameOn == Gog) [ Button.secondary, Button.onClick <| refreshSide Gog ] [ text <| toString Gog ]
+        , ButtonGroup.radioButton (gameOn == Steam) [ Button.secondary, Button.onClick <| refreshSide Steam ] [ text <| toString Steam ]
+        ]
 
 
 tableRows comparisonList =
@@ -232,4 +232,4 @@ getResponse params =
         url =
             params |> routes.comparison.page |> .url
     in
-        Cmd.batch [ Http.send (Router.resolveResponse ReceiveData DataError) request, elmAddressChange url ]
+    Cmd.batch [ Http.send (Router.resolveResponse ReceiveData DataError) request, elmAddressChange url ]

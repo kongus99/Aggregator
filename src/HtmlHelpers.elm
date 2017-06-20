@@ -1,4 +1,4 @@
-module HtmlHelpers exposing (onSelect, onMultiSelect, onEnter, onLinkClick, onMenuItemCheck, onMenuItemClick)
+module HtmlHelpers exposing (onEnter, onLinkClick, onMenuItemCheck, onMenuItemClick, onMultiSelect, onSelect)
 
 import Array
 import Dict
@@ -41,7 +41,7 @@ onEnter msg =
             else
                 Json.fail "not ENTER"
     in
-        on "keydown" (Json.andThen isEnter keyCode)
+    on "keydown" (Json.andThen isEnter keyCode)
 
 
 type alias Option =

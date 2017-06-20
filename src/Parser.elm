@@ -15,7 +15,7 @@ parseFloat value =
 
 parseBool : String -> Maybe Bool
 parseBool value =
-    case (String.toLower value) of
+    case String.toLower value of
         "true" ->
             Just True
 

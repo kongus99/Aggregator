@@ -2,24 +2,24 @@ module Login exposing (..)
 
 import Array exposing (Array)
 import Autocomplete
-import Dom
-import Html exposing (Html, a, br, button, div, form, input, label, span, text)
-import Html.Attributes exposing (action, autocomplete, checked, class, classList, disabled, href, id, method, name, style, type_, value)
-import Html.Events exposing (keyCode, onBlur, onCheck, onClick, onFocus, onInput, onSubmit, onWithOptions)
-import LoginData exposing (LoginData)
-import Model exposing (..)
-import Router exposing (routes)
-import Http
-import Json.Decode as Json
-import Task
-import Bootstrap.CDN as CDN
 import Bootstrap.Button as Button
 import Bootstrap.ButtonGroup as ButtonGroup
+import Bootstrap.CDN as CDN
 import Bootstrap.Form as Form
 import Bootstrap.Form.Input as Input
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Grid.Row as Row
+import Dom
+import Html exposing (Html, a, br, button, div, form, input, label, span, text)
+import Html.Attributes exposing (action, autocomplete, checked, class, classList, disabled, href, id, method, name, style, type_, value)
+import Html.Events exposing (keyCode, onBlur, onCheck, onClick, onFocus, onInput, onSubmit, onWithOptions)
+import Http
+import Json.Decode as Json
+import LoginData exposing (LoginData)
+import Model exposing (..)
+import Router exposing (routes)
+import Task
 
 
 main =
@@ -59,7 +59,7 @@ initialModel =
 updateConfig : Maybe GameOn -> Autocomplete.UpdateConfig Msg User
 updateConfig activeInput =
     Autocomplete.updateConfig
-        { toId = (LoginData.idGetter activeInput)
+        { toId = LoginData.idGetter activeInput
         , onKeyDown =
             \code maybeId ->
                 if code == 38 || code == 40 then
@@ -121,19 +121,19 @@ update msg model =
                 newModel =
                     { model | autoState = newState }
             in
-                case maybeMsg of
-                    Nothing ->
-                        newModel ! []
+            case maybeMsg of
+                Nothing ->
+                    newModel ! []
 
-                    Just updateMsg ->
-                        update updateMsg newModel
+                Just updateMsg ->
+                    update updateMsg newModel
 
         SelectUser name ->
             { model | message = "", data = LoginData.selectUser name model.data } ! []
 
         CreateUpdateUser u ->
             { model | message = "" }
-                ! [ serializeUser u |> routes.login.createUpdate |> .request |> (getResponse UserFetched) ]
+                ! [ serializeUser u |> routes.login.createUpdate |> .request |> getResponse UserFetched ]
 
         UserFetched u ->
             { model | message = "", data = LoginData.setUser u model.data } ! []
@@ -174,12 +174,12 @@ update msg model =
                         args
 
                 sendUpdate _ =
-                    serializeUser model.data.user |> changeAlternate |> routes.login.steamAlternate |> .request |> (getResponse UserFetched)
+                    serializeUser model.data.user |> changeAlternate |> routes.login.steamAlternate |> .request |> getResponse UserFetched
 
                 newModel =
                     { model | message = "", data = LoginData.setUser newUser model.data }
             in
-                newModel ! [ Maybe.map sendUpdate newModel.data.user.id |> Maybe.withDefault Cmd.none ]
+            newModel ! [ Maybe.map sendUpdate newModel.data.user.id |> Maybe.withDefault Cmd.none ]
 
         ResponseError err ->
             { model | message = toString err } ! []
@@ -193,7 +193,7 @@ update msg model =
 
 sendUsersRequest user username =
     if String.length username == 0 then
-        serializeUser user |> routes.login.fetchUsers |> .request |> (getResponse UsersFetched)
+        serializeUser user |> routes.login.fetchUsers |> .request |> getResponse UsersFetched
     else
         Cmd.none
 
@@ -218,11 +218,11 @@ viewConfig activeInput =
             , children = [ Html.text (LoginData.idGetter activeInput user) ]
             }
     in
-        Autocomplete.viewConfig
-            { toId = (LoginData.idGetter activeInput)
-            , ul = [ class "autocomplete-list" ]
-            , li = customizedLi
-            }
+    Autocomplete.viewConfig
+        { toId = LoginData.idGetter activeInput
+        , ul = [ class "autocomplete-list" ]
+        , li = customizedLi
+        }
 
 
 view : Model -> Html Msg
@@ -238,12 +238,12 @@ usernameForm model =
         ( typedSteamUsername, typedGogUsername, typedSteamAlternate ) =
             userData (Just model.data.user)
     in
-        Form.form [ onSubmit NoOp ]
-            [ Form.row [] [ Form.col [ Col.offsetXs3, Col.xs6 ] [ span [] [ text model.message ] ] ]
-            , steamInput model typedSteamUsername
-            , alternateSteamInput model.data
-            , gogInput model typedGogUsername
-            ]
+    Form.form [ onSubmit NoOp ]
+        [ Form.row [] [ Form.col [ Col.offsetXs3, Col.xs6 ] [ span [] [ text model.message ] ] ]
+        , steamInput model typedSteamUsername
+        , alternateSteamInput model.data
+        , gogInput model typedGogUsername
+        ]
 
 
 alternateSteamInput data =
@@ -260,18 +260,18 @@ alternateSteamInput data =
             else
                 "Steam login method : Normal"
     in
-        Form.row []
-            [ Form.col [ Col.offsetXs5, Col.xs2 ]
-                [ ButtonGroup.checkboxButtonGroup [ ButtonGroup.attrs [ class "btn-block" ] ]
-                    [ ButtonGroup.checkboxButton data.user.steamAlternate
-                        [ buttonCheck
-                        , Button.secondary
-                        , Button.block
-                        ]
-                        [ text buttonText ]
+    Form.row []
+        [ Form.col [ Col.offsetXs5, Col.xs2 ]
+            [ ButtonGroup.checkboxButtonGroup [ ButtonGroup.attrs [ class "btn-block" ] ]
+                [ ButtonGroup.checkboxButton data.user.steamAlternate
+                    [ buttonCheck
+                    , Button.secondary
+                    , Button.block
                     ]
+                    [ text buttonText ]
                 ]
             ]
+        ]
 
 
 steamInput model typed =
@@ -287,21 +287,21 @@ usernameInput model activeInput name inputMsg focusMsg typed =
         filteredUsers =
             LoginData.filterUsers model.data
     in
-        Form.row []
-            [ Form.col [ Col.offsetXs5, Col.xs2 ]
-                [ Input.text
-                    [ Input.disabled model.data.userLoaded
-                    , Input.placeholder name
-                    , Input.onInput inputMsg
-                    , Input.attrs [ onFocus focusMsg ]
-                    , Input.value typed
-                    ]
-                , if model.data.activeUsername == activeInput && not (List.isEmpty filteredUsers) then
-                    Html.map SetAutoState (Autocomplete.view (viewConfig model.data.activeUsername) model.showHowMany model.autoState filteredUsers)
-                  else
-                    div [] []
+    Form.row []
+        [ Form.col [ Col.offsetXs5, Col.xs2 ]
+            [ Input.text
+                [ Input.disabled model.data.userLoaded
+                , Input.placeholder name
+                , Input.onInput inputMsg
+                , Input.attrs [ onFocus focusMsg ]
+                , Input.value typed
                 ]
+            , if model.data.activeUsername == activeInput && not (List.isEmpty filteredUsers) then
+                Html.map SetAutoState (Autocomplete.view (viewConfig model.data.activeUsername) model.showHowMany model.autoState filteredUsers)
+              else
+                div [] []
             ]
+        ]
 
 
 actionButton model =

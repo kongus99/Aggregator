@@ -1,11 +1,11 @@
 module GameEntry
     exposing
         ( GameEntry
-        , update
-        , WebSocketRefreshResult
         , GameEntryRow
-        , toGameEntryRow
+        , WebSocketRefreshResult
         , serializeValue
+        , toGameEntryRow
+        , update
         )
 
 import Dict exposing (Dict)
@@ -80,17 +80,17 @@ updatePrices newData sources oldData =
                         groupedPrices =
                             steamIds |> List.map (\id -> ( id, [] )) |> Dict.fromList |> Dict.union existingGroupedPrices
                     in
-                        oldData
-                            |> List.map
-                                (\g ->
-                                    let
-                                        toReplace =
-                                            g.steamId
-                                                |> Maybe.andThen (\id -> Dict.get id groupedPrices)
-                                                |> Maybe.withDefault g.alternatePrices
-                                    in
-                                        { g | alternatePrices = toReplace }
-                                )
+                    oldData
+                        |> List.map
+                            (\g ->
+                                let
+                                    toReplace =
+                                        g.steamId
+                                            |> Maybe.andThen (\id -> Dict.get id groupedPrices)
+                                            |> Maybe.withDefault g.alternatePrices
+                                in
+                                { g | alternatePrices = toReplace }
+                            )
                 )
             |> Maybe.withDefault oldData
 
@@ -154,4 +154,4 @@ toGameEntryRow gameEntry =
         gogEntryRow list =
             List.head list |> Maybe.map gogToRow |> Maybe.withDefault emptyGameRow
     in
-        maybeSteamEntryRow gameEntry.steam |> Maybe.withDefault (gogEntryRow gameEntry.gog)
+    maybeSteamEntryRow gameEntry.steam |> Maybe.withDefault (gogEntryRow gameEntry.gog)

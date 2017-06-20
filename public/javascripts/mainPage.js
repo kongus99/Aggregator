@@ -16943,75 +16943,6 @@ var _sporto$erl$Erl$Url = function (a) {
 	};
 };
 
-var _user$project$HtmlHelpers$targetOptions = A2(
-	_elm_lang$core$Json_Decode$map,
-	_elm_lang$core$List$filterMap(_elm_lang$core$Tuple$second),
-	A2(
-		_elm_lang$core$Json_Decode$at,
-		{
-			ctor: '::',
-			_0: 'target',
-			_1: {
-				ctor: '::',
-				_0: 'selectedOptions',
-				_1: {ctor: '[]'}
-			}
-		},
-		_elm_lang$core$Json_Decode$keyValuePairs(
-			_elm_lang$core$Json_Decode$maybe(
-				A2(_elm_lang$core$Json_Decode$field, 'value', _elm_lang$core$Json_Decode$string)))));
-var _user$project$HtmlHelpers$onEnter = function (msg) {
-	var isEnter = function (code) {
-		return _elm_lang$core$Native_Utils.eq(code, 13) ? _elm_lang$core$Json_Decode$succeed(msg) : _elm_lang$core$Json_Decode$fail('not ENTER');
-	};
-	return A2(
-		_elm_lang$html$Html_Events$on,
-		'keydown',
-		A2(_elm_lang$core$Json_Decode$andThen, isEnter, _elm_lang$html$Html_Events$keyCode));
-};
-var _user$project$HtmlHelpers$onMultiSelect = function (msg) {
-	return A2(
-		_elm_lang$html$Html_Events$on,
-		'change',
-		A2(_elm_lang$core$Json_Decode$map, msg, _user$project$HtmlHelpers$targetOptions));
-};
-var _user$project$HtmlHelpers$onSelect = function (msg) {
-	return A2(
-		_elm_lang$html$Html_Events$on,
-		'change',
-		A2(_elm_lang$core$Json_Decode$map, msg, _elm_lang$html$Html_Events$targetValue));
-};
-var _user$project$HtmlHelpers$onMenuItemClick = function (msg) {
-	return A3(
-		_elm_lang$html$Html_Events$onWithOptions,
-		'click',
-		_elm_lang$core$Native_Utils.update(
-			_elm_lang$html$Html_Events$defaultOptions,
-			{stopPropagation: true}),
-		_elm_lang$core$Json_Decode$succeed(msg));
-};
-var _user$project$HtmlHelpers$onMenuItemCheck = function (tagger) {
-	return A3(
-		_elm_lang$html$Html_Events$onWithOptions,
-		'click',
-		_elm_lang$core$Native_Utils.update(
-			_elm_lang$html$Html_Events$defaultOptions,
-			{stopPropagation: true}),
-		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetChecked));
-};
-var _user$project$HtmlHelpers$onLinkClick = function (msg) {
-	return A3(
-		_elm_lang$html$Html_Events$onWithOptions,
-		'click',
-		_elm_lang$core$Native_Utils.update(
-			_elm_lang$html$Html_Events$defaultOptions,
-			{preventDefault: true}),
-		_elm_lang$core$Json_Decode$succeed(msg));
-};
-var _user$project$HtmlHelpers$Option = function (a) {
-	return {value: a};
-};
-
 var _user$project$Price$updateHighRange = F2(
 	function (high, range) {
 		return _elm_lang$core$Native_Utils.update(
@@ -17402,6 +17333,75 @@ var _user$project$GameEntry$WebSocketRefreshResult = F2(
 	function (a, b) {
 		return {games: a, prices: b};
 	});
+
+var _user$project$HtmlHelpers$targetOptions = A2(
+	_elm_lang$core$Json_Decode$map,
+	_elm_lang$core$List$filterMap(_elm_lang$core$Tuple$second),
+	A2(
+		_elm_lang$core$Json_Decode$at,
+		{
+			ctor: '::',
+			_0: 'target',
+			_1: {
+				ctor: '::',
+				_0: 'selectedOptions',
+				_1: {ctor: '[]'}
+			}
+		},
+		_elm_lang$core$Json_Decode$keyValuePairs(
+			_elm_lang$core$Json_Decode$maybe(
+				A2(_elm_lang$core$Json_Decode$field, 'value', _elm_lang$core$Json_Decode$string)))));
+var _user$project$HtmlHelpers$onEnter = function (msg) {
+	var isEnter = function (code) {
+		return _elm_lang$core$Native_Utils.eq(code, 13) ? _elm_lang$core$Json_Decode$succeed(msg) : _elm_lang$core$Json_Decode$fail('not ENTER');
+	};
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'keydown',
+		A2(_elm_lang$core$Json_Decode$andThen, isEnter, _elm_lang$html$Html_Events$keyCode));
+};
+var _user$project$HtmlHelpers$onMultiSelect = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(_elm_lang$core$Json_Decode$map, msg, _user$project$HtmlHelpers$targetOptions));
+};
+var _user$project$HtmlHelpers$onSelect = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(_elm_lang$core$Json_Decode$map, msg, _elm_lang$html$Html_Events$targetValue));
+};
+var _user$project$HtmlHelpers$onMenuItemClick = function (msg) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'click',
+		_elm_lang$core$Native_Utils.update(
+			_elm_lang$html$Html_Events$defaultOptions,
+			{stopPropagation: true}),
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _user$project$HtmlHelpers$onMenuItemCheck = function (tagger) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'click',
+		_elm_lang$core$Native_Utils.update(
+			_elm_lang$html$Html_Events$defaultOptions,
+			{stopPropagation: true}),
+		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetChecked));
+};
+var _user$project$HtmlHelpers$onLinkClick = function (msg) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'click',
+		_elm_lang$core$Native_Utils.update(
+			_elm_lang$html$Html_Events$defaultOptions,
+			{preventDefault: true}),
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _user$project$HtmlHelpers$Option = function (a) {
+	return {value: a};
+};
 
 var _user$project$Parser$parseProtocol = function (value) {
 	var _p0 = _elm_lang$core$String$toLower(value);

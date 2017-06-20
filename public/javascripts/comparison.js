@@ -14319,6 +14319,61 @@ var _user$project$Model$Other = {ctor: 'Other'};
 var _user$project$Model$Https = {ctor: 'Https'};
 var _user$project$Model$Http = {ctor: 'Http'};
 
+var _user$project$Parser$parseProtocol = function (value) {
+	var _p0 = _elm_lang$core$String$toLower(value);
+	switch (_p0) {
+		case 'http':
+			return _user$project$Model$Http;
+		case 'https':
+			return _user$project$Model$Https;
+		default:
+			return _user$project$Model$Other;
+	}
+};
+var _user$project$Parser$parseGameOn = function (value) {
+	var _p1 = value;
+	switch (_p1) {
+		case 'Gog':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Gog);
+		case 'Steam':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Steam);
+		default:
+			return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _user$project$Parser$parseSources = function (value) {
+	var _p2 = value;
+	switch (_p2) {
+		case 'Owned':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Owned);
+		case 'WishList':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$WishList);
+		case 'Both':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Both);
+		default:
+			return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _user$project$Parser$parseBool = function (value) {
+	var _p3 = _elm_lang$core$String$toLower(value);
+	switch (_p3) {
+		case 'true':
+			return _elm_lang$core$Maybe$Just(true);
+		case 'false':
+			return _elm_lang$core$Maybe$Just(false);
+		default:
+			return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _user$project$Parser$parseFloat = function (value) {
+	return _elm_lang$core$Result$toMaybe(
+		_elm_lang$core$String$toFloat(value));
+};
+var _user$project$Parser$parseInt = function (value) {
+	return _elm_lang$core$Result$toMaybe(
+		_elm_lang$core$String$toInt(value));
+};
+
 var _user$project$GameEntry$updatePrices = F3(
 	function (newData, sources, oldData) {
 		return _elm_lang$core$Native_Utils.eq(sources, _user$project$Model$Owned) ? oldData : A2(
@@ -14524,61 +14579,6 @@ var _user$project$GameEntry$WebSocketRefreshResult = F2(
 	function (a, b) {
 		return {games: a, prices: b};
 	});
-
-var _user$project$Parser$parseProtocol = function (value) {
-	var _p0 = _elm_lang$core$String$toLower(value);
-	switch (_p0) {
-		case 'http':
-			return _user$project$Model$Http;
-		case 'https':
-			return _user$project$Model$Https;
-		default:
-			return _user$project$Model$Other;
-	}
-};
-var _user$project$Parser$parseGameOn = function (value) {
-	var _p1 = value;
-	switch (_p1) {
-		case 'Gog':
-			return _elm_lang$core$Maybe$Just(_user$project$Model$Gog);
-		case 'Steam':
-			return _elm_lang$core$Maybe$Just(_user$project$Model$Steam);
-		default:
-			return _elm_lang$core$Maybe$Nothing;
-	}
-};
-var _user$project$Parser$parseSources = function (value) {
-	var _p2 = value;
-	switch (_p2) {
-		case 'Owned':
-			return _elm_lang$core$Maybe$Just(_user$project$Model$Owned);
-		case 'WishList':
-			return _elm_lang$core$Maybe$Just(_user$project$Model$WishList);
-		case 'Both':
-			return _elm_lang$core$Maybe$Just(_user$project$Model$Both);
-		default:
-			return _elm_lang$core$Maybe$Nothing;
-	}
-};
-var _user$project$Parser$parseBool = function (value) {
-	var _p3 = _elm_lang$core$String$toLower(value);
-	switch (_p3) {
-		case 'true':
-			return _elm_lang$core$Maybe$Just(true);
-		case 'false':
-			return _elm_lang$core$Maybe$Just(false);
-		default:
-			return _elm_lang$core$Maybe$Nothing;
-	}
-};
-var _user$project$Parser$parseFloat = function (value) {
-	return _elm_lang$core$Result$toMaybe(
-		_elm_lang$core$String$toFloat(value));
-};
-var _user$project$Parser$parseInt = function (value) {
-	return _elm_lang$core$Result$toMaybe(
-		_elm_lang$core$String$toInt(value));
-};
 
 var _user$project$Router$resolveResponse = F3(
 	function (successResolver, errorResolver, response) {

@@ -1,6 +1,9 @@
-module GameOptionsDialog exposing (model, emptyModel, view, Model, Msg, update, open, close, refresh)
+module GameOptionsDialog exposing (Model, Msg, close, emptyModel, model, open, refresh, update, view)
 
 import Array exposing (Array)
+import Bootstrap.Button as Button
+import Bootstrap.Modal as Modal
+import Bootstrap.Table as Table
 import Html exposing (Attribute, Html, div, h4, input, label, table, tbody, td, text, th, thead, tr)
 import Html.Attributes exposing (checked, class, name, type_, value)
 import Html.Events exposing (keyCode, on, onClick, onInput)
@@ -9,9 +12,6 @@ import Http
 import Json.Decode as Json
 import Model exposing (GameOptions, GameQuery)
 import Router exposing (routes)
-import Bootstrap.Modal as Modal
-import Bootstrap.Button as Button
-import Bootstrap.Table as Table
 
 
 -- MODEL
@@ -46,7 +46,7 @@ type Msg
 
 updateArray : Int -> (a -> a) -> Array a -> Array a
 updateArray n f a =
-    case (Array.get n a) of
+    case Array.get n a of
         Nothing ->
             a
 
@@ -63,7 +63,7 @@ updateQuery queryIndex queryUpdate model =
         updateOptions options =
             { options | queries = updateQueries options.queries }
     in
-        { model | gameOptions = Maybe.map updateOptions model.gameOptions }
+    { model | gameOptions = Maybe.map updateOptions model.gameOptions }
 
 
 serializeSelectedQuery : Int -> (GameQuery -> List ( String, String )) -> Model msg -> List ( String, String )
@@ -82,7 +82,7 @@ update msg model =
                     else
                         Maybe.andThen
                             (\r ->
-                                if (r == newSelectedResult) then
+                                if r == newSelectedResult then
                                     Nothing
                                 else
                                     Just newSelectedResult
@@ -98,7 +98,7 @@ update msg model =
                 serialized =
                     serializeSelectedQuery queryIndex (\q -> ( "site", q.site ) :: getSelectedResult q.selectedResult) newModel
             in
-                ( { newModel | message = Nothing }, saveSwitched serialized newModel )
+            ( { newModel | message = Nothing }, saveSwitched serialized newModel )
 
         Switched msg ->
             ( { model | message = Just msg }, Cmd.none )
@@ -111,7 +111,7 @@ update msg model =
                 newModel =
                     updateQuery queryIndex (\q -> { q | query = newQuery }) model
             in
-                ( { newModel | message = Nothing }, Cmd.none )
+            ( { newModel | message = Nothing }, Cmd.none )
 
         GetNewResults queryIndex ->
             let
@@ -121,7 +121,7 @@ update msg model =
                 serialized =
                     serializeSelectedQuery queryIndex (\q -> [ ( "query", q.query ), ( "site", q.site ) ]) newModel
             in
-                ( { newModel | message = Nothing }, newResults serialized model )
+            ( { newModel | message = Nothing }, newResults serialized model )
 
         NewResults results ->
             ( { model | message = Nothing, gameOptions = Just results, state = Modal.visibleState }, Cmd.none )
@@ -174,8 +174,8 @@ view close model =
         (\o ->
             Modal.config close
                 |> Modal.large
-                |> (dialogHeader o)
-                |> (dialogBody model.success o)
+                |> dialogHeader o
+                |> dialogBody model.success o
                 |> Modal.footer [] [ text (Maybe.withDefault "" model.message) ]
                 |> Modal.view model.state
         )
@@ -232,7 +232,7 @@ queryResult : Maybe String -> (String -> Msg) -> Int -> String -> Html Msg
 queryResult selectedResult msg index currentResult =
     div [ class "radio" ]
         [ label []
-            [ input [ name <| "queryResult" ++ (toString index), type_ "radio", value currentResult, checked ((Maybe.withDefault "" selectedResult) == currentResult), onClick (msg currentResult) ]
+            [ input [ name <| "queryResult" ++ toString index, type_ "radio", value currentResult, checked (Maybe.withDefault "" selectedResult == currentResult), onClick (msg currentResult) ]
                 []
             , text currentResult
             ]
