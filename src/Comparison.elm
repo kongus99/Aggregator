@@ -113,7 +113,14 @@ update msg model =
                 newComparisons =
                     List.map updateEntry model.comparisons
             in
-                ( { model | comparisons = newComparisons }, postUpdate [ ( "leftOn", toString model.parameters.leftOn ), ( "rightOn", toString model.parameters.rightOn ), ( "leftId", toString leftId ), ( "rightId", toString rightId ) ] )
+                ( { model | comparisons = newComparisons }
+                , postUpdate
+                    [ ( "leftOn", toString model.parameters.leftOn )
+                    , ( "rightOn", toString model.parameters.rightOn )
+                    , ( "leftId", toString leftId )
+                    , ( "rightId", toString rightId )
+                    ]
+                )
 
         ToggleStored mess ->
             ( model, Cmd.none )
@@ -219,7 +226,10 @@ postUpdate params =
 
 getResponse params =
     let
-        { url, request } =
-            params |> routes.comparison.comparisonData
+        request =
+            params |> routes.comparison.comparisonData |> .request
+
+        url =
+            params |> routes.comparison.page |> .url
     in
         Cmd.batch [ Http.send (Router.resolveResponse ReceiveData DataError) request, elmAddressChange url ]

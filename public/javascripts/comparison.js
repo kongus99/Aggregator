@@ -15209,9 +15209,14 @@ var _user$project$Comparison$ReceiveData = function (a) {
 	return {ctor: 'ReceiveData', _0: a};
 };
 var _user$project$Comparison$getResponse = function (params) {
-	var _p0 = _user$project$Router$routes.comparison.comparisonData(params);
-	var url = _p0.url;
-	var request = _p0.request;
+	var url = function (_) {
+		return _.url;
+	}(
+		_user$project$Router$routes.comparison.page(params));
+	var request = function (_) {
+		return _.request;
+	}(
+		_user$project$Router$routes.comparison.comparisonData(params));
 	return _elm_lang$core$Platform_Cmd$batch(
 		{
 			ctor: '::',
@@ -15292,14 +15297,14 @@ var _user$project$Comparison$initProgram = function (address) {
 };
 var _user$project$Comparison$update = F2(
 	function (msg, model) {
-		var _p1 = msg;
-		switch (_p1.ctor) {
+		var _p0 = msg;
+		switch (_p0.ctor) {
 			case 'ReceiveData':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{comparisons: _p1._0}),
+						{comparisons: _p0._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'DataError':
@@ -15308,29 +15313,29 @@ var _user$project$Comparison$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						_user$project$Comparison$initialModel,
 						{
-							message: _elm_lang$core$Basics$toString(_p1._0)
+							message: _elm_lang$core$Basics$toString(_p0._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'RefreshData':
-				var _p2 = _p1._0;
+				var _p1 = _p0._0;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
 							comparisons: {ctor: '[]'},
-							parameters: _p2
+							parameters: _p1
 						}),
-					_1: _user$project$Comparison$refresh(_p2)
+					_1: _user$project$Comparison$refresh(_p1)
 				};
 			case 'Toggle':
-				var _p4 = _p1._1;
-				var _p3 = _p1._0;
+				var _p3 = _p0._1;
+				var _p2 = _p0._0;
 				var updateEntry = function (e) {
-					return (_elm_lang$core$Native_Utils.eq(e.left.id, _p3) && _elm_lang$core$Native_Utils.eq(e.right.id, _p4)) ? _elm_lang$core$Native_Utils.update(
+					return (_elm_lang$core$Native_Utils.eq(e.left.id, _p2) && _elm_lang$core$Native_Utils.eq(e.right.id, _p3)) ? _elm_lang$core$Native_Utils.update(
 						e,
-						{matches: _p1._2}) : e;
+						{matches: _p0._2}) : e;
 				};
 				var newComparisons = A2(_elm_lang$core$List$map, updateEntry, model.comparisons);
 				return {
@@ -15358,14 +15363,14 @@ var _user$project$Comparison$update = F2(
 									_0: {
 										ctor: '_Tuple2',
 										_0: 'leftId',
-										_1: _elm_lang$core$Basics$toString(_p3)
+										_1: _elm_lang$core$Basics$toString(_p2)
 									},
 									_1: {
 										ctor: '::',
 										_0: {
 											ctor: '_Tuple2',
 											_0: 'rightId',
-											_1: _elm_lang$core$Basics$toString(_p4)
+											_1: _elm_lang$core$Basics$toString(_p3)
 										},
 										_1: {ctor: '[]'}
 									}
@@ -15382,7 +15387,7 @@ var _user$project$Comparison$main = _elm_lang$html$Html$programWithFlags(
 		init: _user$project$Comparison$initProgram,
 		view: _user$project$Comparison$view,
 		update: _user$project$Comparison$update,
-		subscriptions: function (_p5) {
+		subscriptions: function (_p4) {
 			return _elm_lang$core$Platform_Sub$none;
 		}
 	})(_elm_lang$core$Json_Decode$string);
