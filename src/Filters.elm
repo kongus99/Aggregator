@@ -350,6 +350,11 @@ logout =
     Navbar.textItem []
         [ Button.linkButton
             [ Button.outlineSecondary
+            , Button.attrs [ class "fa fa-link", href "/comparison" ]
+            ]
+            []
+        , Button.linkButton
+            [ Button.outlineSecondary
             , Button.attrs [ class "fa fa-sign-out", href "/" ]
             ]
             []

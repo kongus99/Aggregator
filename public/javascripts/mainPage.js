@@ -17631,10 +17631,10 @@ var _user$project$Filters$logout = A2(
 					_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('fa fa-sign-out'),
+							_0: _elm_lang$html$Html_Attributes$class('fa fa-link'),
 							_1: {
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$href('/'),
+								_0: _elm_lang$html$Html_Attributes$href('/comparison'),
 								_1: {ctor: '[]'}
 							}
 						}),
@@ -17642,7 +17642,31 @@ var _user$project$Filters$logout = A2(
 				}
 			},
 			{ctor: '[]'}),
-		_1: {ctor: '[]'}
+		_1: {
+			ctor: '::',
+			_0: A2(
+				_rundis$elm_bootstrap$Bootstrap_Button$linkButton,
+				{
+					ctor: '::',
+					_0: _rundis$elm_bootstrap$Bootstrap_Button$outlineSecondary,
+					_1: {
+						ctor: '::',
+						_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('fa fa-sign-out'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$href('/'),
+									_1: {ctor: '[]'}
+								}
+							}),
+						_1: {ctor: '[]'}
+					}
+				},
+				{ctor: '[]'}),
+			_1: {ctor: '[]'}
+		}
 	});
 var _user$project$Filters$priceExtractor = function (entry) {
 	return A2(
