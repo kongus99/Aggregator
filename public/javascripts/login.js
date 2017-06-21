@@ -14276,6 +14276,7 @@ var _user$project$Router$refreshSocketUrl = F3(
 	});
 var _user$project$Router$routes = {
 	login: {
+		page: A2(_user$project$Router$generateGetMethod, '', _elm_lang$core$Json_Decode$string),
 		fetchUsers: A2(
 			_user$project$Router$generateGetMethod,
 			'login/fetchUsers',

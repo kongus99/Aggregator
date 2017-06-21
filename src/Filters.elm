@@ -4,6 +4,7 @@ import Bootstrap.Button as Button
 import Bootstrap.ButtonGroup as ButtonGroup
 import Bootstrap.Form.Input as Input
 import Bootstrap.Navbar as Navbar
+import CommonNavbar
 import Erl
 import GameEntry exposing (GameEntry, GameEntryRow, WebSocketRefreshResult, toGameEntryRow)
 import Html exposing (Html, button, div, input, label, option, select, text, th, thead)
@@ -230,8 +231,7 @@ subscriptions model =
 
 
 type Msg
-    = Clear
-    | ChangeName String
+    = ChangeName String
     | ChangeLow String
     | ChangeHigh String
     | ChangeSelectedGenre String Bool
@@ -251,16 +251,6 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Clear ->
-            let
-                genresFilter =
-                    DynamicFilter model.genresFilter.allValues Set.empty model.genresFilter.conjunction
-
-                tagsFilter =
-                    DynamicFilter model.tagsFilter.allValues Set.empty model.tagsFilter.conjunction
-            in
-            apply (Model model.userId model.sources False False Nothing "" genresFilter tagsFilter (PriceRange Nothing Nothing) model.original [] model.navbarState Nothing) ! []
-
         ChangeName name ->
             apply { model | name = name } ! []
 
@@ -332,33 +322,11 @@ sendRefresh model =
 
 
 -- VIEW
---TODO - reset link should show proper address
 
 
 view : Model -> Html Msg
 view model =
-    Navbar.config NavbarMsg
-        |> Navbar.withAnimation
-        |> Navbar.attrs [ class "sticky-top" ]
-        |> Navbar.brand [ href "", onLinkClick Clear ] [ text "Game Aggregator" ]
-        |> Navbar.items [ pricingDropdown model, filtersDropdown model, genresDropdown model, tagsDropdown model ]
-        |> Navbar.customItems [ logout ]
-        |> Navbar.view model.navbarState
-
-
-logout =
-    Navbar.textItem []
-        [ Button.linkButton
-            [ Button.outlineSecondary
-            , Button.attrs [ class "fa fa-link", href "/comparison" ]
-            ]
-            []
-        , Button.linkButton
-            [ Button.outlineSecondary
-            , Button.attrs [ class "fa fa-sign-out", href "/" ]
-            ]
-            []
-        ]
+    CommonNavbar.navbar CommonNavbar.Main NavbarMsg (Navbar.items [ pricingDropdown model, filtersDropdown model, genresDropdown model, tagsDropdown model ]) |> Navbar.view model.navbarState
 
 
 filtersDropdown model =

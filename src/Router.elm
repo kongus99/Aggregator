@@ -43,7 +43,8 @@ type alias Comparison =
 
 routes =
     { login =
-        { fetchUsers = generateGetMethod "login/fetchUsers" (list decodedUserEntry)
+        { page = generateGetMethod "" string
+        , fetchUsers = generateGetMethod "login/fetchUsers" (list decodedUserEntry)
         , createUpdate = generatePostMethod "login/createUpdate" decodedUserEntry
         , steamAlternate = generatePostMethod "login/steamAlternate" decodedUserEntry
         }

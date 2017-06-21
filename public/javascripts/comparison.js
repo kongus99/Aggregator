@@ -5757,6 +5757,135 @@ var _elm_lang$core$Platform$Task = {ctor: 'Task'};
 var _elm_lang$core$Platform$ProcessId = {ctor: 'ProcessId'};
 var _elm_lang$core$Platform$Router = {ctor: 'Router'};
 
+var _debois$elm_dom$DOM$className = A2(
+	_elm_lang$core$Json_Decode$at,
+	{
+		ctor: '::',
+		_0: 'className',
+		_1: {ctor: '[]'}
+	},
+	_elm_lang$core$Json_Decode$string);
+var _debois$elm_dom$DOM$scrollTop = A2(_elm_lang$core$Json_Decode$field, 'scrollTop', _elm_lang$core$Json_Decode$float);
+var _debois$elm_dom$DOM$scrollLeft = A2(_elm_lang$core$Json_Decode$field, 'scrollLeft', _elm_lang$core$Json_Decode$float);
+var _debois$elm_dom$DOM$offsetTop = A2(_elm_lang$core$Json_Decode$field, 'offsetTop', _elm_lang$core$Json_Decode$float);
+var _debois$elm_dom$DOM$offsetLeft = A2(_elm_lang$core$Json_Decode$field, 'offsetLeft', _elm_lang$core$Json_Decode$float);
+var _debois$elm_dom$DOM$offsetHeight = A2(_elm_lang$core$Json_Decode$field, 'offsetHeight', _elm_lang$core$Json_Decode$float);
+var _debois$elm_dom$DOM$offsetWidth = A2(_elm_lang$core$Json_Decode$field, 'offsetWidth', _elm_lang$core$Json_Decode$float);
+var _debois$elm_dom$DOM$childNodes = function (decoder) {
+	var loop = F2(
+		function (idx, xs) {
+			return A2(
+				_elm_lang$core$Json_Decode$andThen,
+				function (_p0) {
+					return A2(
+						_elm_lang$core$Maybe$withDefault,
+						_elm_lang$core$Json_Decode$succeed(xs),
+						A2(
+							_elm_lang$core$Maybe$map,
+							function (x) {
+								return A2(
+									loop,
+									idx + 1,
+									{ctor: '::', _0: x, _1: xs});
+							},
+							_p0));
+				},
+				_elm_lang$core$Json_Decode$maybe(
+					A2(
+						_elm_lang$core$Json_Decode$field,
+						_elm_lang$core$Basics$toString(idx),
+						decoder)));
+		});
+	return A2(
+		_elm_lang$core$Json_Decode$map,
+		_elm_lang$core$List$reverse,
+		A2(
+			_elm_lang$core$Json_Decode$field,
+			'childNodes',
+			A2(
+				loop,
+				0,
+				{ctor: '[]'})));
+};
+var _debois$elm_dom$DOM$childNode = function (idx) {
+	return _elm_lang$core$Json_Decode$at(
+		{
+			ctor: '::',
+			_0: 'childNodes',
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$core$Basics$toString(idx),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _debois$elm_dom$DOM$parentElement = function (decoder) {
+	return A2(_elm_lang$core$Json_Decode$field, 'parentElement', decoder);
+};
+var _debois$elm_dom$DOM$previousSibling = function (decoder) {
+	return A2(_elm_lang$core$Json_Decode$field, 'previousSibling', decoder);
+};
+var _debois$elm_dom$DOM$nextSibling = function (decoder) {
+	return A2(_elm_lang$core$Json_Decode$field, 'nextSibling', decoder);
+};
+var _debois$elm_dom$DOM$offsetParent = F2(
+	function (x, decoder) {
+		return _elm_lang$core$Json_Decode$oneOf(
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$core$Json_Decode$field,
+					'offsetParent',
+					_elm_lang$core$Json_Decode$null(x)),
+				_1: {
+					ctor: '::',
+					_0: A2(_elm_lang$core$Json_Decode$field, 'offsetParent', decoder),
+					_1: {ctor: '[]'}
+				}
+			});
+	});
+var _debois$elm_dom$DOM$position = F2(
+	function (x, y) {
+		return A2(
+			_elm_lang$core$Json_Decode$andThen,
+			function (_p1) {
+				var _p2 = _p1;
+				var _p4 = _p2._1;
+				var _p3 = _p2._0;
+				return A2(
+					_debois$elm_dom$DOM$offsetParent,
+					{ctor: '_Tuple2', _0: _p3, _1: _p4},
+					A2(_debois$elm_dom$DOM$position, _p3, _p4));
+			},
+			A5(
+				_elm_lang$core$Json_Decode$map4,
+				F4(
+					function (scrollLeft, scrollTop, offsetLeft, offsetTop) {
+						return {ctor: '_Tuple2', _0: (x + offsetLeft) - scrollLeft, _1: (y + offsetTop) - scrollTop};
+					}),
+				_debois$elm_dom$DOM$scrollLeft,
+				_debois$elm_dom$DOM$scrollTop,
+				_debois$elm_dom$DOM$offsetLeft,
+				_debois$elm_dom$DOM$offsetTop));
+	});
+var _debois$elm_dom$DOM$boundingClientRect = A4(
+	_elm_lang$core$Json_Decode$map3,
+	F3(
+		function (_p5, width, height) {
+			var _p6 = _p5;
+			return {top: _p6._1, left: _p6._0, width: width, height: height};
+		}),
+	A2(_debois$elm_dom$DOM$position, 0, 0),
+	_debois$elm_dom$DOM$offsetWidth,
+	_debois$elm_dom$DOM$offsetHeight);
+var _debois$elm_dom$DOM$target = function (decoder) {
+	return A2(_elm_lang$core$Json_Decode$field, 'target', decoder);
+};
+var _debois$elm_dom$DOM$Rectangle = F4(
+	function (a, b, c, d) {
+		return {top: a, left: b, width: c, height: d};
+	});
+
 var _eeue56$elm_all_dict$AllDict$foldr = F3(
 	function (f, acc, t) {
 		foldr:
@@ -7095,6 +7224,29 @@ var _elm_community$dict_extra$Dict_Extra$groupBy = F2(
 			list);
 	});
 
+var _elm_lang$animation_frame$Native_AnimationFrame = function()
+{
+
+function create()
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		var id = requestAnimationFrame(function() {
+			callback(_elm_lang$core$Native_Scheduler.succeed(Date.now()));
+		});
+
+		return function() {
+			cancelAnimationFrame(id);
+		};
+	});
+}
+
+return {
+	create: create
+};
+
+}();
+
 var _elm_lang$core$Task$onError = _elm_lang$core$Native_Scheduler.onError;
 var _elm_lang$core$Task$andThen = _elm_lang$core$Native_Scheduler.andThen;
 var _elm_lang$core$Task$spawnCmd = F2(
@@ -7507,6 +7659,318 @@ var _elm_lang$core$Time$subMap = F2(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Time'] = {pkg: 'elm-lang/core', init: _elm_lang$core$Time$init, onEffects: _elm_lang$core$Time$onEffects, onSelfMsg: _elm_lang$core$Time$onSelfMsg, tag: 'sub', subMap: _elm_lang$core$Time$subMap};
 
+var _elm_lang$core$Process$kill = _elm_lang$core$Native_Scheduler.kill;
+var _elm_lang$core$Process$sleep = _elm_lang$core$Native_Scheduler.sleep;
+var _elm_lang$core$Process$spawn = _elm_lang$core$Native_Scheduler.spawn;
+
+var _elm_lang$animation_frame$AnimationFrame$rAF = _elm_lang$animation_frame$Native_AnimationFrame.create(
+	{ctor: '_Tuple0'});
+var _elm_lang$animation_frame$AnimationFrame$subscription = _elm_lang$core$Native_Platform.leaf('AnimationFrame');
+var _elm_lang$animation_frame$AnimationFrame$State = F3(
+	function (a, b, c) {
+		return {subs: a, request: b, oldTime: c};
+	});
+var _elm_lang$animation_frame$AnimationFrame$init = _elm_lang$core$Task$succeed(
+	A3(
+		_elm_lang$animation_frame$AnimationFrame$State,
+		{ctor: '[]'},
+		_elm_lang$core$Maybe$Nothing,
+		0));
+var _elm_lang$animation_frame$AnimationFrame$onEffects = F3(
+	function (router, subs, _p0) {
+		var _p1 = _p0;
+		var _p5 = _p1.request;
+		var _p4 = _p1.oldTime;
+		var _p2 = {ctor: '_Tuple2', _0: _p5, _1: subs};
+		if (_p2._0.ctor === 'Nothing') {
+			if (_p2._1.ctor === '[]') {
+				return _elm_lang$core$Task$succeed(
+					A3(
+						_elm_lang$animation_frame$AnimationFrame$State,
+						{ctor: '[]'},
+						_elm_lang$core$Maybe$Nothing,
+						_p4));
+			} else {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (pid) {
+						return A2(
+							_elm_lang$core$Task$andThen,
+							function (time) {
+								return _elm_lang$core$Task$succeed(
+									A3(
+										_elm_lang$animation_frame$AnimationFrame$State,
+										subs,
+										_elm_lang$core$Maybe$Just(pid),
+										time));
+							},
+							_elm_lang$core$Time$now);
+					},
+					_elm_lang$core$Process$spawn(
+						A2(
+							_elm_lang$core$Task$andThen,
+							_elm_lang$core$Platform$sendToSelf(router),
+							_elm_lang$animation_frame$AnimationFrame$rAF)));
+			}
+		} else {
+			if (_p2._1.ctor === '[]') {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (_p3) {
+						return _elm_lang$core$Task$succeed(
+							A3(
+								_elm_lang$animation_frame$AnimationFrame$State,
+								{ctor: '[]'},
+								_elm_lang$core$Maybe$Nothing,
+								_p4));
+					},
+					_elm_lang$core$Process$kill(_p2._0._0));
+			} else {
+				return _elm_lang$core$Task$succeed(
+					A3(_elm_lang$animation_frame$AnimationFrame$State, subs, _p5, _p4));
+			}
+		}
+	});
+var _elm_lang$animation_frame$AnimationFrame$onSelfMsg = F3(
+	function (router, newTime, _p6) {
+		var _p7 = _p6;
+		var _p10 = _p7.subs;
+		var diff = newTime - _p7.oldTime;
+		var send = function (sub) {
+			var _p8 = sub;
+			if (_p8.ctor === 'Time') {
+				return A2(
+					_elm_lang$core$Platform$sendToApp,
+					router,
+					_p8._0(newTime));
+			} else {
+				return A2(
+					_elm_lang$core$Platform$sendToApp,
+					router,
+					_p8._0(diff));
+			}
+		};
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (pid) {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (_p9) {
+						return _elm_lang$core$Task$succeed(
+							A3(
+								_elm_lang$animation_frame$AnimationFrame$State,
+								_p10,
+								_elm_lang$core$Maybe$Just(pid),
+								newTime));
+					},
+					_elm_lang$core$Task$sequence(
+						A2(_elm_lang$core$List$map, send, _p10)));
+			},
+			_elm_lang$core$Process$spawn(
+				A2(
+					_elm_lang$core$Task$andThen,
+					_elm_lang$core$Platform$sendToSelf(router),
+					_elm_lang$animation_frame$AnimationFrame$rAF)));
+	});
+var _elm_lang$animation_frame$AnimationFrame$Diff = function (a) {
+	return {ctor: 'Diff', _0: a};
+};
+var _elm_lang$animation_frame$AnimationFrame$diffs = function (tagger) {
+	return _elm_lang$animation_frame$AnimationFrame$subscription(
+		_elm_lang$animation_frame$AnimationFrame$Diff(tagger));
+};
+var _elm_lang$animation_frame$AnimationFrame$Time = function (a) {
+	return {ctor: 'Time', _0: a};
+};
+var _elm_lang$animation_frame$AnimationFrame$times = function (tagger) {
+	return _elm_lang$animation_frame$AnimationFrame$subscription(
+		_elm_lang$animation_frame$AnimationFrame$Time(tagger));
+};
+var _elm_lang$animation_frame$AnimationFrame$subMap = F2(
+	function (func, sub) {
+		var _p11 = sub;
+		if (_p11.ctor === 'Time') {
+			return _elm_lang$animation_frame$AnimationFrame$Time(
+				function (_p12) {
+					return func(
+						_p11._0(_p12));
+				});
+		} else {
+			return _elm_lang$animation_frame$AnimationFrame$Diff(
+				function (_p13) {
+					return func(
+						_p11._0(_p13));
+				});
+		}
+	});
+_elm_lang$core$Native_Platform.effectManagers['AnimationFrame'] = {pkg: 'elm-lang/animation-frame', init: _elm_lang$animation_frame$AnimationFrame$init, onEffects: _elm_lang$animation_frame$AnimationFrame$onEffects, onSelfMsg: _elm_lang$animation_frame$AnimationFrame$onSelfMsg, tag: 'sub', subMap: _elm_lang$animation_frame$AnimationFrame$subMap};
+
+var _elm_lang$core$Color$fmod = F2(
+	function (f, n) {
+		var integer = _elm_lang$core$Basics$floor(f);
+		return (_elm_lang$core$Basics$toFloat(
+			A2(_elm_lang$core$Basics_ops['%'], integer, n)) + f) - _elm_lang$core$Basics$toFloat(integer);
+	});
+var _elm_lang$core$Color$rgbToHsl = F3(
+	function (red, green, blue) {
+		var b = _elm_lang$core$Basics$toFloat(blue) / 255;
+		var g = _elm_lang$core$Basics$toFloat(green) / 255;
+		var r = _elm_lang$core$Basics$toFloat(red) / 255;
+		var cMax = A2(
+			_elm_lang$core$Basics$max,
+			A2(_elm_lang$core$Basics$max, r, g),
+			b);
+		var cMin = A2(
+			_elm_lang$core$Basics$min,
+			A2(_elm_lang$core$Basics$min, r, g),
+			b);
+		var c = cMax - cMin;
+		var lightness = (cMax + cMin) / 2;
+		var saturation = _elm_lang$core$Native_Utils.eq(lightness, 0) ? 0 : (c / (1 - _elm_lang$core$Basics$abs((2 * lightness) - 1)));
+		var hue = _elm_lang$core$Basics$degrees(60) * (_elm_lang$core$Native_Utils.eq(cMax, r) ? A2(_elm_lang$core$Color$fmod, (g - b) / c, 6) : (_elm_lang$core$Native_Utils.eq(cMax, g) ? (((b - r) / c) + 2) : (((r - g) / c) + 4)));
+		return {ctor: '_Tuple3', _0: hue, _1: saturation, _2: lightness};
+	});
+var _elm_lang$core$Color$hslToRgb = F3(
+	function (hue, saturation, lightness) {
+		var normHue = hue / _elm_lang$core$Basics$degrees(60);
+		var chroma = (1 - _elm_lang$core$Basics$abs((2 * lightness) - 1)) * saturation;
+		var x = chroma * (1 - _elm_lang$core$Basics$abs(
+			A2(_elm_lang$core$Color$fmod, normHue, 2) - 1));
+		var _p0 = (_elm_lang$core$Native_Utils.cmp(normHue, 0) < 0) ? {ctor: '_Tuple3', _0: 0, _1: 0, _2: 0} : ((_elm_lang$core$Native_Utils.cmp(normHue, 1) < 0) ? {ctor: '_Tuple3', _0: chroma, _1: x, _2: 0} : ((_elm_lang$core$Native_Utils.cmp(normHue, 2) < 0) ? {ctor: '_Tuple3', _0: x, _1: chroma, _2: 0} : ((_elm_lang$core$Native_Utils.cmp(normHue, 3) < 0) ? {ctor: '_Tuple3', _0: 0, _1: chroma, _2: x} : ((_elm_lang$core$Native_Utils.cmp(normHue, 4) < 0) ? {ctor: '_Tuple3', _0: 0, _1: x, _2: chroma} : ((_elm_lang$core$Native_Utils.cmp(normHue, 5) < 0) ? {ctor: '_Tuple3', _0: x, _1: 0, _2: chroma} : ((_elm_lang$core$Native_Utils.cmp(normHue, 6) < 0) ? {ctor: '_Tuple3', _0: chroma, _1: 0, _2: x} : {ctor: '_Tuple3', _0: 0, _1: 0, _2: 0}))))));
+		var r = _p0._0;
+		var g = _p0._1;
+		var b = _p0._2;
+		var m = lightness - (chroma / 2);
+		return {ctor: '_Tuple3', _0: r + m, _1: g + m, _2: b + m};
+	});
+var _elm_lang$core$Color$toRgb = function (color) {
+	var _p1 = color;
+	if (_p1.ctor === 'RGBA') {
+		return {red: _p1._0, green: _p1._1, blue: _p1._2, alpha: _p1._3};
+	} else {
+		var _p2 = A3(_elm_lang$core$Color$hslToRgb, _p1._0, _p1._1, _p1._2);
+		var r = _p2._0;
+		var g = _p2._1;
+		var b = _p2._2;
+		return {
+			red: _elm_lang$core$Basics$round(255 * r),
+			green: _elm_lang$core$Basics$round(255 * g),
+			blue: _elm_lang$core$Basics$round(255 * b),
+			alpha: _p1._3
+		};
+	}
+};
+var _elm_lang$core$Color$toHsl = function (color) {
+	var _p3 = color;
+	if (_p3.ctor === 'HSLA') {
+		return {hue: _p3._0, saturation: _p3._1, lightness: _p3._2, alpha: _p3._3};
+	} else {
+		var _p4 = A3(_elm_lang$core$Color$rgbToHsl, _p3._0, _p3._1, _p3._2);
+		var h = _p4._0;
+		var s = _p4._1;
+		var l = _p4._2;
+		return {hue: h, saturation: s, lightness: l, alpha: _p3._3};
+	}
+};
+var _elm_lang$core$Color$HSLA = F4(
+	function (a, b, c, d) {
+		return {ctor: 'HSLA', _0: a, _1: b, _2: c, _3: d};
+	});
+var _elm_lang$core$Color$hsla = F4(
+	function (hue, saturation, lightness, alpha) {
+		return A4(
+			_elm_lang$core$Color$HSLA,
+			hue - _elm_lang$core$Basics$turns(
+				_elm_lang$core$Basics$toFloat(
+					_elm_lang$core$Basics$floor(hue / (2 * _elm_lang$core$Basics$pi)))),
+			saturation,
+			lightness,
+			alpha);
+	});
+var _elm_lang$core$Color$hsl = F3(
+	function (hue, saturation, lightness) {
+		return A4(_elm_lang$core$Color$hsla, hue, saturation, lightness, 1);
+	});
+var _elm_lang$core$Color$complement = function (color) {
+	var _p5 = color;
+	if (_p5.ctor === 'HSLA') {
+		return A4(
+			_elm_lang$core$Color$hsla,
+			_p5._0 + _elm_lang$core$Basics$degrees(180),
+			_p5._1,
+			_p5._2,
+			_p5._3);
+	} else {
+		var _p6 = A3(_elm_lang$core$Color$rgbToHsl, _p5._0, _p5._1, _p5._2);
+		var h = _p6._0;
+		var s = _p6._1;
+		var l = _p6._2;
+		return A4(
+			_elm_lang$core$Color$hsla,
+			h + _elm_lang$core$Basics$degrees(180),
+			s,
+			l,
+			_p5._3);
+	}
+};
+var _elm_lang$core$Color$grayscale = function (p) {
+	return A4(_elm_lang$core$Color$HSLA, 0, 0, 1 - p, 1);
+};
+var _elm_lang$core$Color$greyscale = function (p) {
+	return A4(_elm_lang$core$Color$HSLA, 0, 0, 1 - p, 1);
+};
+var _elm_lang$core$Color$RGBA = F4(
+	function (a, b, c, d) {
+		return {ctor: 'RGBA', _0: a, _1: b, _2: c, _3: d};
+	});
+var _elm_lang$core$Color$rgba = _elm_lang$core$Color$RGBA;
+var _elm_lang$core$Color$rgb = F3(
+	function (r, g, b) {
+		return A4(_elm_lang$core$Color$RGBA, r, g, b, 1);
+	});
+var _elm_lang$core$Color$lightRed = A4(_elm_lang$core$Color$RGBA, 239, 41, 41, 1);
+var _elm_lang$core$Color$red = A4(_elm_lang$core$Color$RGBA, 204, 0, 0, 1);
+var _elm_lang$core$Color$darkRed = A4(_elm_lang$core$Color$RGBA, 164, 0, 0, 1);
+var _elm_lang$core$Color$lightOrange = A4(_elm_lang$core$Color$RGBA, 252, 175, 62, 1);
+var _elm_lang$core$Color$orange = A4(_elm_lang$core$Color$RGBA, 245, 121, 0, 1);
+var _elm_lang$core$Color$darkOrange = A4(_elm_lang$core$Color$RGBA, 206, 92, 0, 1);
+var _elm_lang$core$Color$lightYellow = A4(_elm_lang$core$Color$RGBA, 255, 233, 79, 1);
+var _elm_lang$core$Color$yellow = A4(_elm_lang$core$Color$RGBA, 237, 212, 0, 1);
+var _elm_lang$core$Color$darkYellow = A4(_elm_lang$core$Color$RGBA, 196, 160, 0, 1);
+var _elm_lang$core$Color$lightGreen = A4(_elm_lang$core$Color$RGBA, 138, 226, 52, 1);
+var _elm_lang$core$Color$green = A4(_elm_lang$core$Color$RGBA, 115, 210, 22, 1);
+var _elm_lang$core$Color$darkGreen = A4(_elm_lang$core$Color$RGBA, 78, 154, 6, 1);
+var _elm_lang$core$Color$lightBlue = A4(_elm_lang$core$Color$RGBA, 114, 159, 207, 1);
+var _elm_lang$core$Color$blue = A4(_elm_lang$core$Color$RGBA, 52, 101, 164, 1);
+var _elm_lang$core$Color$darkBlue = A4(_elm_lang$core$Color$RGBA, 32, 74, 135, 1);
+var _elm_lang$core$Color$lightPurple = A4(_elm_lang$core$Color$RGBA, 173, 127, 168, 1);
+var _elm_lang$core$Color$purple = A4(_elm_lang$core$Color$RGBA, 117, 80, 123, 1);
+var _elm_lang$core$Color$darkPurple = A4(_elm_lang$core$Color$RGBA, 92, 53, 102, 1);
+var _elm_lang$core$Color$lightBrown = A4(_elm_lang$core$Color$RGBA, 233, 185, 110, 1);
+var _elm_lang$core$Color$brown = A4(_elm_lang$core$Color$RGBA, 193, 125, 17, 1);
+var _elm_lang$core$Color$darkBrown = A4(_elm_lang$core$Color$RGBA, 143, 89, 2, 1);
+var _elm_lang$core$Color$black = A4(_elm_lang$core$Color$RGBA, 0, 0, 0, 1);
+var _elm_lang$core$Color$white = A4(_elm_lang$core$Color$RGBA, 255, 255, 255, 1);
+var _elm_lang$core$Color$lightGrey = A4(_elm_lang$core$Color$RGBA, 238, 238, 236, 1);
+var _elm_lang$core$Color$grey = A4(_elm_lang$core$Color$RGBA, 211, 215, 207, 1);
+var _elm_lang$core$Color$darkGrey = A4(_elm_lang$core$Color$RGBA, 186, 189, 182, 1);
+var _elm_lang$core$Color$lightGray = A4(_elm_lang$core$Color$RGBA, 238, 238, 236, 1);
+var _elm_lang$core$Color$gray = A4(_elm_lang$core$Color$RGBA, 211, 215, 207, 1);
+var _elm_lang$core$Color$darkGray = A4(_elm_lang$core$Color$RGBA, 186, 189, 182, 1);
+var _elm_lang$core$Color$lightCharcoal = A4(_elm_lang$core$Color$RGBA, 136, 138, 133, 1);
+var _elm_lang$core$Color$charcoal = A4(_elm_lang$core$Color$RGBA, 85, 87, 83, 1);
+var _elm_lang$core$Color$darkCharcoal = A4(_elm_lang$core$Color$RGBA, 46, 52, 54, 1);
+var _elm_lang$core$Color$Radial = F5(
+	function (a, b, c, d, e) {
+		return {ctor: 'Radial', _0: a, _1: b, _2: c, _3: d, _4: e};
+	});
+var _elm_lang$core$Color$radial = _elm_lang$core$Color$Radial;
+var _elm_lang$core$Color$Linear = F3(
+	function (a, b, c) {
+		return {ctor: 'Linear', _0: a, _1: b, _2: c};
+	});
+var _elm_lang$core$Color$linear = _elm_lang$core$Color$Linear;
+
 //import Maybe, Native.List //
 
 var _elm_lang$core$Native_Regex = function() {
@@ -7643,6 +8107,192 @@ var _elm_lang$core$Regex$AtMost = function (a) {
 	return {ctor: 'AtMost', _0: a};
 };
 var _elm_lang$core$Regex$All = {ctor: 'All'};
+
+var _elm_lang$dom$Native_Dom = function() {
+
+var fakeNode = {
+	addEventListener: function() {},
+	removeEventListener: function() {}
+};
+
+var onDocument = on(typeof document !== 'undefined' ? document : fakeNode);
+var onWindow = on(typeof window !== 'undefined' ? window : fakeNode);
+
+function on(node)
+{
+	return function(eventName, decoder, toTask)
+	{
+		return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
+
+			function performTask(event)
+			{
+				var result = A2(_elm_lang$core$Json_Decode$decodeValue, decoder, event);
+				if (result.ctor === 'Ok')
+				{
+					_elm_lang$core$Native_Scheduler.rawSpawn(toTask(result._0));
+				}
+			}
+
+			node.addEventListener(eventName, performTask);
+
+			return function()
+			{
+				node.removeEventListener(eventName, performTask);
+			};
+		});
+	};
+}
+
+var rAF = typeof requestAnimationFrame !== 'undefined'
+	? requestAnimationFrame
+	: function(callback) { callback(); };
+
+function withNode(id, doStuff)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		rAF(function()
+		{
+			var node = document.getElementById(id);
+			if (node === null)
+			{
+				callback(_elm_lang$core$Native_Scheduler.fail({ ctor: 'NotFound', _0: id }));
+				return;
+			}
+			callback(_elm_lang$core$Native_Scheduler.succeed(doStuff(node)));
+		});
+	});
+}
+
+
+// FOCUS
+
+function focus(id)
+{
+	return withNode(id, function(node) {
+		node.focus();
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+function blur(id)
+{
+	return withNode(id, function(node) {
+		node.blur();
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+
+// SCROLLING
+
+function getScrollTop(id)
+{
+	return withNode(id, function(node) {
+		return node.scrollTop;
+	});
+}
+
+function setScrollTop(id, desiredScrollTop)
+{
+	return withNode(id, function(node) {
+		node.scrollTop = desiredScrollTop;
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+function toBottom(id)
+{
+	return withNode(id, function(node) {
+		node.scrollTop = node.scrollHeight;
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+function getScrollLeft(id)
+{
+	return withNode(id, function(node) {
+		return node.scrollLeft;
+	});
+}
+
+function setScrollLeft(id, desiredScrollLeft)
+{
+	return withNode(id, function(node) {
+		node.scrollLeft = desiredScrollLeft;
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+function toRight(id)
+{
+	return withNode(id, function(node) {
+		node.scrollLeft = node.scrollWidth;
+		return _elm_lang$core$Native_Utils.Tuple0;
+	});
+}
+
+
+// SIZE
+
+function width(options, id)
+{
+	return withNode(id, function(node) {
+		switch (options.ctor)
+		{
+			case 'Content':
+				return node.scrollWidth;
+			case 'VisibleContent':
+				return node.clientWidth;
+			case 'VisibleContentWithBorders':
+				return node.offsetWidth;
+			case 'VisibleContentWithBordersAndMargins':
+				var rect = node.getBoundingClientRect();
+				return rect.right - rect.left;
+		}
+	});
+}
+
+function height(options, id)
+{
+	return withNode(id, function(node) {
+		switch (options.ctor)
+		{
+			case 'Content':
+				return node.scrollHeight;
+			case 'VisibleContent':
+				return node.clientHeight;
+			case 'VisibleContentWithBorders':
+				return node.offsetHeight;
+			case 'VisibleContentWithBordersAndMargins':
+				var rect = node.getBoundingClientRect();
+				return rect.bottom - rect.top;
+		}
+	});
+}
+
+return {
+	onDocument: F3(onDocument),
+	onWindow: F3(onWindow),
+
+	focus: focus,
+	blur: blur,
+
+	getScrollTop: getScrollTop,
+	setScrollTop: F2(setScrollTop),
+	getScrollLeft: getScrollLeft,
+	setScrollLeft: F2(setScrollLeft),
+	toBottom: toBottom,
+	toRight: toRight,
+
+	height: F2(height),
+	width: F2(width)
+};
+
+}();
+
+var _elm_lang$dom$Dom_LowLevel$onWindow = _elm_lang$dom$Native_Dom.onWindow;
+var _elm_lang$dom$Dom_LowLevel$onDocument = _elm_lang$dom$Native_Dom.onDocument;
 
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrap;
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrapWithFlags;
@@ -10512,6 +11162,311 @@ var _elm_lang$http$Http$StringPart = F2(
 	});
 var _elm_lang$http$Http$stringPart = _elm_lang$http$Http$StringPart;
 
+var _elm_lang$mouse$Mouse_ops = _elm_lang$mouse$Mouse_ops || {};
+_elm_lang$mouse$Mouse_ops['&>'] = F2(
+	function (t1, t2) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (_p0) {
+				return t2;
+			},
+			t1);
+	});
+var _elm_lang$mouse$Mouse$onSelfMsg = F3(
+	function (router, _p1, state) {
+		var _p2 = _p1;
+		var _p3 = A2(_elm_lang$core$Dict$get, _p2.category, state);
+		if (_p3.ctor === 'Nothing') {
+			return _elm_lang$core$Task$succeed(state);
+		} else {
+			var send = function (tagger) {
+				return A2(
+					_elm_lang$core$Platform$sendToApp,
+					router,
+					tagger(_p2.position));
+			};
+			return A2(
+				_elm_lang$mouse$Mouse_ops['&>'],
+				_elm_lang$core$Task$sequence(
+					A2(_elm_lang$core$List$map, send, _p3._0.taggers)),
+				_elm_lang$core$Task$succeed(state));
+		}
+	});
+var _elm_lang$mouse$Mouse$init = _elm_lang$core$Task$succeed(_elm_lang$core$Dict$empty);
+var _elm_lang$mouse$Mouse$categorizeHelpHelp = F2(
+	function (value, maybeValues) {
+		var _p4 = maybeValues;
+		if (_p4.ctor === 'Nothing') {
+			return _elm_lang$core$Maybe$Just(
+				{
+					ctor: '::',
+					_0: value,
+					_1: {ctor: '[]'}
+				});
+		} else {
+			return _elm_lang$core$Maybe$Just(
+				{ctor: '::', _0: value, _1: _p4._0});
+		}
+	});
+var _elm_lang$mouse$Mouse$categorizeHelp = F2(
+	function (subs, subDict) {
+		categorizeHelp:
+		while (true) {
+			var _p5 = subs;
+			if (_p5.ctor === '[]') {
+				return subDict;
+			} else {
+				var _v4 = _p5._1,
+					_v5 = A3(
+					_elm_lang$core$Dict$update,
+					_p5._0._0,
+					_elm_lang$mouse$Mouse$categorizeHelpHelp(_p5._0._1),
+					subDict);
+				subs = _v4;
+				subDict = _v5;
+				continue categorizeHelp;
+			}
+		}
+	});
+var _elm_lang$mouse$Mouse$categorize = function (subs) {
+	return A2(_elm_lang$mouse$Mouse$categorizeHelp, subs, _elm_lang$core$Dict$empty);
+};
+var _elm_lang$mouse$Mouse$subscription = _elm_lang$core$Native_Platform.leaf('Mouse');
+var _elm_lang$mouse$Mouse$Position = F2(
+	function (a, b) {
+		return {x: a, y: b};
+	});
+var _elm_lang$mouse$Mouse$position = A3(
+	_elm_lang$core$Json_Decode$map2,
+	_elm_lang$mouse$Mouse$Position,
+	A2(_elm_lang$core$Json_Decode$field, 'pageX', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'pageY', _elm_lang$core$Json_Decode$int));
+var _elm_lang$mouse$Mouse$Watcher = F2(
+	function (a, b) {
+		return {taggers: a, pid: b};
+	});
+var _elm_lang$mouse$Mouse$Msg = F2(
+	function (a, b) {
+		return {category: a, position: b};
+	});
+var _elm_lang$mouse$Mouse$onEffects = F3(
+	function (router, newSubs, oldState) {
+		var rightStep = F3(
+			function (category, taggers, task) {
+				var tracker = A3(
+					_elm_lang$dom$Dom_LowLevel$onDocument,
+					category,
+					_elm_lang$mouse$Mouse$position,
+					function (_p6) {
+						return A2(
+							_elm_lang$core$Platform$sendToSelf,
+							router,
+							A2(_elm_lang$mouse$Mouse$Msg, category, _p6));
+					});
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (state) {
+						return A2(
+							_elm_lang$core$Task$andThen,
+							function (pid) {
+								return _elm_lang$core$Task$succeed(
+									A3(
+										_elm_lang$core$Dict$insert,
+										category,
+										A2(_elm_lang$mouse$Mouse$Watcher, taggers, pid),
+										state));
+							},
+							_elm_lang$core$Process$spawn(tracker));
+					},
+					task);
+			});
+		var bothStep = F4(
+			function (category, _p7, taggers, task) {
+				var _p8 = _p7;
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (state) {
+						return _elm_lang$core$Task$succeed(
+							A3(
+								_elm_lang$core$Dict$insert,
+								category,
+								A2(_elm_lang$mouse$Mouse$Watcher, taggers, _p8.pid),
+								state));
+					},
+					task);
+			});
+		var leftStep = F3(
+			function (category, _p9, task) {
+				var _p10 = _p9;
+				return A2(
+					_elm_lang$mouse$Mouse_ops['&>'],
+					_elm_lang$core$Process$kill(_p10.pid),
+					task);
+			});
+		return A6(
+			_elm_lang$core$Dict$merge,
+			leftStep,
+			bothStep,
+			rightStep,
+			oldState,
+			_elm_lang$mouse$Mouse$categorize(newSubs),
+			_elm_lang$core$Task$succeed(_elm_lang$core$Dict$empty));
+	});
+var _elm_lang$mouse$Mouse$MySub = F2(
+	function (a, b) {
+		return {ctor: 'MySub', _0: a, _1: b};
+	});
+var _elm_lang$mouse$Mouse$clicks = function (tagger) {
+	return _elm_lang$mouse$Mouse$subscription(
+		A2(_elm_lang$mouse$Mouse$MySub, 'click', tagger));
+};
+var _elm_lang$mouse$Mouse$moves = function (tagger) {
+	return _elm_lang$mouse$Mouse$subscription(
+		A2(_elm_lang$mouse$Mouse$MySub, 'mousemove', tagger));
+};
+var _elm_lang$mouse$Mouse$downs = function (tagger) {
+	return _elm_lang$mouse$Mouse$subscription(
+		A2(_elm_lang$mouse$Mouse$MySub, 'mousedown', tagger));
+};
+var _elm_lang$mouse$Mouse$ups = function (tagger) {
+	return _elm_lang$mouse$Mouse$subscription(
+		A2(_elm_lang$mouse$Mouse$MySub, 'mouseup', tagger));
+};
+var _elm_lang$mouse$Mouse$subMap = F2(
+	function (func, _p11) {
+		var _p12 = _p11;
+		return A2(
+			_elm_lang$mouse$Mouse$MySub,
+			_p12._0,
+			function (_p13) {
+				return func(
+					_p12._1(_p13));
+			});
+	});
+_elm_lang$core$Native_Platform.effectManagers['Mouse'] = {pkg: 'elm-lang/mouse', init: _elm_lang$mouse$Mouse$init, onEffects: _elm_lang$mouse$Mouse$onEffects, onSelfMsg: _elm_lang$mouse$Mouse$onSelfMsg, tag: 'sub', subMap: _elm_lang$mouse$Mouse$subMap};
+
+var _elm_lang$window$Native_Window = function()
+{
+
+var size = _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)	{
+	callback(_elm_lang$core$Native_Scheduler.succeed({
+		width: window.innerWidth,
+		height: window.innerHeight
+	}));
+});
+
+return {
+	size: size
+};
+
+}();
+var _elm_lang$window$Window_ops = _elm_lang$window$Window_ops || {};
+_elm_lang$window$Window_ops['&>'] = F2(
+	function (task1, task2) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (_p0) {
+				return task2;
+			},
+			task1);
+	});
+var _elm_lang$window$Window$onSelfMsg = F3(
+	function (router, dimensions, state) {
+		var _p1 = state;
+		if (_p1.ctor === 'Nothing') {
+			return _elm_lang$core$Task$succeed(state);
+		} else {
+			var send = function (_p2) {
+				var _p3 = _p2;
+				return A2(
+					_elm_lang$core$Platform$sendToApp,
+					router,
+					_p3._0(dimensions));
+			};
+			return A2(
+				_elm_lang$window$Window_ops['&>'],
+				_elm_lang$core$Task$sequence(
+					A2(_elm_lang$core$List$map, send, _p1._0.subs)),
+				_elm_lang$core$Task$succeed(state));
+		}
+	});
+var _elm_lang$window$Window$init = _elm_lang$core$Task$succeed(_elm_lang$core$Maybe$Nothing);
+var _elm_lang$window$Window$size = _elm_lang$window$Native_Window.size;
+var _elm_lang$window$Window$width = A2(
+	_elm_lang$core$Task$map,
+	function (_) {
+		return _.width;
+	},
+	_elm_lang$window$Window$size);
+var _elm_lang$window$Window$height = A2(
+	_elm_lang$core$Task$map,
+	function (_) {
+		return _.height;
+	},
+	_elm_lang$window$Window$size);
+var _elm_lang$window$Window$onEffects = F3(
+	function (router, newSubs, oldState) {
+		var _p4 = {ctor: '_Tuple2', _0: oldState, _1: newSubs};
+		if (_p4._0.ctor === 'Nothing') {
+			if (_p4._1.ctor === '[]') {
+				return _elm_lang$core$Task$succeed(_elm_lang$core$Maybe$Nothing);
+			} else {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (pid) {
+						return _elm_lang$core$Task$succeed(
+							_elm_lang$core$Maybe$Just(
+								{subs: newSubs, pid: pid}));
+					},
+					_elm_lang$core$Process$spawn(
+						A3(
+							_elm_lang$dom$Dom_LowLevel$onWindow,
+							'resize',
+							_elm_lang$core$Json_Decode$succeed(
+								{ctor: '_Tuple0'}),
+							function (_p5) {
+								return A2(
+									_elm_lang$core$Task$andThen,
+									_elm_lang$core$Platform$sendToSelf(router),
+									_elm_lang$window$Window$size);
+							})));
+			}
+		} else {
+			if (_p4._1.ctor === '[]') {
+				return A2(
+					_elm_lang$window$Window_ops['&>'],
+					_elm_lang$core$Process$kill(_p4._0._0.pid),
+					_elm_lang$core$Task$succeed(_elm_lang$core$Maybe$Nothing));
+			} else {
+				return _elm_lang$core$Task$succeed(
+					_elm_lang$core$Maybe$Just(
+						{subs: newSubs, pid: _p4._0._0.pid}));
+			}
+		}
+	});
+var _elm_lang$window$Window$subscription = _elm_lang$core$Native_Platform.leaf('Window');
+var _elm_lang$window$Window$Size = F2(
+	function (a, b) {
+		return {width: a, height: b};
+	});
+var _elm_lang$window$Window$MySub = function (a) {
+	return {ctor: 'MySub', _0: a};
+};
+var _elm_lang$window$Window$resizes = function (tagger) {
+	return _elm_lang$window$Window$subscription(
+		_elm_lang$window$Window$MySub(tagger));
+};
+var _elm_lang$window$Window$subMap = F2(
+	function (func, _p6) {
+		var _p7 = _p6;
+		return _elm_lang$window$Window$MySub(
+			function (_p8) {
+				return func(
+					_p7._0(_p8));
+			});
+	});
+_elm_lang$core$Native_Platform.effectManagers['Window'] = {pkg: 'elm-lang/window', init: _elm_lang$window$Window$init, onEffects: _elm_lang$window$Window$onEffects, onSelfMsg: _elm_lang$window$Window$onSelfMsg, tag: 'sub', subMap: _elm_lang$window$Window$subMap};
+
 var _rundis$elm_bootstrap$Bootstrap_Grid_Internal$horizontalAlignOption = function (align) {
 	var _p0 = align;
 	switch (_p0.ctor) {
@@ -12988,6 +13943,1366 @@ var _rundis$elm_bootstrap$Bootstrap_Form_Input$search = _rundis$elm_bootstrap$Bo
 var _rundis$elm_bootstrap$Bootstrap_Form_Input$tel = _rundis$elm_bootstrap$Bootstrap_Form_Input$input(_rundis$elm_bootstrap$Bootstrap_Form_Input$Tel);
 var _rundis$elm_bootstrap$Bootstrap_Form_Input$color = _rundis$elm_bootstrap$Bootstrap_Form_Input$input(_rundis$elm_bootstrap$Bootstrap_Form_Input$Color);
 
+var _rundis$elm_bootstrap$Bootstrap_Navbar$toRGBString = function (color) {
+	var _p0 = _elm_lang$core$Color$toRgb(color);
+	var red = _p0.red;
+	var green = _p0.green;
+	var blue = _p0.blue;
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		'RGB(',
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			_elm_lang$core$Basics$toString(red),
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				',',
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					_elm_lang$core$Basics$toString(green),
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						',',
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(blue),
+							')'))))));
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$backgroundColorOption = function (bgClass) {
+	var _p1 = bgClass;
+	switch (_p1.ctor) {
+		case 'Faded':
+			return _elm_lang$html$Html_Attributes$class('bg-faded');
+		case 'Primary':
+			return _elm_lang$html$Html_Attributes$class('bg-primary');
+		case 'Success':
+			return _elm_lang$html$Html_Attributes$class('bg-success');
+		case 'Info':
+			return _elm_lang$html$Html_Attributes$class('bg-info');
+		case 'Warning':
+			return _elm_lang$html$Html_Attributes$class('bg-warning');
+		case 'Danger':
+			return _elm_lang$html$Html_Attributes$class('bg-danger');
+		case 'Inverse':
+			return _elm_lang$html$Html_Attributes$class('bg-inverse');
+		case 'Custom':
+			return _elm_lang$html$Html_Attributes$style(
+				{
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'background-color',
+						_1: _rundis$elm_bootstrap$Bootstrap_Navbar$toRGBString(_p1._0)
+					},
+					_1: {ctor: '[]'}
+				});
+		default:
+			return _elm_lang$html$Html_Attributes$class(_p1._0);
+	}
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$linkModifierClass = function (modifier) {
+	return _elm_lang$html$Html_Attributes$class(
+		function () {
+			var _p2 = modifier;
+			if (_p2.ctor === 'Dark') {
+				return 'navbar-inverse';
+			} else {
+				return 'navbar-light';
+			}
+		}());
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$schemeAttributes = function (_p3) {
+	var _p4 = _p3;
+	return {
+		ctor: '::',
+		_0: _rundis$elm_bootstrap$Bootstrap_Navbar$linkModifierClass(_p4.modifier),
+		_1: {
+			ctor: '::',
+			_0: _rundis$elm_bootstrap$Bootstrap_Navbar$backgroundColorOption(_p4.bgColor),
+			_1: {ctor: '[]'}
+		}
+	};
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$fixOption = function (fix) {
+	var _p5 = fix;
+	if (_p5.ctor === 'Top') {
+		return 'fixed-top';
+	} else {
+		return 'fixed-bottom';
+	}
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$navbarAttributes = function (options) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$classList(
+				{
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: 'navbar', _1: true},
+					_1: {
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'container', _1: options.isContainer},
+						_1: {ctor: '[]'}
+					}
+				}),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class(
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						'navbar-toggleable',
+						A2(
+							_elm_lang$core$Maybe$withDefault,
+							'',
+							A2(
+								_elm_lang$core$Maybe$map,
+								function (s) {
+									return A2(_elm_lang$core$Basics_ops['++'], '-', s);
+								},
+								_rundis$elm_bootstrap$Bootstrap_Grid_Internal$screenSizeOption(options.toggleAt))))),
+				_1: {ctor: '[]'}
+			}
+		},
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			function () {
+				var _p6 = options.scheme;
+				if (_p6.ctor === 'Just') {
+					return _rundis$elm_bootstrap$Bootstrap_Navbar$schemeAttributes(_p6._0);
+				} else {
+					return {ctor: '[]'};
+				}
+			}(),
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				function () {
+					var _p7 = options.fix;
+					if (_p7.ctor === 'Just') {
+						return {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class(
+								_rundis$elm_bootstrap$Bootstrap_Navbar$fixOption(_p7._0)),
+							_1: {ctor: '[]'}
+						};
+					} else {
+						return {ctor: '[]'};
+					}
+				}(),
+				options.attributes)));
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$renderCustom = function (items) {
+	return A2(
+		_elm_lang$core$List$map,
+		function (_p8) {
+			var _p9 = _p8;
+			return _p9._0;
+		},
+		items);
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$renderItemLink = function (_p10) {
+	var _p11 = _p10;
+	return A2(
+		_elm_lang$html$Html$li,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('nav-item'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$a,
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('nav-link'),
+						_1: {ctor: '[]'}
+					},
+					_p11.attributes),
+				_p11.children),
+			_1: {ctor: '[]'}
+		});
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$maybeBrand = function (brand) {
+	var _p12 = brand;
+	if (_p12.ctor === 'Just') {
+		return {
+			ctor: '::',
+			_0: _p12._0._0,
+			_1: {ctor: '[]'}
+		};
+	} else {
+		return {ctor: '[]'};
+	}
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$transitionStyle = function (maybeHeight) {
+	var pixelHeight = A2(
+		_elm_lang$core$Maybe$withDefault,
+		'0',
+		A2(
+			_elm_lang$core$Maybe$map,
+			function (v) {
+				return A2(
+					_elm_lang$core$Basics_ops['++'],
+					_elm_lang$core$Basics$toString(v),
+					'px');
+			},
+			maybeHeight));
+	return _elm_lang$html$Html_Attributes$style(
+		{
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: 'position', _1: 'relative'},
+			_1: {
+				ctor: '::',
+				_0: {ctor: '_Tuple2', _0: 'height', _1: pixelHeight},
+				_1: {
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: 'overflow', _1: 'hidden'},
+					_1: {
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: '-webkit-transition-timing-function', _1: 'ease'},
+						_1: {
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: '-o-transition-timing-function', _1: 'ease'},
+							_1: {
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'transition-timing-function', _1: 'ease'},
+								_1: {
+									ctor: '::',
+									_0: {ctor: '_Tuple2', _0: '-webkit-transition-duration', _1: '0.35s'},
+									_1: {
+										ctor: '::',
+										_0: {ctor: '_Tuple2', _0: '-o-transition-duration', _1: '0.35s'},
+										_1: {
+											ctor: '::',
+											_0: {ctor: '_Tuple2', _0: 'transition-duration', _1: '0.35s'},
+											_1: {
+												ctor: '::',
+												_0: {ctor: '_Tuple2', _0: '-webkit-transition-property', _1: 'height'},
+												_1: {
+													ctor: '::',
+													_0: {ctor: '_Tuple2', _0: '-o-transition-property', _1: 'height'},
+													_1: {
+														ctor: '::',
+														_0: {ctor: '_Tuple2', _0: 'transition-property', _1: 'height'},
+														_1: {ctor: '[]'}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		});
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$toScreenSize = function (_p13) {
+	var _p14 = _p13;
+	var _p15 = _p14.width;
+	return (_elm_lang$core$Native_Utils.cmp(_p15, 576) < 1) ? _rundis$elm_bootstrap$Bootstrap_Grid_Internal$XS : ((_elm_lang$core$Native_Utils.cmp(_p15, 768) < 1) ? _rundis$elm_bootstrap$Bootstrap_Grid_Internal$SM : ((_elm_lang$core$Native_Utils.cmp(_p15, 992) < 1) ? _rundis$elm_bootstrap$Bootstrap_Grid_Internal$MD : ((_elm_lang$core$Native_Utils.cmp(_p15, 1200) < 1) ? _rundis$elm_bootstrap$Bootstrap_Grid_Internal$LG : _rundis$elm_bootstrap$Bootstrap_Grid_Internal$XL)));
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$sizeToComparable = function (size) {
+	var _p16 = size;
+	switch (_p16.ctor) {
+		case 'XS':
+			return 1;
+		case 'SM':
+			return 2;
+		case 'MD':
+			return 3;
+		case 'LG':
+			return 4;
+		default:
+			return 5;
+	}
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$shouldHideMenu = F2(
+	function (_p18, _p17) {
+		var _p19 = _p18;
+		var _p20 = _p17;
+		var winMedia = function () {
+			var _p21 = _p19._0.windowSize;
+			if (_p21.ctor === 'Just') {
+				return _rundis$elm_bootstrap$Bootstrap_Navbar$toScreenSize(_p21._0);
+			} else {
+				return _rundis$elm_bootstrap$Bootstrap_Grid_Internal$XS;
+			}
+		}();
+		return _elm_lang$core$Native_Utils.cmp(
+			_rundis$elm_bootstrap$Bootstrap_Navbar$sizeToComparable(winMedia),
+			_rundis$elm_bootstrap$Bootstrap_Navbar$sizeToComparable(_p20._0.options.toggleAt)) > 0;
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$menuWrapperAttributes = F2(
+	function (_p23, _p22) {
+		var _p24 = _p23;
+		var _p30 = _p24;
+		var _p25 = _p22;
+		var _p29 = _p25._0.withAnimation;
+		var _p28 = _p25;
+		var display = function () {
+			var _p26 = _p24._0.height;
+			if (_p26.ctor === 'Nothing') {
+				return ((!_p29) || A2(_rundis$elm_bootstrap$Bootstrap_Navbar$shouldHideMenu, _p30, _p28)) ? 'flex' : 'block';
+			} else {
+				return 'flex';
+			}
+		}();
+		var styleBlock = {
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$style(
+				{
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: 'display', _1: 'block'},
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		};
+		var _p27 = _p24._0.visibility;
+		switch (_p27.ctor) {
+			case 'Hidden':
+				return {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$style(
+						{
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'display', _1: display},
+							_1: {
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'width', _1: '100%'},
+								_1: {ctor: '[]'}
+							}
+						}),
+					_1: {ctor: '[]'}
+				};
+			case 'StartDown':
+				return styleBlock;
+			case 'AnimatingDown':
+				return styleBlock;
+			case 'AnimatingUp':
+				return styleBlock;
+			case 'StartUp':
+				return styleBlock;
+			default:
+				return ((!_p29) || A2(_rundis$elm_bootstrap$Bootstrap_Navbar$shouldHideMenu, _p30, _p28)) ? {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('collapse navbar-collapse show'),
+					_1: {ctor: '[]'}
+				} : {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$style(
+						{
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'display', _1: 'block'},
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				};
+		}
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$heightDecoder = function () {
+	var resToDec = function (res) {
+		var _p31 = res;
+		if (_p31.ctor === 'Ok') {
+			return _elm_lang$core$Json_Decode$succeed(_p31._0);
+		} else {
+			return _elm_lang$core$Json_Decode$fail(_p31._0);
+		}
+	};
+	var fromNavDec = _elm_lang$core$Json_Decode$oneOf(
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$core$Json_Decode$at,
+				{
+					ctor: '::',
+					_0: 'childNodes',
+					_1: {
+						ctor: '::',
+						_0: '2',
+						_1: {
+							ctor: '::',
+							_0: 'childNodes',
+							_1: {
+								ctor: '::',
+								_0: '0',
+								_1: {
+									ctor: '::',
+									_0: 'offsetHeight',
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}
+				},
+				_elm_lang$core$Json_Decode$float),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$core$Json_Decode$at,
+					{
+						ctor: '::',
+						_0: 'childNodes',
+						_1: {
+							ctor: '::',
+							_0: '1',
+							_1: {
+								ctor: '::',
+								_0: 'childNodes',
+								_1: {
+									ctor: '::',
+									_0: '0',
+									_1: {
+										ctor: '::',
+										_0: 'offsetHeight',
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						}
+					},
+					_elm_lang$core$Json_Decode$float),
+				_1: {ctor: '[]'}
+			}
+		});
+	var fromButtonDec = _debois$elm_dom$DOM$parentElement(fromNavDec);
+	var tagDecoder = A3(
+		_elm_lang$core$Json_Decode$map2,
+		F2(
+			function (tag, val) {
+				return {ctor: '_Tuple2', _0: tag, _1: val};
+			}),
+		A2(_elm_lang$core$Json_Decode$field, 'tagName', _elm_lang$core$Json_Decode$string),
+		_elm_lang$core$Json_Decode$value);
+	return A2(
+		_elm_lang$core$Json_Decode$andThen,
+		function (_p32) {
+			var _p33 = _p32;
+			var _p35 = _p33._1;
+			var _p34 = _p33._0;
+			switch (_p34) {
+				case 'NAV':
+					return resToDec(
+						A2(_elm_lang$core$Json_Decode$decodeValue, fromNavDec, _p35));
+				case 'BUTTON':
+					return resToDec(
+						A2(_elm_lang$core$Json_Decode$decodeValue, fromButtonDec, _p35));
+				default:
+					return _elm_lang$core$Json_Decode$succeed(0);
+			}
+		},
+		_debois$elm_dom$DOM$target(
+			_debois$elm_dom$DOM$parentElement(tagDecoder)));
+}();
+var _rundis$elm_bootstrap$Bootstrap_Navbar$VisibilityState = F4(
+	function (a, b, c, d) {
+		return {visibility: a, height: b, windowSize: c, dropdowns: d};
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$ConfigRec = F6(
+	function (a, b, c, d, e, f) {
+		return {options: a, toMsg: b, withAnimation: c, brand: d, items: e, customItems: f};
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Options = F5(
+	function (a, b, c, d, e) {
+		return {fix: a, isContainer: b, scheme: c, toggleAt: d, attributes: e};
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Scheme = F2(
+	function (a, b) {
+		return {modifier: a, bgColor: b};
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$State = function (a) {
+	return {ctor: 'State', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$mapState = F2(
+	function (mapper, _p36) {
+		var _p37 = _p36;
+		return _rundis$elm_bootstrap$Bootstrap_Navbar$State(
+			mapper(_p37._0));
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$initWindowSize = F2(
+	function (toMsg, state) {
+		return A2(
+			_elm_lang$core$Task$perform,
+			function (size) {
+				return toMsg(
+					A2(
+						_rundis$elm_bootstrap$Bootstrap_Navbar$mapState,
+						function (s) {
+							return _elm_lang$core$Native_Utils.update(
+								s,
+								{
+									windowSize: _elm_lang$core$Maybe$Just(size)
+								});
+						},
+						state));
+			},
+			_elm_lang$window$Window$size);
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Shown = {ctor: 'Shown'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$AnimatingUp = {ctor: 'AnimatingUp'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$StartUp = {ctor: 'StartUp'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$AnimatingDown = {ctor: 'AnimatingDown'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$StartDown = {ctor: 'StartDown'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Hidden = {ctor: 'Hidden'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$initialState = function (toMsg) {
+	var state = _rundis$elm_bootstrap$Bootstrap_Navbar$State(
+		{visibility: _rundis$elm_bootstrap$Bootstrap_Navbar$Hidden, height: _elm_lang$core$Maybe$Nothing, windowSize: _elm_lang$core$Maybe$Nothing, dropdowns: _elm_lang$core$Dict$empty});
+	return {
+		ctor: '_Tuple2',
+		_0: state,
+		_1: A2(_rundis$elm_bootstrap$Bootstrap_Navbar$initWindowSize, toMsg, state)
+	};
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$visibilityTransition = F2(
+	function (withAnimation, visibility) {
+		var _p38 = {ctor: '_Tuple2', _0: withAnimation, _1: visibility};
+		_v22_8:
+		do {
+			if (_p38.ctor === '_Tuple2') {
+				if (_p38._0 === true) {
+					switch (_p38._1.ctor) {
+						case 'Hidden':
+							return _rundis$elm_bootstrap$Bootstrap_Navbar$StartDown;
+						case 'StartDown':
+							return _rundis$elm_bootstrap$Bootstrap_Navbar$AnimatingDown;
+						case 'AnimatingDown':
+							return _rundis$elm_bootstrap$Bootstrap_Navbar$Shown;
+						case 'Shown':
+							return _rundis$elm_bootstrap$Bootstrap_Navbar$StartUp;
+						case 'StartUp':
+							return _rundis$elm_bootstrap$Bootstrap_Navbar$AnimatingUp;
+						default:
+							return _rundis$elm_bootstrap$Bootstrap_Navbar$Hidden;
+					}
+				} else {
+					switch (_p38._1.ctor) {
+						case 'Hidden':
+							return _rundis$elm_bootstrap$Bootstrap_Navbar$Shown;
+						case 'Shown':
+							return _rundis$elm_bootstrap$Bootstrap_Navbar$Hidden;
+						default:
+							break _v22_8;
+					}
+				}
+			} else {
+				break _v22_8;
+			}
+		} while(false);
+		return _rundis$elm_bootstrap$Bootstrap_Navbar$Hidden;
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$toggleHandler = F2(
+	function (_p40, _p39) {
+		var _p41 = _p40;
+		var _p42 = _p39;
+		var updState = function (h) {
+			return A2(
+				_rundis$elm_bootstrap$Bootstrap_Navbar$mapState,
+				function (s) {
+					return _elm_lang$core$Native_Utils.update(
+						s,
+						{
+							height: _elm_lang$core$Maybe$Just(h),
+							visibility: A2(_rundis$elm_bootstrap$Bootstrap_Navbar$visibilityTransition, _p42._0.withAnimation, s.visibility)
+						});
+				},
+				_p41);
+		};
+		return A2(
+			_elm_lang$html$Html_Events$on,
+			'click',
+			A2(
+				_elm_lang$core$Json_Decode$andThen,
+				function (v) {
+					return _elm_lang$core$Json_Decode$succeed(
+						_p42._0.toMsg(
+							(_elm_lang$core$Native_Utils.cmp(v, 0) > 0) ? updState(v) : updState(
+								A2(_elm_lang$core$Maybe$withDefault, 0, _p41._0.height))));
+				},
+				_rundis$elm_bootstrap$Bootstrap_Navbar$heightDecoder));
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$transitionHandler = F2(
+	function (state, _p43) {
+		var _p44 = _p43;
+		return _elm_lang$core$Json_Decode$succeed(
+			_p44._0.toMsg(
+				A2(
+					_rundis$elm_bootstrap$Bootstrap_Navbar$mapState,
+					function (s) {
+						return _elm_lang$core$Native_Utils.update(
+							s,
+							{
+								visibility: A2(_rundis$elm_bootstrap$Bootstrap_Navbar$visibilityTransition, _p44._0.withAnimation, s.visibility)
+							});
+					},
+					state)));
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$menuAttributes = F2(
+	function (_p46, _p45) {
+		var _p47 = _p46;
+		var _p53 = _p47;
+		var _p52 = _p47._0.height;
+		var _p48 = _p45;
+		var _p51 = _p48;
+		var defaults = {
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('collapse navbar-collapse'),
+			_1: {ctor: '[]'}
+		};
+		var _p49 = _p47._0.visibility;
+		switch (_p49.ctor) {
+			case 'Hidden':
+				var _p50 = _p52;
+				if (_p50.ctor === 'Nothing') {
+					return ((!_p48._0.withAnimation) || A2(_rundis$elm_bootstrap$Bootstrap_Navbar$shouldHideMenu, _p53, _p51)) ? defaults : {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$style(
+							{
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'display', _1: 'block'},
+								_1: {
+									ctor: '::',
+									_0: {ctor: '_Tuple2', _0: 'height', _1: '0'},
+									_1: {
+										ctor: '::',
+										_0: {ctor: '_Tuple2', _0: 'overflow', _1: 'hidden'},
+										_1: {ctor: '[]'}
+									}
+								}
+							}),
+						_1: {ctor: '[]'}
+					};
+				} else {
+					return defaults;
+				}
+			case 'StartDown':
+				return {
+					ctor: '::',
+					_0: _rundis$elm_bootstrap$Bootstrap_Navbar$transitionStyle(_elm_lang$core$Maybe$Nothing),
+					_1: {ctor: '[]'}
+				};
+			case 'AnimatingDown':
+				return {
+					ctor: '::',
+					_0: _rundis$elm_bootstrap$Bootstrap_Navbar$transitionStyle(_p52),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html_Events$on,
+							'transitionend',
+							A2(_rundis$elm_bootstrap$Bootstrap_Navbar$transitionHandler, _p53, _p51)),
+						_1: {ctor: '[]'}
+					}
+				};
+			case 'AnimatingUp':
+				return {
+					ctor: '::',
+					_0: _rundis$elm_bootstrap$Bootstrap_Navbar$transitionStyle(_elm_lang$core$Maybe$Nothing),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html_Events$on,
+							'transitionend',
+							A2(_rundis$elm_bootstrap$Bootstrap_Navbar$transitionHandler, _p53, _p51)),
+						_1: {ctor: '[]'}
+					}
+				};
+			case 'StartUp':
+				return {
+					ctor: '::',
+					_0: _rundis$elm_bootstrap$Bootstrap_Navbar$transitionStyle(_p52),
+					_1: {ctor: '[]'}
+				};
+			default:
+				return A2(
+					_elm_lang$core$Basics_ops['++'],
+					defaults,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('show'),
+						_1: {ctor: '[]'}
+					});
+		}
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Closed = {ctor: 'Closed'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$getOrInitDropdownStatus = F2(
+	function (id, _p54) {
+		var _p55 = _p54;
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			_rundis$elm_bootstrap$Bootstrap_Navbar$Closed,
+			A2(_elm_lang$core$Dict$get, id, _p55._0.dropdowns));
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$ListenClicks = {ctor: 'ListenClicks'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Open = {ctor: 'Open'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownSubscriptions = F2(
+	function (_p56, toMsg) {
+		var _p57 = _p56;
+		var _p64 = _p57._0.dropdowns;
+		var needsSub = function (s) {
+			return A2(
+				_elm_lang$core$List$any,
+				function (_p58) {
+					var _p59 = _p58;
+					return _elm_lang$core$Native_Utils.eq(_p59._1, s);
+				},
+				_elm_lang$core$Dict$toList(_p64));
+		};
+		var updDropdowns = A2(
+			_elm_lang$core$Dict$map,
+			F2(
+				function (_p60, status) {
+					var _p61 = status;
+					switch (_p61.ctor) {
+						case 'Open':
+							return _rundis$elm_bootstrap$Bootstrap_Navbar$ListenClicks;
+						case 'ListenClicks':
+							return _rundis$elm_bootstrap$Bootstrap_Navbar$Closed;
+						default:
+							return _rundis$elm_bootstrap$Bootstrap_Navbar$Closed;
+					}
+				}),
+			_p64);
+		var updState = A2(
+			_rundis$elm_bootstrap$Bootstrap_Navbar$mapState,
+			function (s) {
+				return _elm_lang$core$Native_Utils.update(
+					s,
+					{dropdowns: updDropdowns});
+			},
+			_p57);
+		return _elm_lang$core$Platform_Sub$batch(
+			{
+				ctor: '::',
+				_0: needsSub(_rundis$elm_bootstrap$Bootstrap_Navbar$Open) ? _elm_lang$animation_frame$AnimationFrame$times(
+					function (_p62) {
+						return toMsg(updState);
+					}) : _elm_lang$core$Platform_Sub$none,
+				_1: {
+					ctor: '::',
+					_0: needsSub(_rundis$elm_bootstrap$Bootstrap_Navbar$ListenClicks) ? _elm_lang$mouse$Mouse$clicks(
+						function (_p63) {
+							return toMsg(updState);
+						}) : _elm_lang$core$Platform_Sub$none,
+					_1: {ctor: '[]'}
+				}
+			});
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$subscriptions = F2(
+	function (_p65, toMsg) {
+		var _p66 = _p65;
+		var _p70 = _p66;
+		var updState = function (v) {
+			return A2(
+				_rundis$elm_bootstrap$Bootstrap_Navbar$mapState,
+				function (s) {
+					return _elm_lang$core$Native_Utils.update(
+						s,
+						{visibility: v});
+				},
+				_p70);
+		};
+		return _elm_lang$core$Platform_Sub$batch(
+			{
+				ctor: '::',
+				_0: function () {
+					var _p67 = _p66._0.visibility;
+					switch (_p67.ctor) {
+						case 'StartDown':
+							return _elm_lang$animation_frame$AnimationFrame$times(
+								function (_p68) {
+									return toMsg(
+										updState(_rundis$elm_bootstrap$Bootstrap_Navbar$AnimatingDown));
+								});
+						case 'StartUp':
+							return _elm_lang$animation_frame$AnimationFrame$times(
+								function (_p69) {
+									return toMsg(
+										updState(_rundis$elm_bootstrap$Bootstrap_Navbar$AnimatingUp));
+								});
+						default:
+							return _elm_lang$core$Platform_Sub$none;
+					}
+				}(),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$window$Window$resizes(
+						function (size) {
+							return toMsg(
+								A2(
+									_rundis$elm_bootstrap$Bootstrap_Navbar$mapState,
+									function (s) {
+										return _elm_lang$core$Native_Utils.update(
+											s,
+											{
+												windowSize: _elm_lang$core$Maybe$Just(size)
+											});
+									},
+									_p70));
+						}),
+					_1: {
+						ctor: '::',
+						_0: A2(_rundis$elm_bootstrap$Bootstrap_Navbar$dropdownSubscriptions, _p70, toMsg),
+						_1: {ctor: '[]'}
+					}
+				}
+			});
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$toggleOpen = F3(
+	function (state, id, _p71) {
+		var _p72 = _p71;
+		var currStatus = A2(_rundis$elm_bootstrap$Bootstrap_Navbar$getOrInitDropdownStatus, id, state);
+		var newStatus = function () {
+			var _p73 = currStatus;
+			switch (_p73.ctor) {
+				case 'Open':
+					return _rundis$elm_bootstrap$Bootstrap_Navbar$Closed;
+				case 'ListenClicks':
+					return _rundis$elm_bootstrap$Bootstrap_Navbar$Closed;
+				default:
+					return _rundis$elm_bootstrap$Bootstrap_Navbar$Open;
+			}
+		}();
+		return _p72._0.toMsg(
+			A2(
+				_rundis$elm_bootstrap$Bootstrap_Navbar$mapState,
+				function (s) {
+					return _elm_lang$core$Native_Utils.update(
+						s,
+						{
+							dropdowns: A3(_elm_lang$core$Dict$insert, id, newStatus, s.dropdowns)
+						});
+				},
+				state));
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$renderDropdownToggle = F4(
+	function (state, id, config, _p74) {
+		var _p75 = _p74;
+		return A2(
+			_elm_lang$html$Html$a,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('nav-link dropdown-toggle'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$href('#'),
+						_1: {
+							ctor: '::',
+							_0: A3(
+								_elm_lang$html$Html_Events$onWithOptions,
+								'click',
+								{stopPropagation: false, preventDefault: true},
+								_elm_lang$core$Json_Decode$succeed(
+									A3(_rundis$elm_bootstrap$Bootstrap_Navbar$toggleOpen, state, id, config))),
+							_1: {ctor: '[]'}
+						}
+					}
+				},
+				_p75._0.attributes),
+			_p75._0.children);
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$renderDropdown = F3(
+	function (state, _p77, _p76) {
+		var _p78 = _p77;
+		var _p79 = _p76;
+		var _p83 = _p79._0.id;
+		var needsDropup = A2(
+			_elm_lang$core$Maybe$withDefault,
+			false,
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (fix) {
+					var _p80 = fix;
+					if (_p80.ctor === 'Bottom') {
+						return true;
+					} else {
+						return false;
+					}
+				},
+				_p78._0.options.fix));
+		return A2(
+			_elm_lang$html$Html$li,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$classList(
+					{
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'nav-item', _1: true},
+						_1: {
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'dropdown', _1: true},
+							_1: {
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'dropup', _1: needsDropup},
+								_1: {
+									ctor: '::',
+									_0: {
+										ctor: '_Tuple2',
+										_0: 'show',
+										_1: !_elm_lang$core$Native_Utils.eq(
+											A2(_rundis$elm_bootstrap$Bootstrap_Navbar$getOrInitDropdownStatus, _p83, state),
+											_rundis$elm_bootstrap$Bootstrap_Navbar$Closed)
+									},
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A4(_rundis$elm_bootstrap$Bootstrap_Navbar$renderDropdownToggle, state, _p83, _p78, _p79._0.toggle),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('dropdown-menu'),
+							_1: {ctor: '[]'}
+						},
+						A2(
+							_elm_lang$core$List$map,
+							function (_p81) {
+								var _p82 = _p81;
+								return _p82._0;
+							},
+							_p79._0.items)),
+					_1: {ctor: '[]'}
+				}
+			});
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$renderNav = F3(
+	function (state, config, navItems) {
+		return A2(
+			_elm_lang$html$Html$ul,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('navbar-nav mr-auto'),
+				_1: {ctor: '[]'}
+			},
+			A2(
+				_elm_lang$core$List$map,
+				function (item) {
+					var _p84 = item;
+					if (_p84.ctor === 'Item') {
+						return _rundis$elm_bootstrap$Bootstrap_Navbar$renderItemLink(_p84._0);
+					} else {
+						return A3(_rundis$elm_bootstrap$Bootstrap_Navbar$renderDropdown, state, config, _p84._0);
+					}
+				},
+				navItems));
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$view = F2(
+	function (state, _p85) {
+		var _p86 = _p85;
+		var _p89 = _p86;
+		var _p88 = _p86._0.brand;
+		return A2(
+			_elm_lang$html$Html$nav,
+			_rundis$elm_bootstrap$Bootstrap_Navbar$navbarAttributes(_p86._0.options),
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$button,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class(
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									'navbar-toggler',
+									A2(
+										_elm_lang$core$Maybe$withDefault,
+										'',
+										A2(
+											_elm_lang$core$Maybe$map,
+											function (_p87) {
+												return ' navbar-toggler-right';
+											},
+											_p88)))),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$type_('button'),
+								_1: {
+									ctor: '::',
+									_0: A2(_rundis$elm_bootstrap$Bootstrap_Navbar$toggleHandler, state, _p89),
+									_1: {ctor: '[]'}
+								}
+							}
+						},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$span,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('navbar-toggler-icon'),
+									_1: {ctor: '[]'}
+								},
+								{ctor: '[]'}),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				},
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					_rundis$elm_bootstrap$Bootstrap_Navbar$maybeBrand(_p88),
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							A2(_rundis$elm_bootstrap$Bootstrap_Navbar$menuAttributes, state, _p89),
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$div,
+									A2(_rundis$elm_bootstrap$Bootstrap_Navbar$menuWrapperAttributes, state, _p89),
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										{
+											ctor: '::',
+											_0: A3(_rundis$elm_bootstrap$Bootstrap_Navbar$renderNav, state, _p89, _p86._0.items),
+											_1: {ctor: '[]'}
+										},
+										_rundis$elm_bootstrap$Bootstrap_Navbar$renderCustom(_p86._0.customItems))),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					})));
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Config = function (a) {
+	return {ctor: 'Config', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$updateConfig = F2(
+	function (mapper, _p90) {
+		var _p91 = _p90;
+		return _rundis$elm_bootstrap$Bootstrap_Navbar$Config(
+			mapper(_p91._0));
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$withAnimation = function (config) {
+	return A2(
+		_rundis$elm_bootstrap$Bootstrap_Navbar$updateConfig,
+		function (conf) {
+			return _elm_lang$core$Native_Utils.update(
+				conf,
+				{withAnimation: true});
+		},
+		config);
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$items = F2(
+	function (items, config) {
+		return A2(
+			_rundis$elm_bootstrap$Bootstrap_Navbar$updateConfig,
+			function (conf) {
+				return _elm_lang$core$Native_Utils.update(
+					conf,
+					{items: items});
+			},
+			config);
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$customItems = F2(
+	function (items, config) {
+		return A2(
+			_rundis$elm_bootstrap$Bootstrap_Navbar$updateConfig,
+			function (conf) {
+				return _elm_lang$core$Native_Utils.update(
+					conf,
+					{customItems: items});
+			},
+			config);
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$updateOptions = F2(
+	function (mapper, _p92) {
+		var _p93 = _p92;
+		var _p94 = _p93._0;
+		return _rundis$elm_bootstrap$Bootstrap_Navbar$Config(
+			_elm_lang$core$Native_Utils.update(
+				_p94,
+				{
+					options: mapper(_p94.options)
+				}));
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$container = function (config) {
+	return A2(
+		_rundis$elm_bootstrap$Bootstrap_Navbar$updateOptions,
+		function (opts) {
+			return _elm_lang$core$Native_Utils.update(
+				opts,
+				{isContainer: true});
+		},
+		config);
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$scheme = F3(
+	function (modifier, bgColor, config) {
+		return A2(
+			_rundis$elm_bootstrap$Bootstrap_Navbar$updateOptions,
+			function (opt) {
+				return _elm_lang$core$Native_Utils.update(
+					opt,
+					{
+						scheme: _elm_lang$core$Maybe$Just(
+							{modifier: modifier, bgColor: bgColor})
+					});
+			},
+			config);
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$toggleAt = F2(
+	function (size, config) {
+		return A2(
+			_rundis$elm_bootstrap$Bootstrap_Navbar$updateOptions,
+			function (opt) {
+				return _elm_lang$core$Native_Utils.update(
+					opt,
+					{toggleAt: size});
+			},
+			config);
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$collapseSmall = _rundis$elm_bootstrap$Bootstrap_Navbar$toggleAt(_rundis$elm_bootstrap$Bootstrap_Grid_Internal$SM);
+var _rundis$elm_bootstrap$Bootstrap_Navbar$collapseMedium = _rundis$elm_bootstrap$Bootstrap_Navbar$toggleAt(_rundis$elm_bootstrap$Bootstrap_Grid_Internal$MD);
+var _rundis$elm_bootstrap$Bootstrap_Navbar$collapseLarge = _rundis$elm_bootstrap$Bootstrap_Navbar$toggleAt(_rundis$elm_bootstrap$Bootstrap_Grid_Internal$LG);
+var _rundis$elm_bootstrap$Bootstrap_Navbar$collapseExtraLarge = _rundis$elm_bootstrap$Bootstrap_Navbar$toggleAt(_rundis$elm_bootstrap$Bootstrap_Grid_Internal$XL);
+var _rundis$elm_bootstrap$Bootstrap_Navbar$attrs = F2(
+	function (attrs, config) {
+		return A2(
+			_rundis$elm_bootstrap$Bootstrap_Navbar$updateOptions,
+			function (opt) {
+				return _elm_lang$core$Native_Utils.update(
+					opt,
+					{
+						attributes: A2(_elm_lang$core$Basics_ops['++'], opt.attributes, attrs)
+					});
+			},
+			config);
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Bottom = {ctor: 'Bottom'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$fixBottom = function (config) {
+	return A2(
+		_rundis$elm_bootstrap$Bootstrap_Navbar$updateOptions,
+		function (opts) {
+			return _elm_lang$core$Native_Utils.update(
+				opts,
+				{
+					fix: _elm_lang$core$Maybe$Just(_rundis$elm_bootstrap$Bootstrap_Navbar$Bottom)
+				});
+		},
+		config);
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Top = {ctor: 'Top'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$fixTop = function (config) {
+	return A2(
+		_rundis$elm_bootstrap$Bootstrap_Navbar$updateOptions,
+		function (opts) {
+			return _elm_lang$core$Native_Utils.update(
+				opts,
+				{
+					fix: _elm_lang$core$Maybe$Just(_rundis$elm_bootstrap$Bootstrap_Navbar$Top)
+				});
+		},
+		config);
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Light = {ctor: 'Light'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Dark = {ctor: 'Dark'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Class = function (a) {
+	return {ctor: 'Class', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$darkCustomClass = function (classString) {
+	return A2(
+		_rundis$elm_bootstrap$Bootstrap_Navbar$scheme,
+		_rundis$elm_bootstrap$Bootstrap_Navbar$Dark,
+		_rundis$elm_bootstrap$Bootstrap_Navbar$Class(classString));
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$lightCustomClass = function (classString) {
+	return A2(
+		_rundis$elm_bootstrap$Bootstrap_Navbar$scheme,
+		_rundis$elm_bootstrap$Bootstrap_Navbar$Light,
+		_rundis$elm_bootstrap$Bootstrap_Navbar$Class(classString));
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Custom = function (a) {
+	return {ctor: 'Custom', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$darkCustom = function (color) {
+	return A2(
+		_rundis$elm_bootstrap$Bootstrap_Navbar$scheme,
+		_rundis$elm_bootstrap$Bootstrap_Navbar$Dark,
+		_rundis$elm_bootstrap$Bootstrap_Navbar$Custom(color));
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$lightCustom = function (color) {
+	return A2(
+		_rundis$elm_bootstrap$Bootstrap_Navbar$scheme,
+		_rundis$elm_bootstrap$Bootstrap_Navbar$Light,
+		_rundis$elm_bootstrap$Bootstrap_Navbar$Custom(color));
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Inverse = {ctor: 'Inverse'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$inverse = A2(_rundis$elm_bootstrap$Bootstrap_Navbar$scheme, _rundis$elm_bootstrap$Bootstrap_Navbar$Dark, _rundis$elm_bootstrap$Bootstrap_Navbar$Inverse);
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Danger = {ctor: 'Danger'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$danger = A2(_rundis$elm_bootstrap$Bootstrap_Navbar$scheme, _rundis$elm_bootstrap$Bootstrap_Navbar$Dark, _rundis$elm_bootstrap$Bootstrap_Navbar$Danger);
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Warning = {ctor: 'Warning'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$warning = A2(_rundis$elm_bootstrap$Bootstrap_Navbar$scheme, _rundis$elm_bootstrap$Bootstrap_Navbar$Dark, _rundis$elm_bootstrap$Bootstrap_Navbar$Warning);
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Info = {ctor: 'Info'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$info = A2(_rundis$elm_bootstrap$Bootstrap_Navbar$scheme, _rundis$elm_bootstrap$Bootstrap_Navbar$Dark, _rundis$elm_bootstrap$Bootstrap_Navbar$Info);
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Success = {ctor: 'Success'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$success = A2(_rundis$elm_bootstrap$Bootstrap_Navbar$scheme, _rundis$elm_bootstrap$Bootstrap_Navbar$Dark, _rundis$elm_bootstrap$Bootstrap_Navbar$Success);
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Primary = {ctor: 'Primary'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$primary = A2(_rundis$elm_bootstrap$Bootstrap_Navbar$scheme, _rundis$elm_bootstrap$Bootstrap_Navbar$Dark, _rundis$elm_bootstrap$Bootstrap_Navbar$Primary);
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Faded = {ctor: 'Faded'};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$config = function (toMsg) {
+	return _rundis$elm_bootstrap$Bootstrap_Navbar$Config(
+		{
+			toMsg: toMsg,
+			withAnimation: false,
+			brand: _elm_lang$core$Maybe$Nothing,
+			items: {ctor: '[]'},
+			customItems: {ctor: '[]'},
+			options: {
+				fix: _elm_lang$core$Maybe$Nothing,
+				isContainer: false,
+				scheme: _elm_lang$core$Maybe$Just(
+					{modifier: _rundis$elm_bootstrap$Bootstrap_Navbar$Light, bgColor: _rundis$elm_bootstrap$Bootstrap_Navbar$Faded}),
+				toggleAt: _rundis$elm_bootstrap$Bootstrap_Grid_Internal$XS,
+				attributes: {ctor: '[]'}
+			}
+		});
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$faded = A2(_rundis$elm_bootstrap$Bootstrap_Navbar$scheme, _rundis$elm_bootstrap$Bootstrap_Navbar$Light, _rundis$elm_bootstrap$Bootstrap_Navbar$Faded);
+var _rundis$elm_bootstrap$Bootstrap_Navbar$NavDropdown = function (a) {
+	return {ctor: 'NavDropdown', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Item = function (a) {
+	return {ctor: 'Item', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$itemLink = F2(
+	function (attributes, children) {
+		return _rundis$elm_bootstrap$Bootstrap_Navbar$Item(
+			{attributes: attributes, children: children});
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$itemLinkActive = function (attributes) {
+	return _rundis$elm_bootstrap$Bootstrap_Navbar$itemLink(
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('active'),
+			_1: attributes
+		});
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$CustomItem = function (a) {
+	return {ctor: 'CustomItem', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$textItem = F2(
+	function (attributes, children) {
+		return _rundis$elm_bootstrap$Bootstrap_Navbar$CustomItem(
+			A2(
+				_elm_lang$html$Html$span,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('navbar-text'),
+					_1: attributes
+				},
+				children));
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$formItem = F2(
+	function (attributes, children) {
+		return _rundis$elm_bootstrap$Bootstrap_Navbar$CustomItem(
+			A2(
+				_elm_lang$html$Html$form,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('form-inline'),
+					_1: attributes
+				},
+				children));
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$customItem = function (elem) {
+	return _rundis$elm_bootstrap$Bootstrap_Navbar$CustomItem(elem);
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Brand = function (a) {
+	return {ctor: 'Brand', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$brand = F3(
+	function (attributes, children, config) {
+		return A2(
+			_rundis$elm_bootstrap$Bootstrap_Navbar$updateConfig,
+			function (conf) {
+				return _elm_lang$core$Native_Utils.update(
+					conf,
+					{
+						brand: _elm_lang$core$Maybe$Just(
+							_rundis$elm_bootstrap$Bootstrap_Navbar$Brand(
+								A2(
+									_elm_lang$html$Html$a,
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('navbar-brand'),
+											_1: {ctor: '[]'}
+										},
+										attributes),
+									children)))
+					});
+			},
+			config);
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$Dropdown = function (a) {
+	return {ctor: 'Dropdown', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$dropdown = function (config) {
+	return _rundis$elm_bootstrap$Bootstrap_Navbar$NavDropdown(
+		_rundis$elm_bootstrap$Bootstrap_Navbar$Dropdown(config));
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$DropdownToggle = function (a) {
+	return {ctor: 'DropdownToggle', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownToggle = F2(
+	function (attributes, children) {
+		return _rundis$elm_bootstrap$Bootstrap_Navbar$DropdownToggle(
+			{attributes: attributes, children: children});
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$DropdownItem = function (a) {
+	return {ctor: 'DropdownItem', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownItem = F2(
+	function (attributes, children) {
+		return _rundis$elm_bootstrap$Bootstrap_Navbar$DropdownItem(
+			A2(
+				_elm_lang$html$Html$a,
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('dropdown-item'),
+						_1: {ctor: '[]'}
+					},
+					attributes),
+				children));
+	});
+var _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownDivider = _rundis$elm_bootstrap$Bootstrap_Navbar$DropdownItem(
+	A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('dropdown-divider'),
+			_1: {ctor: '[]'}
+		},
+		{ctor: '[]'}));
+var _rundis$elm_bootstrap$Bootstrap_Navbar$dropdownHeader = function (children) {
+	return _rundis$elm_bootstrap$Bootstrap_Navbar$DropdownItem(
+		A2(
+			_elm_lang$html$Html$h6,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('dropdown-header'),
+				_1: {ctor: '[]'}
+			},
+			children));
+};
+
 var _rundis$elm_bootstrap$Bootstrap_Table$roleOption = function (role) {
 	var _p0 = role;
 	switch (_p0.ctor) {
@@ -14065,75 +16380,6 @@ var _sporto$erl$Erl$Url = function (a) {
 	};
 };
 
-var _user$project$HtmlHelpers$targetOptions = A2(
-	_elm_lang$core$Json_Decode$map,
-	_elm_lang$core$List$filterMap(_elm_lang$core$Tuple$second),
-	A2(
-		_elm_lang$core$Json_Decode$at,
-		{
-			ctor: '::',
-			_0: 'target',
-			_1: {
-				ctor: '::',
-				_0: 'selectedOptions',
-				_1: {ctor: '[]'}
-			}
-		},
-		_elm_lang$core$Json_Decode$keyValuePairs(
-			_elm_lang$core$Json_Decode$maybe(
-				A2(_elm_lang$core$Json_Decode$field, 'value', _elm_lang$core$Json_Decode$string)))));
-var _user$project$HtmlHelpers$onEnter = function (msg) {
-	var isEnter = function (code) {
-		return _elm_lang$core$Native_Utils.eq(code, 13) ? _elm_lang$core$Json_Decode$succeed(msg) : _elm_lang$core$Json_Decode$fail('not ENTER');
-	};
-	return A2(
-		_elm_lang$html$Html_Events$on,
-		'keydown',
-		A2(_elm_lang$core$Json_Decode$andThen, isEnter, _elm_lang$html$Html_Events$keyCode));
-};
-var _user$project$HtmlHelpers$onMultiSelect = function (msg) {
-	return A2(
-		_elm_lang$html$Html_Events$on,
-		'change',
-		A2(_elm_lang$core$Json_Decode$map, msg, _user$project$HtmlHelpers$targetOptions));
-};
-var _user$project$HtmlHelpers$onSelect = function (msg) {
-	return A2(
-		_elm_lang$html$Html_Events$on,
-		'change',
-		A2(_elm_lang$core$Json_Decode$map, msg, _elm_lang$html$Html_Events$targetValue));
-};
-var _user$project$HtmlHelpers$onMenuItemClick = function (msg) {
-	return A3(
-		_elm_lang$html$Html_Events$onWithOptions,
-		'click',
-		_elm_lang$core$Native_Utils.update(
-			_elm_lang$html$Html_Events$defaultOptions,
-			{stopPropagation: true}),
-		_elm_lang$core$Json_Decode$succeed(msg));
-};
-var _user$project$HtmlHelpers$onMenuItemCheck = function (tagger) {
-	return A3(
-		_elm_lang$html$Html_Events$onWithOptions,
-		'click',
-		_elm_lang$core$Native_Utils.update(
-			_elm_lang$html$Html_Events$defaultOptions,
-			{stopPropagation: true}),
-		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetChecked));
-};
-var _user$project$HtmlHelpers$onLinkClick = function (msg) {
-	return A3(
-		_elm_lang$html$Html_Events$onWithOptions,
-		'click',
-		_elm_lang$core$Native_Utils.update(
-			_elm_lang$html$Html_Events$defaultOptions,
-			{preventDefault: true}),
-		_elm_lang$core$Json_Decode$succeed(msg));
-};
-var _user$project$HtmlHelpers$Option = function (a) {
-	return {value: a};
-};
-
 var _user$project$Price$updateHighRange = F2(
 	function (high, range) {
 		return _elm_lang$core$Native_Utils.update(
@@ -14318,61 +16564,6 @@ var _user$project$Model$Owned = {ctor: 'Owned'};
 var _user$project$Model$Other = {ctor: 'Other'};
 var _user$project$Model$Https = {ctor: 'Https'};
 var _user$project$Model$Http = {ctor: 'Http'};
-
-var _user$project$Parser$parseProtocol = function (value) {
-	var _p0 = _elm_lang$core$String$toLower(value);
-	switch (_p0) {
-		case 'http':
-			return _user$project$Model$Http;
-		case 'https':
-			return _user$project$Model$Https;
-		default:
-			return _user$project$Model$Other;
-	}
-};
-var _user$project$Parser$parseGameOn = function (value) {
-	var _p1 = value;
-	switch (_p1) {
-		case 'Gog':
-			return _elm_lang$core$Maybe$Just(_user$project$Model$Gog);
-		case 'Steam':
-			return _elm_lang$core$Maybe$Just(_user$project$Model$Steam);
-		default:
-			return _elm_lang$core$Maybe$Nothing;
-	}
-};
-var _user$project$Parser$parseSources = function (value) {
-	var _p2 = value;
-	switch (_p2) {
-		case 'Owned':
-			return _elm_lang$core$Maybe$Just(_user$project$Model$Owned);
-		case 'WishList':
-			return _elm_lang$core$Maybe$Just(_user$project$Model$WishList);
-		case 'Both':
-			return _elm_lang$core$Maybe$Just(_user$project$Model$Both);
-		default:
-			return _elm_lang$core$Maybe$Nothing;
-	}
-};
-var _user$project$Parser$parseBool = function (value) {
-	var _p3 = _elm_lang$core$String$toLower(value);
-	switch (_p3) {
-		case 'true':
-			return _elm_lang$core$Maybe$Just(true);
-		case 'false':
-			return _elm_lang$core$Maybe$Just(false);
-		default:
-			return _elm_lang$core$Maybe$Nothing;
-	}
-};
-var _user$project$Parser$parseFloat = function (value) {
-	return _elm_lang$core$Result$toMaybe(
-		_elm_lang$core$String$toFloat(value));
-};
-var _user$project$Parser$parseInt = function (value) {
-	return _elm_lang$core$Result$toMaybe(
-		_elm_lang$core$String$toInt(value));
-};
 
 var _user$project$GameEntry$updatePrices = F3(
 	function (newData, sources, oldData) {
@@ -14579,6 +16770,61 @@ var _user$project$GameEntry$WebSocketRefreshResult = F2(
 	function (a, b) {
 		return {games: a, prices: b};
 	});
+
+var _user$project$Parser$parseProtocol = function (value) {
+	var _p0 = _elm_lang$core$String$toLower(value);
+	switch (_p0) {
+		case 'http':
+			return _user$project$Model$Http;
+		case 'https':
+			return _user$project$Model$Https;
+		default:
+			return _user$project$Model$Other;
+	}
+};
+var _user$project$Parser$parseGameOn = function (value) {
+	var _p1 = value;
+	switch (_p1) {
+		case 'Gog':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Gog);
+		case 'Steam':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Steam);
+		default:
+			return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _user$project$Parser$parseSources = function (value) {
+	var _p2 = value;
+	switch (_p2) {
+		case 'Owned':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Owned);
+		case 'WishList':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$WishList);
+		case 'Both':
+			return _elm_lang$core$Maybe$Just(_user$project$Model$Both);
+		default:
+			return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _user$project$Parser$parseBool = function (value) {
+	var _p3 = _elm_lang$core$String$toLower(value);
+	switch (_p3) {
+		case 'true':
+			return _elm_lang$core$Maybe$Just(true);
+		case 'false':
+			return _elm_lang$core$Maybe$Just(false);
+		default:
+			return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _user$project$Parser$parseFloat = function (value) {
+	return _elm_lang$core$Result$toMaybe(
+		_elm_lang$core$String$toFloat(value));
+};
+var _user$project$Parser$parseInt = function (value) {
+	return _elm_lang$core$Result$toMaybe(
+		_elm_lang$core$String$toInt(value));
+};
 
 var _user$project$Router$resolveResponse = F3(
 	function (successResolver, errorResolver, response) {
@@ -14796,6 +17042,7 @@ var _user$project$Router$refreshSocketUrl = F3(
 	});
 var _user$project$Router$routes = {
 	login: {
+		page: A2(_user$project$Router$generateGetMethod, '', _elm_lang$core$Json_Decode$string),
 		fetchUsers: A2(
 			_user$project$Router$generateGetMethod,
 			'login/fetchUsers',
@@ -14846,6 +17093,192 @@ var _user$project$Router$Comparison = F3(
 		return {toggleSelected: a, comparisonData: b, page: c};
 	});
 
+var _user$project$CommonNavbar$linkClass = function (link) {
+	var _p0 = link;
+	switch (_p0.ctor) {
+		case 'Main':
+			return _elm_lang$html$Html_Attributes$class('fa fa-table');
+		case 'Login':
+			return _elm_lang$html$Html_Attributes$class('fa fa-sign-out');
+		default:
+			return _elm_lang$html$Html_Attributes$class('fa fa-link');
+	}
+};
+var _user$project$CommonNavbar$linkHref = function (link) {
+	var _p1 = link;
+	switch (_p1.ctor) {
+		case 'Main':
+			return _elm_lang$html$Html_Attributes$href(
+				function (_) {
+					return _.url;
+				}(
+					_user$project$Router$routes.main.page(
+						{ctor: '[]'})));
+		case 'Login':
+			return _elm_lang$html$Html_Attributes$href(
+				function (_) {
+					return _.url;
+				}(
+					_user$project$Router$routes.login.page(
+						{ctor: '[]'})));
+		default:
+			return _elm_lang$html$Html_Attributes$href(
+				function (_) {
+					return _.url;
+				}(
+					_user$project$Router$routes.comparison.page(
+						{ctor: '[]'})));
+	}
+};
+var _user$project$CommonNavbar$Comparison = {ctor: 'Comparison'};
+var _user$project$CommonNavbar$Login = {ctor: 'Login'};
+var _user$project$CommonNavbar$Main = {ctor: 'Main'};
+var _user$project$CommonNavbar$links = function (currentPage) {
+	return A2(
+		_rundis$elm_bootstrap$Bootstrap_Navbar$textItem,
+		{ctor: '[]'},
+		A2(
+			_elm_lang$core$List$filterMap,
+			function (l) {
+				return (!_elm_lang$core$Native_Utils.eq(l, currentPage)) ? _elm_lang$core$Maybe$Just(
+					A2(
+						_rundis$elm_bootstrap$Bootstrap_Button$linkButton,
+						{
+							ctor: '::',
+							_0: _rundis$elm_bootstrap$Bootstrap_Button$outlineSecondary,
+							_1: {
+								ctor: '::',
+								_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+									{
+										ctor: '::',
+										_0: _user$project$CommonNavbar$linkClass(l),
+										_1: {
+											ctor: '::',
+											_0: _user$project$CommonNavbar$linkHref(l),
+											_1: {ctor: '[]'}
+										}
+									}),
+								_1: {ctor: '[]'}
+							}
+						},
+						{ctor: '[]'})) : _elm_lang$core$Maybe$Nothing;
+			},
+			{
+				ctor: '::',
+				_0: _user$project$CommonNavbar$Main,
+				_1: {
+					ctor: '::',
+					_0: _user$project$CommonNavbar$Comparison,
+					_1: {
+						ctor: '::',
+						_0: _user$project$CommonNavbar$Login,
+						_1: {ctor: '[]'}
+					}
+				}
+			}));
+};
+var _user$project$CommonNavbar$navbar = F3(
+	function (currentPage, wrapper, items) {
+		return A2(
+			_rundis$elm_bootstrap$Bootstrap_Navbar$customItems,
+			{
+				ctor: '::',
+				_0: _user$project$CommonNavbar$links(currentPage),
+				_1: {ctor: '[]'}
+			},
+			items(
+				A3(
+					_rundis$elm_bootstrap$Bootstrap_Navbar$brand,
+					{
+						ctor: '::',
+						_0: _user$project$CommonNavbar$linkHref(currentPage),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Game Aggregator'),
+						_1: {ctor: '[]'}
+					},
+					A2(
+						_rundis$elm_bootstrap$Bootstrap_Navbar$attrs,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('sticky-top'),
+							_1: {ctor: '[]'}
+						},
+						_rundis$elm_bootstrap$Bootstrap_Navbar$withAnimation(
+							_rundis$elm_bootstrap$Bootstrap_Navbar$config(wrapper))))));
+	});
+
+var _user$project$HtmlHelpers$targetOptions = A2(
+	_elm_lang$core$Json_Decode$map,
+	_elm_lang$core$List$filterMap(_elm_lang$core$Tuple$second),
+	A2(
+		_elm_lang$core$Json_Decode$at,
+		{
+			ctor: '::',
+			_0: 'target',
+			_1: {
+				ctor: '::',
+				_0: 'selectedOptions',
+				_1: {ctor: '[]'}
+			}
+		},
+		_elm_lang$core$Json_Decode$keyValuePairs(
+			_elm_lang$core$Json_Decode$maybe(
+				A2(_elm_lang$core$Json_Decode$field, 'value', _elm_lang$core$Json_Decode$string)))));
+var _user$project$HtmlHelpers$onEnter = function (msg) {
+	var isEnter = function (code) {
+		return _elm_lang$core$Native_Utils.eq(code, 13) ? _elm_lang$core$Json_Decode$succeed(msg) : _elm_lang$core$Json_Decode$fail('not ENTER');
+	};
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'keydown',
+		A2(_elm_lang$core$Json_Decode$andThen, isEnter, _elm_lang$html$Html_Events$keyCode));
+};
+var _user$project$HtmlHelpers$onMultiSelect = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(_elm_lang$core$Json_Decode$map, msg, _user$project$HtmlHelpers$targetOptions));
+};
+var _user$project$HtmlHelpers$onSelect = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(_elm_lang$core$Json_Decode$map, msg, _elm_lang$html$Html_Events$targetValue));
+};
+var _user$project$HtmlHelpers$onMenuItemClick = function (msg) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'click',
+		_elm_lang$core$Native_Utils.update(
+			_elm_lang$html$Html_Events$defaultOptions,
+			{stopPropagation: true}),
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _user$project$HtmlHelpers$onMenuItemCheck = function (tagger) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'click',
+		_elm_lang$core$Native_Utils.update(
+			_elm_lang$html$Html_Events$defaultOptions,
+			{stopPropagation: true}),
+		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetChecked));
+};
+var _user$project$HtmlHelpers$onLinkClick = function (msg) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'click',
+		_elm_lang$core$Native_Utils.update(
+			_elm_lang$html$Html_Events$defaultOptions,
+			{preventDefault: true}),
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _user$project$HtmlHelpers$Option = function (a) {
+	return {value: a};
+};
+
 var _user$project$Comparison$gameOnFromString = function (value) {
 	return _elm_lang$core$Native_Utils.eq(value, 'Steam') ? _user$project$Model$Steam : _user$project$Model$Gog;
 };
@@ -14854,21 +17287,29 @@ var _user$project$Comparison$elmAddressChange = _elm_lang$core$Native_Platform.o
 	function (v) {
 		return v;
 	});
-var _user$project$Comparison$Model = F3(
-	function (a, b, c) {
-		return {comparisons: a, parameters: b, message: c};
+var _user$project$Comparison$Model = F4(
+	function (a, b, c, d) {
+		return {comparisons: a, parameters: b, message: c, navbarState: d};
 	});
 var _user$project$Comparison$ComparisonParameters = F3(
 	function (a, b, c) {
 		return {leftOn: a, rightOn: b, minimumMetric: c};
 	});
-var _user$project$Comparison$initialModel = A3(
-	_user$project$Comparison$Model,
-	{ctor: '[]'},
-	A3(_user$project$Comparison$ComparisonParameters, _user$project$Model$Gog, _user$project$Model$Steam, 3),
-	'');
+var _user$project$Comparison$initialParameters = A3(_user$project$Comparison$ComparisonParameters, _user$project$Model$Gog, _user$project$Model$Steam, 3);
+var _user$project$Comparison$resetModel = function (model) {
+	return _elm_lang$core$Native_Utils.update(
+		model,
+		{
+			comparisons: {ctor: '[]'},
+			parameters: _user$project$Comparison$initialParameters,
+			message: ''
+		});
+};
 var _user$project$Comparison$Right = {ctor: 'Right'};
 var _user$project$Comparison$Left = {ctor: 'Left'};
+var _user$project$Comparison$NavbarMsg = function (a) {
+	return {ctor: 'NavbarMsg', _0: a};
+};
 var _user$project$Comparison$ToggleStored = function (a) {
 	return {ctor: 'ToggleStored', _0: a};
 };
@@ -15164,31 +17605,38 @@ var _user$project$Comparison$view = function (model) {
 			_1: {
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					_elm_lang$core$String$isEmpty(model.message) ? {ctor: '[]'} : {
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							_elm_lang$core$Basics$toString(model.message)),
-						_1: {ctor: '[]'}
-					}),
+					_rundis$elm_bootstrap$Bootstrap_Navbar$view,
+					model.navbarState,
+					A3(_user$project$CommonNavbar$navbar, _user$project$CommonNavbar$Comparison, _user$project$Comparison$NavbarMsg, _elm_lang$core$Basics$identity)),
 				_1: {
 					ctor: '::',
-					_0: _rundis$elm_bootstrap$Bootstrap_Table$table(
-						{
-							options: {
-								ctor: '::',
-								_0: _rundis$elm_bootstrap$Bootstrap_Table$striped,
-								_1: {
-									ctor: '::',
-									_0: _rundis$elm_bootstrap$Bootstrap_Table$bordered,
-									_1: {ctor: '[]'}
-								}
-							},
-							thead: _user$project$Comparison$title(model),
-							tbody: _user$project$Comparison$tableRows(model.comparisons)
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{ctor: '[]'},
+						_elm_lang$core$String$isEmpty(model.message) ? {ctor: '[]'} : {
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(
+								_elm_lang$core$Basics$toString(model.message)),
+							_1: {ctor: '[]'}
 						}),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: _rundis$elm_bootstrap$Bootstrap_Table$table(
+							{
+								options: {
+									ctor: '::',
+									_0: _rundis$elm_bootstrap$Bootstrap_Table$striped,
+									_1: {
+										ctor: '::',
+										_0: _rundis$elm_bootstrap$Bootstrap_Table$bordered,
+										_1: {ctor: '[]'}
+									}
+								},
+								thead: _user$project$Comparison$title(model),
+								tbody: _user$project$Comparison$tableRows(model.comparisons)
+							}),
+						_1: {ctor: '[]'}
+					}
 				}
 			}
 		});
@@ -15260,6 +17708,15 @@ var _user$project$Comparison$refresh = function (parameters) {
 		});
 };
 var _user$project$Comparison$initProgram = function (address) {
+	var _p0 = _rundis$elm_bootstrap$Bootstrap_Navbar$initialState(_user$project$Comparison$NavbarMsg);
+	var navbarState = _p0._0;
+	var navbarCmd = _p0._1;
+	var initialModel = A4(
+		_user$project$Comparison$Model,
+		{ctor: '[]'},
+		_user$project$Comparison$initialParameters,
+		'',
+		navbarState);
 	var parseInt = function (value) {
 		return A2(
 			_elm_lang$core$Maybe$withDefault,
@@ -15284,58 +17741,66 @@ var _user$project$Comparison$initProgram = function (address) {
 			A2(_elm_lang$core$Json_Decode$map, parseInt, _elm_lang$core$Json_Decode$string)));
 	var decodedParameters = A2(
 		_elm_lang$core$Maybe$withDefault,
-		_user$project$Comparison$initialModel.parameters,
+		_user$project$Comparison$initialParameters,
 		_elm_lang$core$Result$toMaybe(
 			A2(_elm_lang$core$Json_Decode$decodeString, decodeAddress, address)));
-	return {
-		ctor: '_Tuple2',
-		_0: _elm_lang$core$Native_Utils.update(
-			_user$project$Comparison$initialModel,
+	return A2(
+		_elm_lang$core$Platform_Cmd_ops['!'],
+		_elm_lang$core$Native_Utils.update(
+			initialModel,
 			{parameters: decodedParameters}),
-		_1: _user$project$Comparison$refresh(decodedParameters)
-	};
+		{
+			ctor: '::',
+			_0: _user$project$Comparison$refresh(decodedParameters),
+			_1: {
+				ctor: '::',
+				_0: navbarCmd,
+				_1: {ctor: '[]'}
+			}
+		});
 };
 var _user$project$Comparison$update = F2(
 	function (msg, model) {
-		var _p0 = msg;
-		switch (_p0.ctor) {
+		var _p1 = msg;
+		switch (_p1.ctor) {
 			case 'ReceiveData':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{comparisons: _p0._0}),
+						{comparisons: _p1._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'DataError':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						_user$project$Comparison$initialModel,
+				var newModel = _user$project$Comparison$resetModel(model);
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						newModel,
 						{
-							message: _elm_lang$core$Basics$toString(_p0._0)
+							message: _elm_lang$core$Basics$toString(_p1._0)
 						}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
+					{ctor: '[]'});
 			case 'RefreshData':
-				var _p1 = _p0._0;
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							comparisons: {ctor: '[]'},
-							parameters: _p1
-						}),
-					_1: _user$project$Comparison$refresh(_p1)
-				};
+				var _p2 = _p1._0;
+				var newModel = _user$project$Comparison$resetModel(model);
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						newModel,
+						{parameters: _p2}),
+					{
+						ctor: '::',
+						_0: _user$project$Comparison$refresh(_p2),
+						_1: {ctor: '[]'}
+					});
 			case 'Toggle':
-				var _p3 = _p0._1;
-				var _p2 = _p0._0;
+				var _p4 = _p1._1;
+				var _p3 = _p1._0;
 				var updateEntry = function (e) {
-					return (_elm_lang$core$Native_Utils.eq(e.left.id, _p2) && _elm_lang$core$Native_Utils.eq(e.right.id, _p3)) ? _elm_lang$core$Native_Utils.update(
+					return (_elm_lang$core$Native_Utils.eq(e.left.id, _p3) && _elm_lang$core$Native_Utils.eq(e.right.id, _p4)) ? _elm_lang$core$Native_Utils.update(
 						e,
-						{matches: _p0._2}) : e;
+						{matches: _p1._2}) : e;
 				};
 				var newComparisons = A2(_elm_lang$core$List$map, updateEntry, model.comparisons);
 				return {
@@ -15363,14 +17828,14 @@ var _user$project$Comparison$update = F2(
 									_0: {
 										ctor: '_Tuple2',
 										_0: 'leftId',
-										_1: _elm_lang$core$Basics$toString(_p2)
+										_1: _elm_lang$core$Basics$toString(_p3)
 									},
 									_1: {
 										ctor: '::',
 										_0: {
 											ctor: '_Tuple2',
 											_0: 'rightId',
-											_1: _elm_lang$core$Basics$toString(_p3)
+											_1: _elm_lang$core$Basics$toString(_p4)
 										},
 										_1: {ctor: '[]'}
 									}
@@ -15378,8 +17843,15 @@ var _user$project$Comparison$update = F2(
 							}
 						})
 				};
-			default:
+			case 'ToggleStored':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			default:
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{navbarState: _p1._0}),
+					{ctor: '[]'});
 		}
 	});
 var _user$project$Comparison$main = _elm_lang$html$Html$programWithFlags(
@@ -15387,7 +17859,7 @@ var _user$project$Comparison$main = _elm_lang$html$Html$programWithFlags(
 		init: _user$project$Comparison$initProgram,
 		view: _user$project$Comparison$view,
 		update: _user$project$Comparison$update,
-		subscriptions: function (_p4) {
+		subscriptions: function (_p5) {
 			return _elm_lang$core$Platform_Sub$none;
 		}
 	})(_elm_lang$core$Json_Decode$string);

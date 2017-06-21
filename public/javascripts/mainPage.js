@@ -17334,75 +17334,6 @@ var _user$project$GameEntry$WebSocketRefreshResult = F2(
 		return {games: a, prices: b};
 	});
 
-var _user$project$HtmlHelpers$targetOptions = A2(
-	_elm_lang$core$Json_Decode$map,
-	_elm_lang$core$List$filterMap(_elm_lang$core$Tuple$second),
-	A2(
-		_elm_lang$core$Json_Decode$at,
-		{
-			ctor: '::',
-			_0: 'target',
-			_1: {
-				ctor: '::',
-				_0: 'selectedOptions',
-				_1: {ctor: '[]'}
-			}
-		},
-		_elm_lang$core$Json_Decode$keyValuePairs(
-			_elm_lang$core$Json_Decode$maybe(
-				A2(_elm_lang$core$Json_Decode$field, 'value', _elm_lang$core$Json_Decode$string)))));
-var _user$project$HtmlHelpers$onEnter = function (msg) {
-	var isEnter = function (code) {
-		return _elm_lang$core$Native_Utils.eq(code, 13) ? _elm_lang$core$Json_Decode$succeed(msg) : _elm_lang$core$Json_Decode$fail('not ENTER');
-	};
-	return A2(
-		_elm_lang$html$Html_Events$on,
-		'keydown',
-		A2(_elm_lang$core$Json_Decode$andThen, isEnter, _elm_lang$html$Html_Events$keyCode));
-};
-var _user$project$HtmlHelpers$onMultiSelect = function (msg) {
-	return A2(
-		_elm_lang$html$Html_Events$on,
-		'change',
-		A2(_elm_lang$core$Json_Decode$map, msg, _user$project$HtmlHelpers$targetOptions));
-};
-var _user$project$HtmlHelpers$onSelect = function (msg) {
-	return A2(
-		_elm_lang$html$Html_Events$on,
-		'change',
-		A2(_elm_lang$core$Json_Decode$map, msg, _elm_lang$html$Html_Events$targetValue));
-};
-var _user$project$HtmlHelpers$onMenuItemClick = function (msg) {
-	return A3(
-		_elm_lang$html$Html_Events$onWithOptions,
-		'click',
-		_elm_lang$core$Native_Utils.update(
-			_elm_lang$html$Html_Events$defaultOptions,
-			{stopPropagation: true}),
-		_elm_lang$core$Json_Decode$succeed(msg));
-};
-var _user$project$HtmlHelpers$onMenuItemCheck = function (tagger) {
-	return A3(
-		_elm_lang$html$Html_Events$onWithOptions,
-		'click',
-		_elm_lang$core$Native_Utils.update(
-			_elm_lang$html$Html_Events$defaultOptions,
-			{stopPropagation: true}),
-		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetChecked));
-};
-var _user$project$HtmlHelpers$onLinkClick = function (msg) {
-	return A3(
-		_elm_lang$html$Html_Events$onWithOptions,
-		'click',
-		_elm_lang$core$Native_Utils.update(
-			_elm_lang$html$Html_Events$defaultOptions,
-			{preventDefault: true}),
-		_elm_lang$core$Json_Decode$succeed(msg));
-};
-var _user$project$HtmlHelpers$Option = function (a) {
-	return {value: a};
-};
-
 var _user$project$Parser$parseProtocol = function (value) {
 	var _p0 = _elm_lang$core$String$toLower(value);
 	switch (_p0) {
@@ -17674,6 +17605,7 @@ var _user$project$Router$refreshSocketUrl = F3(
 	});
 var _user$project$Router$routes = {
 	login: {
+		page: A2(_user$project$Router$generateGetMethod, '', _elm_lang$core$Json_Decode$string),
 		fetchUsers: A2(
 			_user$project$Router$generateGetMethod,
 			'login/fetchUsers',
@@ -17724,6 +17656,192 @@ var _user$project$Router$Comparison = F3(
 		return {toggleSelected: a, comparisonData: b, page: c};
 	});
 
+var _user$project$CommonNavbar$linkClass = function (link) {
+	var _p0 = link;
+	switch (_p0.ctor) {
+		case 'Main':
+			return _elm_lang$html$Html_Attributes$class('fa fa-table');
+		case 'Login':
+			return _elm_lang$html$Html_Attributes$class('fa fa-sign-out');
+		default:
+			return _elm_lang$html$Html_Attributes$class('fa fa-link');
+	}
+};
+var _user$project$CommonNavbar$linkHref = function (link) {
+	var _p1 = link;
+	switch (_p1.ctor) {
+		case 'Main':
+			return _elm_lang$html$Html_Attributes$href(
+				function (_) {
+					return _.url;
+				}(
+					_user$project$Router$routes.main.page(
+						{ctor: '[]'})));
+		case 'Login':
+			return _elm_lang$html$Html_Attributes$href(
+				function (_) {
+					return _.url;
+				}(
+					_user$project$Router$routes.login.page(
+						{ctor: '[]'})));
+		default:
+			return _elm_lang$html$Html_Attributes$href(
+				function (_) {
+					return _.url;
+				}(
+					_user$project$Router$routes.comparison.page(
+						{ctor: '[]'})));
+	}
+};
+var _user$project$CommonNavbar$Comparison = {ctor: 'Comparison'};
+var _user$project$CommonNavbar$Login = {ctor: 'Login'};
+var _user$project$CommonNavbar$Main = {ctor: 'Main'};
+var _user$project$CommonNavbar$links = function (currentPage) {
+	return A2(
+		_rundis$elm_bootstrap$Bootstrap_Navbar$textItem,
+		{ctor: '[]'},
+		A2(
+			_elm_lang$core$List$filterMap,
+			function (l) {
+				return (!_elm_lang$core$Native_Utils.eq(l, currentPage)) ? _elm_lang$core$Maybe$Just(
+					A2(
+						_rundis$elm_bootstrap$Bootstrap_Button$linkButton,
+						{
+							ctor: '::',
+							_0: _rundis$elm_bootstrap$Bootstrap_Button$outlineSecondary,
+							_1: {
+								ctor: '::',
+								_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+									{
+										ctor: '::',
+										_0: _user$project$CommonNavbar$linkClass(l),
+										_1: {
+											ctor: '::',
+											_0: _user$project$CommonNavbar$linkHref(l),
+											_1: {ctor: '[]'}
+										}
+									}),
+								_1: {ctor: '[]'}
+							}
+						},
+						{ctor: '[]'})) : _elm_lang$core$Maybe$Nothing;
+			},
+			{
+				ctor: '::',
+				_0: _user$project$CommonNavbar$Main,
+				_1: {
+					ctor: '::',
+					_0: _user$project$CommonNavbar$Comparison,
+					_1: {
+						ctor: '::',
+						_0: _user$project$CommonNavbar$Login,
+						_1: {ctor: '[]'}
+					}
+				}
+			}));
+};
+var _user$project$CommonNavbar$navbar = F3(
+	function (currentPage, wrapper, items) {
+		return A2(
+			_rundis$elm_bootstrap$Bootstrap_Navbar$customItems,
+			{
+				ctor: '::',
+				_0: _user$project$CommonNavbar$links(currentPage),
+				_1: {ctor: '[]'}
+			},
+			items(
+				A3(
+					_rundis$elm_bootstrap$Bootstrap_Navbar$brand,
+					{
+						ctor: '::',
+						_0: _user$project$CommonNavbar$linkHref(currentPage),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Game Aggregator'),
+						_1: {ctor: '[]'}
+					},
+					A2(
+						_rundis$elm_bootstrap$Bootstrap_Navbar$attrs,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('sticky-top'),
+							_1: {ctor: '[]'}
+						},
+						_rundis$elm_bootstrap$Bootstrap_Navbar$withAnimation(
+							_rundis$elm_bootstrap$Bootstrap_Navbar$config(wrapper))))));
+	});
+
+var _user$project$HtmlHelpers$targetOptions = A2(
+	_elm_lang$core$Json_Decode$map,
+	_elm_lang$core$List$filterMap(_elm_lang$core$Tuple$second),
+	A2(
+		_elm_lang$core$Json_Decode$at,
+		{
+			ctor: '::',
+			_0: 'target',
+			_1: {
+				ctor: '::',
+				_0: 'selectedOptions',
+				_1: {ctor: '[]'}
+			}
+		},
+		_elm_lang$core$Json_Decode$keyValuePairs(
+			_elm_lang$core$Json_Decode$maybe(
+				A2(_elm_lang$core$Json_Decode$field, 'value', _elm_lang$core$Json_Decode$string)))));
+var _user$project$HtmlHelpers$onEnter = function (msg) {
+	var isEnter = function (code) {
+		return _elm_lang$core$Native_Utils.eq(code, 13) ? _elm_lang$core$Json_Decode$succeed(msg) : _elm_lang$core$Json_Decode$fail('not ENTER');
+	};
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'keydown',
+		A2(_elm_lang$core$Json_Decode$andThen, isEnter, _elm_lang$html$Html_Events$keyCode));
+};
+var _user$project$HtmlHelpers$onMultiSelect = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(_elm_lang$core$Json_Decode$map, msg, _user$project$HtmlHelpers$targetOptions));
+};
+var _user$project$HtmlHelpers$onSelect = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(_elm_lang$core$Json_Decode$map, msg, _elm_lang$html$Html_Events$targetValue));
+};
+var _user$project$HtmlHelpers$onMenuItemClick = function (msg) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'click',
+		_elm_lang$core$Native_Utils.update(
+			_elm_lang$html$Html_Events$defaultOptions,
+			{stopPropagation: true}),
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _user$project$HtmlHelpers$onMenuItemCheck = function (tagger) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'click',
+		_elm_lang$core$Native_Utils.update(
+			_elm_lang$html$Html_Events$defaultOptions,
+			{stopPropagation: true}),
+		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetChecked));
+};
+var _user$project$HtmlHelpers$onLinkClick = function (msg) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'click',
+		_elm_lang$core$Native_Utils.update(
+			_elm_lang$html$Html_Events$defaultOptions,
+			{preventDefault: true}),
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _user$project$HtmlHelpers$Option = function (a) {
+	return {value: a};
+};
+
 var _user$project$Filters$dynamicOptions = F3(
 	function (msg, selectedSet, currentValue) {
 		return A3(
@@ -17749,58 +17867,6 @@ var _user$project$Filters$dynamicOptions = F3(
 				_0: _elm_lang$html$Html$text(currentValue),
 				_1: {ctor: '[]'}
 			});
-	});
-var _user$project$Filters$logout = A2(
-	_rundis$elm_bootstrap$Bootstrap_Navbar$textItem,
-	{ctor: '[]'},
-	{
-		ctor: '::',
-		_0: A2(
-			_rundis$elm_bootstrap$Bootstrap_Button$linkButton,
-			{
-				ctor: '::',
-				_0: _rundis$elm_bootstrap$Bootstrap_Button$outlineSecondary,
-				_1: {
-					ctor: '::',
-					_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('fa fa-link'),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$href('/comparison'),
-								_1: {ctor: '[]'}
-							}
-						}),
-					_1: {ctor: '[]'}
-				}
-			},
-			{ctor: '[]'}),
-		_1: {
-			ctor: '::',
-			_0: A2(
-				_rundis$elm_bootstrap$Bootstrap_Button$linkButton,
-				{
-					ctor: '::',
-					_0: _rundis$elm_bootstrap$Bootstrap_Button$outlineSecondary,
-					_1: {
-						ctor: '::',
-						_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('fa fa-sign-out'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$href('/'),
-									_1: {ctor: '[]'}
-								}
-							}),
-						_1: {ctor: '[]'}
-					}
-				},
-				{ctor: '[]'}),
-			_1: {ctor: '[]'}
-		}
 	});
 var _user$project$Filters$priceExtractor = function (entry) {
 	return A2(
@@ -18226,16 +18292,6 @@ var _user$project$Filters$update = F2(
 	function (msg, model) {
 		var _p5 = msg;
 		switch (_p5.ctor) {
-			case 'Clear':
-				var tagsFilter = A3(_user$project$Filters$DynamicFilter, model.tagsFilter.allValues, _elm_lang$core$Set$empty, model.tagsFilter.conjunction);
-				var genresFilter = A3(_user$project$Filters$DynamicFilter, model.genresFilter.allValues, _elm_lang$core$Set$empty, model.genresFilter.conjunction);
-				return A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					_user$project$Filters$apply(
-						_user$project$Filters$Model(model.userId)(model.sources)(false)(false)(_elm_lang$core$Maybe$Nothing)('')(genresFilter)(tagsFilter)(
-							A2(_user$project$Price$PriceRange, _elm_lang$core$Maybe$Nothing, _elm_lang$core$Maybe$Nothing))(model.original)(
-							{ctor: '[]'})(model.navbarState)(_elm_lang$core$Maybe$Nothing)),
-					{ctor: '[]'});
 			case 'ChangeName':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -19063,20 +19119,15 @@ var _user$project$Filters$filtersDropdown = function (model) {
 			}
 		});
 };
-var _user$project$Filters$Clear = {ctor: 'Clear'};
 var _user$project$Filters$view = function (model) {
 	return A2(
 		_rundis$elm_bootstrap$Bootstrap_Navbar$view,
 		model.navbarState,
-		A2(
-			_rundis$elm_bootstrap$Bootstrap_Navbar$customItems,
-			{
-				ctor: '::',
-				_0: _user$project$Filters$logout,
-				_1: {ctor: '[]'}
-			},
-			A2(
-				_rundis$elm_bootstrap$Bootstrap_Navbar$items,
+		A3(
+			_user$project$CommonNavbar$navbar,
+			_user$project$CommonNavbar$Main,
+			_user$project$Filters$NavbarMsg,
+			_rundis$elm_bootstrap$Bootstrap_Navbar$items(
 				{
 					ctor: '::',
 					_0: _user$project$Filters$pricingDropdown(model),
@@ -19093,32 +19144,7 @@ var _user$project$Filters$view = function (model) {
 							}
 						}
 					}
-				},
-				A3(
-					_rundis$elm_bootstrap$Bootstrap_Navbar$brand,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$href(''),
-						_1: {
-							ctor: '::',
-							_0: _user$project$HtmlHelpers$onLinkClick(_user$project$Filters$Clear),
-							_1: {ctor: '[]'}
-						}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text('Game Aggregator'),
-						_1: {ctor: '[]'}
-					},
-					A2(
-						_rundis$elm_bootstrap$Bootstrap_Navbar$attrs,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('sticky-top'),
-							_1: {ctor: '[]'}
-						},
-						_rundis$elm_bootstrap$Bootstrap_Navbar$withAnimation(
-							_rundis$elm_bootstrap$Bootstrap_Navbar$config(_user$project$Filters$NavbarMsg)))))));
+				})));
 };
 
 var _user$project$GameOptionsDialog$queryResult = F4(

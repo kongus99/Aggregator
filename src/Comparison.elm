@@ -6,7 +6,9 @@ import Bootstrap.ButtonGroup as ButtonGroup
 import Bootstrap.CDN as CDN
 import Bootstrap.Form as Form
 import Bootstrap.Form.Input as Input
+import Bootstrap.Navbar as Navbar
 import Bootstrap.Table as Table
+import CommonNavbar
 import Html exposing (Html, button, div, input, option, select, span, table, td, text, th, thead, tr)
 import Html.Attributes exposing (checked, class, contenteditable, for, readonly, selected, type_, value)
 import Html.Events exposing (on, onClick, targetValue)
@@ -30,9 +32,15 @@ initProgram address =
             map3 ComparisonParameters (field "left" <| Json.map gameOnFromString string) (field "right" <| Json.map gameOnFromString string) (field "minimumMetric" <| Json.map parseInt string)
 
         decodedParameters =
-            Json.decodeString decodeAddress address |> Result.toMaybe |> Maybe.withDefault initialModel.parameters
+            Json.decodeString decodeAddress address |> Result.toMaybe |> Maybe.withDefault initialParameters
+
+        ( navbarState, navbarCmd ) =
+            Navbar.initialState NavbarMsg
+
+        initialModel =
+            Model [] initialParameters "" navbarState
     in
-    ( { initialModel | parameters = decodedParameters }, refresh decodedParameters )
+    { initialModel | parameters = decodedParameters } ! [ refresh decodedParameters, navbarCmd ]
 
 
 main =
@@ -56,15 +64,19 @@ type PageSide
 
 
 type alias Model =
-    { comparisons : List ComparisonEntry, parameters : ComparisonParameters, message : String }
+    { comparisons : List ComparisonEntry, parameters : ComparisonParameters, message : String, navbarState : Navbar.State }
 
 
 type alias ComparisonParameters =
     { leftOn : GameOn, rightOn : GameOn, minimumMetric : Int }
 
 
-initialModel =
-    Model [] (ComparisonParameters Gog Steam 3) ""
+initialParameters =
+    ComparisonParameters Gog Steam 3
+
+
+resetModel model =
+    { model | comparisons = [], parameters = initialParameters, message = "" }
 
 
 refresh parameters =
@@ -88,19 +100,28 @@ type Msg
     | RefreshData ComparisonParameters
     | Toggle Int Int Bool
     | ToggleStored String
+    | NavbarMsg Navbar.State
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ReceiveData comparisons ->
-            ( { model | comparisons = comparisons }, Cmd.none )
+            { model | comparisons = comparisons } ! []
 
         DataError err ->
-            ( { initialModel | message = toString err }, Cmd.none )
+            let
+                newModel =
+                    resetModel model
+            in
+            { newModel | message = toString err } ! []
 
         RefreshData parameters ->
-            ( { model | comparisons = [], parameters = parameters }, refresh parameters )
+            let
+                newModel =
+                    resetModel model
+            in
+            { newModel | parameters = parameters } ! [ refresh parameters ]
 
         Toggle leftId rightId toggle ->
             let
@@ -125,6 +146,9 @@ update msg model =
         ToggleStored mess ->
             ( model, Cmd.none )
 
+        NavbarMsg state ->
+            { model | navbarState = state } ! []
+
 
 
 -- VIEW
@@ -134,6 +158,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ CDN.stylesheet
+        , CommonNavbar.navbar CommonNavbar.Comparison NavbarMsg identity |> Navbar.view model.navbarState
         , div []
             (if String.isEmpty model.message then
                 []
