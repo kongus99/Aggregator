@@ -16403,8 +16403,8 @@ var _user$project$Price$discountedIfAvailable = function (price) {
 	};
 	return A2(_elm_lang$core$Maybe$andThen, selectPrice, price);
 };
-var _user$project$Price$filterByAlternatePrices = F3(
-	function (alternativeExtractor, priceExtractor, entries) {
+var _user$project$Price$filterByAlternatePrices = F4(
+	function (alternativeExtractor, priceExtractor, filterTransformer, entries) {
 		var alternative = function (e) {
 			return A2(
 				_elm_lang$core$Maybe$map,
@@ -16438,12 +16438,13 @@ var _user$project$Price$filterByAlternatePrices = F3(
 		return A2(
 			_elm_lang$core$List$filter,
 			function (e) {
-				return filter(
-					{
-						ctor: '_Tuple2',
-						_0: price(e),
-						_1: alternative(e)
-					});
+				return filterTransformer(
+					filter(
+						{
+							ctor: '_Tuple2',
+							_0: price(e),
+							_1: alternative(e)
+						}));
 			},
 			entries);
 	});
@@ -17764,13 +17765,12 @@ var _user$project$Comparison$update = F2(
 		var _p1 = msg;
 		switch (_p1.ctor) {
 			case 'ReceiveData':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
 						model,
 						{comparisons: _p1._0}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
+					{ctor: '[]'});
 			case 'DataError':
 				var newModel = _user$project$Comparison$resetModel(model);
 				return A2(

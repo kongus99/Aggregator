@@ -16966,8 +16966,8 @@ var _user$project$Price$discountedIfAvailable = function (price) {
 	};
 	return A2(_elm_lang$core$Maybe$andThen, selectPrice, price);
 };
-var _user$project$Price$filterByAlternatePrices = F3(
-	function (alternativeExtractor, priceExtractor, entries) {
+var _user$project$Price$filterByAlternatePrices = F4(
+	function (alternativeExtractor, priceExtractor, filterTransformer, entries) {
 		var alternative = function (e) {
 			return A2(
 				_elm_lang$core$Maybe$map,
@@ -17001,12 +17001,13 @@ var _user$project$Price$filterByAlternatePrices = F3(
 		return A2(
 			_elm_lang$core$List$filter,
 			function (e) {
-				return filter(
-					{
-						ctor: '_Tuple2',
-						_0: price(e),
-						_1: alternative(e)
-					});
+				return filterTransformer(
+					filter(
+						{
+							ctor: '_Tuple2',
+							_0: price(e),
+							_1: alternative(e)
+						}));
 			},
 			entries);
 	});
@@ -17868,6 +17869,19 @@ var _user$project$Filters$dynamicOptions = F3(
 				_1: {ctor: '[]'}
 			});
 	});
+var _user$project$Filters$resolveDeal = F2(
+	function (currentDeal, newDeal) {
+		var _p0 = currentDeal;
+		if (_p0.ctor === 'Just') {
+			if (_p0._0 === true) {
+				return newDeal ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(false);
+			} else {
+				return newDeal ? _elm_lang$core$Maybe$Just(true) : _elm_lang$core$Maybe$Nothing;
+			}
+		} else {
+			return _elm_lang$core$Maybe$Just(newDeal);
+		}
+	});
 var _user$project$Filters$priceExtractor = function (entry) {
 	return A2(
 		_elm_lang$core$Maybe$map,
@@ -17933,13 +17947,22 @@ var _user$project$Filters$applyGameOnFilter = F2(
 	});
 var _user$project$Filters$applyDealFilter = F2(
 	function (isDeal, entries) {
-		return isDeal ? A3(
-			_user$project$Price$filterByAlternatePrices,
-			function (ge) {
-				return _elm_lang$core$List$head(ge.alternatePrices);
-			},
-			_user$project$Filters$priceExtractor,
-			entries) : entries;
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			entries,
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (d) {
+					return A4(
+						_user$project$Price$filterByAlternatePrices,
+						function (ge) {
+							return _elm_lang$core$List$head(ge.alternatePrices);
+						},
+						_user$project$Filters$priceExtractor,
+						d ? _elm_lang$core$Basics$identity : _elm_lang$core$Basics$not,
+						entries);
+				},
+				isDeal));
 	});
 var _user$project$Filters$applyDiscountedFilter = F2(
 	function (isDiscounted, entries) {
@@ -17987,19 +18010,19 @@ var _user$project$Filters$apply = function (model) {
 var _user$project$Filters$serialize = function (model) {
 	return A2(
 		_elm_lang$core$List$map,
-		function (_p0) {
-			var _p1 = _p0;
+		function (_p1) {
+			var _p2 = _p1;
 			return {
 				ctor: '_Tuple2',
-				_0: _p1._0,
-				_1: A2(_elm_lang$core$Maybe$withDefault, '', _p1._1)
+				_0: _p2._0,
+				_1: A2(_elm_lang$core$Maybe$withDefault, '', _p2._1)
 			};
 		},
 		A2(
 			_elm_lang$core$List$filter,
-			function (_p2) {
-				var _p3 = _p2;
-				return !_elm_lang$core$Native_Utils.eq(_p3._1, _elm_lang$core$Maybe$Nothing);
+			function (_p3) {
+				var _p4 = _p3;
+				return !_elm_lang$core$Native_Utils.eq(_p4._1, _elm_lang$core$Maybe$Nothing);
 			},
 			A2(
 				_elm_lang$core$List$append,
@@ -18054,8 +18077,7 @@ var _user$project$Filters$serialize = function (model) {
 									_0: {
 										ctor: '_Tuple2',
 										_0: 'deal',
-										_1: _elm_lang$core$Maybe$Just(
-											_elm_lang$core$Basics$toString(model.isDeal))
+										_1: A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$toString, model.isDeal)
 									},
 									_1: {
 										ctor: '::',
@@ -18207,13 +18229,10 @@ var _user$project$Filters$parse = F2(
 			_elm_lang$core$List$head(
 				A2(_sporto$erl$Erl$getQueryValuesForKey, 'gameOn', url)));
 		var deal = A2(
-			_elm_lang$core$Maybe$withDefault,
-			false,
-			A2(
-				_elm_lang$core$Maybe$andThen,
-				_user$project$Parser$parseBool,
-				_elm_lang$core$List$head(
-					A2(_sporto$erl$Erl$getQueryValuesForKey, 'deal', url))));
+			_elm_lang$core$Maybe$andThen,
+			_user$project$Parser$parseBool,
+			_elm_lang$core$List$head(
+				A2(_sporto$erl$Erl$getQueryValuesForKey, 'deal', url)));
 		var discounted = A2(
 			_elm_lang$core$Maybe$withDefault,
 			false,
@@ -18269,9 +18288,9 @@ var _user$project$Filters$sendRefresh = function (model) {
 				_user$project$Filters$serialize(model))));
 };
 var _user$project$Filters$initialize = function (url) {
-	var _p4 = _rundis$elm_bootstrap$Bootstrap_Navbar$initialState(_user$project$Filters$NavbarMsg);
-	var navbarState = _p4._0;
-	var navbarCmd = _p4._1;
+	var _p5 = _rundis$elm_bootstrap$Bootstrap_Navbar$initialState(_user$project$Filters$NavbarMsg);
+	var navbarState = _p5._0;
+	var navbarCmd = _p5._1;
 	var model = A2(_user$project$Filters$parse, navbarState, url);
 	return {
 		ctor: '_Tuple2',
@@ -18290,15 +18309,15 @@ var _user$project$Filters$initialize = function (url) {
 };
 var _user$project$Filters$update = F2(
 	function (msg, model) {
-		var _p5 = msg;
-		switch (_p5.ctor) {
+		var _p6 = msg;
+		switch (_p6.ctor) {
 			case 'ChangeName':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_user$project$Filters$apply(
 						_elm_lang$core$Native_Utils.update(
 							model,
-							{name: _p5._0})),
+							{name: _p6._0})),
 					{ctor: '[]'});
 			case 'ChangeLow':
 				return A2(
@@ -18309,7 +18328,7 @@ var _user$project$Filters$update = F2(
 							{
 								range: A2(
 									_user$project$Price$updateLowRange,
-									_user$project$Parser$parseFloat(_p5._0),
+									_user$project$Parser$parseFloat(_p6._0),
 									model.range)
 							})),
 					{ctor: '[]'});
@@ -18322,7 +18341,7 @@ var _user$project$Filters$update = F2(
 							{
 								range: A2(
 									_user$project$Price$updateHighRange,
-									_user$project$Parser$parseFloat(_p5._0),
+									_user$project$Parser$parseFloat(_p6._0),
 									model.range)
 							})),
 					{ctor: '[]'});
@@ -18333,7 +18352,7 @@ var _user$project$Filters$update = F2(
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								gameOn: _user$project$Parser$parseGameOn(_p5._0)
+								gameOn: _user$project$Parser$parseGameOn(_p6._0)
 							})),
 					{ctor: '[]'});
 			case 'ChangeDiscounted':
@@ -18342,7 +18361,7 @@ var _user$project$Filters$update = F2(
 					_user$project$Filters$apply(
 						_elm_lang$core$Native_Utils.update(
 							model,
-							{isDiscounted: _p5._0})),
+							{isDiscounted: _p6._0})),
 					{ctor: '[]'});
 			case 'ChangeDeal':
 				return A2(
@@ -18350,7 +18369,19 @@ var _user$project$Filters$update = F2(
 					_user$project$Filters$apply(
 						_elm_lang$core$Native_Utils.update(
 							model,
-							{isDeal: _p5._0})),
+							{
+								isDeal: A2(_user$project$Filters$resolveDeal, model.isDeal, true)
+							})),
+					{ctor: '[]'});
+			case 'ChangeNotDeal':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_user$project$Filters$apply(
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								isDeal: A2(_user$project$Filters$resolveDeal, model.isDeal, false)
+							})),
 					{ctor: '[]'});
 			case 'ChangeSources':
 				var newModel = _user$project$Filters$apply(
@@ -18362,7 +18393,7 @@ var _user$project$Filters$update = F2(
 							sources: A2(
 								_elm_lang$core$Maybe$withDefault,
 								_user$project$Model$Both,
-								_user$project$Parser$parseSources(_p5._0))
+								_user$project$Parser$parseSources(_p6._0))
 						}));
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -18373,8 +18404,8 @@ var _user$project$Filters$update = F2(
 						_1: {ctor: '[]'}
 					});
 			case 'ChangeSelectedGenre':
-				var _p6 = _p5._0;
-				var selected = _p5._1 ? A2(_elm_lang$core$Set$insert, _p6, model.genresFilter.selectedValues) : A2(_elm_lang$core$Set$remove, _p6, model.genresFilter.selectedValues);
+				var _p7 = _p6._0;
+				var selected = _p6._1 ? A2(_elm_lang$core$Set$insert, _p7, model.genresFilter.selectedValues) : A2(_elm_lang$core$Set$remove, _p7, model.genresFilter.selectedValues);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_user$project$Filters$apply(
@@ -18385,8 +18416,8 @@ var _user$project$Filters$update = F2(
 							})),
 					{ctor: '[]'});
 			case 'ChangeSelectedTag':
-				var _p7 = _p5._0;
-				var selected = _p5._1 ? A2(_elm_lang$core$Set$insert, _p7, model.tagsFilter.selectedValues) : A2(_elm_lang$core$Set$remove, _p7, model.tagsFilter.selectedValues);
+				var _p8 = _p6._0;
+				var selected = _p6._1 ? A2(_elm_lang$core$Set$insert, _p8, model.tagsFilter.selectedValues) : A2(_elm_lang$core$Set$remove, _p8, model.tagsFilter.selectedValues);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_user$project$Filters$apply(
@@ -18403,7 +18434,7 @@ var _user$project$Filters$update = F2(
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								tagsFilter: A3(_user$project$Filters$DynamicFilter, model.tagsFilter.allValues, model.tagsFilter.selectedValues, _p5._0)
+								tagsFilter: A3(_user$project$Filters$DynamicFilter, model.tagsFilter.allValues, model.tagsFilter.selectedValues, _p6._0)
 							})),
 					{ctor: '[]'});
 			case 'ChangeGenresConjunction':
@@ -18413,7 +18444,7 @@ var _user$project$Filters$update = F2(
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								genresFilter: A3(_user$project$Filters$DynamicFilter, model.genresFilter.allValues, model.genresFilter.selectedValues, _p5._0)
+								genresFilter: A3(_user$project$Filters$DynamicFilter, model.genresFilter.allValues, model.genresFilter.selectedValues, _p6._0)
 							})),
 					{ctor: '[]'});
 			case 'ReceiveEntries':
@@ -18424,7 +18455,7 @@ var _user$project$Filters$update = F2(
 							_elm_lang$core$Native_Utils.update(
 								model,
 								{
-									original: A2(_elm_lang$core$List$map, _user$project$GameEntry$toGameEntryRow, _p5._0)
+									original: A2(_elm_lang$core$List$map, _user$project$GameEntry$toGameEntryRow, _p6._0)
 								}))),
 					{ctor: '[]'});
 			case 'NavbarMsg':
@@ -18432,7 +18463,7 @@ var _user$project$Filters$update = F2(
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{navbarState: _p5._0}),
+						{navbarState: _p6._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'NoOp':
@@ -18446,7 +18477,7 @@ var _user$project$Filters$update = F2(
 					_elm_lang$core$Native_Utils.update(
 						model,
 						{
-							err: _elm_lang$core$Maybe$Just(_p5._0)
+							err: _elm_lang$core$Maybe$Just(_p6._0)
 						}),
 					{ctor: '[]'});
 		}
@@ -18459,6 +18490,9 @@ var _user$project$Filters$ChangeGenresConjunction = function (a) {
 };
 var _user$project$Filters$ChangeTagsConjunction = function (a) {
 	return {ctor: 'ChangeTagsConjunction', _0: a};
+};
+var _user$project$Filters$ChangeNotDeal = function (a) {
+	return {ctor: 'ChangeNotDeal', _0: a};
 };
 var _user$project$Filters$ChangeDeal = function (a) {
 	return {ctor: 'ChangeDeal', _0: a};
@@ -18731,7 +18765,7 @@ var _user$project$Filters$pricingDropdown = function (model) {
 									ctor: '::',
 									_0: A3(
 										_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButton,
-										model.isDeal,
+										A2(_elm_lang$core$Maybe$withDefault, false, model.isDeal),
 										{
 											ctor: '::',
 											_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
@@ -18751,7 +18785,35 @@ var _user$project$Filters$pricingDropdown = function (model) {
 											_0: _elm_lang$html$Html$text('Deal'),
 											_1: {ctor: '[]'}
 										}),
-									_1: {ctor: '[]'}
+									_1: {
+										ctor: '::',
+										_0: A3(
+											_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButton,
+											A2(
+												_elm_lang$core$Maybe$withDefault,
+												false,
+												A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$not, model.isDeal)),
+											{
+												ctor: '::',
+												_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+													{
+														ctor: '::',
+														_0: _user$project$HtmlHelpers$onMenuItemCheck(_user$project$Filters$ChangeNotDeal),
+														_1: {ctor: '[]'}
+													}),
+												_1: {
+													ctor: '::',
+													_0: _rundis$elm_bootstrap$Bootstrap_Button$secondary,
+													_1: {ctor: '[]'}
+												}
+											},
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html$text('Not deal'),
+												_1: {ctor: '[]'}
+											}),
+										_1: {ctor: '[]'}
+									}
 								}
 							}),
 						_1: {ctor: '[]'}

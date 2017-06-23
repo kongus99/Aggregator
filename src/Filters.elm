@@ -27,7 +27,7 @@ type alias Model =
     { userId : Int
     , sources : GameSources
     , isDiscounted : Bool
-    , isDeal : Bool
+    , isDeal : Maybe Bool
     , gameOn : Maybe GameOn
     , name : String
     , genresFilter : DynamicFilter
@@ -85,7 +85,7 @@ parse navbarState url =
             Erl.getQueryValuesForKey "discounted" url |> List.head |> Maybe.andThen Parser.parseBool |> Maybe.withDefault False
 
         deal =
-            Erl.getQueryValuesForKey "deal" url |> List.head |> Maybe.andThen Parser.parseBool |> Maybe.withDefault False
+            Erl.getQueryValuesForKey "deal" url |> List.head |> Maybe.andThen Parser.parseBool
 
         gameOn =
             Erl.getQueryValuesForKey "gameOn" url |> List.head |> Maybe.andThen Parser.parseGameOn
@@ -125,7 +125,7 @@ serialize model =
     [ ( "sources", toString model.sources |> Just )
     , ( "userId", toString model.userId |> Just )
     , ( "discounted", toString model.isDiscounted |> Just )
-    , ( "deal", toString model.isDeal |> Just )
+    , ( "deal", Maybe.map toString model.isDeal )
     , ( "gameOn", Maybe.map toString model.gameOn )
     , ( "name", model.name |> Just )
     , ( "lowPrice", model.range.low |> Maybe.map toString )
@@ -164,12 +164,21 @@ applyDiscountedFilter isDiscounted entries =
         entries
 
 
-applyDealFilter : Bool -> List GameEntryRow -> List GameEntryRow
+applyDealFilter : Maybe Bool -> List GameEntryRow -> List GameEntryRow
 applyDealFilter isDeal entries =
-    if isDeal then
-        filterByAlternatePrices (\ge -> List.head ge.alternatePrices) priceExtractor entries
-    else
-        entries
+    isDeal
+        |> Maybe.map
+            (\d ->
+                filterByAlternatePrices (\ge -> List.head ge.alternatePrices)
+                    priceExtractor
+                    (if d then
+                        identity
+                     else
+                        not
+                    )
+                    entries
+            )
+        |> Maybe.withDefault entries
 
 
 applyGameOnFilter : Maybe GameOn -> List GameEntryRow -> List GameEntryRow
@@ -239,6 +248,7 @@ type Msg
     | ChangeGameOn String
     | ChangeDiscounted Bool
     | ChangeDeal Bool
+    | ChangeNotDeal Bool
     | ChangeTagsConjunction Bool
     | ChangeGenresConjunction Bool
     | ChangeSources String
@@ -266,8 +276,11 @@ update msg model =
         ChangeDiscounted isDiscounted ->
             apply { model | isDiscounted = isDiscounted } ! []
 
-        ChangeDeal isDeal ->
-            apply { model | isDeal = isDeal } ! []
+        ChangeDeal _ ->
+            apply { model | isDeal = resolveDeal model.isDeal True } ! []
+
+        ChangeNotDeal _ ->
+            apply { model | isDeal = resolveDeal model.isDeal False } ! []
 
         ChangeSources s ->
             let
@@ -313,6 +326,24 @@ update msg model =
 
         ReceiveError err ->
             { model | err = Just err } ! []
+
+
+resolveDeal currentDeal newDeal =
+    case currentDeal of
+        Just True ->
+            if newDeal then
+                Nothing
+            else
+                Just False
+
+        Just False ->
+            if newDeal then
+                Just True
+            else
+                Nothing
+
+        Nothing ->
+            Just newDeal
 
 
 sendRefresh : Model -> Cmd Msg
@@ -365,7 +396,8 @@ pricingDropdown model =
             [ Navbar.dropdownItem [ onMenuItemClick NoOp ]
                 [ ButtonGroup.checkboxButtonGroup [ ButtonGroup.small ]
                     [ ButtonGroup.checkboxButton model.isDiscounted [ Button.attrs [ onMenuItemCheck ChangeDiscounted ], Button.secondary ] [ text "Discounted" ]
-                    , ButtonGroup.checkboxButton model.isDeal [ Button.attrs [ onMenuItemCheck ChangeDeal ], Button.secondary ] [ text "Deal" ]
+                    , ButtonGroup.checkboxButton (model.isDeal |> Maybe.withDefault False) [ Button.attrs [ onMenuItemCheck ChangeDeal ], Button.secondary ] [ text "Deal" ]
+                    , ButtonGroup.checkboxButton (model.isDeal |> Maybe.map not |> Maybe.withDefault False) [ Button.attrs [ onMenuItemCheck ChangeNotDeal ], Button.secondary ] [ text "Not deal" ]
                     ]
                 ]
             , Navbar.dropdownDivider
