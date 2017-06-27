@@ -12,6 +12,7 @@ import Html.Attributes exposing (checked, class, href, multiple, name, placehold
 import Html.Events exposing (on, onCheck, onClick, onInput)
 import HtmlHelpers exposing (onLinkClick, onMenuItemCheck, onMenuItemClick, onMultiSelect, onSelect)
 import Http
+import Maybe.Extra as Maybes
 import Model exposing (..)
 import Parser
 import Price exposing (AlternatePrice, Price, PriceRange, filterByAlternatePrices, filterByPriceRange, updateHighRange, updateLowRange)
@@ -140,90 +141,69 @@ serialize model =
 apply : Model -> Model
 apply model =
     let
-        result =
-            applyDiscountedFilter model.isDiscounted model.original
-                |> applyDealFilter model.isDeal
-                |> applyGameOnFilter model.gameOn
-                |> applyNameFilter model.name
-                |> applyPriceFilter model.range
-                |> applyMultiFilter (\e -> e.genres.value) model.genresFilter
-                |> applyMultiFilter (\e -> e.tags.value) model.tagsFilter
+        filter e =
+            discountedFilter model.isDiscounted e
+                && dealFilter model.isDeal e
+                && gameOnFilter model.gameOn e
+                && nameFilter model.name e
+                && priceFilter model.range e
+                && multiFilter (\e -> e.genres.value) model.genresFilter e
+                && multiFilter (\e -> e.tags.value) model.tagsFilter e
     in
-    { model | result = result, err = Nothing }
+    { model | result = List.filter filter model.original, err = Nothing }
 
 
-applyDiscountedFilter : Bool -> List GameEntryRow -> List GameEntryRow
-applyDiscountedFilter isDiscounted entries =
+discountedFilter : Bool -> GameEntryRow -> Bool
+discountedFilter isDiscounted entry =
+    not isDiscounted || (priceExtractor entry |> Maybe.map Price.isDiscounted |> Maybe.withDefault True)
+
+
+dealFilter : Maybe Bool -> GameEntryRow -> Bool
+dealFilter isDeal entry =
     let
-        filterDiscounted e =
-            priceExtractor e |> Maybe.map Price.isDiscounted |> Maybe.withDefault False
+        f e =
+            filterByAlternatePrices (List.head e.alternatePrices) (priceExtractor e)
     in
-    if isDiscounted then
-        List.filter filterDiscounted entries
-    else
-        entries
-
-
-applyDealFilter : Maybe Bool -> List GameEntryRow -> List GameEntryRow
-applyDealFilter isDeal entries =
     isDeal
         |> Maybe.map
             (\d ->
-                filterByAlternatePrices (\ge -> List.head ge.alternatePrices)
-                    priceExtractor
-                    (if d then
-                        identity
-                     else
-                        not
-                    )
-                    entries
-            )
-        |> Maybe.withDefault entries
-
-
-applyGameOnFilter : Maybe GameOn -> List GameEntryRow -> List GameEntryRow
-applyGameOnFilter gameOn entries =
-    let
-        isOn entry =
-            gameOn
-                |> Maybe.map
-                    (\on ->
-                        if entry.gameOn == Nothing then
-                            True
-                        else
-                            entry.gameOn == Just on
-                    )
-                |> Maybe.withDefault True
-    in
-    List.filter isOn entries
-
-
-applyNameFilter : String -> List GameEntryRow -> List GameEntryRow
-applyNameFilter name entries =
-    if String.isEmpty name then
-        entries
-    else
-        List.filter (\e -> e.name |> String.toLower |> String.contains (String.toLower name)) entries
-
-
-applyMultiFilter : (GameEntryRow -> List String) -> DynamicFilter -> List GameEntryRow -> List GameEntryRow
-applyMultiFilter entryValues filter entries =
-    if Set.isEmpty filter.selectedValues then
-        entries
-    else
-        let
-            condition values =
-                if not filter.conjunction then
-                    values |> Set.intersect filter.selectedValues |> Set.isEmpty |> not
+                if d then
+                    f entry
                 else
-                    (Set.union values filter.selectedValues |> Set.size) == (values |> Set.size)
-        in
-        List.filter (\e -> entryValues e |> Set.fromList |> condition) entries
+                    not (f entry)
+            )
+        |> Maybe.withDefault True
 
 
-applyPriceFilter : PriceRange -> List GameEntryRow -> List GameEntryRow
-applyPriceFilter range entries =
-    filterByPriceRange range priceExtractor entries
+gameOnFilter : Maybe GameOn -> GameEntryRow -> Bool
+gameOnFilter gameOn entry =
+    gameOn
+        |> Maybe.map (\on -> Maybes.isNothing entry.gameOn || entry.gameOn == Just on)
+        |> Maybe.withDefault True
+
+
+nameFilter : String -> GameEntryRow -> Bool
+nameFilter name entry =
+    String.isEmpty name || (entry.name |> String.toLower |> String.contains (String.toLower name))
+
+
+multiFilter : (GameEntryRow -> List String) -> DynamicFilter -> GameEntryRow -> Bool
+multiFilter entryValues filter entry =
+    Set.isEmpty filter.selectedValues
+        || (let
+                condition values =
+                    if not filter.conjunction then
+                        values |> Set.intersect filter.selectedValues |> Set.isEmpty |> not
+                    else
+                        (Set.union values filter.selectedValues |> Set.size) == (values |> Set.size)
+            in
+            entry |> entryValues |> Set.fromList |> condition
+           )
+
+
+priceFilter : PriceRange -> GameEntryRow -> Bool
+priceFilter range entry =
+    filterByPriceRange range (priceExtractor entry)
 
 
 priceExtractor entry =

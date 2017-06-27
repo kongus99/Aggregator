@@ -7404,6 +7404,185 @@ var _elm_community$list_extra$List_Extra$init = function () {
 var _elm_community$list_extra$List_Extra$last = _elm_community$list_extra$List_Extra$foldl1(
 	_elm_lang$core$Basics$flip(_elm_lang$core$Basics$always));
 
+var _elm_community$maybe_extra$Maybe_Extra$foldrValues = F2(
+	function (item, list) {
+		var _p0 = item;
+		if (_p0.ctor === 'Nothing') {
+			return list;
+		} else {
+			return {ctor: '::', _0: _p0._0, _1: list};
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$values = A2(
+	_elm_lang$core$List$foldr,
+	_elm_community$maybe_extra$Maybe_Extra$foldrValues,
+	{ctor: '[]'});
+var _elm_community$maybe_extra$Maybe_Extra$filter = F2(
+	function (f, m) {
+		var _p1 = A2(_elm_lang$core$Maybe$map, f, m);
+		if ((_p1.ctor === 'Just') && (_p1._0 === true)) {
+			return m;
+		} else {
+			return _elm_lang$core$Maybe$Nothing;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$traverseArray = function (f) {
+	var step = F2(
+		function (e, acc) {
+			var _p2 = f(e);
+			if (_p2.ctor === 'Nothing') {
+				return _elm_lang$core$Maybe$Nothing;
+			} else {
+				return A2(
+					_elm_lang$core$Maybe$map,
+					_elm_lang$core$Array$push(_p2._0),
+					acc);
+			}
+		});
+	return A2(
+		_elm_lang$core$Array$foldl,
+		step,
+		_elm_lang$core$Maybe$Just(_elm_lang$core$Array$empty));
+};
+var _elm_community$maybe_extra$Maybe_Extra$combineArray = _elm_community$maybe_extra$Maybe_Extra$traverseArray(_elm_lang$core$Basics$identity);
+var _elm_community$maybe_extra$Maybe_Extra$traverse = function (f) {
+	var step = F2(
+		function (e, acc) {
+			var _p3 = f(e);
+			if (_p3.ctor === 'Nothing') {
+				return _elm_lang$core$Maybe$Nothing;
+			} else {
+				return A2(
+					_elm_lang$core$Maybe$map,
+					F2(
+						function (x, y) {
+							return {ctor: '::', _0: x, _1: y};
+						})(_p3._0),
+					acc);
+			}
+		});
+	return A2(
+		_elm_lang$core$List$foldr,
+		step,
+		_elm_lang$core$Maybe$Just(
+			{ctor: '[]'}));
+};
+var _elm_community$maybe_extra$Maybe_Extra$combine = _elm_community$maybe_extra$Maybe_Extra$traverse(_elm_lang$core$Basics$identity);
+var _elm_community$maybe_extra$Maybe_Extra$toArray = function (m) {
+	var _p4 = m;
+	if (_p4.ctor === 'Nothing') {
+		return _elm_lang$core$Array$empty;
+	} else {
+		return A2(_elm_lang$core$Array$repeat, 1, _p4._0);
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra$toList = function (m) {
+	var _p5 = m;
+	if (_p5.ctor === 'Nothing') {
+		return {ctor: '[]'};
+	} else {
+		return {
+			ctor: '::',
+			_0: _p5._0,
+			_1: {ctor: '[]'}
+		};
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra$orElse = F2(
+	function (ma, mb) {
+		var _p6 = mb;
+		if (_p6.ctor === 'Nothing') {
+			return ma;
+		} else {
+			return mb;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$orElseLazy = F2(
+	function (fma, mb) {
+		var _p7 = mb;
+		if (_p7.ctor === 'Nothing') {
+			return fma(
+				{ctor: '_Tuple0'});
+		} else {
+			return mb;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$orLazy = F2(
+	function (ma, fmb) {
+		var _p8 = ma;
+		if (_p8.ctor === 'Nothing') {
+			return fmb(
+				{ctor: '_Tuple0'});
+		} else {
+			return ma;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$or = F2(
+	function (ma, mb) {
+		var _p9 = ma;
+		if (_p9.ctor === 'Nothing') {
+			return mb;
+		} else {
+			return ma;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$prev = _elm_lang$core$Maybe$map2(_elm_lang$core$Basics$always);
+var _elm_community$maybe_extra$Maybe_Extra$next = _elm_lang$core$Maybe$map2(
+	_elm_lang$core$Basics$flip(_elm_lang$core$Basics$always));
+var _elm_community$maybe_extra$Maybe_Extra$andMap = _elm_lang$core$Maybe$map2(
+	F2(
+		function (x, y) {
+			return y(x);
+		}));
+var _elm_community$maybe_extra$Maybe_Extra$unpack = F3(
+	function (d, f, m) {
+		var _p10 = m;
+		if (_p10.ctor === 'Nothing') {
+			return d(
+				{ctor: '_Tuple0'});
+		} else {
+			return f(_p10._0);
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$unwrap = F3(
+	function (d, f, m) {
+		var _p11 = m;
+		if (_p11.ctor === 'Nothing') {
+			return d;
+		} else {
+			return f(_p11._0);
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$isJust = function (m) {
+	var _p12 = m;
+	if (_p12.ctor === 'Nothing') {
+		return false;
+	} else {
+		return true;
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra$isNothing = function (m) {
+	var _p13 = m;
+	if (_p13.ctor === 'Nothing') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra$join = function (mx) {
+	var _p14 = mx;
+	if (_p14.ctor === 'Just') {
+		return _p14._0;
+	} else {
+		return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra_ops = _elm_community$maybe_extra$Maybe_Extra_ops || {};
+_elm_community$maybe_extra$Maybe_Extra_ops['?'] = F2(
+	function (mx, x) {
+		return A2(_elm_lang$core$Maybe$withDefault, x, mx);
+	});
+
 var _elm_lang$animation_frame$Native_AnimationFrame = function()
 {
 
@@ -16966,80 +17145,48 @@ var _user$project$Price$discountedIfAvailable = function (price) {
 	};
 	return A2(_elm_lang$core$Maybe$andThen, selectPrice, price);
 };
-var _user$project$Price$filterByAlternatePrices = F4(
-	function (alternativeExtractor, priceExtractor, filterTransformer, entries) {
-		var alternative = function (e) {
-			return A2(
-				_elm_lang$core$Maybe$map,
-				function (_) {
-					return _.price;
-				},
-				alternativeExtractor(e));
-		};
-		var price = function (e) {
-			return A2(
-				_elm_lang$core$Maybe$map,
-				function (_) {
-					return _.normal;
-				},
-				priceExtractor(e));
-		};
-		var filter = function (_p3) {
-			var _p4 = _p3;
-			return A2(
-				_elm_lang$core$Maybe$withDefault,
-				false,
-				A3(
-					_elm_lang$core$Maybe$map2,
-					F2(
-						function (p, a) {
-							return _elm_lang$core$Native_Utils.cmp(p, 2 * a) > -1;
-						}),
-					_p4._0,
-					_p4._1));
-		};
+var _user$project$Price$filterByAlternatePrices = F2(
+	function (alternative, price) {
 		return A2(
-			_elm_lang$core$List$filter,
-			function (e) {
-				return filterTransformer(
-					filter(
-						{
-							ctor: '_Tuple2',
-							_0: price(e),
-							_1: alternative(e)
-						}));
-			},
-			entries);
+			_elm_lang$core$Maybe$withDefault,
+			true,
+			A3(
+				_elm_lang$core$Maybe$map2,
+				F2(
+					function (p, a) {
+						return _elm_lang$core$Native_Utils.cmp(p, 2 * a) > -1;
+					}),
+				A2(
+					_elm_lang$core$Maybe$map,
+					function (_) {
+						return _.normal;
+					},
+					price),
+				A2(
+					_elm_lang$core$Maybe$map,
+					function (_) {
+						return _.price;
+					},
+					alternative)));
 	});
-var _user$project$Price$filterByPriceRange = F3(
-	function (range, extractor, entries) {
-		var bounds = {
+var _user$project$Price$filterByPriceRange = F2(
+	function (range, price) {
+		var _p3 = {
 			ctor: '_Tuple2',
 			_0: A2(_elm_lang$core$Maybe$withDefault, 0, range.low),
 			_1: A2(_elm_lang$core$Maybe$withDefault, 1000000, range.high)
 		};
-		var filter = F2(
-			function (_p5, price) {
-				var _p6 = _p5;
-				return A2(
-					_elm_lang$core$Maybe$withDefault,
-					false,
-					A2(
-						_elm_lang$core$Maybe$map,
-						function (p) {
-							return (_elm_lang$core$Native_Utils.cmp(p, _p6._0) > -1) && (_elm_lang$core$Native_Utils.cmp(p, _p6._1) < 1);
-						},
-						_user$project$Price$discountedIfAvailable(price)));
-			});
+		var low = _p3._0;
+		var high = _p3._1;
 		return A2(
-			_elm_lang$core$List$filter,
-			function (e) {
-				return A2(
-					filter,
-					bounds,
-					extractor(e));
-			},
-			entries);
+			_elm_lang$core$Maybe$withDefault,
+			true,
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (p) {
+					return (_elm_lang$core$Native_Utils.cmp(p, low) > -1) && (_elm_lang$core$Native_Utils.cmp(p, high) < 1);
+				},
+				_user$project$Price$discountedIfAvailable(price)));
 	});
 var _user$project$Price$roundToString = F2(
 	function (precision, number) {
@@ -17890,15 +18037,16 @@ var _user$project$Filters$priceExtractor = function (entry) {
 		},
 		entry.price);
 };
-var _user$project$Filters$applyPriceFilter = F2(
-	function (range, entries) {
-		return A3(_user$project$Price$filterByPriceRange, range, _user$project$Filters$priceExtractor, entries);
+var _user$project$Filters$priceFilter = F2(
+	function (range, entry) {
+		return A2(
+			_user$project$Price$filterByPriceRange,
+			range,
+			_user$project$Filters$priceExtractor(entry));
 	});
-var _user$project$Filters$applyMultiFilter = F3(
-	function (entryValues, filter, entries) {
-		if (_elm_lang$core$Set$isEmpty(filter.selectedValues)) {
-			return entries;
-		} else {
+var _user$project$Filters$multiFilter = F3(
+	function (entryValues, filter, entry) {
+		return _elm_lang$core$Set$isEmpty(filter.selectedValues) || function () {
 			var condition = function (values) {
 				return (!filter.conjunction) ? (!_elm_lang$core$Set$isEmpty(
 					A2(_elm_lang$core$Set$intersect, filter.selectedValues, values))) : _elm_lang$core$Native_Utils.eq(
@@ -17906,106 +18054,82 @@ var _user$project$Filters$applyMultiFilter = F3(
 						A2(_elm_lang$core$Set$union, values, filter.selectedValues)),
 					_elm_lang$core$Set$size(values));
 			};
-			return A2(
-				_elm_lang$core$List$filter,
-				function (e) {
-					return condition(
-						_elm_lang$core$Set$fromList(
-							entryValues(e)));
-				},
-				entries);
-		}
+			return condition(
+				_elm_lang$core$Set$fromList(
+					entryValues(entry)));
+		}();
 	});
-var _user$project$Filters$applyNameFilter = F2(
-	function (name, entries) {
-		return _elm_lang$core$String$isEmpty(name) ? entries : A2(
-			_elm_lang$core$List$filter,
-			function (e) {
-				return A2(
-					_elm_lang$core$String$contains,
-					_elm_lang$core$String$toLower(name),
-					_elm_lang$core$String$toLower(e.name));
-			},
-			entries);
+var _user$project$Filters$nameFilter = F2(
+	function (name, entry) {
+		return _elm_lang$core$String$isEmpty(name) || A2(
+			_elm_lang$core$String$contains,
+			_elm_lang$core$String$toLower(name),
+			_elm_lang$core$String$toLower(entry.name));
 	});
-var _user$project$Filters$applyGameOnFilter = F2(
-	function (gameOn, entries) {
-		var isOn = function (entry) {
-			return A2(
-				_elm_lang$core$Maybe$withDefault,
-				true,
-				A2(
-					_elm_lang$core$Maybe$map,
-					function (on) {
-						return _elm_lang$core$Native_Utils.eq(entry.gameOn, _elm_lang$core$Maybe$Nothing) ? true : _elm_lang$core$Native_Utils.eq(
-							entry.gameOn,
-							_elm_lang$core$Maybe$Just(on));
-					},
-					gameOn));
-		};
-		return A2(_elm_lang$core$List$filter, isOn, entries);
-	});
-var _user$project$Filters$applyDealFilter = F2(
-	function (isDeal, entries) {
+var _user$project$Filters$gameOnFilter = F2(
+	function (gameOn, entry) {
 		return A2(
 			_elm_lang$core$Maybe$withDefault,
-			entries,
+			true,
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (on) {
+					return _elm_community$maybe_extra$Maybe_Extra$isNothing(entry.gameOn) || _elm_lang$core$Native_Utils.eq(
+						entry.gameOn,
+						_elm_lang$core$Maybe$Just(on));
+				},
+				gameOn));
+	});
+var _user$project$Filters$dealFilter = F2(
+	function (isDeal, entry) {
+		var f = function (e) {
+			return A2(
+				_user$project$Price$filterByAlternatePrices,
+				_elm_lang$core$List$head(e.alternatePrices),
+				_user$project$Filters$priceExtractor(e));
+		};
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			true,
 			A2(
 				_elm_lang$core$Maybe$map,
 				function (d) {
-					return A4(
-						_user$project$Price$filterByAlternatePrices,
-						function (ge) {
-							return _elm_lang$core$List$head(ge.alternatePrices);
-						},
-						_user$project$Filters$priceExtractor,
-						d ? _elm_lang$core$Basics$identity : _elm_lang$core$Basics$not,
-						entries);
+					return d ? f(entry) : (!f(entry));
 				},
 				isDeal));
 	});
-var _user$project$Filters$applyDiscountedFilter = F2(
-	function (isDiscounted, entries) {
-		var filterDiscounted = function (e) {
-			return A2(
-				_elm_lang$core$Maybe$withDefault,
-				false,
-				A2(
-					_elm_lang$core$Maybe$map,
-					_user$project$Price$isDiscounted,
-					_user$project$Filters$priceExtractor(e)));
-		};
-		return isDiscounted ? A2(_elm_lang$core$List$filter, filterDiscounted, entries) : entries;
+var _user$project$Filters$discountedFilter = F2(
+	function (isDiscounted, entry) {
+		return (!isDiscounted) || A2(
+			_elm_lang$core$Maybe$withDefault,
+			true,
+			A2(
+				_elm_lang$core$Maybe$map,
+				_user$project$Price$isDiscounted,
+				_user$project$Filters$priceExtractor(entry)));
 	});
 var _user$project$Filters$apply = function (model) {
-	var result = A3(
-		_user$project$Filters$applyMultiFilter,
-		function (e) {
-			return e.tags.value;
-		},
-		model.tagsFilter,
-		A3(
-			_user$project$Filters$applyMultiFilter,
+	var filter = function (e) {
+		return A2(_user$project$Filters$discountedFilter, model.isDiscounted, e) && (A2(_user$project$Filters$dealFilter, model.isDeal, e) && (A2(_user$project$Filters$gameOnFilter, model.gameOn, e) && (A2(_user$project$Filters$nameFilter, model.name, e) && (A2(_user$project$Filters$priceFilter, model.range, e) && (A3(
+			_user$project$Filters$multiFilter,
 			function (e) {
 				return e.genres.value;
 			},
 			model.genresFilter,
-			A2(
-				_user$project$Filters$applyPriceFilter,
-				model.range,
-				A2(
-					_user$project$Filters$applyNameFilter,
-					model.name,
-					A2(
-						_user$project$Filters$applyGameOnFilter,
-						model.gameOn,
-						A2(
-							_user$project$Filters$applyDealFilter,
-							model.isDeal,
-							A2(_user$project$Filters$applyDiscountedFilter, model.isDiscounted, model.original)))))));
+			e) && A3(
+			_user$project$Filters$multiFilter,
+			function (e) {
+				return e.tags.value;
+			},
+			model.tagsFilter,
+			e))))));
+	};
 	return _elm_lang$core$Native_Utils.update(
 		model,
-		{result: result, err: _elm_lang$core$Maybe$Nothing});
+		{
+			result: A2(_elm_lang$core$List$filter, filter, model.original),
+			err: _elm_lang$core$Maybe$Nothing
+		});
 };
 var _user$project$Filters$serialize = function (model) {
 	return A2(

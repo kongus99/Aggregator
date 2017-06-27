@@ -41,31 +41,18 @@ roundToString precision number =
     total ++ "." ++ fraction
 
 
-filterByPriceRange : PriceRange -> (a -> Maybe Price) -> List a -> List a
-filterByPriceRange range extractor entries =
+filterByPriceRange : PriceRange -> Maybe Price -> Bool
+filterByPriceRange range price =
     let
-        filter ( low, high ) price =
-            price |> discountedIfAvailable |> Maybe.map (\p -> p >= low && p <= high) |> Maybe.withDefault False
-
-        bounds =
+        ( low, high ) =
             ( range.low |> Maybe.withDefault 0, range.high |> Maybe.withDefault 1000000 )
     in
-    List.filter (\e -> extractor e |> filter bounds) entries
+    price |> discountedIfAvailable |> Maybe.map (\p -> p >= low && p <= high) |> Maybe.withDefault True
 
 
-filterByAlternatePrices : (a -> Maybe AlternatePrice) -> (a -> Maybe Price) -> (Bool -> Bool) -> List a -> List a
-filterByAlternatePrices alternativeExtractor priceExtractor filterTransformer entries =
-    let
-        filter ( maybePrice, maybeAlternative ) =
-            Maybe.map2 (\p -> \a -> p >= 2 * a) maybePrice maybeAlternative |> Maybe.withDefault False
-
-        price e =
-            priceExtractor e |> Maybe.map .normal
-
-        alternative e =
-            alternativeExtractor e |> Maybe.map .price
-    in
-    List.filter (\e -> ( price e, alternative e ) |> filter |> filterTransformer) entries
+filterByAlternatePrices : Maybe AlternatePrice -> Maybe Price -> Bool
+filterByAlternatePrices alternative price =
+    Maybe.map2 (\p -> \a -> p >= 2 * a) (Maybe.map .normal price) (Maybe.map .price alternative) |> Maybe.withDefault True
 
 
 discountedIfAvailable : Maybe Price -> Maybe Float
