@@ -17149,7 +17149,7 @@ var _user$project$Price$filterByAlternatePrices = F2(
 	function (alternative, price) {
 		return A2(
 			_elm_lang$core$Maybe$withDefault,
-			true,
+			false,
 			A3(
 				_elm_lang$core$Maybe$map2,
 				F2(
@@ -17171,22 +17171,34 @@ var _user$project$Price$filterByAlternatePrices = F2(
 	});
 var _user$project$Price$filterByPriceRange = F2(
 	function (range, price) {
-		var _p3 = {
-			ctor: '_Tuple2',
-			_0: A2(_elm_lang$core$Maybe$withDefault, 0, range.low),
-			_1: A2(_elm_lang$core$Maybe$withDefault, 1000000, range.high)
+		var priceValue = _user$project$Price$discountedIfAvailable(price);
+		var priceHigher = function (low) {
+			return A2(
+				_elm_lang$core$Maybe$withDefault,
+				true,
+				A3(
+					_elm_lang$core$Maybe$map2,
+					F2(
+						function (x, y) {
+							return _elm_lang$core$Native_Utils.cmp(x, y) > -1;
+						}),
+					priceValue,
+					low));
 		};
-		var low = _p3._0;
-		var high = _p3._1;
-		return A2(
-			_elm_lang$core$Maybe$withDefault,
-			true,
-			A2(
-				_elm_lang$core$Maybe$map,
-				function (p) {
-					return (_elm_lang$core$Native_Utils.cmp(p, low) > -1) && (_elm_lang$core$Native_Utils.cmp(p, high) < 1);
-				},
-				_user$project$Price$discountedIfAvailable(price)));
+		var priceLower = function (high) {
+			return A2(
+				_elm_lang$core$Maybe$withDefault,
+				true,
+				A3(
+					_elm_lang$core$Maybe$map2,
+					F2(
+						function (x, y) {
+							return _elm_lang$core$Native_Utils.cmp(x, y) < 1;
+						}),
+					priceValue,
+					high));
+		};
+		return (_elm_community$maybe_extra$Maybe_Extra$isNothing(range.low) && _elm_community$maybe_extra$Maybe_Extra$isNothing(range.high)) || (_elm_community$maybe_extra$Maybe_Extra$isJust(price) && (priceLower(range.high) && priceHigher(range.low)));
 	});
 var _user$project$Price$roundToString = F2(
 	function (precision, number) {
@@ -18102,7 +18114,7 @@ var _user$project$Filters$discountedFilter = F2(
 	function (isDiscounted, entry) {
 		return (!isDiscounted) || A2(
 			_elm_lang$core$Maybe$withDefault,
-			true,
+			false,
 			A2(
 				_elm_lang$core$Maybe$map,
 				_user$project$Price$isDiscounted,

@@ -1,5 +1,7 @@
 module Price exposing (..)
 
+import Maybe.Extra as Maybes
+
 
 type alias Price =
     { normal : Float, discounted : Maybe Float }
@@ -44,15 +46,21 @@ roundToString precision number =
 filterByPriceRange : PriceRange -> Maybe Price -> Bool
 filterByPriceRange range price =
     let
-        ( low, high ) =
-            ( range.low |> Maybe.withDefault 0, range.high |> Maybe.withDefault 1000000 )
+        priceValue =
+            discountedIfAvailable price
+
+        priceHigher low =
+            Maybe.map2 (>=) priceValue low |> Maybe.withDefault True
+
+        priceLower high =
+            Maybe.map2 (<=) priceValue high |> Maybe.withDefault True
     in
-    price |> discountedIfAvailable |> Maybe.map (\p -> p >= low && p <= high) |> Maybe.withDefault True
+    Maybes.isNothing range.low && Maybes.isNothing range.high || (Maybes.isJust price && priceLower range.high && priceHigher range.low)
 
 
 filterByAlternatePrices : Maybe AlternatePrice -> Maybe Price -> Bool
 filterByAlternatePrices alternative price =
-    Maybe.map2 (\p -> \a -> p >= 2 * a) (Maybe.map .normal price) (Maybe.map .price alternative) |> Maybe.withDefault True
+    Maybe.map2 (\p -> \a -> p >= 2 * a) (Maybe.map .normal price) (Maybe.map .price alternative) |> Maybe.withDefault False
 
 
 discountedIfAvailable : Maybe Price -> Maybe Float

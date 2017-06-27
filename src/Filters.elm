@@ -155,7 +155,7 @@ apply model =
 
 discountedFilter : Bool -> GameEntryRow -> Bool
 discountedFilter isDiscounted entry =
-    not isDiscounted || (priceExtractor entry |> Maybe.map Price.isDiscounted |> Maybe.withDefault True)
+    not isDiscounted || (priceExtractor entry |> Maybe.map Price.isDiscounted |> Maybe.withDefault False)
 
 
 dealFilter : Maybe Bool -> GameEntryRow -> Bool
