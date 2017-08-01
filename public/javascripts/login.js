@@ -15000,15 +15000,11 @@ var _user$project$Login$view = function (model) {
 		{ctor: '[]'},
 		{
 			ctor: '::',
-			_0: _rundis$elm_bootstrap$Bootstrap_CDN$stylesheet,
+			_0: _user$project$Login$usernameForm(model),
 			_1: {
 				ctor: '::',
-				_0: _user$project$Login$usernameForm(model),
-				_1: {
-					ctor: '::',
-					_0: _user$project$Login$actionButton(model),
-					_1: {ctor: '[]'}
-				}
+				_0: _user$project$Login$actionButton(model),
+				_1: {ctor: '[]'}
 			}
 		});
 };

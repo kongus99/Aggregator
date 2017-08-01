@@ -227,7 +227,7 @@ viewConfig activeInput =
 
 view : Model -> Html Msg
 view model =
-    div [] [ CDN.stylesheet, usernameForm model, actionButton model ]
+    div [] [ usernameForm model, actionButton model ]
 
 
 usernameForm model =

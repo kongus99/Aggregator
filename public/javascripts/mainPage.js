@@ -20424,34 +20424,30 @@ var _user$project$MainPage$view = function (model) {
 		{ctor: '[]'},
 		{
 			ctor: '::',
-			_0: _rundis$elm_bootstrap$Bootstrap_CDN$stylesheet,
+			_0: A2(
+				_elm_lang$html$Html$map,
+				_user$project$MainPage$FiltersMessage,
+				_user$project$Filters$view(model.filters)),
 			_1: {
 				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$map,
-					_user$project$MainPage$FiltersMessage,
-					_user$project$Filters$view(model.filters)),
+				_0: _rundis$elm_bootstrap$Bootstrap_Table$table(
+					{
+						options: {
+							ctor: '::',
+							_0: _rundis$elm_bootstrap$Bootstrap_Table$striped,
+							_1: {
+								ctor: '::',
+								_0: _rundis$elm_bootstrap$Bootstrap_Table$bordered,
+								_1: {ctor: '[]'}
+							}
+						},
+						thead: _user$project$MainPage$gameTableTitle,
+						tbody: _user$project$MainPage$gameTableRows(model.filters.result)
+					}),
 				_1: {
 					ctor: '::',
-					_0: _rundis$elm_bootstrap$Bootstrap_Table$table(
-						{
-							options: {
-								ctor: '::',
-								_0: _rundis$elm_bootstrap$Bootstrap_Table$striped,
-								_1: {
-									ctor: '::',
-									_0: _rundis$elm_bootstrap$Bootstrap_Table$bordered,
-									_1: {ctor: '[]'}
-								}
-							},
-							thead: _user$project$MainPage$gameTableTitle,
-							tbody: _user$project$MainPage$gameTableRows(model.filters.result)
-						}),
-					_1: {
-						ctor: '::',
-						_0: A2(_user$project$GameOptionsDialog$view, _user$project$MainPage$DialogClose, model.options),
-						_1: {ctor: '[]'}
-					}
+					_0: A2(_user$project$GameOptionsDialog$view, _user$project$MainPage$DialogClose, model.options),
+					_1: {ctor: '[]'}
 				}
 			}
 		});

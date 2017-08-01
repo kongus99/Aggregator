@@ -157,8 +157,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ CDN.stylesheet
-        , CommonNavbar.navbar CommonNavbar.Comparison NavbarMsg identity |> Navbar.view model.navbarState
+        [ CommonNavbar.navbar CommonNavbar.Comparison NavbarMsg identity |> Navbar.view model.navbarState
         , div []
             (if String.isEmpty model.message then
                 []

@@ -146,8 +146,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ CDN.stylesheet
-        , Filters.view model.filters |> Html.map FiltersMessage
+        [ Filters.view model.filters |> Html.map FiltersMessage
         , Table.table
             { options = [ Table.striped, Table.bordered ]
             , thead = gameTableTitle

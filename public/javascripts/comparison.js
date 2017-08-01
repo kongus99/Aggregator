@@ -17761,42 +17761,38 @@ var _user$project$Comparison$view = function (model) {
 		{ctor: '[]'},
 		{
 			ctor: '::',
-			_0: _rundis$elm_bootstrap$Bootstrap_CDN$stylesheet,
+			_0: A2(
+				_rundis$elm_bootstrap$Bootstrap_Navbar$view,
+				model.navbarState,
+				A3(_user$project$CommonNavbar$navbar, _user$project$CommonNavbar$Comparison, _user$project$Comparison$NavbarMsg, _elm_lang$core$Basics$identity)),
 			_1: {
 				ctor: '::',
 				_0: A2(
-					_rundis$elm_bootstrap$Bootstrap_Navbar$view,
-					model.navbarState,
-					A3(_user$project$CommonNavbar$navbar, _user$project$CommonNavbar$Comparison, _user$project$Comparison$NavbarMsg, _elm_lang$core$Basics$identity)),
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					_elm_lang$core$String$isEmpty(model.message) ? {ctor: '[]'} : {
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(
+							_elm_lang$core$Basics$toString(model.message)),
+						_1: {ctor: '[]'}
+					}),
 				_1: {
 					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{ctor: '[]'},
-						_elm_lang$core$String$isEmpty(model.message) ? {ctor: '[]'} : {
-							ctor: '::',
-							_0: _elm_lang$html$Html$text(
-								_elm_lang$core$Basics$toString(model.message)),
-							_1: {ctor: '[]'}
-						}),
-					_1: {
-						ctor: '::',
-						_0: _rundis$elm_bootstrap$Bootstrap_Table$table(
-							{
-								options: {
+					_0: _rundis$elm_bootstrap$Bootstrap_Table$table(
+						{
+							options: {
+								ctor: '::',
+								_0: _rundis$elm_bootstrap$Bootstrap_Table$striped,
+								_1: {
 									ctor: '::',
-									_0: _rundis$elm_bootstrap$Bootstrap_Table$striped,
-									_1: {
-										ctor: '::',
-										_0: _rundis$elm_bootstrap$Bootstrap_Table$bordered,
-										_1: {ctor: '[]'}
-									}
-								},
-								thead: _user$project$Comparison$title(model),
-								tbody: _user$project$Comparison$tableRows(model.comparisons)
-							}),
-						_1: {ctor: '[]'}
-					}
+									_0: _rundis$elm_bootstrap$Bootstrap_Table$bordered,
+									_1: {ctor: '[]'}
+								}
+							},
+							thead: _user$project$Comparison$title(model),
+							tbody: _user$project$Comparison$tableRows(model.comparisons)
+						}),
+					_1: {ctor: '[]'}
 				}
 			}
 		});
