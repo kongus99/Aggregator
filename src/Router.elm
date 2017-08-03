@@ -1,4 +1,4 @@
-module Router exposing (MethodGenerator, decodeWebSocketResult, refreshSocketUrl, resolveResponse, routes)
+module Router exposing (MethodGenerator, decodeWebSocketResult, extractParams, extractSingleParam, refreshSocketUrl, resolveResponse, routes)
 
 import Erl
 import GameEntry exposing (GameEntry, WebSocketRefreshResult)
@@ -185,3 +185,13 @@ resolveResponse successResolver errorResolver response =
 
         Err y ->
             errorResolver y
+
+
+extractParams : String -> (List String -> b) -> Erl.Url -> b
+extractParams pName parser url =
+    Erl.getQueryValuesForKey pName url |> parser
+
+
+extractSingleParam : String -> (String -> Maybe b) -> Erl.Url -> Maybe b
+extractSingleParam pName parser url =
+    Erl.getQueryValuesForKey pName url |> List.head |> Maybe.andThen parser

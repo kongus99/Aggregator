@@ -81,46 +81,36 @@ parse navbarState loc =
             Erl.parse loc.search
 
         userId =
-            extractSingleParam "userId" Parser.parseInt url |> Maybe.withDefault 1
+            Router.extractSingleParam "userId" Parser.parseInt url |> Maybe.withDefault 1
 
         sources =
-            extractSingleParam "sources" Parser.parseSources url |> Maybe.withDefault WishList
+            Router.extractSingleParam "sources" Parser.parseSources url |> Maybe.withDefault WishList
 
         discounted =
-            extractSingleParam "discounted" Parser.parseBool url |> Maybe.withDefault False
+            Router.extractSingleParam "discounted" Parser.parseBool url |> Maybe.withDefault False
 
         deal =
-            extractSingleParam "deal" Parser.parseBool url
+            Router.extractSingleParam "deal" Parser.parseBool url
 
         gameOn =
-            extractSingleParam "gameOn" Parser.parseGameOn url
+            Router.extractSingleParam "gameOn" Parser.parseGameOn url
 
         name =
-            extractSingleParam "name" Just url |> Maybe.withDefault ""
+            Router.extractSingleParam "name" Just url |> Maybe.withDefault ""
 
         genres =
-            extractParams "genres" Set.fromList url
+            Router.extractParams "genres" Set.fromList url
 
         tags =
-            extractParams "tags" Set.fromList url
+            Router.extractParams "tags" Set.fromList url
 
         lowPrice =
-            extractSingleParam "lowPrice" Parser.parseFloat url
+            Router.extractSingleParam "lowPrice" Parser.parseFloat url
 
         highPrice =
-            extractSingleParam "highPrice" Parser.parseFloat url
+            Router.extractSingleParam "highPrice" Parser.parseFloat url
     in
     Model userId sources discounted deal gameOn name (initDynamicFilter genres) (initDynamicFilter tags) (PriceRange lowPrice highPrice) [] [] navbarState Nothing
-
-
-extractParams : String -> (List String -> b) -> Erl.Url -> b
-extractParams pName parser url =
-    Erl.getQueryValuesForKey pName url |> parser
-
-
-extractSingleParam : String -> (String -> Maybe b) -> Erl.Url -> Maybe b
-extractSingleParam pName parser url =
-    Erl.getQueryValuesForKey pName url |> List.head |> Maybe.andThen parser
 
 
 initialize : Navigation.Location -> ( Model, Cmd Msg )

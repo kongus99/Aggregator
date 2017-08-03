@@ -3,55 +3,59 @@ port module Comparison exposing (..)
 import AllDict exposing (AllDict)
 import Bootstrap.Button as Button
 import Bootstrap.ButtonGroup as ButtonGroup
-import Bootstrap.CDN as CDN
 import Bootstrap.Form as Form
 import Bootstrap.Form.Input as Input
 import Bootstrap.Navbar as Navbar
 import Bootstrap.Table as Table
 import CommonNavbar
+import Erl
 import Html exposing (Html, button, div, input, option, select, span, table, td, text, th, thead, tr)
 import Html.Attributes exposing (checked, class, contenteditable, for, readonly, selected, type_, value)
 import Html.Events exposing (on, onClick, targetValue)
 import HtmlHelpers exposing (onMenuItemCheck, onSelect)
 import Http
-import Json.Decode as Json exposing (decodeString, field, map3, string)
 import Model exposing (..)
+import Navigation
 import Parser
 import Router exposing (..)
 import String
 import Task
 
 
-initProgram : String -> ( Model, Cmd Msg )
-initProgram address =
+decode location =
     let
-        parseInt value =
-            String.toInt value |> Result.toMaybe |> Maybe.withDefault 0
+        url =
+            Erl.parse location.search
 
-        decodeAddress =
-            map3 ComparisonParameters (field "left" <| Json.map gameOnFromString string) (field "right" <| Json.map gameOnFromString string) (field "minimumMetric" <| Json.map parseInt string)
+        left =
+            Router.extractSingleParam "left" Parser.parseGameOn url |> Maybe.withDefault Gog
 
-        decodedParameters =
-            Json.decodeString decodeAddress address |> Result.toMaybe |> Maybe.withDefault initialParameters
+        right =
+            Router.extractSingleParam "right" Parser.parseGameOn url |> Maybe.withDefault Steam
 
+        min =
+            Router.extractSingleParam "minimumMetric" Parser.parseInt url |> Maybe.withDefault 3
+    in
+    ComparisonParameters left right min
+
+
+initProgram : Navigation.Location -> ( Model, Cmd Msg )
+initProgram location =
+    let
         ( navbarState, navbarCmd ) =
             Navbar.initialState NavbarMsg
 
         initialModel =
             Model [] initialParameters "" navbarState
+
+        decodedParameters =
+            decode location
     in
     { initialModel | parameters = decodedParameters } ! [ refresh decodedParameters, navbarCmd ]
 
 
 main =
-    Html.programWithFlags { init = initProgram, view = view, update = update, subscriptions = \_ -> Sub.none }
-
-
-
--- PORTS
-
-
-port elmAddressChange : String -> Cmd msg
+    Navigation.program ChangeLocation { init = initProgram, view = view, update = update, subscriptions = \_ -> Sub.none }
 
 
 
@@ -83,13 +87,6 @@ refresh parameters =
     getResponse [ ( "left", toString parameters.leftOn ), ( "right", toString parameters.rightOn ), ( "minimumMetric", toString parameters.minimumMetric ) ]
 
 
-gameOnFromString value =
-    if value == "Steam" then
-        Steam
-    else
-        Gog
-
-
 
 -- UPDATE
 
@@ -101,6 +98,7 @@ type Msg
     | Toggle Int Int Bool
     | ToggleStored String
     | NavbarMsg Navbar.State
+    | ChangeLocation Navigation.Location
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -144,6 +142,9 @@ update msg model =
             )
 
         ToggleStored mess ->
+            ( model, Cmd.none )
+
+        ChangeLocation loc ->
             ( model, Cmd.none )
 
         NavbarMsg state ->
@@ -256,4 +257,4 @@ getResponse params =
         url =
             params |> routes.comparison.page |> .url
     in
-    Cmd.batch [ Http.send (Router.resolveResponse ReceiveData DataError) request, elmAddressChange url ]
+    Cmd.batch [ Http.send (Router.resolveResponse ReceiveData DataError) request, Navigation.newUrl url ]

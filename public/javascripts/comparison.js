@@ -13678,33 +13678,6 @@ var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButton = F3(
 			A3(_rundis$elm_bootstrap$Bootstrap_Button$checkboxButton, checked, options, children));
 	});
 
-var _rundis$elm_bootstrap$Bootstrap_CDN$fontAwesome = A3(
-	_elm_lang$html$Html$node,
-	'link',
-	{
-		ctor: '::',
-		_0: _elm_lang$html$Html_Attributes$rel('stylesheet'),
-		_1: {
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$href('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'),
-			_1: {ctor: '[]'}
-		}
-	},
-	{ctor: '[]'});
-var _rundis$elm_bootstrap$Bootstrap_CDN$stylesheet = A3(
-	_elm_lang$html$Html$node,
-	'link',
-	{
-		ctor: '::',
-		_0: _elm_lang$html$Html_Attributes$rel('stylesheet'),
-		_1: {
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$href('https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css'),
-			_1: {ctor: '[]'}
-		}
-	},
-	{ctor: '[]'});
-
 var _rundis$elm_bootstrap$Bootstrap_Form_FormInternal$validationToString = function (validation) {
 	var _p0 = validation;
 	switch (_p0.ctor) {
@@ -17410,6 +17383,19 @@ var _user$project$Parser$parseInt = function (value) {
 		_elm_lang$core$String$toInt(value));
 };
 
+var _user$project$Router$extractSingleParam = F3(
+	function (pName, parser, url) {
+		return A2(
+			_elm_lang$core$Maybe$andThen,
+			parser,
+			_elm_lang$core$List$head(
+				A2(_sporto$erl$Erl$getQueryValuesForKey, pName, url)));
+	});
+var _user$project$Router$extractParams = F3(
+	function (pName, parser, url) {
+		return parser(
+			A2(_sporto$erl$Erl$getQueryValuesForKey, pName, url));
+	});
 var _user$project$Router$resolveResponse = F3(
 	function (successResolver, errorResolver, response) {
 		var _p0 = response;
@@ -17863,14 +17849,6 @@ var _user$project$HtmlHelpers$Option = function (a) {
 	return {value: a};
 };
 
-var _user$project$Comparison$gameOnFromString = function (value) {
-	return _elm_lang$core$Native_Utils.eq(value, 'Steam') ? _user$project$Model$Steam : _user$project$Model$Gog;
-};
-var _user$project$Comparison$elmAddressChange = _elm_lang$core$Native_Platform.outgoingPort(
-	'elmAddressChange',
-	function (v) {
-		return v;
-	});
 var _user$project$Comparison$Model = F4(
 	function (a, b, c, d) {
 		return {comparisons: a, parameters: b, message: c, navbarState: d};
@@ -17879,6 +17857,22 @@ var _user$project$Comparison$ComparisonParameters = F3(
 	function (a, b, c) {
 		return {leftOn: a, rightOn: b, minimumMetric: c};
 	});
+var _user$project$Comparison$decode = function (location) {
+	var url = _sporto$erl$Erl$parse(location.search);
+	var left = A2(
+		_elm_lang$core$Maybe$withDefault,
+		_user$project$Model$Gog,
+		A3(_user$project$Router$extractSingleParam, 'left', _user$project$Parser$parseGameOn, url));
+	var right = A2(
+		_elm_lang$core$Maybe$withDefault,
+		_user$project$Model$Steam,
+		A3(_user$project$Router$extractSingleParam, 'right', _user$project$Parser$parseGameOn, url));
+	var min = A2(
+		_elm_lang$core$Maybe$withDefault,
+		3,
+		A3(_user$project$Router$extractSingleParam, 'minimumMetric', _user$project$Parser$parseInt, url));
+	return A3(_user$project$Comparison$ComparisonParameters, left, right, min);
+};
 var _user$project$Comparison$initialParameters = A3(_user$project$Comparison$ComparisonParameters, _user$project$Model$Gog, _user$project$Model$Steam, 3);
 var _user$project$Comparison$resetModel = function (model) {
 	return _elm_lang$core$Native_Utils.update(
@@ -17891,6 +17885,9 @@ var _user$project$Comparison$resetModel = function (model) {
 };
 var _user$project$Comparison$Right = {ctor: 'Right'};
 var _user$project$Comparison$Left = {ctor: 'Left'};
+var _user$project$Comparison$ChangeLocation = function (a) {
+	return {ctor: 'ChangeLocation', _0: a};
+};
 var _user$project$Comparison$NavbarMsg = function (a) {
 	return {ctor: 'NavbarMsg', _0: a};
 };
@@ -18254,7 +18251,7 @@ var _user$project$Comparison$getResponse = function (params) {
 				request),
 			_1: {
 				ctor: '::',
-				_0: _user$project$Comparison$elmAddressChange(url),
+				_0: _elm_lang$navigation$Navigation$newUrl(url),
 				_1: {ctor: '[]'}
 			}
 		});
@@ -18287,7 +18284,8 @@ var _user$project$Comparison$refresh = function (parameters) {
 			}
 		});
 };
-var _user$project$Comparison$initProgram = function (address) {
+var _user$project$Comparison$initProgram = function (location) {
+	var decodedParameters = _user$project$Comparison$decode(location);
 	var _p0 = _rundis$elm_bootstrap$Bootstrap_Navbar$initialState(_user$project$Comparison$NavbarMsg);
 	var navbarState = _p0._0;
 	var navbarCmd = _p0._1;
@@ -18297,33 +18295,6 @@ var _user$project$Comparison$initProgram = function (address) {
 		_user$project$Comparison$initialParameters,
 		'',
 		navbarState);
-	var parseInt = function (value) {
-		return A2(
-			_elm_lang$core$Maybe$withDefault,
-			0,
-			_elm_lang$core$Result$toMaybe(
-				_elm_lang$core$String$toInt(value)));
-	};
-	var decodeAddress = A4(
-		_elm_lang$core$Json_Decode$map3,
-		_user$project$Comparison$ComparisonParameters,
-		A2(
-			_elm_lang$core$Json_Decode$field,
-			'left',
-			A2(_elm_lang$core$Json_Decode$map, _user$project$Comparison$gameOnFromString, _elm_lang$core$Json_Decode$string)),
-		A2(
-			_elm_lang$core$Json_Decode$field,
-			'right',
-			A2(_elm_lang$core$Json_Decode$map, _user$project$Comparison$gameOnFromString, _elm_lang$core$Json_Decode$string)),
-		A2(
-			_elm_lang$core$Json_Decode$field,
-			'minimumMetric',
-			A2(_elm_lang$core$Json_Decode$map, parseInt, _elm_lang$core$Json_Decode$string)));
-	var decodedParameters = A2(
-		_elm_lang$core$Maybe$withDefault,
-		_user$project$Comparison$initialParameters,
-		_elm_lang$core$Result$toMaybe(
-			A2(_elm_lang$core$Json_Decode$decodeString, decodeAddress, address)));
 	return A2(
 		_elm_lang$core$Platform_Cmd_ops['!'],
 		_elm_lang$core$Native_Utils.update(
@@ -18424,6 +18395,8 @@ var _user$project$Comparison$update = F2(
 				};
 			case 'ToggleStored':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			case 'ChangeLocation':
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			default:
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -18433,7 +18406,9 @@ var _user$project$Comparison$update = F2(
 					{ctor: '[]'});
 		}
 	});
-var _user$project$Comparison$main = _elm_lang$html$Html$programWithFlags(
+var _user$project$Comparison$main = A2(
+	_elm_lang$navigation$Navigation$program,
+	_user$project$Comparison$ChangeLocation,
 	{
 		init: _user$project$Comparison$initProgram,
 		view: _user$project$Comparison$view,
@@ -18441,7 +18416,7 @@ var _user$project$Comparison$main = _elm_lang$html$Html$programWithFlags(
 		subscriptions: function (_p5) {
 			return _elm_lang$core$Platform_Sub$none;
 		}
-	})(_elm_lang$core$Json_Decode$string);
+	})();
 
 var Elm = {};
 Elm['Comparison'] = Elm['Comparison'] || {};

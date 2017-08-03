@@ -17973,6 +17973,19 @@ var _user$project$Parser$parseInt = function (value) {
 		_elm_lang$core$String$toInt(value));
 };
 
+var _user$project$Router$extractSingleParam = F3(
+	function (pName, parser, url) {
+		return A2(
+			_elm_lang$core$Maybe$andThen,
+			parser,
+			_elm_lang$core$List$head(
+				A2(_sporto$erl$Erl$getQueryValuesForKey, pName, url)));
+	});
+var _user$project$Router$extractParams = F3(
+	function (pName, parser, url) {
+		return parser(
+			A2(_sporto$erl$Erl$getQueryValuesForKey, pName, url));
+	});
 var _user$project$Router$resolveResponse = F3(
 	function (successResolver, errorResolver, response) {
 		var _p0 = response;
@@ -18677,19 +18690,6 @@ var _user$project$Filters$serialize = function (model) {
 						}
 					}))));
 };
-var _user$project$Filters$extractSingleParam = F3(
-	function (pName, parser, url) {
-		return A2(
-			_elm_lang$core$Maybe$andThen,
-			parser,
-			_elm_lang$core$List$head(
-				A2(_sporto$erl$Erl$getQueryValuesForKey, pName, url)));
-	});
-var _user$project$Filters$extractParams = F3(
-	function (pName, parser, url) {
-		return parser(
-			A2(_sporto$erl$Erl$getQueryValuesForKey, pName, url));
-	});
 var _user$project$Filters$regenerateDynamicFilters = function (model) {
 	var newValues = function (values) {
 		return A3(
@@ -18781,25 +18781,25 @@ var _user$project$Filters$parse = F2(
 		var userId = A2(
 			_elm_lang$core$Maybe$withDefault,
 			1,
-			A3(_user$project$Filters$extractSingleParam, 'userId', _user$project$Parser$parseInt, url));
+			A3(_user$project$Router$extractSingleParam, 'userId', _user$project$Parser$parseInt, url));
 		var sources = A2(
 			_elm_lang$core$Maybe$withDefault,
 			_user$project$Model$WishList,
-			A3(_user$project$Filters$extractSingleParam, 'sources', _user$project$Parser$parseSources, url));
+			A3(_user$project$Router$extractSingleParam, 'sources', _user$project$Parser$parseSources, url));
 		var discounted = A2(
 			_elm_lang$core$Maybe$withDefault,
 			false,
-			A3(_user$project$Filters$extractSingleParam, 'discounted', _user$project$Parser$parseBool, url));
-		var deal = A3(_user$project$Filters$extractSingleParam, 'deal', _user$project$Parser$parseBool, url);
-		var gameOn = A3(_user$project$Filters$extractSingleParam, 'gameOn', _user$project$Parser$parseGameOn, url);
+			A3(_user$project$Router$extractSingleParam, 'discounted', _user$project$Parser$parseBool, url));
+		var deal = A3(_user$project$Router$extractSingleParam, 'deal', _user$project$Parser$parseBool, url);
+		var gameOn = A3(_user$project$Router$extractSingleParam, 'gameOn', _user$project$Parser$parseGameOn, url);
 		var name = A2(
 			_elm_lang$core$Maybe$withDefault,
 			'',
-			A3(_user$project$Filters$extractSingleParam, 'name', _elm_lang$core$Maybe$Just, url));
-		var genres = A3(_user$project$Filters$extractParams, 'genres', _elm_lang$core$Set$fromList, url);
-		var tags = A3(_user$project$Filters$extractParams, 'tags', _elm_lang$core$Set$fromList, url);
-		var lowPrice = A3(_user$project$Filters$extractSingleParam, 'lowPrice', _user$project$Parser$parseFloat, url);
-		var highPrice = A3(_user$project$Filters$extractSingleParam, 'highPrice', _user$project$Parser$parseFloat, url);
+			A3(_user$project$Router$extractSingleParam, 'name', _elm_lang$core$Maybe$Just, url));
+		var genres = A3(_user$project$Router$extractParams, 'genres', _elm_lang$core$Set$fromList, url);
+		var tags = A3(_user$project$Router$extractParams, 'tags', _elm_lang$core$Set$fromList, url);
+		var lowPrice = A3(_user$project$Router$extractSingleParam, 'lowPrice', _user$project$Parser$parseFloat, url);
+		var highPrice = A3(_user$project$Router$extractSingleParam, 'highPrice', _user$project$Parser$parseFloat, url);
 		return _user$project$Filters$Model(userId)(sources)(discounted)(deal)(gameOn)(name)(
 			_user$project$Filters$initDynamicFilter(genres))(
 			_user$project$Filters$initDynamicFilter(tags))(

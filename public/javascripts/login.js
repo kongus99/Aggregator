@@ -14644,6 +14644,19 @@ var _user$project$Parser$parseInt = function (value) {
 		_elm_lang$core$String$toInt(value));
 };
 
+var _user$project$Router$extractSingleParam = F3(
+	function (pName, parser, url) {
+		return A2(
+			_elm_lang$core$Maybe$andThen,
+			parser,
+			_elm_lang$core$List$head(
+				A2(_sporto$erl$Erl$getQueryValuesForKey, pName, url)));
+	});
+var _user$project$Router$extractParams = F3(
+	function (pName, parser, url) {
+		return parser(
+			A2(_sporto$erl$Erl$getQueryValuesForKey, pName, url));
+	});
 var _user$project$Router$resolveResponse = F3(
 	function (successResolver, errorResolver, response) {
 		var _p0 = response;
