@@ -5,6 +5,7 @@ import GameEntry exposing (GameEntry, WebSocketRefreshResult)
 import Http
 import Json.Decode as Json exposing (..)
 import Model exposing (..)
+import Navigation
 import Parser
 import Price exposing (AlternatePrice, Price)
 import String
@@ -70,12 +71,12 @@ routes =
 --WEB SOCKET
 
 
-refreshSocketUrl : Protocol -> String -> Int -> String
-refreshSocketUrl protocol host userId =
-    if protocol == Https then
-        "wss://" ++ host ++ "/refreshsocket/" ++ toString userId
+refreshSocketUrl : Navigation.Location -> Int -> String
+refreshSocketUrl location userId =
+    if location.protocol == "https:" then
+        "wss://" ++ location.host ++ "/refreshsocket/" ++ toString userId
     else
-        "ws://" ++ host ++ "/refreshsocket/" ++ toString userId
+        "ws://" ++ location.host ++ "/refreshsocket/" ++ toString userId
 
 
 decodeWebSocketResult : String -> WebSocketRefreshResult

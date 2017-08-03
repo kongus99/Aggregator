@@ -53,16 +53,3 @@ parseGameOn value =
 
         _ ->
             Nothing
-
-
-parseProtocol : String -> Protocol
-parseProtocol value =
-    case String.toLower value of
-        "http" ->
-            Http
-
-        "https" ->
-            Https
-
-        _ ->
-            Other

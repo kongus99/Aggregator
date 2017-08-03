@@ -14,6 +14,7 @@ import HtmlHelpers exposing (onLinkClick, onMenuItemCheck, onMenuItemClick, onMu
 import Http
 import Maybe.Extra as Maybes
 import Model exposing (..)
+import Navigation
 import Parser
 import Price exposing (AlternatePrice, Price, PriceRange, filterByAlternatePrices, filterByPriceRange, updateHighRange, updateLowRange)
 import Router exposing (routes)
@@ -73,50 +74,63 @@ regenerateDynamicFilters model =
     { model | genresFilter = newGenresFilter, tagsFilter = newTagsFilter }
 
 
-parse : Navbar.State -> Erl.Url -> Model
-parse navbarState url =
+parse : Navbar.State -> Navigation.Location -> Model
+parse navbarState loc =
     let
+        url =
+            Erl.parse loc.search
+
         userId =
-            Erl.getQueryValuesForKey "userId" url |> List.head |> Maybe.andThen Parser.parseInt |> Maybe.withDefault 1
+            extractSingleParam "userId" Parser.parseInt url |> Maybe.withDefault 1
 
         sources =
-            Erl.getQueryValuesForKey "sources" url |> List.head |> Maybe.andThen Parser.parseSources |> Maybe.withDefault WishList
+            extractSingleParam "sources" Parser.parseSources url |> Maybe.withDefault WishList
 
         discounted =
-            Erl.getQueryValuesForKey "discounted" url |> List.head |> Maybe.andThen Parser.parseBool |> Maybe.withDefault False
+            extractSingleParam "discounted" Parser.parseBool url |> Maybe.withDefault False
 
         deal =
-            Erl.getQueryValuesForKey "deal" url |> List.head |> Maybe.andThen Parser.parseBool
+            extractSingleParam "deal" Parser.parseBool url
 
         gameOn =
-            Erl.getQueryValuesForKey "gameOn" url |> List.head |> Maybe.andThen Parser.parseGameOn
+            extractSingleParam "gameOn" Parser.parseGameOn url
 
         name =
-            Erl.getQueryValuesForKey "name" url |> List.head |> Maybe.withDefault ""
+            extractSingleParam "name" Just url |> Maybe.withDefault ""
 
         genres =
-            Erl.getQueryValuesForKey "genres" url |> Set.fromList
+            extractParams "genres" Set.fromList url
 
         tags =
-            Erl.getQueryValuesForKey "tags" url |> Set.fromList
+            extractParams "tags" Set.fromList url
 
         lowPrice =
-            Erl.getQueryValuesForKey "lowPrice" url |> List.head |> Maybe.andThen Parser.parseFloat
+            extractSingleParam "lowPrice" Parser.parseFloat url
 
         highPrice =
-            Erl.getQueryValuesForKey "highPrice" url |> List.head |> Maybe.andThen Parser.parseFloat
+            extractSingleParam "highPrice" Parser.parseFloat url
     in
     Model userId sources discounted deal gameOn name (initDynamicFilter genres) (initDynamicFilter tags) (PriceRange lowPrice highPrice) [] [] navbarState Nothing
 
 
-initialize : Erl.Url -> ( Model, Cmd Msg )
-initialize url =
+extractParams : String -> (List String -> b) -> Erl.Url -> b
+extractParams pName parser url =
+    Erl.getQueryValuesForKey pName url |> parser
+
+
+extractSingleParam : String -> (String -> Maybe b) -> Erl.Url -> Maybe b
+extractSingleParam pName parser url =
+    Erl.getQueryValuesForKey pName url |> List.head |> Maybe.andThen parser
+
+
+initialize : Navigation.Location -> ( Model, Cmd Msg )
+initialize loc =
     let
         ( navbarState, navbarCmd ) =
             Navbar.initialState NavbarMsg
 
         model =
-            parse navbarState url
+            parse navbarState loc
     in
     ( model, Cmd.batch [ navbarCmd, sendRefresh model ] )
 

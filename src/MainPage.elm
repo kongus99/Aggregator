@@ -4,7 +4,6 @@ import Bootstrap.Button as Button
 import Bootstrap.CDN as CDN
 import Bootstrap.Modal as Modal
 import Bootstrap.Table as Table
-import Erl
 import Filters
 import GameEntry exposing (..)
 import GameOptionsDialog
@@ -15,6 +14,7 @@ import Http
 import Json.Decode as Json
 import List.Extra as Lists
 import Model exposing (..)
+import Navigation
 import Parser
 import Price exposing (roundToString)
 import Router exposing (..)
@@ -22,26 +22,17 @@ import Task
 import WebSocket
 
 
-initProgram : String -> ( Model, Cmd Msg )
-initProgram address =
+initProgram : Navigation.Location -> ( Model, Cmd Msg )
+initProgram location =
     let
-        url =
-            Erl.parse address
-
-        host =
-            (url.host |> String.join ".") ++ ":" ++ toString url.port_
-
-        protocol =
-            url.protocol |> Parser.parseProtocol
-
         ( filters, cmd ) =
-            Filters.initialize url
+            Filters.initialize location
     in
-    ( initialModel protocol host filters, Cmd.map FiltersMessage cmd )
+    ( initialModel location filters, Cmd.map FiltersMessage cmd )
 
 
 main =
-    Html.programWithFlags { init = initProgram, view = view, update = update, subscriptions = subscriptions }
+    Navigation.program ChangeLocation { init = initProgram, view = view, update = update, subscriptions = subscriptions }
 
 
 
@@ -51,12 +42,9 @@ main =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ WebSocket.listen (Router.refreshSocketUrl model.protocol model.host model.filters.userId) ServerRefreshRequest
+        [ WebSocket.listen (Router.refreshSocketUrl model.location model.filters.userId) ServerRefreshRequest
         , Filters.subscriptions model.filters |> Sub.map FiltersMessage
         ]
-
-
-port elmAddressChange : String -> Cmd msg
 
 
 
@@ -64,11 +52,11 @@ port elmAddressChange : String -> Cmd msg
 
 
 type alias Model =
-    { sources : GameSources, message : Maybe String, filters : Filters.Model, host : String, protocol : Protocol, options : GameOptionsDialog.Model Msg }
+    { sources : GameSources, message : Maybe String, filters : Filters.Model, location : Navigation.Location, options : GameOptionsDialog.Model Msg }
 
 
-initialModel protocol host filters =
-    Model WishList Nothing filters host protocol (GameOptionsDialog.emptyModel 0 0 DialogMessage GeneralError)
+initialModel location filters =
+    Model WishList Nothing filters location (GameOptionsDialog.emptyModel 0 0 DialogMessage GeneralError)
 
 
 
@@ -82,6 +70,7 @@ type Msg
     | GeneralError Http.Error
     | DialogMessage GameOptionsDialog.Msg
     | FiltersMessage Filters.Msg
+    | ChangeLocation Navigation.Location
     | Ack String
 
 
@@ -131,9 +120,12 @@ update msg model =
                     { model | filters = newFilters, message = newFilters.err |> Maybe.map toString }
 
                 adjustAddress model =
-                    Filters.serialize model.filters |> routes.main.page |> .url |> elmAddressChange
+                    Filters.serialize model.filters |> routes.main.page |> .url |> Navigation.newUrl
             in
             newModel ! [ Cmd.map FiltersMessage cmd, adjustAddress newModel ]
+
+        ChangeLocation loc ->
+            model ! []
 
         Ack msg ->
             model ! []

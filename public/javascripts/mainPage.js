@@ -6164,6 +6164,42 @@ var _elm_community$dict_extra$Dict_Extra$fromListBy = F2(
 			_elm_lang$core$Dict$empty,
 			xs);
 	});
+var _elm_community$dict_extra$Dict_Extra$filterGroupBy = F2(
+	function (keyfn, list) {
+		return A3(
+			_elm_lang$core$List$foldr,
+			F2(
+				function (x, acc) {
+					var _p5 = keyfn(x);
+					if (_p5.ctor === 'Just') {
+						return A3(
+							_elm_lang$core$Dict$update,
+							_p5._0,
+							function (_p6) {
+								return _elm_lang$core$Maybe$Just(
+									A2(
+										_elm_lang$core$Maybe$withDefault,
+										{
+											ctor: '::',
+											_0: x,
+											_1: {ctor: '[]'}
+										},
+										A2(
+											_elm_lang$core$Maybe$map,
+											F2(
+												function (x, y) {
+													return {ctor: '::', _0: x, _1: y};
+												})(x),
+											_p6)));
+							},
+							acc);
+					} else {
+						return acc;
+					}
+				}),
+			_elm_lang$core$Dict$empty,
+			list);
+	});
 var _elm_community$dict_extra$Dict_Extra$groupBy = F2(
 	function (keyfn, list) {
 		return A3(
@@ -6173,7 +6209,7 @@ var _elm_community$dict_extra$Dict_Extra$groupBy = F2(
 					return A3(
 						_elm_lang$core$Dict$update,
 						keyfn(x),
-						function (_p5) {
+						function (_p7) {
 							return _elm_lang$core$Maybe$Just(
 								A2(
 									_elm_lang$core$Maybe$withDefault,
@@ -6188,7 +6224,7 @@ var _elm_community$dict_extra$Dict_Extra$groupBy = F2(
 											function (x, y) {
 												return {ctor: '::', _0: x, _1: y};
 											})(x),
-										_p5)));
+										_p7)));
 						},
 						acc);
 				}),
@@ -11703,6 +11739,408 @@ var _elm_lang$mouse$Mouse$subMap = F2(
 			});
 	});
 _elm_lang$core$Native_Platform.effectManagers['Mouse'] = {pkg: 'elm-lang/mouse', init: _elm_lang$mouse$Mouse$init, onEffects: _elm_lang$mouse$Mouse$onEffects, onSelfMsg: _elm_lang$mouse$Mouse$onSelfMsg, tag: 'sub', subMap: _elm_lang$mouse$Mouse$subMap};
+
+var _elm_lang$navigation$Native_Navigation = function() {
+
+
+// FAKE NAVIGATION
+
+function go(n)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		if (n !== 0)
+		{
+			history.go(n);
+		}
+		callback(_elm_lang$core$Native_Scheduler.succeed(_elm_lang$core$Native_Utils.Tuple0));
+	});
+}
+
+function pushState(url)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		history.pushState({}, '', url);
+		callback(_elm_lang$core$Native_Scheduler.succeed(getLocation()));
+	});
+}
+
+function replaceState(url)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		history.replaceState({}, '', url);
+		callback(_elm_lang$core$Native_Scheduler.succeed(getLocation()));
+	});
+}
+
+
+// REAL NAVIGATION
+
+function reloadPage(skipCache)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		document.location.reload(skipCache);
+		callback(_elm_lang$core$Native_Scheduler.succeed(_elm_lang$core$Native_Utils.Tuple0));
+	});
+}
+
+function setLocation(url)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		try
+		{
+			window.location = url;
+		}
+		catch(err)
+		{
+			// Only Firefox can throw a NS_ERROR_MALFORMED_URI exception here.
+			// Other browsers reload the page, so let's be consistent about that.
+			document.location.reload(false);
+		}
+		callback(_elm_lang$core$Native_Scheduler.succeed(_elm_lang$core$Native_Utils.Tuple0));
+	});
+}
+
+
+// GET LOCATION
+
+function getLocation()
+{
+	var location = document.location;
+
+	return {
+		href: location.href,
+		host: location.host,
+		hostname: location.hostname,
+		protocol: location.protocol,
+		origin: location.origin,
+		port_: location.port,
+		pathname: location.pathname,
+		search: location.search,
+		hash: location.hash,
+		username: location.username,
+		password: location.password
+	};
+}
+
+
+// DETECT IE11 PROBLEMS
+
+function isInternetExplorer11()
+{
+	return window.navigator.userAgent.indexOf('Trident') !== -1;
+}
+
+
+return {
+	go: go,
+	setLocation: setLocation,
+	reloadPage: reloadPage,
+	pushState: pushState,
+	replaceState: replaceState,
+	getLocation: getLocation,
+	isInternetExplorer11: isInternetExplorer11
+};
+
+}();
+
+var _elm_lang$navigation$Navigation$replaceState = _elm_lang$navigation$Native_Navigation.replaceState;
+var _elm_lang$navigation$Navigation$pushState = _elm_lang$navigation$Native_Navigation.pushState;
+var _elm_lang$navigation$Navigation$go = _elm_lang$navigation$Native_Navigation.go;
+var _elm_lang$navigation$Navigation$reloadPage = _elm_lang$navigation$Native_Navigation.reloadPage;
+var _elm_lang$navigation$Navigation$setLocation = _elm_lang$navigation$Native_Navigation.setLocation;
+var _elm_lang$navigation$Navigation_ops = _elm_lang$navigation$Navigation_ops || {};
+_elm_lang$navigation$Navigation_ops['&>'] = F2(
+	function (task1, task2) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (_p0) {
+				return task2;
+			},
+			task1);
+	});
+var _elm_lang$navigation$Navigation$notify = F3(
+	function (router, subs, location) {
+		var send = function (_p1) {
+			var _p2 = _p1;
+			return A2(
+				_elm_lang$core$Platform$sendToApp,
+				router,
+				_p2._0(location));
+		};
+		return A2(
+			_elm_lang$navigation$Navigation_ops['&>'],
+			_elm_lang$core$Task$sequence(
+				A2(_elm_lang$core$List$map, send, subs)),
+			_elm_lang$core$Task$succeed(
+				{ctor: '_Tuple0'}));
+	});
+var _elm_lang$navigation$Navigation$cmdHelp = F3(
+	function (router, subs, cmd) {
+		var _p3 = cmd;
+		switch (_p3.ctor) {
+			case 'Jump':
+				return _elm_lang$navigation$Navigation$go(_p3._0);
+			case 'New':
+				return A2(
+					_elm_lang$core$Task$andThen,
+					A2(_elm_lang$navigation$Navigation$notify, router, subs),
+					_elm_lang$navigation$Navigation$pushState(_p3._0));
+			case 'Modify':
+				return A2(
+					_elm_lang$core$Task$andThen,
+					A2(_elm_lang$navigation$Navigation$notify, router, subs),
+					_elm_lang$navigation$Navigation$replaceState(_p3._0));
+			case 'Visit':
+				return _elm_lang$navigation$Navigation$setLocation(_p3._0);
+			default:
+				return _elm_lang$navigation$Navigation$reloadPage(_p3._0);
+		}
+	});
+var _elm_lang$navigation$Navigation$killPopWatcher = function (popWatcher) {
+	var _p4 = popWatcher;
+	if (_p4.ctor === 'Normal') {
+		return _elm_lang$core$Process$kill(_p4._0);
+	} else {
+		return A2(
+			_elm_lang$navigation$Navigation_ops['&>'],
+			_elm_lang$core$Process$kill(_p4._0),
+			_elm_lang$core$Process$kill(_p4._1));
+	}
+};
+var _elm_lang$navigation$Navigation$onSelfMsg = F3(
+	function (router, location, state) {
+		return A2(
+			_elm_lang$navigation$Navigation_ops['&>'],
+			A3(_elm_lang$navigation$Navigation$notify, router, state.subs, location),
+			_elm_lang$core$Task$succeed(state));
+	});
+var _elm_lang$navigation$Navigation$subscription = _elm_lang$core$Native_Platform.leaf('Navigation');
+var _elm_lang$navigation$Navigation$command = _elm_lang$core$Native_Platform.leaf('Navigation');
+var _elm_lang$navigation$Navigation$Location = function (a) {
+	return function (b) {
+		return function (c) {
+			return function (d) {
+				return function (e) {
+					return function (f) {
+						return function (g) {
+							return function (h) {
+								return function (i) {
+									return function (j) {
+										return function (k) {
+											return {href: a, host: b, hostname: c, protocol: d, origin: e, port_: f, pathname: g, search: h, hash: i, username: j, password: k};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
+var _elm_lang$navigation$Navigation$State = F2(
+	function (a, b) {
+		return {subs: a, popWatcher: b};
+	});
+var _elm_lang$navigation$Navigation$init = _elm_lang$core$Task$succeed(
+	A2(
+		_elm_lang$navigation$Navigation$State,
+		{ctor: '[]'},
+		_elm_lang$core$Maybe$Nothing));
+var _elm_lang$navigation$Navigation$Reload = function (a) {
+	return {ctor: 'Reload', _0: a};
+};
+var _elm_lang$navigation$Navigation$reload = _elm_lang$navigation$Navigation$command(
+	_elm_lang$navigation$Navigation$Reload(false));
+var _elm_lang$navigation$Navigation$reloadAndSkipCache = _elm_lang$navigation$Navigation$command(
+	_elm_lang$navigation$Navigation$Reload(true));
+var _elm_lang$navigation$Navigation$Visit = function (a) {
+	return {ctor: 'Visit', _0: a};
+};
+var _elm_lang$navigation$Navigation$load = function (url) {
+	return _elm_lang$navigation$Navigation$command(
+		_elm_lang$navigation$Navigation$Visit(url));
+};
+var _elm_lang$navigation$Navigation$Modify = function (a) {
+	return {ctor: 'Modify', _0: a};
+};
+var _elm_lang$navigation$Navigation$modifyUrl = function (url) {
+	return _elm_lang$navigation$Navigation$command(
+		_elm_lang$navigation$Navigation$Modify(url));
+};
+var _elm_lang$navigation$Navigation$New = function (a) {
+	return {ctor: 'New', _0: a};
+};
+var _elm_lang$navigation$Navigation$newUrl = function (url) {
+	return _elm_lang$navigation$Navigation$command(
+		_elm_lang$navigation$Navigation$New(url));
+};
+var _elm_lang$navigation$Navigation$Jump = function (a) {
+	return {ctor: 'Jump', _0: a};
+};
+var _elm_lang$navigation$Navigation$back = function (n) {
+	return _elm_lang$navigation$Navigation$command(
+		_elm_lang$navigation$Navigation$Jump(0 - n));
+};
+var _elm_lang$navigation$Navigation$forward = function (n) {
+	return _elm_lang$navigation$Navigation$command(
+		_elm_lang$navigation$Navigation$Jump(n));
+};
+var _elm_lang$navigation$Navigation$cmdMap = F2(
+	function (_p5, myCmd) {
+		var _p6 = myCmd;
+		switch (_p6.ctor) {
+			case 'Jump':
+				return _elm_lang$navigation$Navigation$Jump(_p6._0);
+			case 'New':
+				return _elm_lang$navigation$Navigation$New(_p6._0);
+			case 'Modify':
+				return _elm_lang$navigation$Navigation$Modify(_p6._0);
+			case 'Visit':
+				return _elm_lang$navigation$Navigation$Visit(_p6._0);
+			default:
+				return _elm_lang$navigation$Navigation$Reload(_p6._0);
+		}
+	});
+var _elm_lang$navigation$Navigation$Monitor = function (a) {
+	return {ctor: 'Monitor', _0: a};
+};
+var _elm_lang$navigation$Navigation$program = F2(
+	function (locationToMessage, stuff) {
+		var init = stuff.init(
+			_elm_lang$navigation$Native_Navigation.getLocation(
+				{ctor: '_Tuple0'}));
+		var subs = function (model) {
+			return _elm_lang$core$Platform_Sub$batch(
+				{
+					ctor: '::',
+					_0: _elm_lang$navigation$Navigation$subscription(
+						_elm_lang$navigation$Navigation$Monitor(locationToMessage)),
+					_1: {
+						ctor: '::',
+						_0: stuff.subscriptions(model),
+						_1: {ctor: '[]'}
+					}
+				});
+		};
+		return _elm_lang$html$Html$program(
+			{init: init, view: stuff.view, update: stuff.update, subscriptions: subs});
+	});
+var _elm_lang$navigation$Navigation$programWithFlags = F2(
+	function (locationToMessage, stuff) {
+		var init = function (flags) {
+			return A2(
+				stuff.init,
+				flags,
+				_elm_lang$navigation$Native_Navigation.getLocation(
+					{ctor: '_Tuple0'}));
+		};
+		var subs = function (model) {
+			return _elm_lang$core$Platform_Sub$batch(
+				{
+					ctor: '::',
+					_0: _elm_lang$navigation$Navigation$subscription(
+						_elm_lang$navigation$Navigation$Monitor(locationToMessage)),
+					_1: {
+						ctor: '::',
+						_0: stuff.subscriptions(model),
+						_1: {ctor: '[]'}
+					}
+				});
+		};
+		return _elm_lang$html$Html$programWithFlags(
+			{init: init, view: stuff.view, update: stuff.update, subscriptions: subs});
+	});
+var _elm_lang$navigation$Navigation$subMap = F2(
+	function (func, _p7) {
+		var _p8 = _p7;
+		return _elm_lang$navigation$Navigation$Monitor(
+			function (_p9) {
+				return func(
+					_p8._0(_p9));
+			});
+	});
+var _elm_lang$navigation$Navigation$InternetExplorer = F2(
+	function (a, b) {
+		return {ctor: 'InternetExplorer', _0: a, _1: b};
+	});
+var _elm_lang$navigation$Navigation$Normal = function (a) {
+	return {ctor: 'Normal', _0: a};
+};
+var _elm_lang$navigation$Navigation$spawnPopWatcher = function (router) {
+	var reportLocation = function (_p10) {
+		return A2(
+			_elm_lang$core$Platform$sendToSelf,
+			router,
+			_elm_lang$navigation$Native_Navigation.getLocation(
+				{ctor: '_Tuple0'}));
+	};
+	return _elm_lang$navigation$Native_Navigation.isInternetExplorer11(
+		{ctor: '_Tuple0'}) ? A3(
+		_elm_lang$core$Task$map2,
+		_elm_lang$navigation$Navigation$InternetExplorer,
+		_elm_lang$core$Process$spawn(
+			A3(_elm_lang$dom$Dom_LowLevel$onWindow, 'popstate', _elm_lang$core$Json_Decode$value, reportLocation)),
+		_elm_lang$core$Process$spawn(
+			A3(_elm_lang$dom$Dom_LowLevel$onWindow, 'hashchange', _elm_lang$core$Json_Decode$value, reportLocation))) : A2(
+		_elm_lang$core$Task$map,
+		_elm_lang$navigation$Navigation$Normal,
+		_elm_lang$core$Process$spawn(
+			A3(_elm_lang$dom$Dom_LowLevel$onWindow, 'popstate', _elm_lang$core$Json_Decode$value, reportLocation)));
+};
+var _elm_lang$navigation$Navigation$onEffects = F4(
+	function (router, cmds, subs, _p11) {
+		var _p12 = _p11;
+		var _p15 = _p12.popWatcher;
+		var stepState = function () {
+			var _p13 = {ctor: '_Tuple2', _0: subs, _1: _p15};
+			_v6_2:
+			do {
+				if (_p13._0.ctor === '[]') {
+					if (_p13._1.ctor === 'Just') {
+						return A2(
+							_elm_lang$navigation$Navigation_ops['&>'],
+							_elm_lang$navigation$Navigation$killPopWatcher(_p13._1._0),
+							_elm_lang$core$Task$succeed(
+								A2(_elm_lang$navigation$Navigation$State, subs, _elm_lang$core$Maybe$Nothing)));
+					} else {
+						break _v6_2;
+					}
+				} else {
+					if (_p13._1.ctor === 'Nothing') {
+						return A2(
+							_elm_lang$core$Task$map,
+							function (_p14) {
+								return A2(
+									_elm_lang$navigation$Navigation$State,
+									subs,
+									_elm_lang$core$Maybe$Just(_p14));
+							},
+							_elm_lang$navigation$Navigation$spawnPopWatcher(router));
+					} else {
+						break _v6_2;
+					}
+				}
+			} while(false);
+			return _elm_lang$core$Task$succeed(
+				A2(_elm_lang$navigation$Navigation$State, subs, _p15));
+		}();
+		return A2(
+			_elm_lang$navigation$Navigation_ops['&>'],
+			_elm_lang$core$Task$sequence(
+				A2(
+					_elm_lang$core$List$map,
+					A2(_elm_lang$navigation$Navigation$cmdHelp, router, subs),
+					cmds)),
+			stepState);
+	});
+_elm_lang$core$Native_Platform.effectManagers['Navigation'] = {pkg: 'elm-lang/navigation', init: _elm_lang$navigation$Navigation$init, onEffects: _elm_lang$navigation$Navigation$onEffects, onSelfMsg: _elm_lang$navigation$Navigation$onSelfMsg, tag: 'fx', cmdMap: _elm_lang$navigation$Navigation$cmdMap, subMap: _elm_lang$navigation$Navigation$subMap};
 
 var _elm_lang$websocket$Native_WebSocket = function() {
 
@@ -17284,9 +17722,6 @@ var _user$project$Model$Gog = {ctor: 'Gog'};
 var _user$project$Model$Both = {ctor: 'Both'};
 var _user$project$Model$WishList = {ctor: 'WishList'};
 var _user$project$Model$Owned = {ctor: 'Owned'};
-var _user$project$Model$Other = {ctor: 'Other'};
-var _user$project$Model$Https = {ctor: 'Https'};
-var _user$project$Model$Http = {ctor: 'Http'};
 
 var _user$project$GameEntry$updatePrices = F3(
 	function (newData, sources, oldData) {
@@ -17494,20 +17929,9 @@ var _user$project$GameEntry$WebSocketRefreshResult = F2(
 		return {games: a, prices: b};
 	});
 
-var _user$project$Parser$parseProtocol = function (value) {
-	var _p0 = _elm_lang$core$String$toLower(value);
-	switch (_p0) {
-		case 'http':
-			return _user$project$Model$Http;
-		case 'https':
-			return _user$project$Model$Https;
-		default:
-			return _user$project$Model$Other;
-	}
-};
 var _user$project$Parser$parseGameOn = function (value) {
-	var _p1 = value;
-	switch (_p1) {
+	var _p0 = value;
+	switch (_p0) {
 		case 'Gog':
 			return _elm_lang$core$Maybe$Just(_user$project$Model$Gog);
 		case 'Steam':
@@ -17517,8 +17941,8 @@ var _user$project$Parser$parseGameOn = function (value) {
 	}
 };
 var _user$project$Parser$parseSources = function (value) {
-	var _p2 = value;
-	switch (_p2) {
+	var _p1 = value;
+	switch (_p1) {
 		case 'Owned':
 			return _elm_lang$core$Maybe$Just(_user$project$Model$Owned);
 		case 'WishList':
@@ -17530,8 +17954,8 @@ var _user$project$Parser$parseSources = function (value) {
 	}
 };
 var _user$project$Parser$parseBool = function (value) {
-	var _p3 = _elm_lang$core$String$toLower(value);
-	switch (_p3) {
+	var _p2 = _elm_lang$core$String$toLower(value);
+	switch (_p2) {
 		case 'true':
 			return _elm_lang$core$Maybe$Just(true);
 		case 'false':
@@ -17741,14 +18165,14 @@ var _user$project$Router$decodeWebSocketResult = function (r) {
 						_elm_lang$core$Json_Decode$list(_user$project$Router$decodedAlternatePrice))),
 				r)));
 };
-var _user$project$Router$refreshSocketUrl = F3(
-	function (protocol, host, userId) {
-		return _elm_lang$core$Native_Utils.eq(protocol, _user$project$Model$Https) ? A2(
+var _user$project$Router$refreshSocketUrl = F2(
+	function (location, userId) {
+		return _elm_lang$core$Native_Utils.eq(location.protocol, 'https:') ? A2(
 			_elm_lang$core$Basics_ops['++'],
 			'wss://',
 			A2(
 				_elm_lang$core$Basics_ops['++'],
-				host,
+				location.host,
 				A2(
 					_elm_lang$core$Basics_ops['++'],
 					'/refreshsocket/',
@@ -17757,7 +18181,7 @@ var _user$project$Router$refreshSocketUrl = F3(
 			'ws://',
 			A2(
 				_elm_lang$core$Basics_ops['++'],
-				host,
+				location.host,
 				A2(
 					_elm_lang$core$Basics_ops['++'],
 					'/refreshsocket/',
@@ -18253,6 +18677,19 @@ var _user$project$Filters$serialize = function (model) {
 						}
 					}))));
 };
+var _user$project$Filters$extractSingleParam = F3(
+	function (pName, parser, url) {
+		return A2(
+			_elm_lang$core$Maybe$andThen,
+			parser,
+			_elm_lang$core$List$head(
+				A2(_sporto$erl$Erl$getQueryValuesForKey, pName, url)));
+	});
+var _user$project$Filters$extractParams = F3(
+	function (pName, parser, url) {
+		return parser(
+			A2(_sporto$erl$Erl$getQueryValuesForKey, pName, url));
+	});
 var _user$project$Filters$regenerateDynamicFilters = function (model) {
 	var newValues = function (values) {
 		return A3(
@@ -18339,60 +18776,30 @@ var _user$project$Filters$initDynamicFilter = function (selected) {
 	return A3(_user$project$Filters$DynamicFilter, _elm_lang$core$Set$empty, selected, false);
 };
 var _user$project$Filters$parse = F2(
-	function (navbarState, url) {
-		var highPrice = A2(
-			_elm_lang$core$Maybe$andThen,
-			_user$project$Parser$parseFloat,
-			_elm_lang$core$List$head(
-				A2(_sporto$erl$Erl$getQueryValuesForKey, 'highPrice', url)));
-		var lowPrice = A2(
-			_elm_lang$core$Maybe$andThen,
-			_user$project$Parser$parseFloat,
-			_elm_lang$core$List$head(
-				A2(_sporto$erl$Erl$getQueryValuesForKey, 'lowPrice', url)));
-		var tags = _elm_lang$core$Set$fromList(
-			A2(_sporto$erl$Erl$getQueryValuesForKey, 'tags', url));
-		var genres = _elm_lang$core$Set$fromList(
-			A2(_sporto$erl$Erl$getQueryValuesForKey, 'genres', url));
-		var name = A2(
-			_elm_lang$core$Maybe$withDefault,
-			'',
-			_elm_lang$core$List$head(
-				A2(_sporto$erl$Erl$getQueryValuesForKey, 'name', url)));
-		var gameOn = A2(
-			_elm_lang$core$Maybe$andThen,
-			_user$project$Parser$parseGameOn,
-			_elm_lang$core$List$head(
-				A2(_sporto$erl$Erl$getQueryValuesForKey, 'gameOn', url)));
-		var deal = A2(
-			_elm_lang$core$Maybe$andThen,
-			_user$project$Parser$parseBool,
-			_elm_lang$core$List$head(
-				A2(_sporto$erl$Erl$getQueryValuesForKey, 'deal', url)));
-		var discounted = A2(
-			_elm_lang$core$Maybe$withDefault,
-			false,
-			A2(
-				_elm_lang$core$Maybe$andThen,
-				_user$project$Parser$parseBool,
-				_elm_lang$core$List$head(
-					A2(_sporto$erl$Erl$getQueryValuesForKey, 'discounted', url))));
-		var sources = A2(
-			_elm_lang$core$Maybe$withDefault,
-			_user$project$Model$WishList,
-			A2(
-				_elm_lang$core$Maybe$andThen,
-				_user$project$Parser$parseSources,
-				_elm_lang$core$List$head(
-					A2(_sporto$erl$Erl$getQueryValuesForKey, 'sources', url))));
+	function (navbarState, loc) {
+		var url = _sporto$erl$Erl$parse(loc.search);
 		var userId = A2(
 			_elm_lang$core$Maybe$withDefault,
 			1,
-			A2(
-				_elm_lang$core$Maybe$andThen,
-				_user$project$Parser$parseInt,
-				_elm_lang$core$List$head(
-					A2(_sporto$erl$Erl$getQueryValuesForKey, 'userId', url))));
+			A3(_user$project$Filters$extractSingleParam, 'userId', _user$project$Parser$parseInt, url));
+		var sources = A2(
+			_elm_lang$core$Maybe$withDefault,
+			_user$project$Model$WishList,
+			A3(_user$project$Filters$extractSingleParam, 'sources', _user$project$Parser$parseSources, url));
+		var discounted = A2(
+			_elm_lang$core$Maybe$withDefault,
+			false,
+			A3(_user$project$Filters$extractSingleParam, 'discounted', _user$project$Parser$parseBool, url));
+		var deal = A3(_user$project$Filters$extractSingleParam, 'deal', _user$project$Parser$parseBool, url);
+		var gameOn = A3(_user$project$Filters$extractSingleParam, 'gameOn', _user$project$Parser$parseGameOn, url);
+		var name = A2(
+			_elm_lang$core$Maybe$withDefault,
+			'',
+			A3(_user$project$Filters$extractSingleParam, 'name', _elm_lang$core$Maybe$Just, url));
+		var genres = A3(_user$project$Filters$extractParams, 'genres', _elm_lang$core$Set$fromList, url);
+		var tags = A3(_user$project$Filters$extractParams, 'tags', _elm_lang$core$Set$fromList, url);
+		var lowPrice = A3(_user$project$Filters$extractSingleParam, 'lowPrice', _user$project$Parser$parseFloat, url);
+		var highPrice = A3(_user$project$Filters$extractSingleParam, 'highPrice', _user$project$Parser$parseFloat, url);
 		return _user$project$Filters$Model(userId)(sources)(discounted)(deal)(gameOn)(name)(
 			_user$project$Filters$initDynamicFilter(genres))(
 			_user$project$Filters$initDynamicFilter(tags))(
@@ -18423,11 +18830,11 @@ var _user$project$Filters$sendRefresh = function (model) {
 			_user$project$Router$routes.main.fetch(
 				_user$project$Filters$serialize(model))));
 };
-var _user$project$Filters$initialize = function (url) {
+var _user$project$Filters$initialize = function (loc) {
 	var _p5 = _rundis$elm_bootstrap$Bootstrap_Navbar$initialState(_user$project$Filters$NavbarMsg);
 	var navbarState = _p5._0;
 	var navbarCmd = _p5._1;
-	var model = A2(_user$project$Filters$parse, navbarState, url);
+	var model = A2(_user$project$Filters$parse, navbarState, loc);
 	return {
 		ctor: '_Tuple2',
 		_0: model,
@@ -20110,17 +20517,15 @@ var _user$project$MainPage$gameTableTitle = _rundis$elm_bootstrap$Bootstrap_Tabl
 			}
 		}
 	});
-var _user$project$MainPage$elmAddressChange = _elm_lang$core$Native_Platform.outgoingPort(
-	'elmAddressChange',
-	function (v) {
-		return v;
-	});
-var _user$project$MainPage$Model = F6(
-	function (a, b, c, d, e, f) {
-		return {sources: a, message: b, filters: c, host: d, protocol: e, options: f};
+var _user$project$MainPage$Model = F5(
+	function (a, b, c, d, e) {
+		return {sources: a, message: b, filters: c, location: d, options: e};
 	});
 var _user$project$MainPage$Ack = function (a) {
 	return {ctor: 'Ack', _0: a};
+};
+var _user$project$MainPage$ChangeLocation = function (a) {
+	return {ctor: 'ChangeLocation', _0: a};
 };
 var _user$project$MainPage$FiltersMessage = function (a) {
 	return {ctor: 'FiltersMessage', _0: a};
@@ -20131,33 +20536,23 @@ var _user$project$MainPage$DialogMessage = function (a) {
 var _user$project$MainPage$GeneralError = function (a) {
 	return {ctor: 'GeneralError', _0: a};
 };
-var _user$project$MainPage$initialModel = F3(
-	function (protocol, host, filters) {
-		return A6(
+var _user$project$MainPage$initialModel = F2(
+	function (location, filters) {
+		return A5(
 			_user$project$MainPage$Model,
 			_user$project$Model$WishList,
 			_elm_lang$core$Maybe$Nothing,
 			filters,
-			host,
-			protocol,
+			location,
 			A4(_user$project$GameOptionsDialog$emptyModel, 0, 0, _user$project$MainPage$DialogMessage, _user$project$MainPage$GeneralError));
 	});
-var _user$project$MainPage$initProgram = function (address) {
-	var url = _sporto$erl$Erl$parse(address);
-	var host = A2(
-		_elm_lang$core$Basics_ops['++'],
-		A2(_elm_lang$core$String$join, '.', url.host),
-		A2(
-			_elm_lang$core$Basics_ops['++'],
-			':',
-			_elm_lang$core$Basics$toString(url.port_)));
-	var protocol = _user$project$Parser$parseProtocol(url.protocol);
-	var _p0 = _user$project$Filters$initialize(url);
+var _user$project$MainPage$initProgram = function (location) {
+	var _p0 = _user$project$Filters$initialize(location);
 	var filters = _p0._0;
 	var cmd = _p0._1;
 	return {
 		ctor: '_Tuple2',
-		_0: A3(_user$project$MainPage$initialModel, protocol, host, filters),
+		_0: A2(_user$project$MainPage$initialModel, location, filters),
 		_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$MainPage$FiltersMessage, cmd)
 	};
 };
@@ -20231,7 +20626,7 @@ var _user$project$MainPage$update = F2(
 				};
 			case 'FiltersMessage':
 				var adjustAddress = function (model) {
-					return _user$project$MainPage$elmAddressChange(
+					return _elm_lang$navigation$Navigation$newUrl(
 						function (_) {
 							return _.url;
 						}(
@@ -20259,6 +20654,11 @@ var _user$project$MainPage$update = F2(
 							_1: {ctor: '[]'}
 						}
 					});
+			case 'ChangeLocation':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{ctor: '[]'});
 			default:
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -20461,7 +20861,7 @@ var _user$project$MainPage$subscriptions = function (model) {
 			ctor: '::',
 			_0: A2(
 				_elm_lang$websocket$WebSocket$listen,
-				A3(_user$project$Router$refreshSocketUrl, model.protocol, model.host, model.filters.userId),
+				A2(_user$project$Router$refreshSocketUrl, model.location, model.filters.userId),
 				_user$project$MainPage$ServerRefreshRequest),
 			_1: {
 				ctor: '::',
@@ -20473,8 +20873,10 @@ var _user$project$MainPage$subscriptions = function (model) {
 			}
 		});
 };
-var _user$project$MainPage$main = _elm_lang$html$Html$programWithFlags(
-	{init: _user$project$MainPage$initProgram, view: _user$project$MainPage$view, update: _user$project$MainPage$update, subscriptions: _user$project$MainPage$subscriptions})(_elm_lang$core$Json_Decode$string);
+var _user$project$MainPage$main = A2(
+	_elm_lang$navigation$Navigation$program,
+	_user$project$MainPage$ChangeLocation,
+	{init: _user$project$MainPage$initProgram, view: _user$project$MainPage$view, update: _user$project$MainPage$update, subscriptions: _user$project$MainPage$subscriptions})();
 
 var Elm = {};
 Elm['MainPage'] = Elm['MainPage'] || {};
